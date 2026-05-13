@@ -17,6 +17,7 @@ use App\Http\Controllers\SSOController;
 */
 Route::middleware('guest')->group(function () {
     Route::view('/', 'welcome')->name('login');
+    Route::get('/login', fn() => redirect('/'))->name('login.redirect');
     Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
     Route::view('/register', 'register');
     Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:3,1');
@@ -56,6 +57,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/settings/password', [AuthController::class, 'updatePassword'])->middleware('throttle:3,1');
     Route::post('/settings/sessions/destroy', [AuthController::class, 'destroySessions'])->name('sessions.destroy');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::get('/logout', [AuthController::class, 'logout'])->name('logout.get');
     Route::get('/sso/me', [SSOController::class, 'me']);
 });
 
