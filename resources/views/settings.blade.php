@@ -218,12 +218,14 @@
                 @if($logs->hasPages())
                     <div class="custom-pagination">
                         <div class="btn-group">
+                            <a href="{{ $logs->url(1) }}" class="page-link {{ $logs->onFirstPage() ? 'disabled' : '' }}">First</a>
                             <a href="{{ $logs->previousPageUrl() ?? '#' }}" class="page-link {{ $logs->onFirstPage() ? 'disabled' : '' }}">«</a>
                             @php $start = max(1, $logs->currentPage() - 2); $end = min($logs->lastPage(), $logs->currentPage() + 2); @endphp
                             @for ($i = $start; $i <= $end; $i++)
                                 <a href="{{ $logs->url($i) }}" class="page-link {{ ($logs->currentPage() == $i) ? 'active' : '' }}">{{ $i }}</a>
                             @endfor
                             <a href="{{ $logs->nextPageUrl() ?? '#' }}" class="page-link {{ !$logs->hasMorePages() ? 'disabled' : '' }}">»</a>
+                            <a href="{{ $logs->url($logs->lastPage()) }}" class="page-link {{ ($logs->currentPage() == $logs->lastPage() || $logs->lastPage() == 0) ? 'disabled' : '' }}">Last</a>
                         </div>
                     </div>
                 @endif
@@ -412,12 +414,14 @@
             @if($users->hasPages())
                 <div class="custom-pagination">
                     <div class="btn-group">
+                        <a href="{{ $users->url(1) }}" class="page-link {{ $users->onFirstPage() ? 'disabled' : '' }}">First</a>
                         <a href="{{ $users->previousPageUrl() ?? '#' }}" class="page-link {{ $users->onFirstPage() ? 'disabled' : '' }}">«</a>
                         @php $start = max(1, $users->currentPage() - 2); $end = min($users->lastPage(), $users->currentPage() + 2); @endphp
                         @for ($i = $start; $i <= $end; $i++)
                             <a href="{{ $users->url($i) }}" class="page-link {{ ($users->currentPage() == $i) ? 'active' : '' }}">{{ $i }}</a>
                         @endfor
                         <a href="{{ $users->nextPageUrl() ?? '#' }}" class="page-link {{ !$users->hasMorePages() ? 'disabled' : '' }}">»</a>
+                        <a href="{{ $users->url($users->lastPage()) }}" class="page-link {{ ($users->currentPage() == $users->lastPage() || $users->lastPage() == 0) ? 'disabled' : '' }}">Last</a>
                     </div>
                 </div>
             @endif
@@ -445,12 +449,14 @@
                 @if($userLogs->hasPages())
                     <div class="custom-pagination">
                         <div class="btn-group">
+                            <a href="{{ $userLogs->url(1) }}" class="page-link {{ $userLogs->onFirstPage() ? 'disabled' : '' }}">First</a>
                             <a href="{{ $userLogs->previousPageUrl() ?? '#' }}" class="page-link {{ $userLogs->onFirstPage() ? 'disabled' : '' }}">«</a>
                             @php $start = max(1, $userLogs->currentPage() - 2); $end = min($userLogs->lastPage(), $userLogs->currentPage() + 2); @endphp
                             @for ($i = $start; $i <= $end; $i++)
                                 <a href="{{ $userLogs->url($i) }}" class="page-link {{ ($userLogs->currentPage() == $i) ? 'active' : '' }}">{{ $i }}</a>
                             @endfor
                             <a href="{{ $userLogs->nextPageUrl() ?? '#' }}" class="page-link {{ !$userLogs->hasMorePages() ? 'disabled' : '' }}">»</a>
+                            <a href="{{ $userLogs->url($userLogs->lastPage()) }}" class="page-link {{ ($userLogs->currentPage() == $userLogs->lastPage() || $userLogs->lastPage() == 0) ? 'disabled' : '' }}">Last</a>
                         </div>
                     </div>
                 @endif

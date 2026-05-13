@@ -34,6 +34,12 @@ class SettingsController extends Controller
             ->paginate(10, ['*'], 'ulog_page')
             ->withQueryString();
 
+        // Ambil data Sesi Perangkat dan urutkan dari yang terbaru (FIX LOG)
+        $sessions = DB::table('sessions')
+            ->where('user_id', Auth::id())
+            ->orderBy('last_activity', 'desc')
+            ->get();
+
         // Auto-delete log lebih dari 1 bulan
         DB::table('admin_logs')
             ->where('created_at', '<', now()->subMonth())
@@ -43,7 +49,7 @@ class SettingsController extends Controller
             ->where('created_at', '<', now()->subMonth())
             ->delete();
 
-        return view('settings', compact('users', 'logs', 'userLogs'));
+        return view('settings', compact('users', 'logs', 'userLogs', 'sessions'));
     }
 
     public function updatePassword(Request $request)

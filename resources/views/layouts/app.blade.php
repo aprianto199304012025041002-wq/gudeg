@@ -67,8 +67,8 @@
         }
 
         .sidebar-header {
-            display: flex; align-items: center; justify-content: center;
-            padding: 8px 10px; background: #323233;
+            display: flex; align-items: center; justify-content: flex-start;
+            padding: 8px 16px; background: #323233;
             border-bottom: 1px solid #3c3c3c;
             height: 44px; flex-shrink: 0;
         }
