@@ -22,15 +22,15 @@ jobs:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        # Coba gunakan htdocs/ tanpa garis miring di depannya
-        server-dir: htdocs/
+        server-dir: /htdocs/
         
-        # Blokir file sistem Git dan folder yang rawan error permission di hosting
+        # Pengecualian masif untuk memblokir file sistem Visual Studio & Git
         exclude: |
-          **/.git*
           **/.git*/**
-          **/.github*/**
-          **/cache/**
-          **/logs/**
-          **/temp/**
-          **/tmp/**
+          **/.git*
+          **/.github/**
+          **/.vs/**
+          **/.vs*
+          **/node_modules/**
+          **/*.sql
+          **/*.zip
