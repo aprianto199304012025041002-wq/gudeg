@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Cache; // DITAMBAHKAN UNTUK CACHE
+use Illuminate\Support\Facades\Cache;
 use App\Events\AuditLogEvent;
 
 class AdminController extends Controller
@@ -17,42 +17,54 @@ class AdminController extends Controller
     // --------------------------------------------------------
     public function index(Request $request)
     {
-        // 1. Ambil data sesi user yang sedang login (untuk tabel Perangkat & Sesi Aktif)
         $sessions = [];
         try {
             $sessions = DB::table('sessions')->where('user_id', Auth::id())->orderBy('last_activity', 'desc')->get();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $sessions = collect([]); 
         }
 
-        // Variabel default khusus admin agar tidak undefined di Blade
         $logs = collect([]);
         $users = collect([]);
         $userLogs = collect([]);
         $isMaintenance = false;
 
-        // 2. Jika yang login adalah Admin, ambil data tambahan
-        if (Auth::user()->role === 'admin') {
+        if (Auth::check() && Auth::user()->role === 'admin') {
             
-            // Log Admin
+            // Log dengan withQueryString agar tidak hilang saat sorting user
             try {
-                $logs = DB::table('admin_logs')->orderBy('created_at', 'desc')->paginate(5, ['*'], 'log_page');
-            } catch (\Exception $e) {}
+                $logs = DB::table('admin_logs')->orderBy('created_at', 'desc')->paginate(5, ['*'], 'log_page')->withQueryString();
+            } catch (\Throwable $e) {}
 
-            // Log User
             try {
-                $userLogs = DB::table('user_logs')->orderBy('created_at', 'desc')->paginate(5, ['*'], 'ulog_page');
-            } catch (\Exception $e) {}
+                $userLogs = DB::table('user_logs')->orderBy('created_at', 'desc')->paginate(5, ['*'], 'ulog_page')->withQueryString();
+            } catch (\Throwable $e) {}
 
-            // Manajemen Pengguna (Dengan Pencarian)
+            // Manajemen Pengguna (Pencarian & Sorting)
             $query = DB::table('users');
+            
             if ($request->has('search') && $request->search != '') {
-                $query->where('name', 'like', '%' . $request->search . '%')
+                // Pakai closure (function) agar WHERE search tidak bocor ke logika lain
+                $query->where(function($q) use ($request) {
+                    $q->where('name', 'like', '%' . $request->search . '%')
                       ->orWhere('email', 'like', '%' . $request->search . '%');
+                });
             }
-            $users = $query->paginate(10, ['*'], 'page');
 
-            // Cek Status Maintenance (DIPERBAIKI: Menggunakan CACHE sesuai dengan Middleware)
+            // Fitur Sortir
+            $sortBy = $request->get('sort_by', 'name');
+            $sortOrder = $request->get('order', 'asc');
+            $allowedColumns = ['name', 'is_active', 'role'];
+
+            if (in_array($sortBy, $allowedColumns)) {
+                $query->orderBy($sortBy, $sortOrder);
+            } else {
+                $query->orderBy('name', 'asc');
+            }
+
+            // withQueryString() akan menjaga query sort & search saat pindah halaman
+            $users = $query->paginate(10, ['*'], 'page')->withQueryString();
+
             $isMaintenance = Cache::get('maintenance_mode', false);
         }
 
@@ -70,7 +82,6 @@ class AdminController extends Controller
 
     public function appsStore(Request $request)
     {
-        // Validasi input, tambahkan validasi untuk description
         $request->validate([
             'name'        => 'required|unique:sso_applications,name',
             'redirect'    => 'required|url',
@@ -78,7 +89,6 @@ class AdminController extends Controller
             'logo'        => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
-        // Siapkan data untuk disimpan, pastikan description ikut dimasukkan
         $data = [
             'name'          => $request->name,
             'redirect'      => $request->redirect,
@@ -87,32 +97,26 @@ class AdminController extends Controller
             'client_secret' => bin2hex(random_bytes(32)),
         ];
 
-        // Proses upload logo jika ada
         if ($request->hasFile('logo')) {
             $file = $request->file('logo');
             $logoName = time() . '_' . $file->getClientOriginalName();
-            
             $destinationPath = base_path('logos'); 
-            
             if (!file_exists($destinationPath)) {
                 mkdir($destinationPath, 0755, true);
             }
-            
             $file->move($destinationPath, $logoName);
             $data['logo'] = 'logos/' . $logoName;
         }
 
-        // Simpan ke database
         DB::table('sso_applications')->insert($data);
 
-        // Catat ke log audit admin
         try {
             AuditLogEvent::dispatch('admin', [
                 'admin'       => Auth::user(),
                 'action'      => 'Registrasi Aplikasi Baru',
                 'target_user' => $request->name
             ]);
-        } catch (\Exception $e) {}
+        } catch (\Throwable $e) {}
 
         return back()->with('success_store', 'Aplikasi berhasil didaftarkan!');
     }
@@ -130,7 +134,7 @@ class AdminController extends Controller
                     'action'      => 'Update Status Aplikasi',
                     'target_user' => $app->name . ' (' . ($newState ? 'Aktif' : 'Deaktif') . ')'
                 ]);
-            } catch (\Exception $e) {}
+            } catch (\Throwable $e) {}
 
             return back()->with('success_toggle', 'Status aplikasi berhasil diperbarui!');
         }
@@ -140,12 +144,10 @@ class AdminController extends Controller
     public function appsDestroy(Request $request)
     {
         $app = DB::table('sso_applications')->where('id', $request->id)->first();
-        
         if ($app) {
             if ($app->logo && file_exists(base_path($app->logo))) {
                 unlink(base_path($app->logo));
             }
-
             $appName = $app->name;
             DB::table('sso_applications')->where('id', $request->id)->delete();
 
@@ -155,11 +157,10 @@ class AdminController extends Controller
                     'action'      => 'Hapus Aplikasi',
                     'target_user' => $appName
                 ]);
-            } catch (\Exception $e) {}
+            } catch (\Throwable $e) {}
 
             return back()->with('success_delete', 'Aplikasi berhasil dihapus!');
         }
-
         return back()->with('error', 'Aplikasi tidak ditemukan.');
     }
 
@@ -169,12 +170,11 @@ class AdminController extends Controller
         if (!$app) {
             return response()->json(['status' => 'error', 'message' => 'Aplikasi tidak ditemukan.']);
         }
-
         try {
             $response = Http::timeout(5)->get($app->redirect);
             $status = $response->successful() ? 'ok' : 'unreachable';
             return response()->json(['status' => $status, 'code' => $response->status()]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return response()->json(['status' => 'offline', 'message' => $e->getMessage()]);
         }
     }
@@ -201,11 +201,10 @@ class AdminController extends Controller
                     'action' => 'Reset Password User', 
                     'target_user' => $user->name
                 ]);
-            } catch (\Exception $e) {}
+            } catch (\Throwable $e) {}
 
             return back()->with('success_user', "Password {$user->name} berhasil direset.");
         }
-
         return back()->withErrors(['Error' => 'User tidak ditemukan.']);
     }
 
@@ -221,7 +220,7 @@ class AdminController extends Controller
                     'action' => 'Ubah Role menjadi ' . strtoupper($request->role), 
                     'target_user' => $user->name
                 ]);
-            } catch (\Exception $e) {}
+            } catch (\Throwable $e) {}
 
             return back()->with('success_user', "Role {$user->name} berhasil diubah.");
         }
@@ -242,7 +241,7 @@ class AdminController extends Controller
                     'action' => "Status Akun {$statusText}", 
                     'target_user' => $user->name
                 ]);
-            } catch (\Exception $e) {}
+            } catch (\Throwable $e) {}
 
             return back()->with('success_user', "Akun {$user->name} berhasil {$statusText}.");
         }
@@ -262,7 +261,7 @@ class AdminController extends Controller
                     'action' => 'Hapus User', 
                     'target_user' => $user->name
                 ]);
-            } catch (\Exception $e) {}
+            } catch (\Throwable $e) {}
 
             return back()->with('success_user', "Pengguna {$user->name} berhasil dihapus.");
         }
@@ -271,7 +270,6 @@ class AdminController extends Controller
 
     public function toggleMaintenance(Request $request) 
     { 
-        // BACA DARI CACHE (Sesuai dengan CheckMaintenanceMode)
         $isMaintenance = Cache::get('maintenance_mode', false);
 
         if ($isMaintenance) {
@@ -288,7 +286,7 @@ class AdminController extends Controller
                 'action' => "Toggle Mode Maintenance ({$statusText})", 
                 'target_user' => '-'
             ]);
-        } catch (\Exception $e) {}
+        } catch (\Throwable $e) {}
 
         return back()->with('success', "Mode Maintenance berhasil {$statusText}.");
     }
@@ -305,48 +303,50 @@ class AdminController extends Controller
         ]);
     }
 
-    // --------------------------------------------------------
-    // [FIX] FUNGSI SYNC USER APPS
-    // --------------------------------------------------------
     public function syncUserApps(Request $request) 
     { 
-        $userId = $request->user_id;
-        $appIds = $request->apps ?? []; 
-
-        // 1. Hapus akses lama
-        DB::table('user_applications')->where('user_id', $userId)->delete();
-
-        // 2. Insert akses baru
-        $inserts = [];
-        foreach ($appIds as $appId) {
-            $inserts[] = [
-                'user_id' => $userId, 
-                'application_id' => $appId
-            ];
-        }
-
-        if (count($inserts) > 0) {
-            DB::table('user_applications')->insert($inserts);
-        }
-
-        // 3. Ambil data user dengan aman
-        $user = DB::table('users')->where('id', $userId)->first();
-        $userName = $user ? $user->name : 'Unknown';
-
-        // 4. Catat log dengan metode DB standar agar tidak memicu Fatal Error
         try {
-            DB::table('admin_logs')->insert([
-                'admin_id'    => Auth::id(),
-                'admin_name'  => Auth::user()->name,
-                'action'      => 'Update Akses Aplikasi SSO',
-                'target_user' => $userName,
-                'created_at'  => now(),
-            ]);
-        } catch (\Throwable $e) {
-            // Menggunakan \Throwable akan menangkap segala jenis error, termasuk Fatal Error
-        }
+            $userId = $request->user_id;
+            $appIds = $request->apps ?? []; 
 
-        // 5. Gunakan redirect() eksplisit, jangan back(), agar aman dari eksekusi JS
-        return redirect('/settings')->with('success_user', "Akses aplikasi untuk {$userName} berhasil diperbarui.");
+            DB::table('user_applications')->where('user_id', $userId)->delete();
+
+            $inserts = [];
+            foreach ($appIds as $appId) {
+                $inserts[] = [
+                    'user_id' => $userId, 
+                    'application_id' => $appId
+                ];
+            }
+
+            if (count($inserts) > 0) {
+                DB::table('user_applications')->insert($inserts);
+            }
+
+            $user = DB::table('users')->where('id', $userId)->first();
+            $userName = $user ? $user->name : 'Unknown';
+
+            try {
+                DB::table('admin_logs')->insert([
+                    'admin_id'    => Auth::id(),
+                    'admin_name'  => Auth::user()->name,
+                    'action'      => 'Update Akses Aplikasi SSO',
+                    'target_user' => $userName,
+                    'created_at'  => now(),
+                ]);
+            } catch (\Throwable $e) {}
+
+            return redirect('/settings')->with('success_user', "Akses aplikasi untuk {$userName} berhasil diperbarui.");
+            
+        } catch (\Throwable $e) {
+            return response("
+                <div style='font-family: sans-serif; padding: 20px; background: #fff; color: #333;'>
+                    <h2 style='color: red;'>TERJADI KESALAHAN SISTEM 🐛</h2>
+                    <p><b>Pesan Error:</b> " . $e->getMessage() . "</p>
+                    <p><b>Di File:</b> " . $e->getFile() . "</p>
+                    <p><b>Di Baris:</b> " . $e->getLine() . "</p>
+                </div>
+            ");
+        }
     }
 }

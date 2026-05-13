@@ -48,7 +48,7 @@
     .btn:hover { opacity: 0.9; }
     .btn-full { width: 100%; }
     .btn-danger { background: #c72e2e; }
-    .btn-gray { background: #333; }
+    .btn-gray { background: #333; border: 1px solid #444; } .btn-gray:hover { background: #444; }
 
     .badge-admin { background: #c72e2e; padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: bold; color: white; white-space: nowrap; }
     .badge-live  { background: #007acc; padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: bold; color: white; white-space: nowrap; }
@@ -67,6 +67,7 @@
     .table-container { overflow-x: auto; max-width: 100%; }
     .user-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 11px; }
     .user-table th { color: #858585; padding: 6px; border-bottom: 1px solid #3c3c3c; font-size: 9px; text-transform: uppercase; white-space: nowrap; }
+    .user-table th a:hover { color: #fff !important; }
     .user-table td { padding: 8px 6px; border-bottom: 1px solid #2a2a2a; vertical-align: middle; }
     .user-table td b { color: #fff; display: block; font-size: 12px; }
     .user-table td span.email-text { color: #858585; font-size: 10px; display: block; word-break: break-all; white-space: normal; }
@@ -234,7 +235,7 @@
         @endif
 
         @if(strtolower(Auth::user()->email) === 'admin@dummy.com')
-        <!-- Mode Perbaikan Sistem (Dipindah ke sini agar grid seimbang) -->
+        <!-- Mode Perbaikan Sistem -->
         <div class="card" style="border: 1px solid #c72e2e; background: #2d1111;">
             <div class="card-title">
                 <span style="color: #ff7b72;">Mode Perbaikan Sistem</span>
@@ -272,6 +273,9 @@
             <form method="GET" action="/settings" class="search-bar" id="searchForm">
                 <input type="text" name="search" placeholder="Cari nama/email..." value="{{ request('search') }}">
                 <button type="submit" class="btn">Cari</button>
+                @if(request()->has('search') || request()->has('sort_by'))
+                    <a href="/settings" class="btn btn-gray" style="text-decoration:none;">Reset</a>
+                @endif
             </form>
 
             {{-- TABEL: Desktop --}}
@@ -279,9 +283,19 @@
                 <table class="user-table">
                     <thead>
                         <tr>
-                            <th>User</th>
-                            <th>Status</th>
-                            <th>Role</th>
+                            @php
+                                function sortLink($column, $label) {
+                                    $currentSort = request('sort_by', 'name');
+                                    $currentOrder = request('order', 'asc');
+                                    $order = ($currentSort === $column && $currentOrder === 'asc') ? 'desc' : 'asc';
+                                    $icon = ($currentSort === $column) ? ($currentOrder === 'asc' ? '↑' : '↓') : '↕';
+                                    $url = request()->fullUrlWithQuery(['sort_by' => $column, 'order' => $order, 'page' => 1]);
+                                    return "<a href=\"{$url}\" style=\"color:#858585; text-decoration:none; display:flex; align-items:center; gap:4px;\">{$label} <span style=\"font-size:10px;\">{$icon}</span></a>";
+                                }
+                            @endphp
+                            <th>{!! sortLink('name', 'User') !!}</th>
+                            <th>{!! sortLink('is_active', 'Status') !!}</th>
+                            <th>{!! sortLink('role', 'Role') !!}</th>
                             <th style="text-align: right;">Aksi</th>
                         </tr>
                     </thead>
@@ -492,23 +506,12 @@
     @if(session('success_user')) Toast.fire({ icon: 'success', title: '{{ session("success_user") }}' }); @endif
 
     window.addEventListener('load', function() {
-        const searchForm = document.getElementById('searchForm');
-        if (searchForm) {
-            searchForm.addEventListener('submit', function() {
-                const url = new URL(window.location.href);
-                url.searchParams.delete('page');
-                url.searchParams.delete('log_page');
-                url.searchParams.delete('ulog_page');
-                window.history.replaceState({}, '', url);
-            });
-        }
+        // [FITUR BARU] Cek kalau user menekan F5 / Refresh Page
         if (performance.navigation.type === 1) {
             const url = new URL(window.location.href);
-            if (url.searchParams.has('page') || url.searchParams.has('log_page') || url.searchParams.has('ulog_page')) {
-                url.searchParams.delete('page');
-                url.searchParams.delete('log_page');
-                url.searchParams.delete('ulog_page');
-                window.location.href = url.href;
+            // Jika ada parameter apapun (search, page, sort) di URL, langsung lempar kembali ke halaman polos
+            if (url.searchParams.toString() !== '') {
+                window.location.href = window.location.pathname;
             }
         }
     });
