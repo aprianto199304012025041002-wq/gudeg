@@ -173,7 +173,8 @@ class AdminController extends Controller
     }
 
     // =========================================================================
-    // FITUR MANAJEMEN APLIKASI SSO, UPLOAD LOGO & PING TESTER
+    // FITUR MANAJEMEN APLIKASI SSO
+    // Logo disimpan langsung ke /htdocs/logos/ (tanpa symlink)
     // =========================================================================
 
     public function appsIndex()
@@ -195,8 +196,14 @@ class AdminController extends Controller
         if ($request->hasFile('logo')) {
             $file     = $request->file('logo');
             $filename = time() . '_' . \Illuminate\Support\Str::slug($request->name) . '.' . $file->getClientOriginalExtension();
-            $path     = $file->storeAs('logos', $filename, 'public');
-            $logoPath = 'storage/' . $path;
+
+            // Simpan langsung ke /htdocs/logos/ (public root InfinityFree)
+            $logosDir = public_path('logos');
+            if (!file_exists($logosDir)) {
+                mkdir($logosDir, 0755, true);
+            }
+            $file->move($logosDir, $filename);
+            $logoPath = 'logos/' . $filename;
         }
 
         DB::table('sso_applications')->insert([
@@ -242,8 +249,12 @@ class AdminController extends Controller
 
         $app = DB::table('sso_applications')->where('id', $request->id)->first();
 
-        if ($app->logo && \Illuminate\Support\Facades\Storage::disk('public')->exists(str_replace('storage/', '', $app->logo))) {
-            \Illuminate\Support\Facades\Storage::disk('public')->delete(str_replace('storage/', '', $app->logo));
+        // Hapus file logo dari /htdocs/logos/
+        if ($app->logo) {
+            $logoFullPath = public_path($app->logo);
+            if (file_exists($logoFullPath)) {
+                unlink($logoFullPath);
+            }
         }
 
         DB::table('sso_applications')->where('id', $request->id)->delete();
@@ -288,8 +299,8 @@ class AdminController extends Controller
         $userApps = DB::table('user_applications')->where('user_id', $id)->pluck('application_id')->toArray();
 
         return response()->json([
-            'success'  => true,
-            'all_apps' => $allApps,
+            'success'   => true,
+            'all_apps'  => $allApps,
             'user_apps' => $userApps,
         ]);
     }

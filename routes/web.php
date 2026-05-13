@@ -125,3 +125,18 @@ Route::get('/simulasi-sso/callback', function (Request $request) {
     }
     return 'Gagal: Token ditolak. Response: ' . $response->body();
 });
+
+/*
+|--------------------------------------------------------------------------
+| TEMPORARY: Debug path — HAPUS setelah dicek!
+| Akses: http://gudeg.xo.je/debug-path
+|--------------------------------------------------------------------------
+*/
+Route::get('/debug-path', function () {
+    return [
+        'public_path'  => public_path(),
+        'base_path'    => base_path(),
+        'logos_exists' => file_exists(public_path('logos')),
+        'logos_path'   => public_path('logos'),
+    ];
+});
