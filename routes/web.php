@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
@@ -101,9 +102,11 @@ Route::get('/simulasi-sso', function () {
         </div>
     ';
 });
+
 Route::get('/simulasi-sso/login', function () {
     return redirect(url('/sso/authorize') . '?redirect=' . urlencode(url('/simulasi-sso/callback')));
 });
+
 Route::get('/simulasi-sso/callback', function (Request $request) {
     $token = $request->query('token');
     if (!$token) return 'Gagal: Token SSO tidak ditemukan.';
@@ -124,19 +127,4 @@ Route::get('/simulasi-sso/callback', function (Request $request) {
         ';
     }
     return 'Gagal: Token ditolak. Response: ' . $response->body();
-});
-
-/*
-|--------------------------------------------------------------------------
-| TEMPORARY: Debug path — HAPUS setelah dicek!
-| Akses: http://gudeg.xo.je/debug-path
-|--------------------------------------------------------------------------
-*/
-Route::get('/debug-path', function () {
-    return [
-        'public_path'  => public_path(),
-        'base_path'    => base_path(),
-        'logos_exists' => file_exists(public_path('logos')),
-        'logos_path'   => public_path('logos'),
-    ];
 });
