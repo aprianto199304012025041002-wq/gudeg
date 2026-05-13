@@ -181,7 +181,7 @@
                     <div>
                         <b>{{ $device }} - {{ $browser }}</b>
                         @if($isCurrent) <span class="badge-live" style="margin-left: 4px;">SESI INI</span> @endif
-                        <div class="log-detail">IP: {{ $session->ip_address }} · {{ \Carbon\Carbon::createFromTimestamp($session->last_activity)->diffForHumans() }}</div>
+                        <div class="log-detail">IP: {{ $session->ip_address }} · {{ \Carbon\Carbon::createFromTimestamp($session->last_activity)->format('d/m/Y H:i:s') }} ({{ \Carbon\Carbon::createFromTimestamp($session->last_activity)->diffForHumans() }})</div>
                     </div>
                 </div>
             @endforeach
@@ -211,7 +211,7 @@
                             <b>{{ $log->admin_name }}</b>: {{ $log->action }}
                             @if($log->target_user && $log->target_user !== '-') ke <i>{{ $log->target_user }}</i> @endif
                         </div>
-                        <div class="log-detail">{{ \Carbon\Carbon::parse($log->created_at)->diffForHumans() }}</div>
+                        <div class="log-detail">{{ \Carbon\Carbon::parse($log->created_at)->format('d/m/Y H:i:s') }} ({{ \Carbon\Carbon::parse($log->created_at)->diffForHumans() }})</div>
                     </div>
                 @endforeach
 
@@ -442,7 +442,7 @@
                         <div>
                             <b>{{ $log->user_name }}</b> <span class="log-activity">— {{ $log->activity }}</span>
                         </div>
-                        <div class="log-detail">{{ $log->user_email }} · IP: {{ $log->ip_address }} · {{ \Carbon\Carbon::parse($log->created_at)->diffForHumans() }}</div>
+                        <div class="log-detail">{{ $log->user_email }} · IP: {{ $log->ip_address }} · {{ \Carbon\Carbon::parse($log->created_at)->format('d/m/Y H:i:s') }} ({{ \Carbon\Carbon::parse($log->created_at)->diffForHumans() }})</div>
                     </div>
                 @endforeach
 
