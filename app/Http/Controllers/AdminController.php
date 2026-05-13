@@ -17,12 +17,10 @@ class AdminController extends Controller
     public function index(Request $request)
     {
         // 1. Ambil data sesi user yang sedang login (untuk tabel Perangkat & Sesi Aktif)
-        // Pastikan driver session di .env adalah SESSION_DRIVER=database
         $sessions = [];
         try {
             $sessions = DB::table('sessions')->where('user_id', Auth::id())->orderBy('last_activity', 'desc')->get();
         } catch (\Exception $e) {
-            // Abaikan jika tabel sessions tidak ada / driver bukan database
             $sessions = collect([]); 
         }
 
@@ -38,12 +36,12 @@ class AdminController extends Controller
             // Log Admin
             try {
                 $logs = DB::table('admin_logs')->orderBy('created_at', 'desc')->paginate(5, ['*'], 'log_page');
-            } catch (\Exception $e) { /* Tabel admin_logs mungkin belum dibuat */ }
+            } catch (\Exception $e) {}
 
             // Log User
             try {
                 $userLogs = DB::table('user_logs')->orderBy('created_at', 'desc')->paginate(5, ['*'], 'ulog_page');
-            } catch (\Exception $e) { /* Tabel user_logs mungkin belum dibuat */ }
+            } catch (\Exception $e) {}
 
             // Manajemen Pengguna (Dengan Pencarian)
             $query = DB::table('users');
@@ -57,7 +55,7 @@ class AdminController extends Controller
             try {
                 $maintenance = DB::table('settings')->where('key', 'maintenance_mode')->first();
                 $isMaintenance = $maintenance ? (bool)$maintenance->value : false;
-            } catch (\Exception $e) { /* Tabel settings belum dibuat */ }
+            } catch (\Exception $e) {}
         }
 
         return view('settings', compact('sessions', 'logs', 'users', 'userLogs', 'isMaintenance'));
@@ -74,19 +72,24 @@ class AdminController extends Controller
 
     public function appsStore(Request $request)
     {
+        // Validasi input, tambahkan validasi untuk description
         $request->validate([
-            'name'     => 'required|unique:sso_applications,name',
-            'redirect' => 'required|url',
-            'logo'     => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
+            'name'        => 'required|unique:sso_applications,name',
+            'redirect'    => 'required|url',
+            'description' => 'nullable|string|max:500', // <-- Ditambahkan
+            'logo'        => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
+        // Siapkan data untuk disimpan, pastikan description ikut dimasukkan
         $data = [
             'name'          => $request->name,
             'redirect'      => $request->redirect,
+            'description'   => $request->description, // <-- Ditambahkan
             'client_id'     => bin2hex(random_bytes(16)),
             'client_secret' => bin2hex(random_bytes(32)),
         ];
 
+        // Proses upload logo jika ada
         if ($request->hasFile('logo')) {
             $file = $request->file('logo');
             $logoName = time() . '_' . $file->getClientOriginalName();
@@ -101,8 +104,10 @@ class AdminController extends Controller
             $data['logo'] = 'logos/' . $logoName;
         }
 
+        // Simpan ke database
         DB::table('sso_applications')->insert($data);
 
+        // Catat ke log audit admin
         try {
             AuditLogEvent::dispatch('admin', [
                 'admin'       => Auth::user(),
@@ -250,7 +255,6 @@ class AdminController extends Controller
     { 
         $user = DB::table('users')->where('id', $request->user_id)->first();
         if ($user) {
-            // Hapus akses aplikasi user terlebih dahulu (jika ada foreign key)
             DB::table('user_applications')->where('user_id', $user->id)->delete();
             DB::table('users')->where('id', $request->user_id)->delete();
 
@@ -292,7 +296,6 @@ class AdminController extends Controller
 
     public function getUserApps($id) 
     { 
-        // Mengembalikan JSON untuk pop-up SweetAlert di settings.blade.php
         $all_apps = DB::table('sso_applications')->select('id', 'name')->get();
         $user_apps = DB::table('user_applications')->where('user_id', $id)->pluck('application_id')->toArray();
         
@@ -306,12 +309,10 @@ class AdminController extends Controller
     public function syncUserApps(Request $request) 
     { 
         $userId = $request->user_id;
-        $appIds = $request->apps ?? []; // Jika tidak ada checkbox yang dicentang, nilainya null/kosong
+        $appIds = $request->apps ?? []; 
 
-        // Reset semua akses aplikasi user ini
         DB::table('user_applications')->where('user_id', $userId)->delete();
 
-        // Masukkan kembali akses aplikasi yang baru
         $inserts = [];
         foreach ($appIds as $appId) {
             $inserts[] = [

@@ -130,8 +130,10 @@
 @section('content')
 <div class="settings-grid {{ Auth::user()->role !== 'admin' ? 'user-only' : '' }}">
 
+    <!-- ================================== PANEL KIRI ================================== -->
     <div class="left-panel">
 
+        <!-- Pengaturan Password -->
         <div class="card">
             <div class="card-title">Pengaturan Password</div>
 
@@ -159,6 +161,7 @@
             </form>
         </div>
 
+        <!-- Sesi Perangkat -->
         <div class="card">
             <div class="card-title">Perangkat & Sesi Aktif</div>
             <p style="font-size: 11px; color: #858585; margin-bottom: 12px;">Daftar perangkat yang saat ini masuk ke akun Anda. Jika ada perangkat yang mencurigakan, segera cabut aksesnya.</p>
@@ -192,6 +195,7 @@
         </div>
 
         @if(Auth::user()->role === 'admin')
+        <!-- Audit Aktivitas Admin -->
         <div class="card">
             <div class="card-title">
                 <span>Audit Aktivitas Admin</span>
@@ -227,11 +231,36 @@
         </div>
         @endif
 
+        @if(strtolower(Auth::user()->email) === 'admin@dummy.com')
+        <!-- Mode Perbaikan Sistem (Dipindah ke sini agar grid seimbang) -->
+        <div class="card" style="border: 1px solid #c72e2e; background: #2d1111;">
+            <div class="card-title">
+                <span style="color: #ff7b72;">Mode Perbaikan Sistem</span>
+                <span class="badge-admin">SUPER ADMIN</span>
+            </div>
+
+            @if($errors->has('maintenance'))
+                <div class="alert alert-error">{{ $errors->first('maintenance') }}</div>
+            @endif
+
+            <p style="font-size: 11px; color: #d4d4d4; margin-bottom: 12px;">Aktifkan mode ini untuk menutup portal dari semua pengguna (termasuk memblokir SSO) saat melakukan pembaruan atau backup database. Anda tidak akan ter-logout.</p>
+
+            <form action="/settings/admin/toggle-maintenance" method="POST" id="maintenanceForm">
+                @csrf
+                <button type="button" class="btn btn-full" style="background: {{ $isMaintenance ? '#2ea043' : '#c72e2e' }}; color: white;" onclick="confirmMaintenance({{ $isMaintenance ? 'true' : 'false' }})">
+                    {{ $isMaintenance ? 'NONAKTIFKAN Mode Perbaikan' : 'AKTIFKAN Mode Perbaikan' }}
+                </button>
+            </form>
+        </div>
+        @endif
+
     </div>
 
+    <!-- ================================== PANEL KANAN ================================== -->
     @if(Auth::user()->role === 'admin')
     <div class="right-panel">
 
+        <!-- Manajemen Pengguna -->
         <div class="card">
             <div class="card-title">
                 <span>Manajemen Pengguna</span>
@@ -394,6 +423,7 @@
             @endif
         </div>
 
+        <!-- Log Aktivitas Pengguna -->
         <div class="card">
             <div class="card-title">
                 <span>Log Aktivitas Pengguna</span>
@@ -426,28 +456,6 @@
                 @endif
             @endif
         </div>
-
-        @if(strtolower(Auth::user()->email) === 'admin@dummy.com')
-        <div class="card" style="border: 1px solid #c72e2e; background: #2d1111;">
-            <div class="card-title">
-                <span style="color: #ff7b72;">Mode Perbaikan Sistem</span>
-                <span class="badge-admin">SUPER ADMIN</span>
-            </div>
-
-            @if($errors->has('maintenance'))
-                <div class="alert alert-error">{{ $errors->first('maintenance') }}</div>
-            @endif
-
-            <p style="font-size: 11px; color: #d4d4d4; margin-bottom: 12px;">Aktifkan mode ini untuk menutup portal dari semua pengguna (termasuk memblokir SSO) saat melakukan pembaruan atau backup database. Anda tidak akan ter-logout.</p>
-
-            <form action="/settings/admin/toggle-maintenance" method="POST" id="maintenanceForm">
-                @csrf
-                <button type="button" class="btn btn-full" style="background: {{ $isMaintenance ? '#2ea043' : '#c72e2e' }}; color: white;" onclick="confirmMaintenance({{ $isMaintenance ? 'true' : 'false' }})">
-                    {{ $isMaintenance ? 'NONAKTIFKAN Mode Perbaikan' : 'AKTIFKAN Mode Perbaikan' }}
-                </button>
-            </form>
-        </div>
-        @endif
 
     </div>
     @endif
@@ -605,7 +613,6 @@
             confirmButtonText: 'Ya, Hapus!', cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {
-                // Coba form desktop dulu, fallback ke mobile
                 const form = document.getElementById(`delete-form-${id}`) || document.getElementById(`delete-form-mob-${id}`);
                 if (form) form.submit();
             }

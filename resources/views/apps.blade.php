@@ -53,7 +53,6 @@
                 <span class="badge-admin">ADMIN</span>
             </div>
 
-            {{-- Hanya tampilkan error validasi di sini (memang tempatnya) --}}
             @if($errors->any())
                 <div class="alert alert-error">
                     @foreach($errors->all() as $error)<div>• {{ $error }}</div>@endforeach
@@ -108,7 +107,12 @@
                                 </td>
                                 <td>
                                     <b style="font-size: 13px; color: #fff;">{{ $app->name }}</b>
-                                    <div style="font-size: 10px; color: #aaa; margin-top: 2px;">{{ $app->description ?? 'Tidak ada deskripsi' }}</div>
+                                    
+                                    {{-- PERBAIKAN: Menggunakan !empty() agar jika isinya string kosong ("") tetap tertulis 'Tidak ada deskripsi' --}}
+                                    <div style="font-size: 10px; color: #aaa; margin-top: 2px;">
+                                        {{ !empty($app->description) ? $app->description : 'Tidak ada deskripsi' }}
+                                    </div>
+                                    
                                     <div style="margin-top:6px; font-size:10px; color:#858585;">🔗 {{ $app->redirect }}</div>
                                     <div style="margin-top:2px; font-size:10px; color:#555; font-family: monospace; word-break: break-all;">ID: {{ $app->client_id }}</div>
                                 </td>
@@ -153,25 +157,10 @@
 <script>
     const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, background: '#252526', color: '#fff' });
 
-    {{-- Notif registrasi aplikasi baru --}}
-    @if(session('success_store'))
-        Toast.fire({ icon: 'success', title: '{{ session("success_store") }}' });
-    @endif
-
-    {{-- Notif toggle status --}}
-    @if(session('success_toggle'))
-        Toast.fire({ icon: 'success', title: '{{ session("success_toggle") }}' });
-    @endif
-
-    {{-- Notif hapus aplikasi --}}
-    @if(session('success_delete'))
-        Toast.fire({ icon: 'success', title: '{{ session("success_delete") }}' });
-    @endif
-
-    {{-- Notif error umum (non-validasi) --}}
-    @if(session('error'))
-        Toast.fire({ icon: 'error', title: '{{ session("error") }}' });
-    @endif
+    @if(session('success_store')) Toast.fire({ icon: 'success', title: '{{ session("success_store") }}' }); @endif
+    @if(session('success_toggle')) Toast.fire({ icon: 'success', title: '{{ session("success_toggle") }}' }); @endif
+    @if(session('success_delete')) Toast.fire({ icon: 'success', title: '{{ session("success_delete") }}' }); @endif
+    @if(session('error')) Toast.fire({ icon: 'error', title: '{{ session("error") }}' }); @endif
 
     function pingApp(id, name) {
         Swal.fire({
@@ -189,7 +178,6 @@
         })
         .then(response => response.json())
         .then(data => {
-            // Perbaikan logika output agar selaras dengan output JSON Controller
             if (data.status === 'ok') {
                 Swal.fire({ title: 'Koneksi Berhasil!', text: `Aplikasi merespons dengan status code: ${data.code}`, icon: 'success', background: '#252526', color: '#fff', confirmButtonColor: '#2ea043' });
             } else if (data.status === 'unreachable') {
