@@ -1,9 +1,13 @@
-<IfModule mod_rewrite.c>
-    <IfModule mod_negotiation.c>
+<IfModule mod_rewrite.c="">
+    <IfModule mod_negotiation.c="">
         Options -MultiViews -Indexes
     </IfModule>
 
     RewriteEngine On
+
+    # Paksa Pengalihan ke HTTPS (Force HTTPS)
+    RewriteCond %{HTTPS} off
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
