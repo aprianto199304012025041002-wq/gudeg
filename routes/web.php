@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Http\Request;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
@@ -34,7 +35,6 @@ Route::get('/sso/validate', [SSOController::class, 'validateToken']);
 */
 Route::middleware(['auth', 'password.expire'])->group(function () {
     Route::get('/dashboard', function () {
-        // Logika Hak Akses Aplikasi
         if (strtolower(Auth::user()->email) === 'admin@dummy.com') {
             $applications = DB::table('sso_applications')->get();
         } else {
@@ -64,15 +64,14 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'admin'])->group(function () {
-    
+
     Route::prefix('settings/admin')->group(function () {
         Route::post('/reset-password', [AdminController::class, 'resetPassword']);
         Route::post('/update-role', [AdminController::class, 'updateRole']);
         Route::post('/toggle-active', [AdminController::class, 'toggleActive']);
         Route::post('/delete-user', [AdminController::class, 'destroy']);
         Route::post('/toggle-maintenance', [AdminController::class, 'toggleMaintenance']);
-        
-        // Rute Baru: Hak Akses Aplikasi
+
         Route::get('/user-apps/{id}', [AdminController::class, 'getUserApps']);
         Route::post('/user-apps', [AdminController::class, 'syncUserApps']);
     });
@@ -125,4 +124,22 @@ Route::get('/simulasi-sso/callback', function (Request $request) {
         ';
     }
     return 'Gagal: Token ditolak. Response: ' . $response->body();
+});
+
+/*
+|--------------------------------------------------------------------------
+| TEMPORARY: Jalankan semua ini lalu HAPUS setelah diakses!
+| 1. /clear-config → https://portal-balmonjogja.free.laravel.cloud/clear-config
+| 2. /run-migrate  → https://portal-balmonjogja.free.laravel.cloud/run-migrate
+|--------------------------------------------------------------------------
+*/
+Route::get('/clear-config', function () {
+    Artisan::call('config:clear');
+    Artisan::call('cache:clear');
+    return 'Config & cache cleared!';
+});
+
+Route::get('/run-migrate', function () {
+    Artisan::call('migrate', ['--force' => true]);
+    return 'Migrate selesai! Tabel admin_logs & user_logs sudah dibuat.';
 });

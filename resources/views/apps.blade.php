@@ -23,7 +23,6 @@
     .btn-success { background: #2ea043; } .btn-success:hover { background: #3fb950; }
 
     .alert { font-size: 11px; margin-bottom: 10px; padding: 8px 10px; border-radius: 3px; }
-    .alert-success { color: #7ee787; background: #122d15; border: 1px solid #1f6f38; }
     .alert-error { color: #ff7b72; background: #3b1214; border: 1px solid #f85149; }
 
     .table-container { overflow-x: auto; max-width: 100%; }
@@ -54,13 +53,11 @@
                 <span class="badge-admin">ADMIN</span>
             </div>
 
+            {{-- Hanya tampilkan error validasi di sini (memang tempatnya) --}}
             @if($errors->any())
                 <div class="alert alert-error">
                     @foreach($errors->all() as $error)<div>• {{ $error }}</div>@endforeach
                 </div>
-            @endif
-            @if(session('success'))
-                <div class="alert alert-success">{{ session('success') }}</div>
             @endif
 
             <form method="POST" action="/apps/store" enctype="multipart/form-data">
@@ -155,7 +152,26 @@
 @push('scripts')
 <script>
     const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, background: '#252526', color: '#fff' });
-    @if(session('success')) Toast.fire({ icon: 'success', title: '{{ session("success") }}' }); @endif
+
+    {{-- Notif registrasi aplikasi baru --}}
+    @if(session('success_store'))
+        Toast.fire({ icon: 'success', title: '{{ session("success_store") }}' });
+    @endif
+
+    {{-- Notif toggle status --}}
+    @if(session('success_toggle'))
+        Toast.fire({ icon: 'success', title: '{{ session("success_toggle") }}' });
+    @endif
+
+    {{-- Notif hapus aplikasi --}}
+    @if(session('success_delete'))
+        Toast.fire({ icon: 'success', title: '{{ session("success_delete") }}' });
+    @endif
+
+    {{-- Notif error umum (non-validasi) --}}
+    @if(session('error'))
+        Toast.fire({ icon: 'error', title: '{{ session("error") }}' });
+    @endif
 
     function pingApp(id, name) {
         Swal.fire({
