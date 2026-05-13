@@ -125,21 +125,3 @@ Route::get('/simulasi-sso/callback', function (Request $request) {
     }
     return 'Gagal: Token ditolak. Response: ' . $response->body();
 });
-
-/*
-|--------------------------------------------------------------------------
-| TEMPORARY: Jalankan semua ini lalu HAPUS setelah diakses!
-| 1. /clear-config → https://portal-balmonjogja.free.laravel.cloud/clear-config
-| 2. /run-migrate  → https://portal-balmonjogja.free.laravel.cloud/run-migrate
-|--------------------------------------------------------------------------
-*/
-Route::get('/clear-config', function () {
-    Artisan::call('config:clear');
-    Artisan::call('cache:clear');
-    return 'Config & cache cleared!';
-});
-
-Route::get('/run-migrate', function () {
-    Artisan::call('migrate', ['--force' => true]);
-    return 'Migrate selesai! Tabel admin_logs & user_logs sudah dibuat.';
-});
