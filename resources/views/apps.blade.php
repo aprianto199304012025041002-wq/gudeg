@@ -189,10 +189,13 @@
         })
         .then(response => response.json())
         .then(data => {
-            if (data.success) {
-                Swal.fire({ title: 'Berhasil!', text: data.message, icon: 'success', background: '#252526', color: '#fff', confirmButtonColor: '#2ea043' });
+            // Perbaikan logika output agar selaras dengan output JSON Controller
+            if (data.status === 'ok') {
+                Swal.fire({ title: 'Koneksi Berhasil!', text: `Aplikasi merespons dengan status code: ${data.code}`, icon: 'success', background: '#252526', color: '#fff', confirmButtonColor: '#2ea043' });
+            } else if (data.status === 'unreachable') {
+                Swal.fire({ title: 'Server Unreachable', text: `Target ditemukan namun membalas dengan error code: ${data.code}`, icon: 'warning', background: '#252526', color: '#fff', confirmButtonColor: '#c72e2e' });
             } else {
-                Swal.fire({ title: 'Gagal', text: data.message, icon: 'error', background: '#252526', color: '#fff', confirmButtonColor: '#c72e2e' });
+                Swal.fire({ title: 'Gagal Terhubung', text: data.message || 'Server target offline atau tidak dapat diakses.', icon: 'error', background: '#252526', color: '#fff', confirmButtonColor: '#c72e2e' });
             }
         })
         .catch(error => {
