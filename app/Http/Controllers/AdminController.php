@@ -22,7 +22,6 @@ class AdminController extends Controller
             ->orderBy('last_activity', 'desc')
             ->get();
 
-        // Cek status maintenance untuk UI
         $isMaintenance = \Illuminate\Support\Facades\Cache::get('maintenance_mode', false);
 
         if (Auth::user()->role === 'admin') {
@@ -75,7 +74,7 @@ class AdminController extends Controller
 
         DB::transaction(function () use ($target, $request) {
             $target->password = Hash::make($request->new_password);
-            $target->password_changed_at = now(); 
+            $target->password_changed_at = now();
             $target->save();
 
             AuditLogEvent::dispatch('admin', ['admin' => Auth::user(), 'action' => 'Reset Password', 'target_user' => $target->email]);
@@ -89,7 +88,7 @@ class AdminController extends Controller
     {
         $request->validate([
             'user_id' => 'required|exists:users,id',
-            'role'    => 'required|in:user,guest', 
+            'role'    => 'required|in:user,guest',
         ]);
 
         $target = User::findOrFail($request->user_id);
@@ -157,14 +156,14 @@ class AdminController extends Controller
         }
 
         $status = \Illuminate\Support\Facades\Cache::get('maintenance_mode', false);
-        
+
         if ($status) {
             \Illuminate\Support\Facades\Cache::put('maintenance_mode', false);
-            $msg = 'Mode Perbaikan DINONAKTIFKAN. Portal kembali online untuk semua pengguna.';
+            $msg    = 'Mode Perbaikan DINONAKTIFKAN. Portal kembali online untuk semua pengguna.';
             $action = 'Menonaktifkan Mode Perbaikan';
         } else {
             \Illuminate\Support\Facades\Cache::put('maintenance_mode', true);
-            $msg = 'Mode Perbaikan DIAKTIFKAN. Saat ini hanya Anda yang dapat mengakses portal.';
+            $msg    = 'Mode Perbaikan DIAKTIFKAN. Saat ini hanya Anda yang dapat mengakses portal.';
             $action = 'Mengaktifkan Mode Perbaikan Global';
         }
 
@@ -194,10 +193,10 @@ class AdminController extends Controller
 
         $logoPath = null;
         if ($request->hasFile('logo')) {
-            $file = $request->file('logo');
+            $file     = $request->file('logo');
             $filename = time() . '_' . \Illuminate\Support\Str::slug($request->name) . '.' . $file->getClientOriginalExtension();
-            $path = $file->storeAs('logos', $filename, 'public'); 
-            $logoPath = 'storage/' . $path; 
+            $path     = $file->storeAs('logos', $filename, 'public');
+            $logoPath = 'storage/' . $path;
         }
 
         DB::table('sso_applications')->insert([
@@ -213,34 +212,36 @@ class AdminController extends Controller
         ]);
 
         AuditLogEvent::dispatch('admin', ['admin' => Auth::user(), 'action' => 'Registrasi Aplikasi SSO: ' . $request->name, 'target_user' => '-']);
-        return back()->with('success', 'Aplikasi berhasil didaftarkan!');
+
+        return back()->with('success_store', 'Aplikasi berhasil didaftarkan!');
     }
 
     public function appsToggle(Request $request)
     {
         $request->validate([
-            'id' => 'required|exists:sso_applications,id',
+            'id'        => 'required|exists:sso_applications,id',
             'is_active' => 'required|boolean',
         ]);
 
         DB::table('sso_applications')->where('id', $request->id)->update([
-            'is_active' => $request->is_active,
-            'updated_at' => now()
+            'is_active'  => $request->is_active,
+            'updated_at' => now(),
         ]);
 
-        $app = DB::table('sso_applications')->where('id', $request->id)->first();
+        $app       = DB::table('sso_applications')->where('id', $request->id)->first();
         $statusStr = $request->is_active ? 'Mengaktifkan' : 'Menonaktifkan';
-        
+
         AuditLogEvent::dispatch('admin', ['admin' => Auth::user(), 'action' => $statusStr . ' Aplikasi SSO: ' . $app->name, 'target_user' => '-']);
-        return back()->with('success', "Status Aplikasi {$app->name} berhasil diperbarui!");
+
+        return back()->with('success_toggle', "Status Aplikasi {$app->name} berhasil diperbarui!");
     }
 
     public function appsDestroy(Request $request)
     {
         $request->validate(['id' => 'required|exists:sso_applications,id']);
-        
+
         $app = DB::table('sso_applications')->where('id', $request->id)->first();
-        
+
         if ($app->logo && \Illuminate\Support\Facades\Storage::disk('public')->exists(str_replace('storage/', '', $app->logo))) {
             \Illuminate\Support\Facades\Storage::disk('public')->delete(str_replace('storage/', '', $app->logo));
         }
@@ -248,7 +249,8 @@ class AdminController extends Controller
         DB::table('sso_applications')->where('id', $request->id)->delete();
 
         AuditLogEvent::dispatch('admin', ['admin' => Auth::user(), 'action' => 'Hapus Aplikasi SSO: ' . $app->name, 'target_user' => '-']);
-        return back()->with('success', 'Aplikasi berhasil dihapus!');
+
+        return back()->with('success_delete', 'Aplikasi berhasil dihapus!');
     }
 
     public function appsPing(Request $request)
@@ -258,15 +260,15 @@ class AdminController extends Controller
 
         try {
             $response = \Illuminate\Support\Facades\Http::timeout(5)
-                ->withoutVerifying() 
+                ->withoutVerifying()
                 ->get($app->redirect);
-            
+
             $status = $response->status();
-            
+
             if ($response->successful() || $response->isRedirect() || $response->isClientError()) {
                 return response()->json(['success' => true, 'message' => "Koneksi Berhasil terhubung ke server client (HTTP {$status})."]);
             }
-            
+
             return response()->json(['success' => false, 'message' => "Server merespons dengan error internal (HTTP {$status})."]);
 
         } catch (\Exception $e) {
@@ -281,14 +283,14 @@ class AdminController extends Controller
     public function getUserApps($id)
     {
         if (Auth::user()->role !== 'admin') return response()->json(['success' => false]);
-        
-        $allApps = DB::table('sso_applications')->where('is_active', true)->select('id', 'name')->get();
+
+        $allApps  = DB::table('sso_applications')->where('is_active', true)->select('id', 'name')->get();
         $userApps = DB::table('user_applications')->where('user_id', $id)->pluck('application_id')->toArray();
-        
+
         return response()->json([
-            'success' => true,
+            'success'  => true,
             'all_apps' => $allApps,
-            'user_apps' => $userApps
+            'user_apps' => $userApps,
         ]);
     }
 
@@ -296,23 +298,21 @@ class AdminController extends Controller
     {
         $request->validate([
             'user_id' => 'required|exists:users,id',
-            'apps' => 'array',
-            'apps.*' => 'exists:sso_applications,id'
+            'apps'    => 'array',
+            'apps.*'  => 'exists:sso_applications,id',
         ]);
 
         $targetUser = User::findOrFail($request->user_id);
 
-        DB::transaction(function () use ($request, $targetUser) {
-            // Hapus semua akses lama
+        DB::transaction(function () use ($request) {
             DB::table('user_applications')->where('user_id', $request->user_id)->delete();
-            
-            // Masukkan akses baru yang dicentang
+
             if ($request->has('apps') && is_array($request->apps)) {
                 $inserts = [];
                 foreach ($request->apps as $appId) {
                     $inserts[] = [
-                        'user_id' => $request->user_id,
-                        'application_id' => $appId
+                        'user_id'        => $request->user_id,
+                        'application_id' => $appId,
                     ];
                 }
                 DB::table('user_applications')->insert($inserts);
