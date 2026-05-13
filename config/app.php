@@ -6,7 +6,7 @@ return [
 
     'env' => 'production',
 
-    'debug' => true,
+    'debug' => false,
 
     'url' => 'http://gudeg.xo.je',
 
