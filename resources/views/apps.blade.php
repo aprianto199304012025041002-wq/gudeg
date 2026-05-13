@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Aplikasi SSO')
-@section('topbar_title', 'Manajemen Aplikasi SSO')
+@section('topbar_title', 'GUDEG JOGJA Aplikasi SSO')
 
 @push('styles')
 <style>
