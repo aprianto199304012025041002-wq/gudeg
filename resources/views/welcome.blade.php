@@ -170,7 +170,7 @@
         </div>
 
         <div class="subtitle">
-            General Unified Database and Employee Access Gateway
+            General Unified Database and Employee Gateway
             <br>
             Balai Monitor Spektrum Frekuensi Radio Kelas I Yogyakarta
         </div>
