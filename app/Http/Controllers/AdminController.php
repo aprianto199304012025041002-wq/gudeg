@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use App\Events\AuditLogEvent;
 
 class AdminController extends Controller
@@ -22,7 +23,9 @@ class AdminController extends Controller
     public function appsIndex()
     {
         $apps = DB::table('sso_applications')->get();
-        return view('admin.apps', compact('apps'));
+        // PERBAIKAN: Mengarah langsung ke 'apps' (satu level di resources/views/apps.blade.php)
+        // Bukan ke 'admin.apps' yang memicu Error 500
+        return view('apps', compact('apps'));
     }
 
     public function appsStore(Request $request)
@@ -83,7 +86,7 @@ class AdminController extends Controller
                 AuditLogEvent::dispatch('admin', [
                     'admin'       => Auth::user(),
                     'action'      => 'Update Status Aplikasi',
-                    'target_user' => $app->name . ' (' . ($newState ? 'Aktif' : 'Nonaktif') . ')'
+                    'target_user' => $app->name . ' (' . ($newState ? 'Aktif' : 'Deaktif') . ')'
                 ]);
             } catch (\Exception $e) {}
 
@@ -129,7 +132,7 @@ class AdminController extends Controller
         }
 
         try {
-            $response = \Illuminate\Support\Facades\Http::timeout(5)->get($app->redirect);
+            $response = Http::timeout(5)->get($app->redirect);
             $status = $response->successful() ? 'ok' : 'unreachable';
             return response()->json(['status' => $status, 'code' => $response->status()]);
         } catch (\Exception $e) {
@@ -139,13 +142,40 @@ class AdminController extends Controller
 
     // --------------------------------------------------------
     // METHOD LAINNYA (Manajemen User & Role)
-    // --------------------------------------------------------
+    // --------------------------------------------------------    
     
-    public function resetPassword(Request $request) { /* Logika reset password user */ }
-    public function updateRole(Request $request) { /* Logika update role */ }
-    public function toggleActive(Request $request) { /* Logika toggle user aktif */ }
-    public function destroy(Request $request) { /* Logika hapus user */ }
-    public function toggleMaintenance(Request $request) { /* Logika mode maintenance */ }
-    public function getUserApps($id) { /* Ambil relasi user dan aplikasi */ }
-    public function syncUserApps(Request $request) { /* Simpan sinkronisasi akses aplikasi user */ }
+    public function resetPassword(Request $request) 
+    { 
+        /* Logika reset password user */ 
+    }
+
+    public function updateRole(Request $request) 
+    { 
+        /* Logika update role */ 
+    }
+
+    public function toggleActive(Request $request) 
+    { 
+        /* Logika toggle user aktif */ 
+    }
+
+    public function destroy(Request $request) 
+    { 
+        /* Logika hapus user */ 
+    }
+
+    public function toggleMaintenance(Request $request) 
+    { 
+        /* Logika mode maintenance */ 
+    }
+
+    public function getUserApps($id) 
+    { 
+        /* Ambil relasi user dan aplikasi */ 
+    }
+
+    public function syncUserApps(Request $request) 
+    { 
+        /* Simpan sinkronisasi akses aplikasi user */ 
+    }
 }
