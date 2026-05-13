@@ -72,6 +72,13 @@
             border-bottom: 1px solid #3c3c3c;
             height: 44px; flex-shrink: 0;
         }
+        
+        /* FIX BURGER ICON SAAT COLLAPSED */
+        .sidebar.collapsed:not(.mobile-open) .sidebar-header {
+            justify-content: center;
+            padding: 8px 0;
+        }
+
         .toggle-btn {
             background: none; border: none; cursor: pointer;
             padding: 8px; display: flex; flex-direction: column; gap: 5px;
@@ -307,7 +314,6 @@
                 <span class="label">Settings</span>
             </a>
             
-            {{-- MENU BARU: APLIKASI SSO KHUSUS ADMIN --}}
             @if(Auth::user()->role === 'admin')
             <a href="/apps" class="{{ request()->is('apps*') ? 'active' : '' }}">
                 <span class="icon">🔌</span>
