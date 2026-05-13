@@ -22,9 +22,15 @@ jobs:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        server-dir: /htdocs/
-        # Wajib ditambahkan agar folder sistem tidak ikut dikirim ke InfinityFree
+        # Coba gunakan htdocs/ tanpa garis miring di depannya
+        server-dir: htdocs/
+        
+        # Blokir file sistem Git dan folder yang rawan error permission di hosting
         exclude: |
           **/.git*
           **/.git*/**
           **/.github*/**
+          **/cache/**
+          **/logs/**
+          **/temp/**
+          **/tmp/**
