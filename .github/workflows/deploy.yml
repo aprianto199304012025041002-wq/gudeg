@@ -4,6 +4,10 @@ on:
   push:
     branches: [ main, master ]
 
+# Menambahkan instruksi resmi GitHub untuk menggunakan Node.js 24 agar tidak muncul warning
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   web-deploy:
     runs-on: ubuntu-latest
@@ -14,7 +18,7 @@ jobs:
         fetch-depth: 2
 
     - name: Sync files via FTP
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.6
       with:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
