@@ -305,13 +305,18 @@ class AdminController extends Controller
         ]);
     }
 
+    // --------------------------------------------------------
+    // [FIX] FUNGSI SYNC USER APPS
+    // --------------------------------------------------------
     public function syncUserApps(Request $request) 
     { 
         $userId = $request->user_id;
         $appIds = $request->apps ?? []; 
 
+        // 1. Hapus akses lama
         DB::table('user_applications')->where('user_id', $userId)->delete();
 
+        // 2. Insert akses baru
         $inserts = [];
         foreach ($appIds as $appId) {
             $inserts[] = [
@@ -324,15 +329,24 @@ class AdminController extends Controller
             DB::table('user_applications')->insert($inserts);
         }
 
+        // 3. Ambil data user dengan aman
         $user = DB::table('users')->where('id', $userId)->first();
-        try {
-            AuditLogEvent::dispatch('admin', [
-                'admin' => Auth::user(), 
-                'action' => 'Update Akses Aplikasi SSO', 
-                'target_user' => $user->name ?? 'Unknown'
-            ]);
-        } catch (\Exception $e) {}
+        $userName = $user ? $user->name : 'Unknown';
 
-        return back()->with('success_user', "Akses aplikasi untuk {$user->name} berhasil diperbarui.");
+        // 4. Catat log dengan metode DB standar agar tidak memicu Fatal Error
+        try {
+            DB::table('admin_logs')->insert([
+                'admin_id'    => Auth::id(),
+                'admin_name'  => Auth::user()->name,
+                'action'      => 'Update Akses Aplikasi SSO',
+                'target_user' => $userName,
+                'created_at'  => now(),
+            ]);
+        } catch (\Throwable $e) {
+            // Menggunakan \Throwable akan menangkap segala jenis error, termasuk Fatal Error
+        }
+
+        // 5. Gunakan redirect() eksplisit, jangan back(), agar aman dari eksekusi JS
+        return redirect('/settings')->with('success_user', "Akses aplikasi untuk {$userName} berhasil diperbarui.");
     }
 }
