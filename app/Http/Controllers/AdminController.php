@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Cache; // DITAMBAHKAN UNTUK CACHE
 use App\Events\AuditLogEvent;
 
 class AdminController extends Controller
@@ -51,11 +52,8 @@ class AdminController extends Controller
             }
             $users = $query->paginate(10, ['*'], 'page');
 
-            // Cek Status Maintenance
-            try {
-                $maintenance = DB::table('settings')->where('key', 'maintenance_mode')->first();
-                $isMaintenance = $maintenance ? (bool)$maintenance->value : false;
-            } catch (\Exception $e) {}
+            // Cek Status Maintenance (DIPERBAIKI: Menggunakan CACHE sesuai dengan Middleware)
+            $isMaintenance = Cache::get('maintenance_mode', false);
         }
 
         return view('settings', compact('sessions', 'logs', 'users', 'userLogs', 'isMaintenance'));
@@ -76,7 +74,7 @@ class AdminController extends Controller
         $request->validate([
             'name'        => 'required|unique:sso_applications,name',
             'redirect'    => 'required|url',
-            'description' => 'nullable|string|max:500', // <-- Ditambahkan
+            'description' => 'nullable|string|max:500', 
             'logo'        => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
@@ -84,7 +82,7 @@ class AdminController extends Controller
         $data = [
             'name'          => $request->name,
             'redirect'      => $request->redirect,
-            'description'   => $request->description, // <-- Ditambahkan
+            'description'   => $request->description, 
             'client_id'     => bin2hex(random_bytes(16)),
             'client_secret' => bin2hex(random_bytes(32)),
         ];
@@ -273,16 +271,17 @@ class AdminController extends Controller
 
     public function toggleMaintenance(Request $request) 
     { 
-        $setting = DB::table('settings')->where('key', 'maintenance_mode')->first();
-        $newState = ($setting && $setting->value == '1') ? '0' : '1';
+        // BACA DARI CACHE (Sesuai dengan CheckMaintenanceMode)
+        $isMaintenance = Cache::get('maintenance_mode', false);
 
-        if ($setting) {
-            DB::table('settings')->where('key', 'maintenance_mode')->update(['value' => $newState]);
+        if ($isMaintenance) {
+            Cache::put('maintenance_mode', false);
+            $statusText = 'NONAKTIF';
         } else {
-            DB::table('settings')->insert(['key' => 'maintenance_mode', 'value' => $newState]);
+            Cache::forever('maintenance_mode', true);
+            $statusText = 'AKTIF';
         }
 
-        $statusText = $newState == '1' ? 'AKTIF' : 'NONAKTIF';
         try {
             AuditLogEvent::dispatch('admin', [
                 'admin' => Auth::user(), 
