@@ -48,11 +48,14 @@ Route::middleware(['auth', 'password.expire'])->group(function () {
         }
         return view('dashboard', compact('applications'));
     })->name('dashboard');
-
-    Route::get('/sso/authorize', [SSOController::class, 'authorizeSSO']);
 });
 
 Route::middleware('auth')->group(function () {
+    // Dipisah dari password.expire agar tidak crash saat belum login
+    // dan tidak terhalang cek expired — auth middleware akan redirect
+    // ke halaman login Gudeg otomatis kalau belum ada session
+    Route::get('/sso/authorize', [SSOController::class, 'authorizeSSO']);
+
     Route::get('/settings', [AdminController::class, 'index'])->name('settings');
     Route::post('/settings/password', [AuthController::class, 'updatePassword'])->middleware('throttle:3,1');
     Route::post('/settings/sessions/destroy', [AuthController::class, 'destroySessions'])->name('sessions.destroy');
