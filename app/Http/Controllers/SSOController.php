@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Events\AuditLogEvent;
 
@@ -23,29 +24,44 @@ class SSOController extends Controller
         $redirectUrl = $request->query('redirect');
         if (!$redirectUrl) return abort(400, 'URL Redirect tidak disertakan.');
 
-        // Buat payload berisi data user + timestamp
-        $payload = [
-            'id'        => Auth::user()->id,
-            'name'      => Auth::user()->name,
-            'email'     => Auth::user()->email,
-            'role'      => Auth::user()->role,
-            'timestamp' => now()->timestamp,
-        ];
-
-        // Enkripsi payload pakai shared secret
-        $secret     = config('app.sso_secret', env('SSO_SECRET'));
-        $json       = json_encode($payload);
-        $encrypted  = base64_encode($json);
-        $signature  = hash_hmac('sha256', $encrypted, $secret);
-        $token      = $encrypted . '.' . $signature;
+        // Cek apakah aplikasi terdaftar & mode token-nya
+        $redirectDomain = parse_url($redirectUrl, PHP_URL_HOST);
+        $app = DB::table('sso_applications')
+            ->where(function ($q) use ($redirectUrl, $redirectDomain) {
+                $q->where('redirect', $redirectUrl)
+                  ->orWhere('redirect', 'like', '%' . $redirectDomain . '%');
+            })
+            ->first();
 
         AuditLogEvent::dispatch('user', [
             'user'     => Auth::user(),
-            'activity' => 'Akses SSO ke ' . parse_url($redirectUrl, PHP_URL_HOST),
+            'activity' => 'Akses SSO ke ' . $redirectDomain,
             'ip'       => $request->ip()
         ]);
 
-        return redirect($redirectUrl . '?token=' . urlencode($token));
+        // Mode SIGNED TOKEN — untuk aplikasi yang tidak bisa server-to-server
+        if ($app && $app->use_signed_token) {
+            $payload = [
+                'id'        => Auth::user()->id,
+                'name'      => Auth::user()->name,
+                'email'     => Auth::user()->email,
+                'role'      => Auth::user()->role,
+                'timestamp' => now()->timestamp,
+            ];
+
+            $secret    = env('SSO_SECRET');
+            $encrypted = base64_encode(json_encode($payload));
+            $signature = hash_hmac('sha256', $encrypted, $secret);
+            $token     = $encrypted . '.' . $signature;
+
+            return redirect($redirectUrl . '?token=' . urlencode($token));
+        }
+
+        // Mode CACHE TOKEN — default, untuk aplikasi yang bisa server-to-server
+        $token = hash('sha256', Auth::id() . Auth::user()->email . config('app.key') . now()->timestamp);
+        Cache::put('sso_token_' . $token, Auth::id(), now()->addMinutes(2));
+
+        return redirect($redirectUrl . '?token=' . $token);
     }
 
     public function validateToken(Request $request)

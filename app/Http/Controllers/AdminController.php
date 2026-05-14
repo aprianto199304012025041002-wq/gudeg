@@ -21,7 +21,7 @@ class AdminController extends Controller
         try {
             $sessions = DB::table('sessions')->where('user_id', Auth::id())->orderBy('last_activity', 'desc')->get();
         } catch (\Throwable $e) {
-            $sessions = collect([]); 
+            $sessions = collect([]);
         }
 
         $logs = collect([]);
@@ -30,8 +30,7 @@ class AdminController extends Controller
         $isMaintenance = false;
 
         if (Auth::check() && Auth::user()->role === 'admin') {
-            
-            // Log dengan withQueryString agar tidak hilang saat sorting user
+
             try {
                 $logs = DB::table('admin_logs')->orderBy('created_at', 'desc')->paginate(5, ['*'], 'log_page')->withQueryString();
             } catch (\Throwable $e) {}
@@ -40,19 +39,16 @@ class AdminController extends Controller
                 $userLogs = DB::table('user_logs')->orderBy('created_at', 'desc')->paginate(5, ['*'], 'ulog_page')->withQueryString();
             } catch (\Throwable $e) {}
 
-            // Manajemen Pengguna (Pencarian & Sorting)
             $query = DB::table('users');
-            
+
             if ($request->has('search') && $request->search != '') {
-                // Pakai closure (function) agar WHERE search tidak bocor ke logika lain
-                $query->where(function($q) use ($request) {
+                $query->where(function ($q) use ($request) {
                     $q->where('name', 'like', '%' . $request->search . '%')
                       ->orWhere('email', 'like', '%' . $request->search . '%');
                 });
             }
 
-            // Fitur Sortir
-            $sortBy = $request->get('sort_by', 'name');
+            $sortBy    = $request->get('sort_by', 'name');
             $sortOrder = $request->get('order', 'asc');
             $allowedColumns = ['name', 'is_active', 'role'];
 
@@ -62,9 +58,7 @@ class AdminController extends Controller
                 $query->orderBy('name', 'asc');
             }
 
-            // withQueryString() akan menjaga query sort & search saat pindah halaman
             $users = $query->paginate(10, ['*'], 'page')->withQueryString();
-
             $isMaintenance = Cache::get('maintenance_mode', false);
         }
 
@@ -83,24 +77,26 @@ class AdminController extends Controller
     public function appsStore(Request $request)
     {
         $request->validate([
-            'name'        => 'required|unique:sso_applications,name',
-            'redirect'    => 'required|url',
-            'description' => 'nullable|string|max:500', 
-            'logo'        => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
+            'name'             => 'required|unique:sso_applications,name',
+            'redirect'         => 'required|url',
+            'description'      => 'nullable|string|max:500',
+            'logo'             => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'use_signed_token' => 'nullable|boolean',
         ]);
 
         $data = [
-            'name'          => $request->name,
-            'redirect'      => $request->redirect,
-            'description'   => $request->description, 
-            'client_id'     => bin2hex(random_bytes(16)),
-            'client_secret' => bin2hex(random_bytes(32)),
+            'name'             => $request->name,
+            'redirect'         => $request->redirect,
+            'description'      => $request->description,
+            'client_id'        => bin2hex(random_bytes(16)),
+            'client_secret'    => bin2hex(random_bytes(32)),
+            'use_signed_token' => $request->boolean('use_signed_token'),
         ];
 
         if ($request->hasFile('logo')) {
-            $file = $request->file('logo');
-            $logoName = time() . '_' . $file->getClientOriginalName();
-            $destinationPath = base_path('logos'); 
+            $file            = $request->file('logo');
+            $logoName        = time() . '_' . $file->getClientOriginalName();
+            $destinationPath = base_path('logos');
             if (!file_exists($destinationPath)) {
                 mkdir($destinationPath, 0755, true);
             }
@@ -113,12 +109,33 @@ class AdminController extends Controller
         try {
             AuditLogEvent::dispatch('admin', [
                 'admin'       => Auth::user(),
-                'action'      => 'Registrasi Aplikasi Baru',
+                'action'      => 'Registrasi Aplikasi Baru' . ($data['use_signed_token'] ? ' (Signed Token)' : ''),
                 'target_user' => $request->name
             ]);
         } catch (\Throwable $e) {}
 
         return back()->with('success_store', 'Aplikasi berhasil didaftarkan!');
+    }
+
+    // Toggle mode signed token untuk aplikasi yang sudah terdaftar
+    public function appsToggleSignedToken(Request $request)
+    {
+        $app = DB::table('sso_applications')->where('id', $request->id)->first();
+        if ($app) {
+            $newState = !$app->use_signed_token;
+            DB::table('sso_applications')->where('id', $request->id)->update(['use_signed_token' => $newState]);
+
+            try {
+                AuditLogEvent::dispatch('admin', [
+                    'admin'       => Auth::user(),
+                    'action'      => 'Toggle Signed Token: ' . ($newState ? 'ON' : 'OFF'),
+                    'target_user' => $app->name
+                ]);
+            } catch (\Throwable $e) {}
+
+            return back()->with('success_toggle', 'Mode token aplikasi berhasil diperbarui!');
+        }
+        return back()->with('error', 'Aplikasi tidak ditemukan.');
     }
 
     public function appsToggle(Request $request)
@@ -172,7 +189,7 @@ class AdminController extends Controller
         }
         try {
             $response = Http::timeout(5)->get($app->redirect);
-            $status = $response->successful() ? 'ok' : 'unreachable';
+            $status   = $response->successful() ? 'ok' : 'unreachable';
             return response()->json(['status' => $status, 'code' => $response->status()]);
         } catch (\Throwable $e) {
             return response()->json(['status' => 'offline', 'message' => $e->getMessage()]);
@@ -181,11 +198,11 @@ class AdminController extends Controller
 
     // --------------------------------------------------------
     // METHOD MANAJEMEN USER & ROLE
-    // --------------------------------------------------------        
-    public function resetPassword(Request $request) 
-    { 
+    // --------------------------------------------------------
+    public function resetPassword(Request $request)
+    {
         $request->validate([
-            'user_id' => 'required',
+            'user_id'      => 'required',
             'new_password' => 'required|min:8'
         ]);
 
@@ -197,8 +214,8 @@ class AdminController extends Controller
 
             try {
                 AuditLogEvent::dispatch('admin', [
-                    'admin' => Auth::user(), 
-                    'action' => 'Reset Password User', 
+                    'admin'       => Auth::user(),
+                    'action'      => 'Reset Password User',
                     'target_user' => $user->name
                 ]);
             } catch (\Throwable $e) {}
@@ -208,16 +225,16 @@ class AdminController extends Controller
         return back()->withErrors(['Error' => 'User tidak ditemukan.']);
     }
 
-    public function updateRole(Request $request) 
-    { 
+    public function updateRole(Request $request)
+    {
         $user = DB::table('users')->where('id', $request->user_id)->first();
         if ($user) {
             DB::table('users')->where('id', $request->user_id)->update(['role' => $request->role]);
 
             try {
                 AuditLogEvent::dispatch('admin', [
-                    'admin' => Auth::user(), 
-                    'action' => 'Ubah Role menjadi ' . strtoupper($request->role), 
+                    'admin'       => Auth::user(),
+                    'action'      => 'Ubah Role menjadi ' . strtoupper($request->role),
                     'target_user' => $user->name
                 ]);
             } catch (\Throwable $e) {}
@@ -227,18 +244,18 @@ class AdminController extends Controller
         return back();
     }
 
-    public function toggleActive(Request $request) 
-    { 
+    public function toggleActive(Request $request)
+    {
         $user = DB::table('users')->where('id', $request->user_id)->first();
         if ($user) {
-            $isActive = $request->is_active ? 1 : 0;
+            $isActive   = $request->is_active ? 1 : 0;
             DB::table('users')->where('id', $request->user_id)->update(['is_active' => $isActive]);
 
             $statusText = $isActive ? 'Diaktifkan' : 'Dinonaktifkan';
             try {
                 AuditLogEvent::dispatch('admin', [
-                    'admin' => Auth::user(), 
-                    'action' => "Status Akun {$statusText}", 
+                    'admin'       => Auth::user(),
+                    'action'      => "Status Akun {$statusText}",
                     'target_user' => $user->name
                 ]);
             } catch (\Throwable $e) {}
@@ -248,8 +265,8 @@ class AdminController extends Controller
         return back();
     }
 
-    public function destroy(Request $request) 
-    { 
+    public function destroy(Request $request)
+    {
         $user = DB::table('users')->where('id', $request->user_id)->first();
         if ($user) {
             DB::table('user_applications')->where('user_id', $user->id)->delete();
@@ -257,8 +274,8 @@ class AdminController extends Controller
 
             try {
                 AuditLogEvent::dispatch('admin', [
-                    'admin' => Auth::user(), 
-                    'action' => 'Hapus User', 
+                    'admin'       => Auth::user(),
+                    'action'      => 'Hapus User',
                     'target_user' => $user->name
                 ]);
             } catch (\Throwable $e) {}
@@ -268,8 +285,8 @@ class AdminController extends Controller
         return back();
     }
 
-    public function toggleMaintenance(Request $request) 
-    { 
+    public function toggleMaintenance(Request $request)
+    {
         $isMaintenance = Cache::get('maintenance_mode', false);
 
         if ($isMaintenance) {
@@ -282,8 +299,8 @@ class AdminController extends Controller
 
         try {
             AuditLogEvent::dispatch('admin', [
-                'admin' => Auth::user(), 
-                'action' => "Toggle Mode Maintenance ({$statusText})", 
+                'admin'       => Auth::user(),
+                'action'      => "Toggle Mode Maintenance ({$statusText})",
                 'target_user' => '-'
             ]);
         } catch (\Throwable $e) {}
@@ -291,39 +308,36 @@ class AdminController extends Controller
         return back()->with('success', "Mode Maintenance berhasil {$statusText}.");
     }
 
-    public function getUserApps($id) 
-    { 
-        $all_apps = DB::table('sso_applications')->select('id', 'name')->get();
+    public function getUserApps($id)
+    {
+        $all_apps  = DB::table('sso_applications')->select('id', 'name')->get();
         $user_apps = DB::table('user_applications')->where('user_id', $id)->pluck('application_id')->toArray();
-        
+
         return response()->json([
-            'success' => true,
-            'all_apps' => $all_apps,
+            'success'   => true,
+            'all_apps'  => $all_apps,
             'user_apps' => $user_apps
         ]);
     }
 
-    public function syncUserApps(Request $request) 
-    { 
+    public function syncUserApps(Request $request)
+    {
         try {
             $userId = $request->user_id;
-            $appIds = $request->apps ?? []; 
+            $appIds = $request->apps ?? [];
 
             DB::table('user_applications')->where('user_id', $userId)->delete();
 
             $inserts = [];
             foreach ($appIds as $appId) {
-                $inserts[] = [
-                    'user_id' => $userId, 
-                    'application_id' => $appId
-                ];
+                $inserts[] = ['user_id' => $userId, 'application_id' => $appId];
             }
 
             if (count($inserts) > 0) {
                 DB::table('user_applications')->insert($inserts);
             }
 
-            $user = DB::table('users')->where('id', $userId)->first();
+            $user     = DB::table('users')->where('id', $userId)->first();
             $userName = $user ? $user->name : 'Unknown';
 
             try {
@@ -337,7 +351,7 @@ class AdminController extends Controller
             } catch (\Throwable $e) {}
 
             return redirect('/settings')->with('success_user', "Akses aplikasi untuk {$userName} berhasil diperbarui.");
-            
+
         } catch (\Throwable $e) {
             return response("
                 <div style='font-family: sans-serif; padding: 20px; background: #fff; color: #333;'>

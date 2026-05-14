@@ -85,6 +85,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::post('/delete', [AdminController::class, 'appsDestroy']);
         Route::post('/ping', [AdminController::class, 'appsPing']);
         Route::post('/toggle', [AdminController::class, 'appsToggle']);
+        Route::post('/toggle-signed-token', [AdminController::class, 'appsToggleSignedToken']);
     });
 });
 

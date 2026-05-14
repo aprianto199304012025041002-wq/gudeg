@@ -8,20 +8,15 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('sso_applications', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->text('redirect');
-            $table->uuid('client_id')->unique();
-            $table->string('client_secret');
-            $table->string('logo')->nullable();
-            $table->text('description')->nullable();
-            $table->timestamps();
+        Schema::table('sso_applications', function (Blueprint $table) {
+            $table->boolean('use_signed_token')->default(false)->after('description');
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('sso_applications');
+        Schema::table('sso_applications', function (Blueprint $table) {
+            $table->dropColumn('use_signed_token');
+        });
     }
 };
