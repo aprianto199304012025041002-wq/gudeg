@@ -21,6 +21,7 @@
     .btn-full { width: 100%; }
     .btn-danger { background: #c72e2e; } .btn-danger:hover { background: #d93a3a; }
     .btn-success { background: #2ea043; } .btn-success:hover { background: #3fb950; }
+    .btn-warning { background: #9e6a03; } .btn-warning:hover { background: #bb8009; }
 
     .alert { font-size: 11px; margin-bottom: 10px; padding: 8px 10px; border-radius: 3px; }
     .alert-error { color: #ff7b72; background: #3b1214; border: 1px solid #f85149; }
@@ -35,9 +36,15 @@
     .action-btns .btn { padding: 4px 8px; font-size: 10px; min-height: 28px; }
     
     .badge-admin { background: #c72e2e; padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: bold; color: white; }
+    .badge-signed { background: #6f42c1; padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: bold; color: white; }
 
     .active-toggle-label { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; cursor: pointer; }
     input[type="checkbox"] { width: auto; min-height: auto; margin: 0; cursor: pointer; accent-color: #007acc; }
+
+    .checkbox-row { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 12px; background: #1e1e1e; border: 1px solid #3c3c3c; border-radius: 3px; padding: 10px; }
+    .checkbox-row input[type="checkbox"] { margin-top: 2px; accent-color: #6f42c1; }
+    .checkbox-row .checkbox-label { font-size: 11px; color: #ccc; line-height: 1.5; }
+    .checkbox-row .checkbox-label span { display: block; font-size: 10px; color: #858585; margin-top: 2px; }
     
     .app-logo-preview { width: 36px; height: 36px; object-fit: contain; background: #1e1e1e; border: 1px solid #3c3c3c; border-radius: 4px; padding: 4px; }
 </style>
@@ -73,6 +80,15 @@
                 <label>Deskripsi Singkat (Opsional)</label>
                 <textarea name="description" rows="3" placeholder="Aplikasi absensi pegawai..."></textarea>
 
+                {{-- Checkbox Signed Token --}}
+                <div class="checkbox-row">
+                    <input type="checkbox" name="use_signed_token" value="1" id="use_signed_token">
+                    <div class="checkbox-label">
+                        <label for="use_signed_token" style="display:inline; color:#ccc; font-size:11px; margin:0; cursor:pointer;">Gunakan Signed Token</label>
+                        <span>Aktifkan jika aplikasi tidak bisa melakukan validasi server-to-server ke Gudeg SSO (misal: hosting shared seperti Hostinger, InfinityFree, dll).</span>
+                    </div>
+                </div>
+
                 <button type="submit" class="btn btn-success btn-full" style="margin-top: 5px;">Daftarkan Aplikasi</button>
             </form>
         </div>
@@ -92,6 +108,7 @@
                                 <th style="width: 50px; text-align: center;">Logo</th>
                                 <th>Informasi Aplikasi</th>
                                 <th style="text-align: center;">Status</th>
+                                <th style="text-align: center;">Token</th>
                                 <th style="text-align: right;">Aksi</th>
                             </tr>
                         </thead>
@@ -107,12 +124,9 @@
                                 </td>
                                 <td>
                                     <b style="font-size: 13px; color: #fff;">{{ $app->name }}</b>
-                                    
-                                    {{-- PERBAIKAN: Menggunakan !empty() agar jika isinya string kosong ("") tetap tertulis 'Tidak ada deskripsi' --}}
                                     <div style="font-size: 10px; color: #aaa; margin-top: 2px;">
                                         {{ !empty($app->description) ? $app->description : 'Tidak ada deskripsi' }}
                                     </div>
-                                    
                                     <div style="margin-top:6px; font-size:10px; color:#858585;">🔗 {{ $app->redirect }}</div>
                                     <div style="margin-top:2px; font-size:10px; color:#555; font-family: monospace; word-break: break-all;">ID: {{ $app->client_id }}</div>
                                 </td>
@@ -121,7 +135,6 @@
                                         @csrf
                                         <input type="hidden" name="id" value="{{ $app->id }}">
                                         <input type="hidden" name="is_active" value="0">
-                                        
                                         <label class="active-toggle-label">
                                             <input type="checkbox" name="is_active" value="1" {{ (!isset($app->is_active) || $app->is_active) ? 'checked' : '' }} onchange="this.form.submit()">
                                             <span style="color: {{ (!isset($app->is_active) || $app->is_active) ? '#7ee787' : '#ff7b72' }}; font-weight: bold;">
@@ -130,10 +143,21 @@
                                         </label>
                                     </form>
                                 </td>
+                                <td style="text-align: center;">
+                                    <form action="/apps/toggle-signed-token" method="POST" id="form-signed-{{ $app->id }}">
+                                        @csrf
+                                        <input type="hidden" name="id" value="{{ $app->id }}">
+                                        <label class="active-toggle-label">
+                                            <input type="checkbox" {{ $app->use_signed_token ? 'checked' : '' }} onchange="this.form.submit()" style="accent-color: #6f42c1;">
+                                            <span style="color: {{ $app->use_signed_token ? '#d2a8ff' : '#858585' }}; font-weight: bold;">
+                                                {{ $app->use_signed_token ? 'Signed' : 'Cache' }}
+                                            </span>
+                                        </label>
+                                    </form>
+                                </td>
                                 <td>
                                     <div class="action-btns">
                                         <button type="button" class="btn" style="background:#007acc;" onclick="pingApp('{{ $app->id }}', '{{ $app->name }}')">Test Ping</button>
-                                        
                                         <form action="/apps/delete" method="POST" id="delete-app-{{ $app->id }}" style="margin:0;">
                                             @csrf
                                             <input type="hidden" name="id" value="{{ $app->id }}">
