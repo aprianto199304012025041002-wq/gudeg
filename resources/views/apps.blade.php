@@ -5,10 +5,12 @@
 
 @push('styles')
 <style>
-    .apps-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
-    @media (min-width: 1024px) { .apps-grid { grid-template-columns: 350px 1fr; align-items: start; } }
+    /* FIX: Pakai minmax(0, 1fr) supaya grid tidak melebihi lebar layar HP */
+    .apps-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+    @media (min-width: 1024px) { .apps-grid { grid-template-columns: 350px minmax(0, 1fr); align-items: start; } }
 
-    .card { background: #252526; border: 1px solid #3c3c3c; border-radius: 4px; padding: 14px; }
+    /* FIX: Tambah overflow: hidden supaya tabel tidak menjebol card */
+    .card { background: #252526; border: 1px solid #3c3c3c; border-radius: 4px; padding: 14px; overflow: hidden; }
     .card-title { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
     
     label { display: block; font-size: 11px; color: #858585; margin-bottom: 4px; }
@@ -127,7 +129,8 @@
                                     <div style="font-size: 10px; color: #aaa; margin-top: 2px;">
                                         {{ !empty($app->description) ? $app->description : 'Tidak ada deskripsi' }}
                                     </div>
-                                    <div style="margin-top:6px; font-size:10px; color:#858585;">🔗 {{ $app->redirect }}</div>
+                                    <!-- FIX: Tambah word-break supaya teks URL yang panjang tidak merusak tabel -->
+                                    <div style="margin-top:6px; font-size:10px; color:#858585; word-break: break-all;">🔗 {{ $app->redirect }}</div>
                                     <div style="margin-top:2px; font-size:10px; color:#555; font-family: monospace; word-break: break-all;">ID: {{ $app->client_id }}</div>
                                 </td>
                                 <td style="text-align: center;">
