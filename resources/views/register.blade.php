@@ -1,242 +1,241 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
     <title>GUDEG JOGJA - Registrasi</title>
-
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Segoe UI', Tahoma, sans-serif;
-            background: #1a1a1a;
+            background-color: #080c18;
+            background-image:
+                radial-gradient(ellipse 80% 70% at 50% 50%, #111e3a 0%, #080c18 70%),
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 100% 100%, 48px 48px, 48px 48px;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            color: #d4d4d4;
+            color: #ccd6f6;
             padding: 16px;
         }
 
+        .wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 420px;
+        }
+
+        /* Brand */
+        .brand { text-align: center; margin-bottom: 28px; }
+
+        .brand-name {
+            font-size: 34px;
+            font-weight: 800;
+            letter-spacing: 3px;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+        .brand-name .gudeg { color: #ffffff; }
+        .brand-name .jogja { color: #e8b84b; }
+
+        .brand-tagline {
+            font-size: 10.5px;
+            color: #6b7a9f;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        .brand-sub {
+            font-size: 10px;
+            color: #4a5878;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        /* Card */
         .card {
             width: 100%;
-            max-width: 360px;
-            background: #252526;
-            border: 1px solid #3c3c3c;
-            border-radius: 4px;
-            padding: 24px 20px;
+            background: #131929;
+            border: 1px solid #1e2d4a;
+            border-radius: 10px;
+            padding: 26px 24px;
         }
 
-        .app-logo {
-            text-align: center;
-            margin-bottom: 12px;
-            font-size: 32px;
-            line-height: 1;
-        }
-
-        .app-name {
-            text-align: center;
-            font-size: 18px;
+        .card-title {
+            font-size: 17px;
             font-weight: 700;
             color: #ffffff;
-            margin-bottom: 4px;
-            letter-spacing: 0.5px;
+            margin-bottom: 5px;
         }
-
-        .subtitle {
-            text-align: center;
-            color: #858585;
-            font-size: 11px;
-            margin-bottom: 20px;
+        .card-sub {
+            font-size: 12px;
+            color: #8a9bbf;
+            margin-bottom: 22px;
             line-height: 1.5;
         }
+        .card-sub b { color: #e8b84b; font-weight: 700; }
 
+        /* Error */
         .error {
-            background: #3a1d1d;
-            border: 1px solid #5c2626;
+            background: #1f0d10;
+            border: 1px solid #4a1a22;
             color: #ff8f8f;
-            padding: 8px 10px;
-            border-radius: 3px;
+            padding: 8px 12px;
+            border-radius: 5px;
             font-size: 11px;
-            margin-bottom: 14px;
-            text-align: center;
+            margin-bottom: 16px;
         }
 
+        /* Form */
         label {
             display: block;
-            margin-bottom: 4px;
-            font-size: 11px;
-            color: #aaaaaa;
+            font-size: 10.5px;
+            color: #6b7a9f;
+            margin-bottom: 5px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
 
         input[type="text"],
         input[type="email"],
         input[type="password"] {
             width: 100%;
-            background: #1e1e1e;
-            border: 1px solid #3c3c3c;
-            color: #d4d4d4;
-            padding: 9px 10px;
-            border-radius: 3px;
-            margin-bottom: 12px;
+            background: #0d1220;
+            border: 1px solid #1e2d4a;
+            color: #ccd6f6;
+            padding: 9px 12px;
+            border-radius: 5px;
+            margin-bottom: 14px;
             font-size: 13px;
+            font-family: inherit;
             min-height: 38px;
-            transition: border 0.15s;
+            transition: border-color 0.15s;
             -webkit-appearance: none;
             appearance: none;
         }
+        input::placeholder { color: #2e3d5c; }
+        input:focus { outline: none; border-color: #3d6aff; }
 
-        input::placeholder {
-            color: #555;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: #007acc;
-        }
-
-        button {
+        button[type="submit"] {
             width: 100%;
+            background: #2d4fff;
             border: none;
-            background: #007acc;
-            color: white;
-            padding: 10px;
-            border-radius: 3px;
+            color: #fff;
+            padding: 11px 16px;
+            border-radius: 6px;
             font-size: 13px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
-            transition: background 0.15s;
-            margin-top: 6px;
-            min-height: 40px;
+            font-family: inherit;
+            letter-spacing: 0.3px;
+            margin-top: 4px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: opacity 0.15s;
             -webkit-appearance: none;
-            appearance: none;
+            min-height: 40px;
+        }
+        button[type="submit"]:hover { opacity: 0.88; }
+        button[type="submit"]::after { content: '→'; margin-left: auto; opacity: 0.7; font-size: 16px; }
+
+        .divider {
+            border: none;
+            border-top: 1px solid #1a2640;
+            margin-bottom: 14px;
         }
 
-        @media (hover: hover) {
-            button:hover {
-                background: #0090f1;
-            }
-        }
-
-        button:active {
-            background: #0060a0;
-        }
-
-        .login-link {
-            margin-top: 16px;
+        .bottom-link {
             text-align: center;
             font-size: 11px;
-            color: #858585;
+            color: #4d5d7e;
         }
-
-        .login-link a {
-            color: #4daafc;
+        .bottom-link a {
+            color: #5a7fff;
             text-decoration: none;
             font-weight: 600;
         }
+        .bottom-link a:hover { text-decoration: underline; }
 
-        .login-link a:hover {
-            text-decoration: underline;
+        .footer {
+            margin-top: 20px;
+            font-size: 11px;
+            color: #1e2d44;
+            text-align: center;
         }
 
         @media (max-width: 400px) {
-            body {
-                padding: 12px;
-                align-items: flex-start;
-                padding-top: 30px;
-            }
-
-            .card {
-                padding: 20px 16px;
-            }
+            body { padding: 12px; align-items: flex-start; padding-top: 30px; }
+            .card { padding: 20px 16px; }
+            .brand-name { font-size: 28px; }
         }
     </style>
 </head>
-
 <body>
+    <div class="wrapper">
 
-    <div class="card">
-
-        <div class="app-logo">📡</div>
-
-        <div class="app-name">
-            GUDEG JOGJA
-        </div>
-
-        <div class="subtitle">
-            General Unified Database and Employee Gateway
-            <br>
-            Balai Monitor Spektrum Frekuensi Radio Kelas I Yogyakarta
-        </div>
-
-        @if ($errors->any())
-            <div class="error">
-                {{ $errors->first() }}
+        <div class="brand">
+            <div class="brand-name">
+                <span class="gudeg">GUDEG</span> <span class="jogja">JOGJA</span>
             </div>
-        @endif
-
-        <form method="POST" action="/register">
-
-            @csrf
-
-            <label for="name">Nama Lengkap</label>
-            <input
-                type="text"
-                id="name"
-                name="name"
-                value="{{ old('name') }}"
-                placeholder="Nama lengkap"
-                required
-                autofocus
-            >
-
-            <label for="email">Email</label>
-            <input
-                type="email"
-                id="email"
-                name="email"
-                value="{{ old('email') }}"
-                placeholder="email@example.com"
-                required
-            >
-
-            <label for="password">Password</label>
-            <input
-                type="password"
-                id="password"
-                name="password"
-                placeholder="Minimal 8 karakter"
-                required
-            >
-
-            <label for="password_confirmation">Konfirmasi Password</label>
-            <input
-                type="password"
-                id="password_confirmation"
-                name="password_confirmation"
-                placeholder="Ulangi password"
-                required
-            >
-
-            <button type="submit">
-                Daftar ke Portal
-            </button>
-
-        </form>
-
-        <div class="login-link">
-            Sudah punya akun?
-            <a href="/">Login di sini</a>
+            <div class="brand-tagline">General Unified Database and Employee Gateway</div>
+            <div class="brand-sub">Balai Monitor Spektrum Frekuensi Radio Kelas I Yogyakarta</div>
         </div>
+
+        <div class="card">
+            <div class="card-title">Buat Akun Baru</div>
+            <div class="card-sub">Daftarkan diri Anda ke portal <b>GUDEG JOGJA</b>.</div>
+
+            @if ($errors->any())
+                <div class="error">{{ $errors->first() }}</div>
+            @endif
+
+            <form method="POST" action="/register">
+                @csrf
+
+                <label for="name">Nama Lengkap</label>
+                <input type="text" id="name" name="name"
+                    value="{{ old('name') }}"
+                    placeholder="Nama lengkap"
+                    required autofocus>
+
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email"
+                    value="{{ old('email') }}"
+                    placeholder="email@example.com"
+                    required>
+
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password"
+                    placeholder="Minimal 8 karakter"
+                    required>
+
+                <label for="password_confirmation">Konfirmasi Password</label>
+                <input type="password" id="password_confirmation" name="password_confirmation"
+                    placeholder="Ulangi password"
+                    required>
+
+                <button type="submit">Daftar ke Portal</button>
+            </form>
+
+            <hr class="divider">
+
+            <div class="bottom-link">
+                Sudah punya akun? <a href="/">Login di sini</a>
+            </div>
+        </div>
+
+        <div class="footer">© {{ date('Y') }} QoS Balmon Jogja Team</div>
 
     </div>
-
 </body>
 </html>
