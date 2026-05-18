@@ -92,7 +92,7 @@
     }
     .user-card-item:last-child { margin-bottom: 0; }
     .user-card-item .user-name { font-size: 13px; font-weight: 600; color: #b0c8e8; }
-    .user-card-item .user-email { font-size: 10px; color: #3d5a80; word-break: break-all; margin-top: 2px; margin-bottom: 8px; }
+    .user-card-item .user-email { font-size: 10px; color: #3d5a80; word-break: break-all; margin-top: 2px; margin-bottom: 4px; }
     .user-card-item .user-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
     .user-card-item .user-actions { display: flex; gap: 6px; flex-wrap: wrap; }
     .user-card-item .user-actions .btn { padding: 5px 10px; font-size: 11px; min-height: 32px; flex: 1; }
@@ -293,6 +293,8 @@
                             <th>{!! sortLink('name', 'User') !!}</th>
                             <th>{!! sortLink('is_active', 'Status') !!}</th>
                             <th>{!! sortLink('role', 'Role') !!}</th>
+                            <!-- Kolom Baru: Terakhir Login -->
+                            <th>{!! sortLink('last_login_at', 'Terakhir Login') !!}</th>
                             <th style="text-align: right;">Aksi</th>
                         </tr>
                     </thead>
@@ -337,6 +339,16 @@
                                     </form>
                                 @endif
                             </td>
+                            <!-- Data Baru: Terakhir Login -->
+                            <td>
+                                @if($u->last_login_at)
+                                    <span style="font-size: 10px; color: #7a9bbf;" title="{{ \Carbon\Carbon::parse($u->last_login_at)->format('d/m/Y H:i:s') }}">
+                                        {{ \Carbon\Carbon::parse($u->last_login_at)->diffForHumans() }}
+                                    </span>
+                                @else
+                                    <span style="font-size: 10px; color: #4a6a90;">Belum pernah</span>
+                                @endif
+                            </td>
                             <td>
                                 <div class="action-btns">
                                     @if(!$isAdminDummy)
@@ -370,6 +382,16 @@
                 <div class="user-card-item">
                     <div class="user-name">{{ $u->name }}</div>
                     <div class="user-email">{{ $u->email }}</div>
+                    
+                    <!-- Data Baru: Terakhir Login (Mobile) -->
+                    <div style="font-size: 10px; color: #4a6a90; margin-bottom: 8px; display: flex; align-items: center; gap: 4px;">
+                        🕒 
+                        @if($u->last_login_at)
+                            <span style="color: #7a9bbf;" title="{{ \Carbon\Carbon::parse($u->last_login_at)->format('d/m/Y H:i') }}">{{ \Carbon\Carbon::parse($u->last_login_at)->diffForHumans() }}</span>
+                        @else
+                            Belum pernah
+                        @endif
+                    </div>
 
                     <div class="user-meta">
                         <form action="/settings/admin/toggle-active" method="POST" id="form-active-mob-{{ $u->id }}">
