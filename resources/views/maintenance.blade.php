@@ -137,7 +137,8 @@
             pemeliharaan rutin untuk peningkatan layanan.<br><br>
             Silakan kembali beberapa saat lagi.
         </div>
-        <a href="/" class="btn-admin">Login Administrator</a>
+        <!-- Tombol diubah agar melakukan logout (menghapus session) lalu kembali ke halaman login -->
+        <a href="/logout" class="btn-admin">Logout & Login Ulang</a>
     </div>
 </body>
 </html>
