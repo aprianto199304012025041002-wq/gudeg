@@ -1,54 +1,82 @@
 @extends('layouts.app')
 
 @section('title', 'Aplikasi SSO')
-@section('topbar_title', 'GUDEG JOGJA Aplikasi SSO')
+@section('topbar_title', 'Aplikasi SSO')
 
 @push('styles')
 <style>
-    /* FIX: Pakai minmax(0, 1fr) supaya grid tidak melebihi lebar layar HP */
     .apps-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
     @media (min-width: 1024px) { .apps-grid { grid-template-columns: 350px minmax(0, 1fr); align-items: start; } }
 
-    /* FIX: Tambah overflow: hidden supaya tabel tidak menjebol card */
-    .card { background: #252526; border: 1px solid #3c3c3c; border-radius: 4px; padding: 14px; overflow: hidden; }
-    .card-title { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-    
-    label { display: block; font-size: 11px; color: #858585; margin-bottom: 4px; }
-    input, textarea { width: 100%; padding: 8px 10px; background: #1e1e1e; border: 1px solid #3c3c3c; color: #fff; border-radius: 3px; font-size: 12px; margin-bottom: 10px; box-sizing: border-box; font-family: inherit; }
+    .card {
+        background: rgba(13,25,50,0.75);
+        border: 1px solid #1a2e50;
+        border-radius: 4px; padding: 14px; overflow: hidden;
+    }
+    .card-title {
+        font-size: 13px; font-weight: 600; color: #d0e4ff;
+        margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;
+    }
+
+    label { display: block; font-size: 11px; color: #4a6a90; margin-bottom: 4px; }
+    input, textarea {
+        width: 100%; padding: 8px 10px;
+        background: #060e1c; border: 1px solid #1a2e50;
+        color: #c8d0e0; border-radius: 3px; font-size: 12px;
+        margin-bottom: 10px; box-sizing: border-box; font-family: inherit;
+    }
     input[type="file"] { padding: 5px; font-size: 11px; cursor: pointer; }
-    input:focus, textarea:focus { border-color: #007acc; outline: none; }
-    
-    .btn { background: #007acc; border: none; color: white; padding: 8px 12px; border-radius: 3px; cursor: pointer; font-size: 12px; font-weight: 600; min-height: 36px; display: inline-flex; align-items: center; justify-content: center; transition: 0.15s; }
-    .btn:hover { background: #0090f1; }
+    input:focus, textarea:focus { border-color: #2d5fff; outline: none; }
+
+    .btn {
+        background: #1a3a8a; border: none; color: #d0e4ff;
+        padding: 8px 12px; border-radius: 3px; cursor: pointer;
+        font-size: 12px; font-weight: 600; min-height: 36px;
+        display: inline-flex; align-items: center; justify-content: center;
+        transition: 0.15s;
+    }
+    .btn:hover { background: #1e4aaa; }
     .btn-full { width: 100%; }
-    .btn-danger { background: #c72e2e; } .btn-danger:hover { background: #d93a3a; }
-    .btn-success { background: #2ea043; } .btn-success:hover { background: #3fb950; }
-    .btn-warning { background: #9e6a03; } .btn-warning:hover { background: #bb8009; }
+    .btn-danger  { background: #6a1a1a; color: #f0a0a0; } .btn-danger:hover  { background: #8a2020; }
+    .btn-success { background: #0a3a1a; color: #7ee787; } .btn-success:hover { background: #0d4a22; }
+    .btn-warning { background: #3a2a00; color: #e8b84b; } .btn-warning:hover { background: #4a3600; }
 
     .alert { font-size: 11px; margin-bottom: 10px; padding: 8px 10px; border-radius: 3px; }
-    .alert-error { color: #ff7b72; background: #3b1214; border: 1px solid #f85149; }
+    .alert-error { color: #c05050; background: #2a0a0a; border: 1px solid #6a1a1a; }
 
     .table-container { overflow-x: auto; max-width: 100%; }
     .app-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 11px; }
-    .app-table th { color: #858585; padding: 8px 6px; border-bottom: 1px solid #3c3c3c; font-size: 9px; text-transform: uppercase; white-space: nowrap; }
-    .app-table td { padding: 10px 6px; border-bottom: 1px solid #2a2a2a; vertical-align: middle; }
-    .app-table td b { color: #fff; display: block; font-size: 12px; margin-bottom: 2px; }
-    
+    .app-table th {
+        color: #3d5a80; padding: 8px 6px;
+        border-bottom: 1px solid #1a2e50;
+        font-size: 9px; text-transform: uppercase; white-space: nowrap;
+    }
+    .app-table td { padding: 10px 6px; border-bottom: 1px solid #0f1e38; vertical-align: middle; }
+    .app-table td b { color: #b0c8e8; display: block; font-size: 12px; margin-bottom: 2px; }
+
     .action-btns { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
     .action-btns .btn { padding: 4px 8px; font-size: 10px; min-height: 28px; }
-    
-    .badge-admin { background: #c72e2e; padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: bold; color: white; }
-    .badge-signed { background: #6f42c1; padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: bold; color: white; }
+
+    .badge-admin  { background: #6a1a1a; padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: bold; color: #f0a0a0; }
+    .badge-signed { background: #2d1a5a; padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: bold; color: #c0a0f0; }
 
     .active-toggle-label { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; cursor: pointer; }
-    input[type="checkbox"] { width: auto; min-height: auto; margin: 0; cursor: pointer; accent-color: #007acc; }
+    input[type="checkbox"] { width: auto; min-height: auto; margin: 0; cursor: pointer; accent-color: #2d5fff; }
 
-    .checkbox-row { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 12px; background: #1e1e1e; border: 1px solid #3c3c3c; border-radius: 3px; padding: 10px; }
-    .checkbox-row input[type="checkbox"] { margin-top: 2px; accent-color: #6f42c1; }
-    .checkbox-row .checkbox-label { font-size: 11px; color: #ccc; line-height: 1.5; }
-    .checkbox-row .checkbox-label span { display: block; font-size: 10px; color: #858585; margin-top: 2px; }
-    
-    .app-logo-preview { width: 36px; height: 36px; object-fit: contain; background: #1e1e1e; border: 1px solid #3c3c3c; border-radius: 4px; padding: 4px; }
+    .checkbox-row {
+        display: flex; align-items: flex-start; gap: 8px; margin-bottom: 12px;
+        background: #060e1c; border: 1px solid #1a2e50;
+        border-radius: 3px; padding: 10px;
+    }
+    .checkbox-row input[type="checkbox"] { margin-top: 2px; accent-color: #4a2a9a; }
+    .checkbox-row .checkbox-label { font-size: 11px; color: #7a9bbf; line-height: 1.5; }
+    .checkbox-row .checkbox-label span { display: block; font-size: 10px; color: #3d5a80; margin-top: 2px; }
+
+    .app-logo-preview {
+        width: 36px; height: 36px; object-fit: contain;
+        background: #060e1c; border: 1px solid #1a2e50;
+        border-radius: 4px; padding: 4px;
+    }
 </style>
 @endpush
 
@@ -72,7 +100,7 @@
                 @csrf
                 <label>Nama Aplikasi</label>
                 <input type="text" name="name" required placeholder="Contoh: E-Kinerja">
-                
+
                 <label>Callback URL (Redirect SSO)</label>
                 <input type="url" name="redirect" required placeholder="https://aplikasi.go.id/login/sso/callback">
 
@@ -82,11 +110,10 @@
                 <label>Deskripsi Singkat (Opsional)</label>
                 <textarea name="description" rows="3" placeholder="Aplikasi absensi pegawai..."></textarea>
 
-                {{-- Checkbox Signed Token --}}
                 <div class="checkbox-row">
                     <input type="checkbox" name="use_signed_token" value="1" id="use_signed_token">
                     <div class="checkbox-label">
-                        <label for="use_signed_token" style="display:inline; color:#ccc; font-size:11px; margin:0; cursor:pointer;">Gunakan Signed Token</label>
+                        <label for="use_signed_token" style="display:inline; color:#7a9bbf; font-size:11px; margin:0; cursor:pointer;">Gunakan Signed Token</label>
                         <span>Aktifkan jika aplikasi tidak bisa melakukan validasi server-to-server ke Gudeg SSO (misal: hosting shared seperti Hostinger, InfinityFree, dll).</span>
                     </div>
                 </div>
@@ -101,7 +128,7 @@
             <div class="card-title">Daftar Aplikasi Terintegrasi</div>
 
             @if($apps->isEmpty())
-                <div style="font-size:11px;color:#858585;text-align:center;padding:20px 0;">Belum ada aplikasi yang didaftarkan.</div>
+                <div style="font-size:11px;color:#3d5a80;text-align:center;padding:20px 0;">Belum ada aplikasi yang didaftarkan.</div>
             @else
                 <div class="table-container">
                     <table class="app-table">
@@ -119,19 +146,18 @@
                             <tr>
                                 <td style="text-align: center;">
                                     @if($app->logo)
-                                        <img src="/{{ $app->logo }}" class="app-logo-preview" alt="logo" onerror="this.outerHTML='<div class=\'app-logo-preview\' style=\'display:flex;align-items:center;justify-content:center;font-size:16px;margin:0 auto;\'>🚀</div>'">
+                                        <img src="/{{ $app->logo }}" class="app-logo-preview" alt="logo" loading="lazy" onerror="this.outerHTML='<div class=\'app-logo-preview\' style=\'display:flex;align-items:center;justify-content:center;font-size:16px;margin:0 auto;\'>🚀</div>'">
                                     @else
                                         <div class="app-logo-preview" style="display:flex; align-items:center; justify-content:center; font-size: 16px; margin:0 auto;">🚀</div>
                                     @endif
                                 </td>
                                 <td>
-                                    <b style="font-size: 13px; color: #fff;">{{ $app->name }}</b>
-                                    <div style="font-size: 10px; color: #aaa; margin-top: 2px;">
+                                    <b style="font-size: 13px; color: #b0c8e8;">{{ $app->name }}</b>
+                                    <div style="font-size: 10px; color: #4a6a90; margin-top: 2px;">
                                         {{ !empty($app->description) ? $app->description : 'Tidak ada deskripsi' }}
                                     </div>
-                                    <!-- FIX: Tambah word-break supaya teks URL yang panjang tidak merusak tabel -->
-                                    <div style="margin-top:6px; font-size:10px; color:#858585; word-break: break-all;">🔗 {{ $app->redirect }}</div>
-                                    <div style="margin-top:2px; font-size:10px; color:#555; font-family: monospace; word-break: break-all;">ID: {{ $app->client_id }}</div>
+                                    <div style="margin-top:6px; font-size:10px; color:#3d5a80; word-break: break-all;">🔗 {{ $app->redirect }}</div>
+                                    <div style="margin-top:2px; font-size:10px; color:#2a3a50; font-family: monospace; word-break: break-all;">ID: {{ $app->client_id }}</div>
                                 </td>
                                 <td style="text-align: center;">
                                     <form action="/apps/toggle" method="POST" id="form-active-{{ $app->id }}">
@@ -140,7 +166,7 @@
                                         <input type="hidden" name="is_active" value="0">
                                         <label class="active-toggle-label">
                                             <input type="checkbox" name="is_active" value="1" {{ (!isset($app->is_active) || $app->is_active) ? 'checked' : '' }} onchange="this.form.submit()">
-                                            <span style="color: {{ (!isset($app->is_active) || $app->is_active) ? '#7ee787' : '#ff7b72' }}; font-weight: bold;">
+                                            <span style="color: {{ (!isset($app->is_active) || $app->is_active) ? '#5daa7a' : '#c05050' }}; font-weight: bold;">
                                                 {{ (!isset($app->is_active) || $app->is_active) ? 'Aktif' : 'Deaktif' }}
                                             </span>
                                         </label>
@@ -151,8 +177,8 @@
                                         @csrf
                                         <input type="hidden" name="id" value="{{ $app->id }}">
                                         <label class="active-toggle-label">
-                                            <input type="checkbox" {{ $app->use_signed_token ? 'checked' : '' }} onchange="this.form.submit()" style="accent-color: #6f42c1;">
-                                            <span style="color: {{ $app->use_signed_token ? '#d2a8ff' : '#858585' }}; font-weight: bold;">
+                                            <input type="checkbox" {{ $app->use_signed_token ? 'checked' : '' }} onchange="this.form.submit()" style="accent-color: #4a2a9a;">
+                                            <span style="color: {{ $app->use_signed_token ? '#c0a0f0' : '#3d5a80' }}; font-weight: bold;">
                                                 {{ $app->use_signed_token ? 'Signed' : 'Cache' }}
                                             </span>
                                         </label>
@@ -160,7 +186,7 @@
                                 </td>
                                 <td>
                                     <div class="action-btns">
-                                        <button type="button" class="btn" style="background:#007acc;" onclick="pingApp('{{ $app->id }}', '{{ $app->name }}')">Test Ping</button>
+                                        <button type="button" class="btn" onclick="pingApp('{{ $app->id }}', '{{ $app->name }}')">Test Ping</button>
                                         <form action="/apps/delete" method="POST" id="delete-app-{{ $app->id }}" style="margin:0;">
                                             @csrf
                                             <input type="hidden" name="id" value="{{ $app->id }}">
@@ -182,7 +208,10 @@
 
 @push('scripts')
 <script>
-    const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, background: '#252526', color: '#fff' });
+    const Toast = Swal.mixin({
+        toast: true, position: 'top-end', showConfirmButton: false,
+        timer: 3000, background: '#0d1929', color: '#c8d0e0'
+    });
 
     @if(session('success_store')) Toast.fire({ icon: 'success', title: '{{ session("success_store") }}' }); @endif
     @if(session('success_toggle')) Toast.fire({ icon: 'success', title: '{{ session("success_toggle") }}' }); @endif
@@ -194,7 +223,7 @@
             title: `Pinging ${name}...`,
             text: 'Mencoba terhubung ke server target via HTTP Request.',
             allowOutsideClick: false,
-            background: '#252526', color: '#fff',
+            background: '#0d1929', color: '#c8d0e0',
             didOpen: () => { Swal.showLoading(); }
         });
 
@@ -206,15 +235,15 @@
         .then(response => response.json())
         .then(data => {
             if (data.status === 'ok') {
-                Swal.fire({ title: 'Koneksi Berhasil!', text: `Aplikasi merespons dengan status code: ${data.code}`, icon: 'success', background: '#252526', color: '#fff', confirmButtonColor: '#2ea043' });
+                Swal.fire({ title: 'Koneksi Berhasil!', text: `Aplikasi merespons dengan status code: ${data.code}`, icon: 'success', background: '#0d1929', color: '#c8d0e0', confirmButtonColor: '#0a3a1a' });
             } else if (data.status === 'unreachable') {
-                Swal.fire({ title: 'Server Unreachable', text: `Target ditemukan namun membalas dengan error code: ${data.code}`, icon: 'warning', background: '#252526', color: '#fff', confirmButtonColor: '#c72e2e' });
+                Swal.fire({ title: 'Server Unreachable', text: `Target ditemukan namun membalas dengan error code: ${data.code}`, icon: 'warning', background: '#0d1929', color: '#c8d0e0', confirmButtonColor: '#6a1a1a' });
             } else {
-                Swal.fire({ title: 'Gagal Terhubung', text: data.message || 'Server target offline atau tidak dapat diakses.', icon: 'error', background: '#252526', color: '#fff', confirmButtonColor: '#c72e2e' });
+                Swal.fire({ title: 'Gagal Terhubung', text: data.message || 'Server target offline atau tidak dapat diakses.', icon: 'error', background: '#0d1929', color: '#c8d0e0', confirmButtonColor: '#6a1a1a' });
             }
         })
-        .catch(error => {
-            Swal.fire({ title: 'Error Jaringan', text: 'Terjadi kesalahan sistem saat melakukan ping.', icon: 'error', background: '#252526', color: '#fff', confirmButtonColor: '#c72e2e' });
+        .catch(() => {
+            Swal.fire({ title: 'Error Jaringan', text: 'Terjadi kesalahan sistem saat melakukan ping.', icon: 'error', background: '#0d1929', color: '#c8d0e0', confirmButtonColor: '#6a1a1a' });
         });
     }
 
@@ -222,8 +251,8 @@
         Swal.fire({
             title: 'Hapus Aplikasi?',
             text: `Aplikasi ${name} tidak akan bisa menggunakan SSO lagi. Lanjutkan?`,
-            icon: 'warning', background: '#252526', color: '#fff', showCancelButton: true,
-            confirmButtonColor: '#c72e2e', cancelButtonColor: '#444',
+            icon: 'warning', background: '#0d1929', color: '#c8d0e0', showCancelButton: true,
+            confirmButtonColor: '#6a1a1a', cancelButtonColor: '#1a2640',
             confirmButtonText: 'Ya, Hapus!', cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) { document.getElementById(`delete-app-${id}`).submit(); }

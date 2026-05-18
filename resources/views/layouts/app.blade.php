@@ -19,8 +19,8 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, sans-serif;
-            background: #1a1a1a;
-            color: #d4d4d4;
+            background: #08101e;
+            color: #c8d0e0;
             font-size: 13px;
             display: flex;
             min-height: 100vh;
@@ -31,7 +31,7 @@
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.6);
+            background: rgba(0,0,0,0.65);
             z-index: 40;
         }
         .overlay.active { display: block; }
@@ -39,7 +39,7 @@
         /* Sidebar */
         .sidebar {
             width: 200px;
-            background: #252526;
+            background: #0d1220;
             display: flex;
             flex-direction: column;
             height: 100vh;
@@ -47,7 +47,7 @@
             top: 0; left: 0;
             transition: transform 0.2s ease, width 0.2s ease;
             overflow: hidden;
-            border-right: 1px solid #3c3c3c;
+            border-right: 1px solid #1a2640;
             z-index: 50;
             flex-shrink: 0;
         }
@@ -62,18 +62,18 @@
             }
             .sidebar.mobile-open {
                 transform: translateX(0);
-                box-shadow: 4px 0 20px rgba(0,0,0,0.5);
+                box-shadow: 4px 0 20px rgba(0,0,0,0.6);
             }
         }
 
         .sidebar-header {
             display: flex; align-items: center; justify-content: flex-start;
-            padding: 8px 16px; background: #323233;
-            border-bottom: 1px solid #3c3c3c;
+            padding: 8px 16px;
+            background: #111827;
+            border-bottom: 1px solid #1a2640;
             height: 44px; flex-shrink: 0;
         }
-        
-        /* FIX BURGER ICON SAAT COLLAPSED */
+
         .sidebar.collapsed:not(.mobile-open) .sidebar-header {
             justify-content: center;
             padding: 8px 0;
@@ -84,44 +84,46 @@
             padding: 8px; display: flex; flex-direction: column; gap: 5px;
             touch-action: manipulation;
         }
-        .toggle-btn:hover .bar { background: #cccccc; }
+        .toggle-btn:hover .bar { background: #a0c0e0; }
         .bar {
             width: 18px; height: 2px;
-            background: #858585; display: block;
+            background: #4a6a90; display: block;
             transition: background 0.2s;
         }
 
         .sidebar-user {
             display: flex; align-items: center; gap: 10px;
             padding: 12px 10px;
-            border-bottom: 1px solid #3c3c3c;
-            background: #2d2d2e;
+            border-bottom: 1px solid #1a2640;
+            background: #0f1929;
             overflow: hidden; flex-shrink: 0;
         }
         .sidebar.collapsed:not(.mobile-open) .sidebar-user {
             justify-content: center; padding: 10px 0;
         }
         .sidebar-avatar {
-            width: 32px; height: 32px; background: #007acc;
-            border: 1px solid #1e90ff; border-radius: 3px;
+            width: 32px; height: 32px;
+            background: #0e2346;
+            border: 1px solid #1e3a6e;
+            border-radius: 3px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 14px; color: white; font-weight: 900; flex-shrink: 0;
-            box-shadow: 0 0 8px rgba(0,122,204,0.35);
+            font-size: 14px; color: #7ab3f0; font-weight: 900; flex-shrink: 0;
+            box-shadow: 0 0 8px rgba(30,90,180,0.25);
         }
         .sidebar-user-info { overflow: hidden; min-width: 0; }
         .sidebar.collapsed:not(.mobile-open) .sidebar-user-info { display: none; }
         .sidebar-user-info .name {
-            font-size: 12px; font-weight: 600; color: #cccccc;
+            font-size: 12px; font-weight: 600; color: #b8c8e0;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
         .sidebar-user-info .email {
-            font-size: 10px; color: #858585;
+            font-size: 10px; color: #3d5a80;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
 
         .menu-label {
             font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
-            color: #858585; padding: 14px 10px 6px;
+            color: #3d5a80; padding: 14px 10px 6px;
             white-space: nowrap; transition: opacity 0.2s;
         }
         .sidebar.collapsed:not(.mobile-open) .menu-label { opacity: 0; }
@@ -130,15 +132,17 @@
         .sidebar-menu a {
             display: flex; align-items: center; gap: 10px;
             padding: 12px 10px;
-            color: #cccccc; text-decoration: none; font-size: 13px;
+            color: #7a9bbf; text-decoration: none; font-size: 13px;
             white-space: nowrap; transition: background 0.1s;
             border-left: 2px solid transparent;
             touch-action: manipulation;
             min-height: 44px;
         }
-        .sidebar-menu a:hover { background: #2a2d2e; color: #ffffff; }
+        .sidebar-menu a:hover { background: #111d30; color: #c0d8f0; }
         .sidebar-menu a.active {
-            background: #094771; border-left: 2px solid #007acc; color: #ffffff;
+            background: #0e1f3d;
+            border-left: 2px solid #2d5fff;
+            color: #d0e4ff;
         }
         .sidebar-menu .icon {
             font-size: 16px; flex-shrink: 0; width: 20px; text-align: center;
@@ -151,16 +155,16 @@
             justify-content: center; padding: 12px 0;
         }
 
-        .sidebar-footer { border-top: 1px solid #3c3c3c; padding: 8px 10px; flex-shrink: 0; }
+        .sidebar-footer { border-top: 1px solid #1a2640; padding: 8px 10px; flex-shrink: 0; }
         .sidebar-footer form button {
             display: flex; align-items: center; gap: 10px;
             width: 100%; padding: 10px 0;
-            background: none; border: none; color: #c72e2e;
+            background: none; border: none; color: #7a2020;
             cursor: pointer; font-size: 13px; white-space: nowrap;
             transition: color 0.1s; touch-action: manipulation;
             min-height: 44px;
         }
-        .sidebar-footer form button:hover { color: #e03535; }
+        .sidebar-footer form button:hover { color: #c03030; }
         .sidebar-footer .label { transition: opacity 0.2s; }
         .sidebar.collapsed:not(.mobile-open) .sidebar-footer .label {
             opacity: 0; width: 0; overflow: hidden;
@@ -178,7 +182,33 @@
             transition: margin-left 0.2s ease;
             min-width: 0;
             width: calc(100% - 200px);
+            background: #08101e;
+            position: relative;
         }
+
+        /* Grid background di main content */
+        .main::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(40,80,140,0.07) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(40,80,140,0.07) 1px, transparent 1px);
+            background-size: 48px 48px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Radial glow di tengah */
+        .main::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at 60% 40%, rgba(13,40,90,0.5) 0%, rgba(4,8,18,0.0) 68%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
         .main.collapsed { margin-left: 40px; width: calc(100% - 40px); }
 
         @media (max-width: 768px) {
@@ -190,11 +220,11 @@
 
         /* Topbar */
         .topbar {
-            background: #323233;
+            background: #0f1626;
             padding: 0 12px;
             display: flex;
             align-items: center;
-            border-bottom: 1px solid #3c3c3c;
+            border-bottom: 1px solid #1a2640;
             height: 44px;
             position: sticky;
             top: 0;
@@ -203,10 +233,12 @@
             width: 100%;
         }
         .topbar-title {
-            font-size: 13px; font-weight: 600; color: #cccccc;
+            font-size: 13px; font-weight: 600; color: #7a9bbf;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
             flex: 1;
         }
+        .topbar-title .brand-gudeg { color: #ffffff; }
+        .topbar-title .brand-jogja  { color: #e8b84b; }
 
         .mobile-menu-btn {
             display: none;
@@ -216,7 +248,7 @@
             min-width: 44px; min-height: 44px;
             align-items: center; justify-content: center;
         }
-        .mobile-menu-btn .bar { width: 18px; height: 2px; background: #858585; display: block; }
+        .mobile-menu-btn .bar { width: 18px; height: 2px; background: #4a6a90; display: block; }
 
         @media (max-width: 768px) {
             .mobile-menu-btn { display: flex; }
@@ -230,6 +262,8 @@
             padding-bottom: 44px;
             overflow-x: hidden;
             width: 100%;
+            position: relative;
+            z-index: 1;
         }
 
         @media (max-width: 480px) {
@@ -238,10 +272,10 @@
 
         /* Statusbar */
         .statusbar {
-            background: #007acc;
+            background: #1a3a8a;
             padding: 3px 12px;
             font-size: 11px;
-            color: white;
+            color: rgba(255,255,255,0.9);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -263,6 +297,8 @@
             min-width: 0;
         }
         .statusbar-right { flex-shrink: 0; white-space: nowrap; padding-left: 8px; }
+        .statusbar .brand-gudeg { color: #ffffff; font-weight: 700; }
+        .statusbar .brand-jogja  { color: #e8b84b; font-weight: 700; }
 
         @media (max-width: 768px) {
             .statusbar { left: 0 !important; font-size: 10px; }
@@ -296,7 +332,7 @@
                 <div class="name">
                     {{ Auth::user()->name }}
                     @if(Auth::user()->role === 'admin')
-                        <span style="color:#e74c3c;">●</span>
+                        <span style="color:#8b2020;">●</span>
                     @endif
                 </div>
                 <div class="email">{{ Auth::user()->email }}</div>
@@ -313,7 +349,7 @@
                 <span class="icon">⚙</span>
                 <span class="label">Settings</span>
             </a>
-            
+
             @if(Auth::user()->role === 'admin')
             <a href="/apps" class="{{ request()->is('apps*') ? 'active' : '' }}">
                 <span class="icon">🔌</span>
@@ -340,7 +376,10 @@
                 <span class="bar"></span>
                 <span class="bar"></span>
             </button>
-            <div class="topbar-title">@yield('topbar_title')</div>
+            <div class="topbar-title">
+                <span class="brand-gudeg">GUDEG</span> <span class="brand-jogja">JOGJA</span>
+                &nbsp;@yield('topbar_title')
+            </div>
         </div>
 
         <div class="content">
@@ -350,7 +389,7 @@
 
     <div class="statusbar" id="statusbar">
         <span class="statusbar-left">
-            <b>PORTAL BALMON JOGJA</b> |
+            <b><span class="brand-gudeg">GUDEG</span> <span class="brand-jogja">JOGJA</span></b> |
             {{ Auth::user()->name }} - {{ Auth::user()->email }}
         </span>
         <span class="statusbar-right" id="clock"></span>
@@ -379,8 +418,8 @@
                     title: 'Sesi Kedaluwarsa',
                     text: 'Tidak ada aktivitas selama 15 menit. Sistem otomatis keluar demi keamanan.',
                     icon: 'warning',
-                    background: '#252526',
-                    confirmButtonColor: '#007acc',
+                    background: '#0d1929',
+                    confirmButtonColor: '#1a3a8a',
                     allowOutsideClick: false
                 }).then(() => {
                     document.getElementById('logout-form').submit();

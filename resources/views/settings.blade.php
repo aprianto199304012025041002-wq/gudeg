@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Settings')
-@section('topbar_title', 'GUDEG JOGJA Administration')
+@section('topbar_title', 'Administration')
 
 @push('styles')
 <style>
@@ -16,114 +16,111 @@
     .settings-grid.user-only .left-panel { width: 100%; max-width: 500px; }
 
     .card {
-        background: #252526; border: 1px solid #3c3c3c;
+        background: rgba(13,25,50,0.75);
+        border: 1px solid #1a2e50;
         border-radius: 4px; padding: 14px; margin-bottom: 14px;
     }
     .card:last-child { margin-bottom: 0; }
 
     .card-title {
-        font-size: 13px; font-weight: 600; color: #fff;
+        font-size: 13px; font-weight: 600; color: #d0e4ff;
         margin-bottom: 12px; display: flex;
         justify-content: space-between; align-items: center; gap: 8px;
     }
 
-    label { display: block; font-size: 11px; color: #858585; margin-bottom: 4px; }
+    label { display: block; font-size: 11px; color: #4a6a90; margin-bottom: 4px; }
 
     input, select {
         width: 100%; padding: 8px 10px;
-        background: #1e1e1e; border: 1px solid #3c3c3c;
-        color: #fff; border-radius: 3px; font-size: 12px;
+        background: #060e1c; border: 1px solid #1a2e50;
+        color: #c8d0e0; border-radius: 3px; font-size: 12px;
         margin-bottom: 10px; min-height: 36px; box-sizing: border-box;
     }
-    input[type="checkbox"] { width: auto; min-height: auto; margin: 0; cursor: pointer; accent-color: #007acc; }
-    input:focus, select:focus { border-color: #007acc; outline: none; }
+    input[type="checkbox"] { width: auto; min-height: auto; margin: 0; cursor: pointer; accent-color: #2d5fff; }
+    input:focus, select:focus { border-color: #2d5fff; outline: none; }
 
     .btn {
-        background: #007acc; border: none; color: white;
+        background: #1a3a8a; border: none; color: #d0e4ff;
         padding: 8px 12px; border-radius: 3px; cursor: pointer;
         font-size: 12px; font-weight: 600; min-height: 36px;
         display: inline-flex; align-items: center; justify-content: center;
         transition: 0.15s;
     }
-    .btn:hover { opacity: 0.9; }
+    .btn:hover { background: #1e4aaa; }
     .btn-full { width: 100%; }
-    .btn-danger { background: #c72e2e; }
-    .btn-gray { background: #333; border: 1px solid #444; } .btn-gray:hover { background: #444; }
+    .btn-danger { background: #6a1a1a; color: #f0a0a0; } .btn-danger:hover { background: #8a2020; }
+    .btn-gray  { background: #0f1929; border: 1px solid #1a2e50; color: #7a9bbf; } .btn-gray:hover { background: #162236; }
 
-    .badge-admin { background: #c72e2e; padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: bold; color: white; white-space: nowrap; }
-    .badge-live  { background: #007acc; padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: bold; color: white; white-space: nowrap; }
-    .badge-user  { background: #2ea043; padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: bold; color: white; white-space: nowrap; }
+    .badge-admin { background: #6a1a1a; padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: bold; color: #f0a0a0; white-space: nowrap; }
+    .badge-live  { background: #1a3a8a; padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: bold; color: #90bae0; white-space: nowrap; }
+    .badge-user  { background: #0a3a1a; padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: bold; color: #7ee787; white-space: nowrap; }
 
     .alert { font-size: 11px; margin-bottom: 10px; padding: 8px 10px; border-radius: 3px; }
-    .alert-error { color: #ff7b72; background: #3b1214; border: 1px solid #f85149; }
+    .alert-error { color: #c05050; background: #2a0a0a; border: 1px solid #6a1a1a; }
 
     .search-bar { display: flex; gap: 6px; margin-bottom: 10px; }
     .search-bar input { margin: 0; flex: 1; min-width: 0; }
     .search-bar .btn { flex-shrink: 0; }
 
-    /* =====================
-       TABEL DESKTOP
-    ===================== */
+    /* Tabel desktop */
     .table-container { overflow-x: auto; max-width: 100%; }
     .user-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 11px; }
-    .user-table th { color: #858585; padding: 6px; border-bottom: 1px solid #3c3c3c; font-size: 9px; text-transform: uppercase; white-space: nowrap; }
-    .user-table th a:hover { color: #fff !important; }
-    .user-table td { padding: 8px 6px; border-bottom: 1px solid #2a2a2a; vertical-align: middle; }
-    .user-table td b { color: #fff; display: block; font-size: 12px; }
-    .user-table td span.email-text { color: #858585; font-size: 10px; display: block; word-break: break-all; white-space: normal; }
+    .user-table th {
+        color: #3d5a80; padding: 6px;
+        border-bottom: 1px solid #1a2e50;
+        font-size: 9px; text-transform: uppercase; white-space: nowrap;
+    }
+    .user-table th a:hover { color: #b0c8e8 !important; }
+    .user-table td { padding: 8px 6px; border-bottom: 1px solid #0f1e38; vertical-align: middle; }
+    .user-table td b { color: #b0c8e8; display: block; font-size: 12px; }
+    .user-table td span.email-text { color: #3d5a80; font-size: 10px; display: block; word-break: break-all; white-space: normal; }
     .user-table select { margin: 0; padding: 2px 4px; font-size: 11px; min-height: 28px; width: auto; }
 
     .action-btns { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; justify-content: flex-end; }
     .action-btns .btn { padding: 4px 8px; font-size: 10px; min-height: 28px; }
 
-    /* =====================
-       CARD USER MOBILE
-    ===================== */
+    /* Card user mobile */
     .user-card { display: none; }
-
     @media (max-width: 767px) {
         .table-container { display: none; }
         .user-card { display: block; }
     }
 
     .user-card-item {
-        background: #1e1e1e; border: 1px solid #3c3c3c;
+        background: #060e1c; border: 1px solid #1a2e50;
         border-radius: 4px; padding: 10px 12px; margin-bottom: 8px;
     }
     .user-card-item:last-child { margin-bottom: 0; }
-    .user-card-item .user-name { font-size: 13px; font-weight: 600; color: #fff; }
-    .user-card-item .user-email { font-size: 10px; color: #858585; word-break: break-all; margin-top: 2px; margin-bottom: 8px; }
+    .user-card-item .user-name { font-size: 13px; font-weight: 600; color: #b0c8e8; }
+    .user-card-item .user-email { font-size: 10px; color: #3d5a80; word-break: break-all; margin-top: 2px; margin-bottom: 8px; }
     .user-card-item .user-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
     .user-card-item .user-actions { display: flex; gap: 6px; flex-wrap: wrap; }
     .user-card-item .user-actions .btn { padding: 5px 10px; font-size: 11px; min-height: 32px; flex: 1; }
 
     .active-toggle-label {
-        display: inline-flex; align-items: center; gap: 4px; font-size: 10px; color: #bdbdbd; cursor: pointer;
+        display: inline-flex; align-items: center; gap: 4px; font-size: 10px; color: #7a9bbf; cursor: pointer;
     }
-    .active-toggle-label.disabled { cursor: not-allowed; opacity: 0.5; }
+    .active-toggle-label.disabled { cursor: not-allowed; opacity: 0.4; }
 
-    /* =====================
-       LOG
-    ===================== */
-    .log-item { font-size: 11px; padding: 8px 0; border-bottom: 1px solid #2a2a2a; }
+    /* Log */
+    .log-item { font-size: 11px; padding: 8px 0; border-bottom: 1px solid #0f1e38; }
     .log-item:last-child { border-bottom: none; padding-bottom: 0; }
-    .log-item b { color: #007acc; }
-    .log-item .log-activity { color: #7ee787; }
-    .log-item .log-detail { color: #858585; font-size: 9px; margin-top: 2px; word-break: break-all; }
+    .log-item b { color: #3a7acc; }
+    .log-item .log-activity { color: #5daa7a; }
+    .log-item .log-detail { color: #3d5a80; font-size: 9px; margin-top: 2px; word-break: break-all; }
 
-    /* =====================
-       PAGINATION
-    ===================== */
-    .custom-pagination { margin-top: 14px; text-align: center; font-size: 11px; color: #858585; }
+    /* Pagination */
+    .custom-pagination { margin-top: 14px; text-align: center; font-size: 11px; color: #3d5a80; }
     .custom-pagination .btn-group { display: flex; justify-content: center; align-items: center; gap: 4px; flex-wrap: wrap; }
     .custom-pagination .page-link {
-        background: #333; color: #fff; padding: 4px 10px; border-radius: 3px;
+        background: #0f1929; color: #7a9bbf; padding: 4px 10px; border-radius: 3px;
         text-decoration: none; min-height: 28px; min-width: 28px;
         display: inline-flex; align-items: center; justify-content: center;
         box-sizing: border-box; font-size: 11px; transition: 0.1s;
+        border: 1px solid #1a2e50;
     }
-    .custom-pagination .page-link:hover:not(.disabled) { background: #444; }
-    .custom-pagination .page-link.active { background: #007acc; font-weight: bold; }
+    .custom-pagination .page-link:hover:not(.disabled) { background: #162236; color: #b0c8e8; }
+    .custom-pagination .page-link.active { background: #1a3a8a; color: #d0e4ff; font-weight: bold; border-color: #2d5fff; }
     .custom-pagination .page-link.disabled { opacity: 0.3; pointer-events: none; }
 </style>
 @endpush
@@ -131,7 +128,7 @@
 @section('content')
 <div class="settings-grid {{ Auth::user()->role !== 'admin' ? 'user-only' : '' }}">
 
-    <!-- ================================== PANEL KIRI ================================== -->
+    <!-- PANEL KIRI -->
     <div class="left-panel">
 
         <!-- Pengaturan Password -->
@@ -139,7 +136,7 @@
             <div class="card-title">Pengaturan Password</div>
 
             @if($errors->has('password_expired'))
-                <div style="border: 2px solid #f85149; background: #3b1214; padding: 12px; border-radius: 4px; color: #ff7b72; font-size: 13px; font-weight: bold; text-align: center; margin-bottom: 15px; line-height: 1.5;">
+                <div style="border: 2px solid #6a1a1a; background: #2a0a0a; padding: 12px; border-radius: 4px; color: #c05050; font-size: 13px; font-weight: bold; text-align: center; margin-bottom: 15px; line-height: 1.5;">
                     ⚠️ {{ $errors->first('password_expired') }}
                 </div>
             @endif
@@ -165,7 +162,7 @@
         <!-- Sesi Perangkat -->
         <div class="card">
             <div class="card-title">Perangkat & Sesi Aktif</div>
-            <p style="font-size: 11px; color: #858585; margin-bottom: 12px;">Daftar perangkat yang saat ini masuk ke akun Anda. Jika ada perangkat yang mencurigakan, segera cabut aksesnya.</p>
+            <p style="font-size: 11px; color: #3d5a80; margin-bottom: 12px;">Daftar perangkat yang saat ini masuk ke akun Anda. Jika ada perangkat yang mencurigakan, segera cabut aksesnya.</p>
 
             @if($errors->has('password_confirm_session'))
                 <div class="alert alert-error">Password yang dimasukkan untuk logout sesi salah.</div>
@@ -204,7 +201,7 @@
             </div>
 
             @if(method_exists($logs, 'isEmpty') ? $logs->isEmpty() : $logs->count() === 0)
-                <div style="font-size:11px;color:#858585;text-align:center;padding:8px 0;">Belum ada aktivitas admin dalam 1 bulan terakhir.</div>
+                <div style="font-size:11px;color:#3d5a80;text-align:center;padding:8px 0;">Belum ada aktivitas admin dalam 1 bulan terakhir.</div>
             @else
                 @foreach($logs as $log)
                     <div class="log-item">
@@ -236,9 +233,9 @@
 
         @if(strtolower(Auth::user()->email) === 'admin@dummy.com')
         <!-- Mode Perbaikan Sistem -->
-        <div class="card" style="border: 1px solid #c72e2e; background: #2d1111;">
+        <div class="card" style="border: 1px solid #6a1a1a; background: rgba(42,10,10,0.6);">
             <div class="card-title">
-                <span style="color: #ff7b72;">Mode Perbaikan Sistem</span>
+                <span style="color: #c05050;">Mode Perbaikan Sistem</span>
                 <span class="badge-admin">SUPER ADMIN</span>
             </div>
 
@@ -246,11 +243,11 @@
                 <div class="alert alert-error">{{ $errors->first('maintenance') }}</div>
             @endif
 
-            <p style="font-size: 11px; color: #d4d4d4; margin-bottom: 12px;">Aktifkan mode ini untuk menutup portal dari semua pengguna (termasuk memblokir SSO) saat melakukan pembaruan atau backup database. Anda tidak akan ter-logout.</p>
+            <p style="font-size: 11px; color: #7a9bbf; margin-bottom: 12px;">Aktifkan mode ini untuk menutup portal dari semua pengguna (termasuk memblokir SSO) saat melakukan pembaruan atau backup database. Anda tidak akan ter-logout.</p>
 
             <form action="/settings/admin/toggle-maintenance" method="POST" id="maintenanceForm">
                 @csrf
-                <button type="button" class="btn btn-full" style="background: {{ $isMaintenance ? '#2ea043' : '#c72e2e' }}; color: white;" onclick="confirmMaintenance({{ $isMaintenance ? 'true' : 'false' }})">
+                <button type="button" class="btn btn-full" style="background: {{ $isMaintenance ? '#0a3a1a' : '#6a1a1a' }}; color: {{ $isMaintenance ? '#7ee787' : '#f0a0a0' }};" onclick="confirmMaintenance({{ $isMaintenance ? 'true' : 'false' }})">
                     {{ $isMaintenance ? 'NONAKTIFKAN Mode Perbaikan' : 'AKTIFKAN Mode Perbaikan' }}
                 </button>
             </form>
@@ -259,7 +256,7 @@
 
     </div>
 
-    <!-- ================================== PANEL KANAN ================================== -->
+    <!-- PANEL KANAN -->
     @if(Auth::user()->role === 'admin')
     <div class="right-panel">
 
@@ -290,7 +287,7 @@
                                     $order = ($currentSort === $column && $currentOrder === 'asc') ? 'desc' : 'asc';
                                     $icon = ($currentSort === $column) ? ($currentOrder === 'asc' ? '↑' : '↓') : '↕';
                                     $url = request()->fullUrlWithQuery(['sort_by' => $column, 'order' => $order, 'page' => 1]);
-                                    return "<a href=\"{$url}\" style=\"color:#858585; text-decoration:none; display:flex; align-items:center; gap:4px;\">{$label} <span style=\"font-size:10px;\">{$icon}</span></a>";
+                                    return "<a href=\"{$url}\" style=\"color:#3d5a80; text-decoration:none; display:flex; align-items:center; gap:4px;\">{$label} <span style=\"font-size:10px;\">{$icon}</span></a>";
                                 }
                             @endphp
                             <th>{!! sortLink('name', 'User') !!}</th>
@@ -320,7 +317,7 @@
                                             {{ (!isset($u->is_active) || $u->is_active) ? 'checked' : '' }}
                                             {{ ($isAdminDummy || $isSelf) ? 'disabled' : '' }}
                                             onchange="document.getElementById('form-active-{{ $u->id }}').submit()">
-                                        <span style="color: {{ (!isset($u->is_active) || $u->is_active) ? '#7ee787' : '#ff7b72' }}; font-weight: bold;">
+                                        <span style="color: {{ (!isset($u->is_active) || $u->is_active) ? '#5daa7a' : '#c05050' }}; font-weight: bold;">
                                             {{ (!isset($u->is_active) || $u->is_active) ? 'Aktif' : 'Deaktif' }}
                                         </span>
                                     </label>
@@ -328,7 +325,7 @@
                             </td>
                             <td>
                                 @if($isAdminDummy)
-                                    <span style="color: #c72e2e; font-weight: bold; font-size: 10px;">ADMINISTRATOR</span>
+                                    <span style="color: #c05050; font-weight: bold; font-size: 10px;">ADMINISTRATOR</span>
                                 @else
                                     <form action="/settings/admin/update-role" method="POST">
                                         @csrf
@@ -343,7 +340,7 @@
                             <td>
                                 <div class="action-btns">
                                     @if(!$isAdminDummy)
-                                        <button type="button" class="btn" style="background: transparent; border: 1px solid #007acc; color: #007acc;" onclick="manageApps('{{ $u->id }}', '{{ $u->name }}')">Akses</button>
+                                        <button type="button" class="btn" style="background: transparent; border: 1px solid #2d5fff; color: #6a9acc;" onclick="manageApps('{{ $u->id }}', '{{ $u->name }}')">Akses</button>
                                     @endif
                                     @if(!$isAdminDummy || $isSelf)
                                         <button type="button" onclick="promptReset('{{ $u->id }}', '{{ $u->name }}')" class="btn btn-gray">Reset</button>
@@ -375,7 +372,6 @@
                     <div class="user-email">{{ $u->email }}</div>
 
                     <div class="user-meta">
-                        {{-- Toggle Aktif --}}
                         <form action="/settings/admin/toggle-active" method="POST" id="form-active-mob-{{ $u->id }}">
                             @csrf
                             <input type="hidden" name="user_id" value="{{ $u->id }}">
@@ -385,15 +381,14 @@
                                     {{ (!isset($u->is_active) || $u->is_active) ? 'checked' : '' }}
                                     {{ ($isAdminDummy || $isSelf) ? 'disabled' : '' }}
                                     onchange="document.getElementById('form-active-mob-{{ $u->id }}').submit()">
-                                <span style="color: {{ (!isset($u->is_active) || $u->is_active) ? '#7ee787' : '#ff7b72' }}; font-weight: bold;">
+                                <span style="color: {{ (!isset($u->is_active) || $u->is_active) ? '#5daa7a' : '#c05050' }}; font-weight: bold;">
                                     {{ (!isset($u->is_active) || $u->is_active) ? 'Aktif' : 'Deaktif' }}
                                 </span>
                             </label>
                         </form>
 
-                        {{-- Role --}}
                         @if($isAdminDummy)
-                            <span style="color: #c72e2e; font-weight: bold; font-size: 10px;">ADMINISTRATOR</span>
+                            <span style="color: #c05050; font-weight: bold; font-size: 10px;">ADMINISTRATOR</span>
                         @else
                             <form action="/settings/admin/update-role" method="POST">
                                 @csrf
@@ -408,7 +403,7 @@
 
                     <div class="user-actions">
                         @if(!$isAdminDummy)
-                            <button type="button" class="btn" style="background: transparent; border: 1px solid #007acc; color: #007acc;" onclick="manageApps('{{ $u->id }}', '{{ $u->name }}')">Akses</button>
+                            <button type="button" class="btn" style="background: transparent; border: 1px solid #2d5fff; color: #6a9acc;" onclick="manageApps('{{ $u->id }}', '{{ $u->name }}')">Akses</button>
                         @endif
                         @if(!$isAdminDummy || $isSelf)
                             <button type="button" onclick="promptReset('{{ $u->id }}', '{{ $u->name }}')" class="btn btn-gray">Reset</button>
@@ -435,7 +430,7 @@
                             <a href="{{ $users->url($i) }}" class="page-link {{ ($users->currentPage() == $i) ? 'active' : '' }}">{{ $i }}</a>
                         @endfor
                         <a href="{{ $users->nextPageUrl() ?? '#' }}" class="page-link {{ !$users->hasMorePages() ? 'disabled' : '' }}">»</a>
-                        <a href="{{ $users->url($users->lastPage()) }}" class="page-link {{ ($users->currentPage() == $users->lastPage() || $users->lastPage() == 0) ? 'disabled' : '' }}">Last</a>
+                        <a href="{{ $users->url($users->lastPage()) }}" class="page-link {{ ($users->currentPage() == $logs->lastPage() || $users->lastPage() == 0) ? 'disabled' : '' }}">Last</a>
                     </div>
                 </div>
             @endif
@@ -449,7 +444,7 @@
             </div>
 
             @if(method_exists($userLogs, 'isEmpty') ? $userLogs->isEmpty() : $userLogs->count() === 0)
-                <div style="font-size:11px;color:#858585;text-align:center;padding:8px 0;">Belum ada aktivitas pengguna dalam 1 bulan terakhir.</div>
+                <div style="font-size:11px;color:#3d5a80;text-align:center;padding:8px 0;">Belum ada aktivitas pengguna dalam 1 bulan terakhir.</div>
             @else
                 @foreach($userLogs as $log)
                     <div class="log-item">
@@ -495,7 +490,7 @@
 <script>
     const Toast = Swal.mixin({
         toast: true, position: 'top-end', showConfirmButton: false,
-        timer: 4000, timerProgressBar: true, background: '#252526', color: '#fff',
+        timer: 4000, timerProgressBar: true, background: '#0d1929', color: '#c8d0e0',
         didOpen: (toast) => {
             toast.addEventListener('mouseenter', Swal.stopTimer);
             toast.addEventListener('mouseleave', Swal.resumeTimer);
@@ -506,10 +501,8 @@
     @if(session('success_user')) Toast.fire({ icon: 'success', title: '{{ session("success_user") }}' }); @endif
 
     window.addEventListener('load', function() {
-        // [FITUR BARU] Cek kalau user menekan F5 / Refresh Page
         if (performance.navigation.type === 1) {
             const url = new URL(window.location.href);
-            // Jika ada parameter apapun (search, page, sort) di URL, langsung lempar kembali ke halaman polos
             if (url.searchParams.toString() !== '') {
                 window.location.href = window.location.pathname;
             }
@@ -517,7 +510,7 @@
     });
 
     function manageApps(id, name) {
-        Swal.fire({ title: 'Memuat data...', allowOutsideClick: false, background: '#252526', color: '#fff', didOpen: () => { Swal.showLoading(); } });
+        Swal.fire({ title: 'Memuat data...', allowOutsideClick: false, background: '#0d1929', color: '#c8d0e0', didOpen: () => { Swal.showLoading(); } });
 
         fetch(`/settings/admin/user-apps/${id}`)
         .then(res => res.json())
@@ -525,12 +518,12 @@
             if (!data.success) throw new Error('Gagal');
             let html = `<div style="text-align:left; margin-top:10px; max-height: 200px; overflow-y: auto;">`;
             if (data.all_apps.length === 0) {
-                html += `<div style="color:#858585; font-size:12px;">Belum ada aplikasi SSO yang aktif.</div>`;
+                html += `<div style="color:#3d5a80; font-size:12px;">Belum ada aplikasi SSO yang aktif.</div>`;
             } else {
                 data.all_apps.forEach(app => {
                     const isChecked = data.user_apps.includes(app.id) ? 'checked' : '';
-                    html += `<label style="display:flex; align-items:center; gap:10px; margin-bottom:12px; cursor:pointer; color:#fff; font-size:13px; background:#1e1e1e; padding:10px; border-radius:4px; border:1px solid #3c3c3c;">
-                        <input type="checkbox" name="app_ids[]" value="${app.id}" class="app-checkbox" ${isChecked} style="width:16px; height:16px; margin:0; accent-color:#007acc; cursor:pointer;">
+                    html += `<label style="display:flex; align-items:center; gap:10px; margin-bottom:12px; cursor:pointer; color:#c8d0e0; font-size:13px; background:#060e1c; padding:10px; border-radius:4px; border:1px solid #1a2e50;">
+                        <input type="checkbox" name="app_ids[]" value="${app.id}" class="app-checkbox" ${isChecked} style="width:16px; height:16px; margin:0; accent-color:#2d5fff; cursor:pointer;">
                         ${app.name}
                     </label>`;
                 });
@@ -538,9 +531,9 @@
             html += `</div>`;
             Swal.fire({
                 title: `Akses Aplikasi: ${name}`, html: html,
-                background: '#252526', color: '#fff', showCancelButton: true,
+                background: '#0d1929', color: '#c8d0e0', showCancelButton: true,
                 confirmButtonText: 'Simpan', cancelButtonText: 'Batal',
-                confirmButtonColor: '#007acc', cancelButtonColor: '#444',
+                confirmButtonColor: '#1a3a8a', cancelButtonColor: '#1a2640',
             }).then((result) => {
                 if (result.isConfirmed) {
                     const checkboxes = document.querySelectorAll('.app-checkbox:checked');
@@ -557,7 +550,7 @@
             });
         })
         .catch(() => {
-            Swal.fire({ title: 'Error', text: 'Gagal memuat data.', icon: 'error', background: '#252526', color: '#fff' });
+            Swal.fire({ title: 'Error', text: 'Gagal memuat data.', icon: 'error', background: '#0d1929', color: '#c8d0e0' });
         });
     }
 
@@ -565,9 +558,9 @@
         Swal.fire({
             title: 'Logout Perangkat Lain?', text: 'Masukkan password Anda untuk mengonfirmasi tindakan ini:',
             input: 'password', inputPlaceholder: 'Password saat ini',
-            background: '#252526', color: '#fff', showCancelButton: true,
+            background: '#0d1929', color: '#c8d0e0', showCancelButton: true,
             confirmButtonText: 'Logout Perangkat', cancelButtonText: 'Batal',
-            confirmButtonColor: '#c72e2e', cancelButtonColor: '#444',
+            confirmButtonColor: '#6a1a1a', cancelButtonColor: '#1a2640',
             inputValidator: (v) => { if (!v) return 'Password wajib diisi!'; }
         }).then((result) => {
             if (result.isConfirmed) {
@@ -583,12 +576,12 @@
     function confirmMaintenance(isCurrentlyActive) {
         let title    = isCurrentlyActive ? 'Buka Kembali Portal?' : 'Tutup Portal Sekarang?';
         let text     = isCurrentlyActive ? 'Portal akan kembali online dan semua pengguna dapat login.' : 'Semua pengguna akan langsung dialihkan ke halaman Perbaikan. Apakah Anda yakin?';
-        let btnColor = isCurrentlyActive ? '#2ea043' : '#c72e2e';
+        let btnColor = isCurrentlyActive ? '#0a3a1a' : '#6a1a1a';
         let btnText  = isCurrentlyActive ? 'Ya, Online-kan' : 'Ya, Tutup Portal';
         Swal.fire({
             title: title, text: text, icon: 'warning',
-            background: '#252526', color: '#fff', showCancelButton: true,
-            confirmButtonColor: btnColor, cancelButtonColor: '#444',
+            background: '#0d1929', color: '#c8d0e0', showCancelButton: true,
+            confirmButtonColor: btnColor, cancelButtonColor: '#1a2640',
             confirmButtonText: btnText, cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) { document.getElementById('maintenanceForm').submit(); }
@@ -601,9 +594,9 @@
         Swal.fire({
             title: 'Reset Password', text: `Masukkan password baru untuk ${name}:`,
             input: 'password', inputPlaceholder: 'Minimal 8 karakter',
-            background: '#252526', color: '#fff', showCancelButton: true,
+            background: '#0d1929', color: '#c8d0e0', showCancelButton: true,
             confirmButtonText: 'Simpan', cancelButtonText: 'Batal',
-            confirmButtonColor: '#007acc', cancelButtonColor: '#444',
+            confirmButtonColor: '#1a3a8a', cancelButtonColor: '#1a2640',
             inputValidator: (v) => { if (!v || v.length < 8) return 'Password harus minimal 8 karakter!'; }
         }).then((result) => {
             if (result.isConfirmed) {
@@ -617,8 +610,8 @@
     function confirmDelete(id, name) {
         Swal.fire({
             title: 'Hapus Akun?', text: `Apakah Anda yakin ingin menghapus ${name}?`,
-            icon: 'warning', background: '#252526', color: '#fff', showCancelButton: true,
-            confirmButtonColor: '#c72e2e', cancelButtonColor: '#444',
+            icon: 'warning', background: '#0d1929', color: '#c8d0e0', showCancelButton: true,
+            confirmButtonColor: '#6a1a1a', cancelButtonColor: '#1a2640',
             confirmButtonText: 'Ya, Hapus!', cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {
