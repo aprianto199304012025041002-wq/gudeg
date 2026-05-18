@@ -33,6 +33,28 @@ class SSOController extends Controller
             })
             ->first();
 
+        // ========================================================
+        // [BARU] GEMBOK AKSES: Cek Izin User ke Aplikasi Ini
+        // ========================================================
+        if ($app && Auth::user()->role !== 'admin') {
+            $hasAccess = DB::table('user_applications')
+                ->where('user_id', Auth::id())
+                ->where('application_id', $app->id)
+                ->exists();
+
+            if (!$hasAccess) {
+                // Catat aktivitas ilegal di Audit Log
+                AuditLogEvent::dispatch('user', [
+                    'user'     => Auth::user(),
+                    'activity' => 'Akses DITOLAK (Tidak ada izin) ke ' . $redirectDomain,
+                    'ip'       => $request->ip()
+                ]);
+                
+                // Pantulkan kembali ke klien dengan pesan error
+                return redirect($redirectUrl . '?error=access_denied');
+            }
+        }
+
         AuditLogEvent::dispatch('user', [
             'user'     => Auth::user(),
             'activity' => 'Akses SSO ke ' . $redirectDomain,
