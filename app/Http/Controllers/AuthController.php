@@ -29,6 +29,14 @@ class AuthController extends Controller
         }
 
         $request->session()->regenerate();
+        
+        // --- FITUR LAST LOGIN (Ditambahkan di sini) ---
+        /** @var \App\Models\User $loggedInUser */
+        $loggedInUser = Auth::user();
+        $loggedInUser->last_login_at = now();
+        $loggedInUser->save();
+        // ----------------------------------------------
+
         AuditLogEvent::dispatch('user', ['user' => Auth::user(), 'activity' => 'Login', 'ip' => $request->ip()]);
 
         return redirect()->intended('/dashboard');
@@ -57,6 +65,10 @@ class AuthController extends Controller
 
         Auth::login($user);
         $request->session()->regenerate();
+
+        // (Opsional) Update last_login_at saat pertama kali register & login
+        $user->last_login_at = now();
+        $user->save();
 
         AuditLogEvent::dispatch('user', ['user' => $user, 'activity' => 'Register Akun Baru (Guest)', 'ip' => $request->ip()]);
 

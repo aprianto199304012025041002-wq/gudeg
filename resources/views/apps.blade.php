@@ -40,6 +40,8 @@
     .btn-danger  { background: #6a1a1a; color: #f0a0a0; } .btn-danger:hover  { background: #8a2020; }
     .btn-success { background: #0a3a1a; color: #7ee787; } .btn-success:hover { background: #0d4a22; }
     .btn-warning { background: #3a2a00; color: #e8b84b; } .btn-warning:hover { background: #4a3600; }
+    .btn-copy    { background: transparent; border: none; cursor: pointer; color: #e8b84b; padding: 2px 4px; font-size: 12px; transition: transform 0.1s; }
+    .btn-copy:active { transform: scale(0.9); }
 
     .alert { font-size: 11px; margin-bottom: 10px; padding: 8px 10px; border-radius: 3px; }
     .alert-error { color: #c05050; background: #2a0a0a; border: 1px solid #6a1a1a; }
@@ -58,9 +60,17 @@
     .action-btns .btn { padding: 4px 8px; font-size: 10px; min-height: 28px; }
 
     .badge-admin  { background: #6a1a1a; padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: bold; color: #f0a0a0; }
-    .badge-signed { background: #2d1a5a; padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: bold; color: #c0a0f0; }
+    
+    .status-badge { 
+        padding: 4px 8px; border-radius: 4px; font-size: 9px; font-weight: bold; 
+        display: inline-flex; align-items: center; gap: 4px; border: 1px solid transparent; 
+    }
+    .badge-active { background: rgba(10, 58, 26, 0.3); color: #4ade80; border-color: #166534; }
+    .badge-inactive { background: rgba(106, 26, 26, 0.3); color: #f87171; border-color: #991b1b; }
+    .badge-signed { background: rgba(45, 26, 90, 0.4); color: #c0a0f0; border-color: #4a2a9a; }
+    .badge-cache { background: rgba(13, 30, 58, 0.4); color: #7a9bbf; border-color: #1a2e50; }
 
-    .active-toggle-label { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; cursor: pointer; }
+    .active-toggle-label { display: inline-flex; align-items: center; gap: 6px; font-size: 10px; cursor: pointer; }
     input[type="checkbox"] { width: auto; min-height: auto; margin: 0; cursor: pointer; accent-color: #2d5fff; }
 
     .checkbox-row {
@@ -76,6 +86,14 @@
         width: 36px; height: 36px; object-fit: contain;
         background: #060e1c; border: 1px solid #1a2e50;
         border-radius: 4px; padding: 4px;
+    }
+    
+    .client-id-box {
+        display: flex; align-items: center; gap: 6px; margin-top: 6px;
+    }
+    .client-id-text {
+        font-family: monospace; font-size: 10px; color: #7a9bbf;
+        background: #060e1c; padding: 2px 6px; border-radius: 3px; border: 1px solid #1a2e50;
     }
 </style>
 @endpush
@@ -137,7 +155,7 @@
                                 <th style="width: 50px; text-align: center;">Logo</th>
                                 <th>Informasi Aplikasi</th>
                                 <th style="text-align: center;">Status</th>
-                                <th style="text-align: center;">Token</th>
+                                <th style="text-align: center;">Token Mode</th>
                                 <th style="text-align: right;">Aksi</th>
                             </tr>
                         </thead>
@@ -157,7 +175,10 @@
                                         {{ !empty($app->description) ? $app->description : 'Tidak ada deskripsi' }}
                                     </div>
                                     <div style="margin-top:6px; font-size:10px; color:#3d5a80; word-break: break-all;">🔗 {{ $app->redirect }}</div>
-                                    <div style="margin-top:2px; font-size:10px; color:#2a3a50; font-family: monospace; word-break: break-all;">ID: {{ $app->client_id }}</div>
+                                    <div class="client-id-box">
+                                        <span class="client-id-text">ID: {{ $app->client_id }}</span>
+                                        <button type="button" class="btn-copy" onclick="copyText('{{ $app->client_id }}')" title="Salin ID Klien">📋</button>
+                                    </div>
                                 </td>
                                 <td style="text-align: center;">
                                     <form action="/apps/toggle" method="POST" id="form-active-{{ $app->id }}">
@@ -166,8 +187,8 @@
                                         <input type="hidden" name="is_active" value="0">
                                         <label class="active-toggle-label">
                                             <input type="checkbox" name="is_active" value="1" {{ (!isset($app->is_active) || $app->is_active) ? 'checked' : '' }} onchange="this.form.submit()">
-                                            <span style="color: {{ (!isset($app->is_active) || $app->is_active) ? '#5daa7a' : '#c05050' }}; font-weight: bold;">
-                                                {{ (!isset($app->is_active) || $app->is_active) ? 'Aktif' : 'Deaktif' }}
+                                            <span class="status-badge {{ (!isset($app->is_active) || $app->is_active) ? 'badge-active' : 'badge-inactive' }}">
+                                                {{ (!isset($app->is_active) || $app->is_active) ? '🟢 Aktif' : '🔴 Offline' }}
                                             </span>
                                         </label>
                                     </form>
@@ -178,8 +199,8 @@
                                         <input type="hidden" name="id" value="{{ $app->id }}">
                                         <label class="active-toggle-label">
                                             <input type="checkbox" {{ $app->use_signed_token ? 'checked' : '' }} onchange="this.form.submit()" style="accent-color: #4a2a9a;">
-                                            <span style="color: {{ $app->use_signed_token ? '#c0a0f0' : '#3d5a80' }}; font-weight: bold;">
-                                                {{ $app->use_signed_token ? 'Signed' : 'Cache' }}
+                                            <span class="status-badge {{ $app->use_signed_token ? 'badge-signed' : 'badge-cache' }}">
+                                                {{ $app->use_signed_token ? '🔑 Signed' : '💾 Cache' }}
                                             </span>
                                         </label>
                                     </form>
@@ -217,6 +238,15 @@
     @if(session('success_toggle')) Toast.fire({ icon: 'success', title: '{{ session("success_toggle") }}' }); @endif
     @if(session('success_delete')) Toast.fire({ icon: 'success', title: '{{ session("success_delete") }}' }); @endif
     @if(session('error')) Toast.fire({ icon: 'error', title: '{{ session("error") }}' }); @endif
+
+    function copyText(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            Toast.fire({ icon: 'success', title: 'Client ID berhasil disalin!' });
+        }).catch(err => {
+            console.error('Gagal menyalin text: ', err);
+            Toast.fire({ icon: 'error', title: 'Gagal menyalin text.' });
+        });
+    }
 
     function pingApp(id, name) {
         Swal.fire({

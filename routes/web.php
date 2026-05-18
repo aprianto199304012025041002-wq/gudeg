@@ -37,23 +37,31 @@ Route::get('/sso/validate', [SSOController::class, 'validateToken']);
 */
 Route::middleware(['auth', 'password.expire'])->group(function () {
     Route::get('/dashboard', function () {
-        if (strtolower(Auth::user()->email) === 'admin@dummy.com') {
-            $applications = DB::table('sso_applications')->get();
+        // Inisialisasi statistik bawaan
+        $stats = [
+            'total_users' => 0,
+            'total_apps' => 0,
+        ];
+
+        // MENGGUNAKAN PENGECEKAN ROLE ADMIN
+        if (Auth::user()->role === 'admin') {
+            $stats['total_users'] = DB::table('users')->count();
+            $stats['total_apps'] = DB::table('sso_applications')->count();
+            
+            $applications = DB::table('sso_applications')->paginate(10);
         } else {
             $applications = DB::table('sso_applications')
                 ->join('user_applications', 'sso_applications.id', '=', 'user_applications.application_id')
                 ->where('user_applications.user_id', Auth::id())
                 ->select('sso_applications.*')
-                ->get();
+                ->paginate(10);
         }
-        return view('dashboard', compact('applications'));
+        
+        return view('dashboard', compact('applications', 'stats'));
     })->name('dashboard');
 });
 
 Route::middleware('auth')->group(function () {
-    // Dipisah dari password.expire agar tidak crash saat belum login
-    // dan tidak terhalang cek expired — auth middleware akan redirect
-    // ke halaman login Gudeg otomatis kalau belum ada session
     Route::get('/sso/authorize', [SSOController::class, 'authorizeSSO']);
 
     Route::get('/settings', [AdminController::class, 'index'])->name('settings');
@@ -70,7 +78,6 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'admin'])->group(function () {
-
     Route::prefix('settings/admin')->group(function () {
         Route::post('/reset-password', [AdminController::class, 'resetPassword']);
         Route::post('/update-role', [AdminController::class, 'updateRole']);

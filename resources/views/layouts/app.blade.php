@@ -383,6 +383,14 @@
         </div>
 
         <div class="content">
+            <!-- Banner Maintenance Khusus Admin -->
+            @if(app()->isDownForMaintenance() && Auth::check() && Auth::user()->role === 'admin')
+                <div style="background: rgba(106, 26, 26, 0.4); border: 1px solid #991b1b; color: #f87171; padding: 12px 20px; border-radius: 4px; margin-bottom: 16px; font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 16px;">⚠️</span>
+                    SISTEM SEDANG DALAM MODE MAINTENANCE. User biasa tidak dapat mengakses aplikasi, Anda login melalui hak istimewa Admin.
+                </div>
+            @endif
+
             @yield('content')
         </div>
     </div>

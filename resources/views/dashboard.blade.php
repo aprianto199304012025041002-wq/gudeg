@@ -20,6 +20,7 @@
         border-radius: 4px; padding: 12px; margin-bottom: 16px;
     }
     .info-card p { font-size: 11px; color: #7a9bbf; line-height: 1.5; }
+    
     .status-box {
         margin-top: 8px; background: #061a10; border: 1px solid #1a5a2e;
         padding: 5px 8px; border-radius: 3px;
@@ -28,6 +29,14 @@
     .status-box.warning {
         background: #2a0a0a; border-color: #6a1a1a; color: #c05050;
     }
+
+    /* QUICK STATS (Admin Only) */
+    .quick-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 24px; }
+    .stat-card { background: rgba(13,25,50,0.75); border: 1px solid #1a2e50; border-radius: 4px; padding: 16px; text-align: center; }
+    .stat-label { font-size: 11px; color: #4a6a90; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; }
+    .stat-value { font-size: 26px; font-weight: bold; }
+    .stat-users { color: #ffffff; }
+    .stat-apps { color: #e8b84b; }
 
     .app-section-title {
         font-size: 10px; font-weight: 600; color: #3d5a80;
@@ -89,6 +98,8 @@
         grid-column: 1/-1; text-align: center; padding: 40px;
         border: 1px dashed #1a2e50; border-radius: 4px; color: #3d5a80;
     }
+    
+    .pagination-wrapper { margin-top: 20px; }
 </style>
 @endpush
 
@@ -104,6 +115,20 @@
     <h1>Selamat Datang di <span class="brand-gudeg">GUDEG</span> <span class="brand-jogja">JOGJA</span>, {{ Auth::user()->name }}!</h1>
     <p>General Unified Database and Employee Access Gateway. Pusat Autentikasi Single Sign-On (SSO) Balai Monitor Spektrum Frekuensi Radio Kelas I Yogyakarta.</p>
 </div>
+
+<!-- Tampilkan Quick Stats Hanya Untuk Admin -->
+@if(Auth::user()->role === 'admin')
+<div class="quick-stats">
+    <div class="stat-card">
+        <div class="stat-label">Total Pengguna</div>
+        <div class="stat-value stat-users">{{ $stats['total_users'] }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Total Aplikasi SSO</div>
+        <div class="stat-value stat-apps">{{ $stats['total_apps'] }}</div>
+    </div>
+</div>
+@endif
 
 <div class="info-card">
     <p>Anda login menggunakan akun <b style="color:#b0c8e8;">{{ Auth::user()->email }}</b> dengan Hak Akses: <b style="color:#3a7acc;">{{ strtoupper(Auth::user()->role) }}</b>.</p>
@@ -124,7 +149,6 @@
 <div class="app-section-title">Aplikasi Terintegrasi</div>
 
 <div class="app-grid">
-
     @forelse($applications as $app)
         @if(!isset($app->is_active) || $app->is_active)
         <a href="/sso/authorize?redirect={{ urlencode($app->redirect) }}" class="app-card" target="_blank" rel="noopener noreferrer">
@@ -152,7 +176,11 @@
             Belum ada aplikasi yang aktif terintegrasi dengan SSO.
         </div>
     @endforelse
+</div>
 
+<!-- Navigasi Paginasi Aplikasi -->
+<div class="pagination-wrapper">
+    {{ $applications->links() }}
 </div>
 
 @endif
