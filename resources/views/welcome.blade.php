@@ -9,19 +9,30 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: radial-gradient(ellipse 80% 70% at 50% 50%, #111e3a 0%, #080c18 70%);
             background-color: #080c18;
-            background-image:
-                radial-gradient(ellipse 80% 70% at 50% 50%, #111e3a 0%, #080c18 70%),
-                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-            background-size: 100% 100%, 48px 48px, 48px 48px;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             color: #ccd6f6;
             padding: 16px;
+            position: relative;
         }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 48px 48px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .wrapper { position: relative; z-index: 1; }
 
         .wrapper {
             display: flex;
@@ -208,7 +219,7 @@
 
         <div class="card">
             <div class="card-title">Selamat Datang</div>
-            <div class="card-sub">Gunakan akun <b>GUDEG JOGJA</b> Anda untuk masuk.</div>
+            <div class="card-sub">Gunakan akun <b><span style="color:#ffffff;">GUDEG</span> <span style="color:#e8b84b;">JOGJA</span></b> Anda untuk masuk.</div>
 
             @if ($errors->any())
                 <div class="error">{{ $errors->first() }}</div>
