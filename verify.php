@@ -17,32 +17,35 @@ function fail($msg) {
     exit;
 }
 
-$token        = $_REQUEST['token'] ?? '';
-$client_id    = $_REQUEST['client_id'] ?? '';
+$token         = $_REQUEST['token'] ?? '';
+$client_id     = $_REQUEST['client_id'] ?? '';
 $client_secret = $_REQUEST['client_secret'] ?? '';
 
 if (!$token || !$client_id || !$client_secret) {
     fail('token, client_id, dan client_secret wajib diisi.');
 }
 
-// Verify application
-$db   = getDB();
-$stmt = $db->prepare("SELECT * FROM sso_applications WHERE client_id = ? AND client_secret = ? AND is_active = 1 LIMIT 1");
+$db = getDB();
+
+// 1. Cek aplikasi aktif
+$stmt = $db->prepare("SELECT * FROM sso_applications WHERE client_id = ? AND client_secret = ? LIMIT 1");
 $stmt->execute([$client_id, $client_secret]);
-$app  = $stmt->fetch(PDO::FETCH_ASSOC);
+$app = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$app) {
     fail('Aplikasi tidak ditemukan atau kredensial salah.');
 }
+if (!$app['is_active']) {
+    fail('Aplikasi telah dinonaktifkan.');
+}
 
-// Verify token
+// 2. Verify token
 if ($app['use_signed_token']) {
     $payload = JWT::verify($token);
     if (!$payload) {
         fail('Token tidak valid atau sudah kedaluwarsa.');
     }
 } else {
-    // HMAC verify
     $parts = explode('.', $token);
     if (count($parts) !== 3) fail('Format token salah.');
     [$header, $body, $sig] = $parts;
@@ -53,13 +56,37 @@ if ($app['use_signed_token']) {
     if (($payload['exp'] ?? 0) < time()) fail('Token sudah kedaluwarsa.');
 }
 
+$user_id = $payload['sub'] ?? null;
+if (!$user_id) {
+    fail('Token tidak mengandung identitas user.');
+}
+
+// 3. Cek user masih aktif
+$stmt = $db->prepare("SELECT id, name, email, role, is_active FROM users WHERE id = ? LIMIT 1");
+$stmt->execute([$user_id]);
+$user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$user) {
+    fail('User tidak ditemukan.');
+}
+if (!$user['is_active']) {
+    fail('Akun user telah dinonaktifkan.');
+}
+
+// 4. Cek user masih punya akses ke aplikasi ini
+$stmt = $db->prepare("SELECT id FROM user_applications WHERE user_id = ? AND application_id = ? LIMIT 1");
+$stmt->execute([$user_id, $app['id']]);
+if (!$stmt->fetch()) {
+    fail('Akses user ke aplikasi ini telah dicabut.');
+}
+
 echo json_encode([
     'valid'   => true,
     'payload' => [
-        'user_id' => $payload['sub'] ?? null,
-        'name'    => $payload['name'] ?? null,
-        'email'   => $payload['email'] ?? null,
-        'role'    => $payload['role'] ?? null,
+        'user_id' => $user['id'],
+        'name'    => $user['name'],
+        'email'   => $user['email'],
+        'role'    => $user['role'],
         'exp'     => $payload['exp'] ?? null,
     ]
 ]);
