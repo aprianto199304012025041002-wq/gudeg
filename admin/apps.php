@@ -4,95 +4,244 @@ require_once __DIR__ . '/../includes/layout.php';
 require_admin();
 
 $user = get_current_user_data();
-$db = getDB();
-$error = '';
-$success = '';
+$db   = getDB();
+$msg  = '';
 
-// Jika ada logic POST (tambah/hapus app), biarkan di sini
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // ... logic aslimu ...
+    $action = $_POST['action'] ?? '';
+
+    if ($action === 'add_app') {
+        $name     = trim($_POST['name'] ?? '');
+        $redirect = trim($_POST['redirect'] ?? '');
+        $desc     = trim($_POST['description'] ?? '');
+        $signed   = isset($_POST['use_signed_token']) ? 1 : 0;
+        if ($name && $redirect) {
+            $cid = bin2hex(random_bytes(8));
+            $sec = bin2hex(random_bytes(32));
+            $db->prepare("INSERT INTO sso_applications (name, redirect, client_id, client_secret, description, use_signed_token, is_active, created_at, updated_at) VALUES (?,?,?,?,?,?,1,NOW(),NOW())")
+               ->execute([$name, $redirect, $cid, $sec, $desc, $signed]);
+            log_admin_action($user['id'], $user['name'],
+                'Registrasi Aplikasi Baru' . ($signed ? ' (Signed Token)' : ''), $name);
+            $msg = "Aplikasi <strong>$name</strong> berhasil didaftarkan. Client ID: <code style='font-family:monospace;background:rgba(0,0,0,.3);padding:.1rem .4rem;border-radius:4px'>$cid</code>";
+        }
+    } elseif ($action === 'toggle_status') {
+        $id  = (int)$_POST['app_id'];
+        $row = $db->prepare("SELECT * FROM sso_applications WHERE id = ? LIMIT 1");
+        $row->execute([$id]);
+        $app = $row->fetch(PDO::FETCH_ASSOC);
+        if ($app) {
+            $new = $app['is_active'] ? 0 : 1;
+            $db->prepare("UPDATE sso_applications SET is_active = ? WHERE id = ?")->execute([$new, $id]);
+            log_admin_action($user['id'], $user['name'], 'Update Status Aplikasi', $app['name'] . ' (' . ($new ? 'Aktif' : 'Deaktif') . ')');
+            $msg = "Status aplikasi diperbarui.";
+        }
+    } elseif ($action === 'toggle_signed') {
+        $id  = (int)$_POST['app_id'];
+        $row = $db->prepare("SELECT * FROM sso_applications WHERE id = ? LIMIT 1");
+        $row->execute([$id]);
+        $app = $row->fetch(PDO::FETCH_ASSOC);
+        if ($app) {
+            $new = $app['use_signed_token'] ? 0 : 1;
+            $db->prepare("UPDATE sso_applications SET use_signed_token = ? WHERE id = ?")->execute([$new, $id]);
+            log_admin_action($user['id'], $user['name'], 'Toggle Signed Token: ' . ($new ? 'ON' : 'OFF'), $app['name']);
+            $msg = "Signed Token diubah ke " . ($new ? 'RSA' : 'HMAC') . ".";
+        }
+    } elseif ($action === 'delete_app') {
+        $id  = (int)$_POST['app_id'];
+        $row = $db->prepare("SELECT name FROM sso_applications WHERE id = ? LIMIT 1");
+        $row->execute([$id]);
+        $app = $row->fetch(PDO::FETCH_ASSOC);
+        if ($app) {
+            $db->prepare("DELETE FROM sso_applications WHERE id = ?")->execute([$id]);
+            $db->prepare("DELETE FROM user_applications WHERE application_id = ?")->execute([$id]);
+            log_admin_action($user['id'], $user['name'], 'Hapus Aplikasi', $app['name']);
+            $msg = "Aplikasi <strong>" . htmlspecialchars($app['name']) . "</strong> berhasil dihapus.";
+        }
+    }
 }
 
-$apps = $db->query("SELECT * FROM apps ORDER BY id DESC")->fetchAll();
+$apps = $db->query("SELECT * FROM sso_applications ORDER BY id DESC")->fetchAll(PDO::FETCH_ASSOC);
 
 layout_head('Aplikasi SSO', 'admin-apps');
 ?>
+<style>
+/* Add form card */
+.add-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1.75rem;
+}
+.add-card-title {
+  font-size: .88rem; font-weight: 500;
+  color: var(--accent); margin-bottom: 1rem;
+}
+.form-row {
+  display: flex; gap: .75rem; flex-wrap: wrap; margin-bottom: .75rem;
+}
+.form-row .fg { flex: 1; min-width: 200px; }
+.fg label {
+  display: block; font-size: .7rem; font-weight: 500;
+  color: var(--text-dim); text-transform: uppercase;
+  letter-spacing: .07em; margin-bottom: .4rem;
+}
+.fg input[type=text] {
+  width: 100%;
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 7px; padding: .65rem .9rem;
+  color: var(--text); font-family: 'DM Sans', sans-serif;
+  font-size: .88rem; outline: none;
+  transition: border-color .2s; -webkit-appearance: none;
+}
+.fg input:focus { border-color: var(--accent); }
+
+.check-label {
+  display: flex; align-items: center; gap: .5rem;
+  font-size: .83rem; color: var(--text-dim);
+  cursor: pointer; margin-top: .25rem;
+}
+.check-label input { accent-color: var(--accent); }
+
+.btn-add {
+  background: var(--accent); color: #0a0c10;
+  border: none; border-radius: 8px;
+  padding: .6rem 1.2rem;
+  font-size: .85rem; font-weight: 600;
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  margin-top: .85rem;
+  transition: opacity .2s;
+}
+.btn-add:hover { opacity: .88; }
+
+/* App cards */
+.app-list { display: flex; flex-direction: column; gap: .75rem; }
+.app-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden;
+}
+.app-card-head { padding: .9rem 1.1rem; }
+.app-name { font-weight: 500; font-size: .92rem; margin-bottom: .2rem; }
+.app-desc { font-size: .75rem; color: var(--text-dim); margin-bottom: .6rem; }
+.app-badges { display: flex; gap: .4rem; flex-wrap: wrap; }
+
+.mono-block {
+  font-family: 'DM Mono', monospace;
+  font-size: .72rem; color: var(--text-dim);
+  word-break: break-all; line-height: 1.5;
+  margin-top: .5rem;
+}
+.secret-blur {
+  filter: blur(4px); transition: filter .2s; cursor: pointer;
+  display: inline;
+}
+.secret-blur:hover, .secret-blur.revealed { filter: none; }
+
+.app-actions {
+  border-top: 1px solid var(--border);
+  padding: .7rem 1.1rem;
+  display: flex; flex-wrap: wrap; gap: .45rem;
+}
+.btn-sm {
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text); border-radius: 6px;
+  padding: .3rem .65rem; font-size: .78rem;
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  transition: border-color .15s, color .15s; white-space: nowrap;
+}
+.btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+.btn-sm.danger { border-color: rgba(229,115,115,.3); color: var(--danger); }
+.btn-sm.danger:hover { border-color: var(--danger); }
+</style>
 
 <div class="page-header">
-  <h1>Aplikasi SSO</h1>
-  <p>Kelola client ID dan Secret untuk integrasi aplikasi</p>
+  <h1 class="page-title">Aplikasi SSO</h1>
+  <p class="page-subtitle">Daftarkan dan kelola aplikasi yang terintegrasi.</p>
 </div>
 
-<!-- Form Tambah App -->
-<div class="card" style="margin-bottom:24px;">
-  <h2 style="font-family:var(--font-head);font-size:1.1rem;margin-bottom:16px;">Tambah Aplikasi Baru</h2>
+<?php if ($msg): ?>
+  <div class="msg-box"><?= $msg ?></div>
+<?php endif; ?>
 
-  <?php if ($error):   ?><div class="alert alert-danger"><?= htmlspecialchars($error) ?></div><?php endif; ?>
-  <?php if ($success): ?><div class="alert alert-success"><?= htmlspecialchars($success) ?></div><?php endif; ?>
-
-  <form method="POST" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-    <!-- Pastikan name atribut cocok dengan form-mu aslinya -->
-    <div class="form-group" style="margin:0;">
-      <label class="form-label">Nama Aplikasi</label>
-      <input class="form-control" type="text" name="name" placeholder="Misal: SIMPEG" required/>
+<!-- Form tambah aplikasi -->
+<div class="add-card">
+  <div class="add-card-title">+ Daftarkan Aplikasi Baru</div>
+  <form method="POST">
+    <input type="hidden" name="action" value="add_app">
+    <div class="form-row">
+      <div class="fg">
+        <label>Nama Aplikasi</label>
+        <input type="text" name="name" placeholder="Nama aplikasi" required>
+      </div>
+      <div class="fg">
+        <label>Redirect URL (Callback)</label>
+        <input type="text" name="redirect" placeholder="https://app.example.com/callback" required>
+      </div>
     </div>
-    <div class="form-group" style="margin:0;">
-      <label class="form-label">Redirect Callback URL</label>
-      <input class="form-control" type="url" name="redirect_url" placeholder="https://..." required/>
+    <div class="form-row">
+      <div class="fg">
+        <label>Deskripsi</label>
+        <input type="text" name="description" placeholder="Deskripsi singkat (opsional)">
+      </div>
     </div>
-    <div style="grid-column:1/-1;">
-      <button type="submit" class="btn btn-primary" name="action" value="add_app">+ Daftarkan Aplikasi</button>
-    </div>
+    <label class="check-label">
+      <input type="checkbox" name="use_signed_token">
+      Gunakan RSA Signed Token (lebih aman, memerlukan public key di sisi klien)
+    </label>
+    <button type="submit" class="btn-add">Daftarkan</button>
   </form>
 </div>
 
-<!-- List Apps -->
-<div style="display:grid;gap:16px;">
-  <?php foreach ($apps as $app): ?>
-  <div class="card">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px;">
-      <div>
-        <h3 style="font-family:var(--font-head);font-size:1.2rem;margin-bottom:4px;"><?= htmlspecialchars($app['name']) ?></h3>
-        <p style="font-size:.85rem;color:var(--text-muted);"><span style="font-weight:600;">Callback:</span> <?= htmlspecialchars($app['redirect_url']) ?></p>
-      </div>
-      <form method="POST" action="/admin/delete-app.php" onsubmit="return confirm('Yakin hapus aplikasi <?= htmlspecialchars($app['name']) ?>?')">
-        <input type="hidden" name="app_id" value="<?= $app['id'] ?>"/>
-        <button type="submit" class="btn btn-danger btn-sm">Hapus App</button>
-      </form>
+<!-- Daftar aplikasi -->
+<div class="section-label">Aplikasi Terdaftar (<?= count($apps) ?>)</div>
+<div class="app-list">
+<?php foreach ($apps as $app): ?>
+<div class="app-card">
+  <div class="app-card-head">
+    <div class="app-name"><?= htmlspecialchars($app['name']) ?></div>
+    <?php if ($app['description']): ?>
+      <div class="app-desc"><?= htmlspecialchars($app['description']) ?></div>
+    <?php endif; ?>
+    <div class="app-badges">
+      <span class="badge <?= $app['is_active'] ? 'badge-active' : 'badge-inactive' ?>">
+        <?= $app['is_active'] ? 'Aktif' : 'Nonaktif' ?>
+      </span>
+      <span class="badge <?= $app['use_signed_token'] ? 'badge-rsa' : 'badge-hmac' ?>">
+        <?= $app['use_signed_token'] ? 'RSA' : 'HMAC' ?>
+      </span>
     </div>
-
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin-top:20px;">
+    <div class="mono-block">
+      <div><?= htmlspecialchars($app['client_id']) ?></div>
       <div>
-        <div class="form-label">Client ID</div>
-        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-family:monospace;font-size:.9rem;color:var(--accent);">
-          <?= htmlspecialchars($app['client_id']) ?>
-        </div>
+        <span class="secret-blur" onclick="this.classList.toggle('revealed')"
+              title="Klik untuk tampilkan"><?= htmlspecialchars($app['client_secret']) ?></span>
       </div>
-      <div>
-        <div class="form-label">Client Secret</div>
-        <div style="position:relative;">
-          <div class="secret-field" 
-               style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 40px 10px 14px;font-family:monospace;font-size:.9rem;color:#fff;filter:blur(5px);transition:all .2s;cursor:pointer;user-select:none;"
-               onclick="toggleSecret(this)" title="Klik untuk lihat rahasia">
-            <?= htmlspecialchars($app['client_secret']) ?>
-          </div>
-          <svg style="position:absolute;right:14px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--text-muted);"
-               width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-          </svg>
-        </div>
-      </div>
+      <div style="margin-top:.25rem;color:var(--text-dim);opacity:.7"><?= htmlspecialchars($app['redirect']) ?></div>
     </div>
   </div>
-  <?php endforeach; ?>
+  <div class="app-actions">
+    <form method="POST" style="display:inline">
+      <input type="hidden" name="action" value="toggle_status">
+      <input type="hidden" name="app_id" value="<?= $app['id'] ?>">
+      <button type="submit" class="btn-sm <?= $app['is_active'] ? 'danger' : '' ?>">
+        <?= $app['is_active'] ? 'Nonaktifkan' : 'Aktifkan' ?>
+      </button>
+    </form>
+    <form method="POST" style="display:inline">
+      <input type="hidden" name="action" value="toggle_signed">
+      <input type="hidden" name="app_id" value="<?= $app['id'] ?>">
+      <button type="submit" class="btn-sm">Toggle RSA</button>
+    </form>
+    <form method="POST" style="display:inline"
+          onsubmit="return confirm('Hapus aplikasi <?= htmlspecialchars(addslashes($app['name'])) ?>?')">
+      <input type="hidden" name="action" value="delete_app">
+      <input type="hidden" name="app_id" value="<?= $app['id'] ?>">
+      <button type="submit" class="btn-sm danger">Hapus</button>
+    </form>
+  </div>
 </div>
-
-<script>
-function toggleSecret(el) {
-  const blurred = el.style.filter === 'blur(5px)';
-  el.style.filter = blurred ? 'none' : 'blur(5px)';
-  el.style.userSelect = blurred ? 'text' : 'none';
-}
-</script>
+<?php endforeach; ?>
+</div>
 
 <?php layout_foot(); ?>

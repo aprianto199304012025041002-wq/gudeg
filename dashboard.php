@@ -4,114 +4,174 @@ require_once __DIR__ . '/includes/layout.php';
 require_login();
 
 $user = get_current_user_data();
-$db = getDB();
-$isAdmin = ($user['role'] === 'admin');
+$db   = getDB();
 
-// 1. Ambil Apps yang user punya akses
+// Apps user punya akses
 $apps = [];
-if ($isAdmin) {
-    $apps = $db->query("SELECT * FROM apps")->fetchAll();
-} else {
-    $stmt = $db->prepare("SELECT a.* FROM apps a JOIN user_apps ua ON a.id = ua.app_id WHERE ua.user_id = ?");
+if ($user['role'] !== 'guest') {
+    $stmt = $db->prepare("
+        SELECT a.* FROM sso_applications a
+        INNER JOIN user_applications ua ON ua.application_id = a.id
+        WHERE ua.user_id = ? AND a.is_active = 1
+    ");
     $stmt->execute([$user['id']]);
-    $apps = $stmt->fetchAll();
+    $apps = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-// 2. Ambil Statistik (contoh query standar, sesuaikan jika beda)
-$totalApps = $db->query("SELECT COUNT(*) FROM apps")->fetchColumn();
-$totalUsers = $db->query("SELECT COUNT(*) FROM users")->fetchColumn();
-$totalLogs = $db->query("SELECT COUNT(*) FROM logs")->fetchColumn();
-
-// 3. Ambil Log Terbaru (5 terakhir)
-$recentLogs = $db->query("
-    SELECT l.*, u.name as user_name, a.name as app_name 
-    FROM logs l 
-    LEFT JOIN users u ON l.user_id = u.id 
-    LEFT JOIN apps a ON l.app_id = a.id 
-    ORDER BY l.created_at DESC LIMIT 5
-")->fetchAll();
+// Aktivitas terakhir
+$logs = $db->prepare("SELECT activity, ip_address, created_at FROM user_logs WHERE user_id = ? ORDER BY id DESC LIMIT 5");
+$logs->execute([$user['id']]);
+$recent = $logs->fetchAll(PDO::FETCH_ASSOC);
 
 layout_head('Dashboard', 'dashboard');
 ?>
+<style>
+.greeting { margin-bottom: 1.75rem; }
+.greeting h2 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.6rem;
+}
+.greeting p { color: var(--text-dim); margin-top: .3rem; font-size: .88rem; }
 
-<div class="page-header">
-  <h1>Dashboard</h1>
-  <p>Selamat datang kembali, <?= htmlspecialchars($user['name']) ?></p>
+/* Guest notice */
+.guest-notice {
+  background: rgba(200,169,110,.07);
+  border: 1px solid rgba(200,169,110,.2);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  display: flex; align-items: flex-start; gap: .75rem;
+}
+.guest-notice .gn-icon { font-size: 1.2rem; margin-top: .1rem; }
+.guest-notice p { font-size: .85rem; color: var(--text-dim); line-height: 1.55; }
+
+/* Apps grid */
+.apps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: .85rem;
+  margin-bottom: 2rem;
+}
+@media (min-width: 480px) {
+  .apps-grid { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+}
+.app-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.1rem 1rem;
+  display: block;
+  transition: border-color .2s, transform .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.app-card:hover, .app-card:focus {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  outline: none;
+}
+.app-card:active { transform: scale(.98); }
+.app-logo {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  background: var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; margin-bottom: .75rem;
+  overflow: hidden;
+}
+.app-logo img { width: 100%; height: 100%; object-fit: cover; }
+.app-name { font-weight: 500; font-size: .9rem; margin-bottom: .2rem; }
+.app-desc {
+  font-size: .75rem; color: var(--text-dim); line-height: 1.4;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.app-launch {
+  margin-top: .65rem;
+  font-size: .68rem; font-family: 'DM Mono', monospace;
+  color: var(--accent); text-transform: uppercase; letter-spacing: .08em;
+}
+
+/* Empty apps */
+.empty-apps {
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: .85rem;
+  margin-bottom: 2rem;
+}
+
+/* Log list */
+.log-list { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 1.5rem; }
+.log-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: .75rem 1.1rem;
+  border-bottom: 1px solid var(--border);
+  gap: .5rem;
+}
+.log-row:last-child { border-bottom: none; }
+.log-activity { font-size: .85rem; }
+.log-meta {
+  color: var(--text-dim);
+  font-family: 'DM Mono', monospace;
+  font-size: .7rem;
+  text-align: right; flex-shrink: 0;
+}
+</style>
+
+<div class="page-header greeting">
+  <h2>Halo, <?= htmlspecialchars(explode(' ', $user['name'])[0]) ?>!</h2>
+  <p><?= $user['role'] === 'guest' ? 'Akun Anda masih menunggu aktivasi admin.' : 'Pilih aplikasi yang ingin diakses.' ?></p>
 </div>
 
-<!-- Stat cards (Khusus admin, user biasa tampil app miliknya) -->
-<?php if ($isAdmin): ?>
-<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:16px; margin-bottom:24px;">
-  <div class="card" style="text-align:center;">
-    <div style="font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);font-weight:600;margin-bottom:8px;">Aplikasi SSO</div>
-    <div style="font-family:var(--font-head);font-size:2.5rem;font-weight:800;color:var(--accent);"><?= number_format($totalApps) ?></div>
-  </div>
-  <div class="card" style="text-align:center;">
-    <div style="font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);font-weight:600;margin-bottom:8px;">Total Pengguna</div>
-    <div style="font-family:var(--font-head);font-size:2.5rem;font-weight:800;color:var(--blue);"><?= number_format($totalUsers) ?></div>
-  </div>
-  <div class="card" style="text-align:center;">
-    <div style="font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);font-weight:600;margin-bottom:8px;">Total Log Akses</div>
-    <div style="font-family:var(--font-head);font-size:2.5rem;font-weight:800;color:var(--text);"><?= number_format($totalLogs) ?></div>
-  </div>
+<?php if ($user['role'] === 'guest'): ?>
+<div class="guest-notice">
+  <div class="gn-icon">⏳</div>
+  <p>Akun Anda berstatus <strong>Guest</strong> dan belum memiliki akses ke aplikasi. Tunggu administrator mengaktifkan dan mengatur hak akses Anda.</p>
 </div>
 <?php endif; ?>
 
-<!-- Daftar Aplikasi User -->
-<div class="page-header" style="margin-top: 30px;">
-  <h2 style="font-family:var(--font-head);font-size:1.2rem;">Aplikasi Saya</h2>
-</div>
-<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:16px; margin-bottom:24px;">
-  <?php if(empty($apps)): ?>
-    <div class="card" style="color:var(--text-muted); font-size: .9rem;">Anda belum memiliki akses ke aplikasi manapun.</div>
-  <?php else: ?>
-    <?php foreach($apps as $app): ?>
-      <div class="card" style="display:flex; flex-direction:column; justify-content:space-between;">
-        <div>
-          <h3 style="font-family:var(--font-head); font-size:1.1rem; margin-bottom:4px;"><?= htmlspecialchars($app['name']) ?></h3>
-          <p style="font-size:.8rem; color:var(--text-muted); word-break:break-all;"><?= htmlspecialchars($app['redirect_url']) ?></p>
-        </div>
+<?php if ($user['role'] !== 'guest'): ?>
+  <div class="section-label">Aplikasi Anda</div>
+  <?php if ($apps): ?>
+  <div class="apps-grid">
+    <?php foreach ($apps as $app): ?>
+    <a href="/sso.php?client_id=<?= urlencode($app['client_id']) ?>" class="app-card">
+      <div class="app-logo">
+        <?php if (!empty($app['logo'])): ?>
+          <img src="/<?= htmlspecialchars($app['logo']) ?>" alt="<?= htmlspecialchars($app['name']) ?>">
+        <?php else: ?>
+          🖥️
+        <?php endif; ?>
       </div>
+      <div class="app-name"><?= htmlspecialchars($app['name']) ?></div>
+      <div class="app-desc"><?= htmlspecialchars($app['description'] ?? 'Klik untuk akses') ?></div>
+      <div class="app-launch">Buka →</div>
+    </a>
     <?php endforeach; ?>
+  </div>
+  <?php else: ?>
+  <div class="empty-apps">Belum ada aplikasi yang ditugaskan ke akun Anda.<br>Hubungi administrator.</div>
   <?php endif; ?>
-</div>
+<?php endif; ?>
 
-<!-- Recent logs (Khusus Admin) -->
-<?php if ($isAdmin && !empty($recentLogs)): ?>
-<div class="card">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-    <div style="font-family:var(--font-head);font-size:1.1rem;font-weight:700;">Akses SSO Terbaru</div>
-    <a href="/admin/logs.php" style="font-size:.85rem;color:var(--accent);font-weight:600;">Lihat Semua →</a>
+<div class="section-label">Aktivitas Terakhir</div>
+<?php if ($recent): ?>
+<div class="log-list">
+  <?php foreach ($recent as $log): ?>
+  <div class="log-row">
+    <span class="log-activity"><?= htmlspecialchars($log['activity']) ?></span>
+    <span class="log-meta">
+      <?= htmlspecialchars($log['ip_address']) ?><br>
+      <?= date('d M, H:i', strtotime($log['created_at'])) ?>
+    </span>
   </div>
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>Waktu</th>
-          <th>Aplikasi</th>
-          <th>Pengguna</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        <?php foreach ($recentLogs as $log): ?>
-        <tr>
-          <td style="color:var(--text-muted);font-size:.85rem;"><?= htmlspecialchars($log['created_at']) ?></td>
-          <td><span class="badge badge-muted"><?= htmlspecialchars($log['app_name'] ?? '-') ?></span></td>
-          <td style="font-weight:500;"><?= htmlspecialchars($log['user_name'] ?? '-') ?></td>
-          <td>
-            <?php if ($log['status'] === 'success'): ?>
-              <span class="badge badge-green">Berhasil</span>
-            <?php else: ?>
-              <span class="badge badge-red">Gagal</span>
-            <?php endif; ?>
-          </td>
-        </tr>
-        <?php endforeach; ?>
-      </tbody>
-    </table>
-  </div>
+  <?php endforeach; ?>
 </div>
+<?php else: ?>
+<div class="empty-apps" style="margin-bottom:1.5rem">Belum ada aktivitas tercatat.</div>
 <?php endif; ?>
 
 <?php layout_foot(); ?>

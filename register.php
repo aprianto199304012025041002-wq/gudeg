@@ -8,7 +8,7 @@ if (!empty($_SESSION['user_id'])) {
 }
 
 $error   = '';
-$success = false;
+$success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name    = trim($_POST['name'] ?? '');
@@ -46,24 +46,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Daftar — GUDEG JOGJA</title>
+<title>Daftar — Portal SSO</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --bg:       #080f1e;
-  --surface:  #0d1730;
-  --surface2: #111f3a;
-  --border:   rgba(255,255,255,.08);
-  --border-hi:rgba(255,255,255,.13);
-  --text:     #e2eaf8;
-  --muted:    #7a94b8;
-  --accent:   #f5c518;
-  --blue:     #2f80ed;
-  --blue-dim: rgba(47,128,237,.18);
-  --danger:   #e05252;
-  --success:  #34c97e;
+  --bg: #0a0c10; --surface: #12151c; --border: #1e2330;
+  --accent: #c8a96e; --accent-dim: #8a7249;
+  --text: #e8e4dc; --text-dim: #7a7a8a;
+  --danger: #e57373; --success: #69d98c;
 }
 html { -webkit-text-size-adjust: 100%; }
 body {
@@ -72,137 +64,141 @@ body {
   min-height: 100vh; min-height: 100dvh;
   display: flex; align-items: center; justify-content: center;
   padding: 1.25rem 1rem;
-  -webkit-font-smoothing: antialiased;
-  position: relative; overflow: hidden;
+  background-image: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(200,169,110,.07), transparent);
 }
-body::before {
-  content: '';
-  position: fixed; inset: 0;
-  background:
-    radial-gradient(ellipse 80% 55% at 85% 85%, rgba(47,128,237,.09) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 45% at 15% 15%, rgba(245,197,24,.07) 0%, transparent 55%);
-  pointer-events: none;
-}
-body::after {
-  content: '';
-  position: fixed; inset: 0;
-  background-image:
-    linear-gradient(rgba(255,255,255,.022) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.022) 1px, transparent 1px);
-  background-size: 52px 52px;
-  pointer-events: none;
-  mask-image: radial-gradient(ellipse 65% 65% at 50% 50%, black, transparent);
-}
+.container { width: 100%; max-width: 400px; }
 
-.wrap { width: 100%; max-width: 400px; position: relative; z-index: 1; }
-
-.brand { text-align: center; margin-bottom: 24px; }
-.brand-name { line-height: 1; margin-bottom: 8px; }
-.brand-gudeg { font-family:'Syne',sans-serif; font-size:1.85rem; font-weight:800; color:var(--accent); letter-spacing:.04em; }
-.brand-jogja { font-family:'Syne',sans-serif; font-size:1.85rem; font-weight:800; color:#fff; letter-spacing:.04em; }
-.brand-tagline { font-size:.7rem; color:var(--muted); letter-spacing:.04em; line-height:1.6; text-transform:uppercase; }
+.logo-area { text-align: center; margin-bottom: 1.75rem; }
+.logo-icon {
+  width: 50px; height: 50px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+  border-radius: 14px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; margin-bottom: .85rem;
+}
+.logo-area h1 { font-family: 'DM Serif Display', serif; font-size: 1.5rem; }
+.logo-area .sub {
+  color: var(--text-dim); font-size: .72rem;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: .1em; text-transform: uppercase; margin-top: .35rem;
+}
 
 .card {
-  background: var(--surface);
-  border: 1px solid var(--border-hi);
-  border-radius: 14px;
-  padding: 26px 22px;
-  box-shadow: 0 20px 60px rgba(0,0,0,.5);
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 1.75rem 1.5rem;
 }
-.card-title { font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; margin-bottom:18px; }
 
-.alert-danger  { background:rgba(224,82,82,.1);  border:1px solid rgba(224,82,82,.25);  color:var(--danger);  border-radius:8px; padding:9px 13px; font-size:.84rem; margin-bottom:16px; }
-.alert-success { background:rgba(52,201,126,.1); border:1px solid rgba(52,201,126,.25); color:var(--success); border-radius:8px; padding:9px 13px; font-size:.84rem; margin-bottom:16px; }
-.alert-success a { color:var(--success); font-weight:600; }
-
-.form-group { margin-bottom: 13px; }
-.form-label {
-  display:block; font-size:.72rem; font-weight:600;
-  color:var(--muted); text-transform:uppercase; letter-spacing:.07em; margin-bottom:5px;
+.form-group { margin-bottom: 1.1rem; }
+label {
+  display: block; font-size: .72rem; font-weight: 500;
+  color: var(--text-dim); text-transform: uppercase;
+  letter-spacing: .08em; margin-bottom: .4rem;
 }
-.form-control {
-  width:100%; background:var(--surface2);
-  border:1px solid var(--border-hi); border-radius:8px;
-  padding:10px 13px; color:var(--text);
-  font-family:'DM Sans',sans-serif; font-size:1rem;
-  outline:none; transition:border-color .15s, box-shadow .15s;
-  -webkit-appearance:none;
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  width: 100%; background: var(--bg);
+  border: 1px solid var(--border); border-radius: 8px;
+  padding: .78rem 1rem; color: var(--text);
+  font-family: 'DM Sans', sans-serif; font-size: 1rem;
+  outline: none; transition: border-color .2s;
+  -webkit-appearance: none;
 }
-.form-control:focus { border-color:var(--blue); box-shadow:0 0 0 3px var(--blue-dim); }
+input:focus { border-color: var(--accent); }
 
-.note { font-size:.75rem; color:var(--muted); margin-top:.3rem; }
+.error-msg {
+  background: rgba(229,115,115,.08); border: 1px solid rgba(229,115,115,.25);
+  color: var(--danger); border-radius: 8px;
+  padding: .65rem 1rem; font-size: .83rem; margin-bottom: 1.1rem;
+}
+.success-msg {
+  background: rgba(105,217,140,.08); border: 1px solid rgba(105,217,140,.25);
+  color: var(--success); border-radius: 8px;
+  padding: .65rem 1rem; font-size: .83rem; margin-bottom: 1.1rem;
+}
+.success-msg a { color: var(--success); font-weight: 600; }
+
+.note { font-size: .75rem; color: var(--text-dim); margin-top: .3rem; }
 
 .btn-submit {
-  width:100%; padding:11px; border:none; border-radius:8px;
-  background:var(--blue); color:#fff;
-  font-family:'Syne',sans-serif; font-size:.95rem; font-weight:700;
-  letter-spacing:.03em; cursor:pointer; margin-top:8px;
-  transition:opacity .15s, transform .1s;
-  -webkit-tap-highlight-color:transparent;
+  width: 100%; background: var(--accent); color: #0a0c10;
+  border: none; border-radius: 8px; padding: .88rem;
+  font-family: 'DM Sans', sans-serif; font-size: .95rem; font-weight: 600;
+  cursor: pointer; transition: opacity .2s, transform .1s;
+  margin-top: .5rem; -webkit-tap-highlight-color: transparent;
 }
-.btn-submit:hover { opacity:.88; }
-.btn-submit:active { transform:scale(.97); }
+.btn-submit:hover { opacity: .88; }
+.btn-submit:active { transform: scale(.98); }
 
-.divider { border:none; border-top:1px solid var(--border); margin:18px 0; }
-.card-foot { text-align:center; font-size:.83rem; color:var(--muted); }
-.card-foot a { color:var(--blue); font-weight:500; }
-.card-foot a:hover { text-decoration:underline; }
+.divider { border: none; border-top: 1px solid var(--border); margin: 1.35rem 0; }
+.link-row { text-align: center; font-size: .83rem; color: var(--text-dim); }
+.link-row a { color: var(--accent); font-weight: 500; }
+.link-row a:hover { text-decoration: underline; }
+
+.footer-note {
+  text-align: center; margin-top: 1.75rem;
+  font-size: .68rem; color: var(--text-dim);
+  font-family: 'DM Mono', monospace; opacity: .5; letter-spacing: .06em;
+}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="brand">
-    <div class="brand-name">
-      <span class="brand-gudeg">GUDEG</span><span class="brand-jogja"> JOGJA</span>
-    </div>
-    <div class="brand-tagline">General Unified Database<br>and Employee Gateway</div>
+<div class="container">
+  <div class="logo-area">
+    <div class="logo-icon">📝</div>
+    <h1>Daftar Akun</h1>
+    <p class="sub">Portal SSO · Balmon Yogyakarta</p>
   </div>
 
   <div class="card">
-    <div class="card-title">Buat Akun Baru</div>
-
     <?php if ($error): ?>
-      <div class="alert-danger"><?= htmlspecialchars($error) ?></div>
+      <div class="error-msg"><?= htmlspecialchars($error) ?></div>
     <?php endif; ?>
 
     <?php if ($success): ?>
-      <div class="alert-success">Akun berhasil dibuat! <a href="/login.php">Login sekarang →</a></div>
+      <div class="success-msg">
+        Akun berhasil dibuat! <a href="/login.php">Login sekarang →</a>
+      </div>
       <hr class="divider">
-      <p class="card-foot">Sudah punya akun? <a href="/login.php">Login di sini</a></p>
+      <p class="link-row">Sudah punya akun? <a href="/login.php">Login di sini</a></p>
     <?php else: ?>
     <form method="POST">
       <div class="form-group">
-        <label class="form-label" for="name">Nama Lengkap</label>
-        <input class="form-control" type="text" id="name" name="name"
+        <label for="name">Nama Lengkap</label>
+        <input type="text" id="name" name="name"
                placeholder="Nama lengkap"
                value="<?= htmlspecialchars($_POST['name'] ?? '') ?>"
                required autofocus autocomplete="name">
       </div>
       <div class="form-group">
-        <label class="form-label" for="email">Email</label>
-        <input class="form-control" type="email" id="email" name="email"
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email"
                placeholder="user@example.com"
                value="<?= htmlspecialchars($_POST['email'] ?? '') ?>"
                required autocomplete="email">
       </div>
       <div class="form-group">
-        <label class="form-label" for="password">Password</label>
-        <input class="form-control" type="password" id="password" name="password"
-               placeholder="Min. 8 karakter" required autocomplete="new-password">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password"
+               placeholder="Min. 8 karakter"
+               required autocomplete="new-password">
       </div>
       <div class="form-group">
-        <label class="form-label" for="confirm">Konfirmasi Password</label>
-        <input class="form-control" type="password" id="confirm" name="confirm"
-               placeholder="Ulangi password" required autocomplete="new-password">
+        <label for="confirm">Konfirmasi Password</label>
+        <input type="password" id="confirm" name="confirm"
+               placeholder="Ulangi password"
+               required autocomplete="new-password">
       </div>
       <p class="note">Akun baru akan berstatus <strong>Guest</strong> sampai diaktivasi admin.</p>
-      <button type="submit" class="btn-submit">BUAT AKUN</button>
+      <button type="submit" class="btn-submit">Buat Akun</button>
     </form>
 
     <hr class="divider">
-    <p class="card-foot">Sudah punya akun? <a href="/login.php">Login di sini</a></p>
+    <p class="link-row">Sudah punya akun? <a href="/login.php">Login di sini</a></p>
     <?php endif; ?>
   </div>
+
+  <p class="footer-note">GUDEG SSO · Sistem Autentikasi Terpusat</p>
 </div>
 </body>
 </html>
