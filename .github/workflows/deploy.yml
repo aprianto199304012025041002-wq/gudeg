@@ -23,14 +23,15 @@ jobs:
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
         server-dir: /htdocs/
-        
-        # Daftar hitam file & folder yang tidak boleh dikirim ke InfinityFree
+        dangerous-clean-slate: false
+
         exclude: |
           **/.git*
-          **/.git*/**
+          **/.git/**
           **/.github/**
           **/.vs/**
           **/.editorconfig
           **/.npmrc
           **/.override
           **/node_modules/**
+          **/storage/app/sso/**
