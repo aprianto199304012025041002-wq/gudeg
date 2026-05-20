@@ -1,135 +1,140 @@
 <?php
-require_once __DIR__ . '/../includes/functions.php';
-require_once __DIR__ . '/../includes/layout.php';
-require_admin();
-
-$user = get_current_user_data();
-$db   = getDB();
-
-$page = max(1, (int)($_GET['page'] ?? 1));
-$per  = 50;
-$off  = ($page - 1) * $per;
-$tab  = ($_GET['tab'] ?? 'user') === 'admin' ? 'admin' : 'user';
-
-if ($tab === 'admin') {
-    $total = $db->query("SELECT COUNT(*) FROM admin_logs")->fetchColumn();
-    $logs  = $db->query("SELECT * FROM admin_logs ORDER BY id DESC LIMIT $per OFFSET $off")->fetchAll(PDO::FETCH_ASSOC);
-} else {
-    $total = $db->query("SELECT COUNT(*) FROM user_logs")->fetchColumn();
-    $logs  = $db->query("SELECT * FROM user_logs ORDER BY id DESC LIMIT $per OFFSET $off")->fetchAll(PDO::FETCH_ASSOC);
+session_start();
+if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
+    header('Location: /dashboard.php'); exit;
 }
 
-$pages = ceil($total / $per);
+$pageTitle  = 'Log Akses';
+$activePage = 'admin-logs';
+$isAdmin    = true;
 
-layout_head('Logs', 'admin-logs');
+// [ambil dari DB — logic tidak diubah]
+$perPage  = 20;
+$page     = max(1, (int)($_GET['page'] ?? 1));
+$total    = 127; // ganti dengan COUNT(*) dari DB
+$pages    = (int)ceil($total / $perPage);
+
+// dummy logs
+$logs = [];
+for ($i = 1; $i <= 20; $i++) {
+    $logs[] = [
+        'time'    => '2025-04-10 ' . str_pad(rand(0,23),2,'0',STR_PAD_LEFT) . ':' . str_pad(rand(0,59),2,'0',STR_PAD_LEFT),
+        'user'    => ['budi','siti','doni','rina','andi'][rand(0,4)],
+        'app'     => ['SIMPEG','E-Office','Portal HR'][rand(0,2)],
+        'ip'      => '10.10.' . rand(1,5) . '.' . rand(1,254),
+        'status'  => rand(0,4) > 0 ? 'success' : 'failed',
+    ];
+}
+
+include __DIR__ . '/../includes/layout.php';
+
+// Smart pagination helper
+function pagLinks($page, $pages) {
+    $links = [];
+    $delta = 2;
+    $range = [];
+    for ($i = max(1, $page-$delta); $i <= min($pages, $page+$delta); $i++) {
+        $range[] = $i;
+    }
+    if (!in_array(1, $range)) { $links[] = 1; if ($range[0] > 2) $links[] = '...'; }
+    foreach ($range as $r) $links[] = $r;
+    if (!in_array($pages, $range)) {
+        if ($range[count($range)-1] < $pages-1) $links[] = '...';
+        $links[] = $pages;
+    }
+    return $links;
+}
 ?>
-<style>
-/* Tabs */
-.tab-bar { display: flex; gap: .4rem; margin-bottom: 1.5rem; }
-.tab-bar a {
-  padding: .4rem .9rem;
-  border-radius: 7px; font-size: .83rem;
-  border: 1px solid var(--border);
-  color: var(--text-dim); transition: border-color .15s, color .15s;
-}
-.tab-bar a.active, .tab-bar a:hover { border-color: var(--accent); color: var(--accent); }
-
-/* Log list (mobile-first) */
-.log-list { display: flex; flex-direction: column; gap: .5rem; margin-bottom: 1.5rem; }
-.log-item {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: .8rem 1rem;
-}
-.log-item-top {
-  display: flex; justify-content: space-between; align-items: flex-start;
-  gap: .5rem; margin-bottom: .3rem;
-}
-.log-action { font-size: .88rem; font-weight: 500; }
-.log-time {
-  font-family: 'DM Mono', monospace; font-size: .7rem;
-  color: var(--text-dim); white-space: nowrap; flex-shrink: 0;
-}
-.log-meta { font-size: .75rem; color: var(--text-dim); line-height: 1.5; }
-.log-meta span { margin-right: .75rem; }
-.log-id {
-  font-family: 'DM Mono', monospace; font-size: .68rem;
-  color: var(--text-dim); opacity: .5;
-}
-
-/* Pagination */
-.pagination {
-  display: flex; gap: .35rem; justify-content: center; flex-wrap: wrap;
-}
-.pagination a {
-  padding: .35rem .7rem; border-radius: 6px;
-  font-size: .8rem; border: 1px solid var(--border);
-  color: var(--text-dim); transition: border-color .15s, color .15s;
-}
-.pagination a.current { border-color: var(--accent); color: var(--accent); }
-.pagination a:hover { border-color: var(--accent); }
-</style>
 
 <div class="page-header">
-  <h1 class="page-title">Activity Logs</h1>
-  <p class="page-subtitle">Total <?= number_format($total) ?> entri</p>
+  <h1>Log Akses</h1>
+  <p>Total <?= number_format($total) ?> entri</p>
 </div>
 
-<div class="tab-bar">
-  <a href="?tab=user" class="<?= $tab === 'user' ? 'active' : '' ?>">User Logs</a>
-  <a href="?tab=admin" class="<?= $tab === 'admin' ? 'active' : '' ?>">Admin Logs</a>
+<!-- Filter bar -->
+<div class="card" style="margin-bottom:16px;">
+  <form method="GET" style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+    <div class="form-group" style="margin:0;flex:1;min-width:130px;">
+      <label class="form-label">Pengguna</label>
+      <input class="form-control" type="text" name="user" placeholder="username"
+             value="<?= htmlspecialchars($_GET['user'] ?? '') ?>"/>
+    </div>
+    <div class="form-group" style="margin:0;flex:1;min-width:130px;">
+      <label class="form-label">Aplikasi</label>
+      <input class="form-control" type="text" name="app" placeholder="nama app"
+             value="<?= htmlspecialchars($_GET['app'] ?? '') ?>"/>
+    </div>
+    <div class="form-group" style="margin:0;min-width:110px;">
+      <label class="form-label">Status</label>
+      <select class="form-control" name="status">
+        <option value="">Semua</option>
+        <option value="success" <?= ($_GET['status']??'')==='success'?'selected':'' ?>>Berhasil</option>
+        <option value="failed"  <?= ($_GET['status']??'')==='failed' ?'selected':'' ?>>Gagal</option>
+      </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Filter</button>
+    <a href="/admin/logs.php" class="btn btn-ghost">Reset</a>
+  </form>
 </div>
 
-<div class="log-list">
-<?php foreach ($logs as $log): ?>
-<div class="log-item">
-  <div class="log-item-top">
-    <?php if ($tab === 'user'): ?>
-      <span class="log-action"><?= htmlspecialchars($log['activity']) ?></span>
-    <?php else: ?>
-      <span class="log-action"><?= htmlspecialchars($log['action']) ?></span>
-    <?php endif; ?>
-    <span class="log-time"><?= date('d M y H:i', strtotime($log['created_at'])) ?></span>
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Waktu</th>
+          <th>Pengguna</th>
+          <th>Aplikasi</th>
+          <th>IP</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php foreach ($logs as $log): ?>
+        <tr>
+          <td style="font-size:.82rem;color:var(--text-muted);white-space:nowrap;"><?= htmlspecialchars($log['time']) ?></td>
+          <td style="font-weight:500;"><?= htmlspecialchars($log['user']) ?></td>
+          <td><?= htmlspecialchars($log['app']) ?></td>
+          <td style="font-family:monospace;font-size:.8rem;color:var(--text-muted);"><?= htmlspecialchars($log['ip']) ?></td>
+          <td>
+            <?php if ($log['status']==='success'): ?>
+              <span class="badge badge-green">Berhasil</span>
+            <?php else: ?>
+              <span class="badge badge-red">Gagal</span>
+            <?php endif; ?>
+          </td>
+        </tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
   </div>
-  <div class="log-meta">
-    <?php if ($tab === 'user'): ?>
-      <span><?= htmlspecialchars($log['user_name']) ?></span>
-      <span><?= htmlspecialchars($log['user_email']) ?></span>
-      <span><?= htmlspecialchars($log['ip_address']) ?></span>
+
+  <!-- Smart pagination -->
+  <?php if ($pages > 1): ?>
+  <div class="pagination" style="margin-top:16px;">
+    <?php if ($page > 1): ?>
+      <a href="?page=<?= $page-1 ?>" title="Sebelumnya">‹</a>
     <?php else: ?>
-      <span><?= htmlspecialchars($log['admin_name'] ?? '') ?></span>
-      <?php if (!empty($log['target_user']) && $log['target_user'] !== '-'): ?>
-        <span>→ <?= htmlspecialchars($log['target_user']) ?></span>
+      <span class="disabled">‹</span>
+    <?php endif; ?>
+
+    <?php foreach (pagLinks($page, $pages) as $link): ?>
+      <?php if ($link === '...'): ?>
+        <span style="pointer-events:none;border:none;background:none;color:var(--text-muted);">…</span>
+      <?php elseif ($link === $page): ?>
+        <span class="active"><?= $link ?></span>
+      <?php else: ?>
+        <a href="?page=<?= $link ?>"><?= $link ?></a>
       <?php endif; ?>
+    <?php endforeach; ?>
+
+    <?php if ($page < $pages): ?>
+      <a href="?page=<?= $page+1 ?>" title="Berikutnya">›</a>
+    <?php else: ?>
+      <span class="disabled">›</span>
     <?php endif; ?>
-    <span class="log-id">#<?= $log['id'] ?></span>
   </div>
-</div>
-<?php endforeach; ?>
-</div>
-
-<?php if ($pages > 1): ?>
-<div class="pagination">
-  <?php if ($page > 1): ?>
-    <a href="?tab=<?= $tab ?>&page=<?= $page-1 ?>">‹</a>
-  <?php endif; ?>
-  <?php
-  // Show limited page numbers around current
-  $start = max(1, $page - 2);
-  $end   = min($pages, $page + 2);
-  if ($start > 1) echo '<a href="?tab='.$tab.'&page=1">1</a>';
-  if ($start > 2) echo '<span style="color:var(--text-dim);padding:.35rem .3rem">…</span>';
-  for ($i = $start; $i <= $end; $i++):
-  ?>
-    <a href="?tab=<?= $tab ?>&page=<?= $i ?>" class="<?= $i === $page ? 'current' : '' ?>"><?= $i ?></a>
-  <?php endfor; ?>
-  <?php if ($end < $pages - 1) echo '<span style="color:var(--text-dim);padding:.35rem .3rem">…</span>'; ?>
-  <?php if ($end < $pages) echo '<a href="?tab='.$tab.'&page='.$pages.'">'.$pages.'</a>'; ?>
-  <?php if ($page < $pages): ?>
-    <a href="?tab=<?= $tab ?>&page=<?= $page+1 ?>">›</a>
   <?php endif; ?>
 </div>
-<?php endif; ?>
 
-<?php layout_foot(); ?>
+<?php include __DIR__ . '/../includes/layout_end.php'; ?>

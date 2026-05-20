@@ -1,381 +1,498 @@
 <?php
-/**
- * includes/layout.php
- * Shared sidebar layout helpers.
- *
- * Usage:
- *   layout_head("Page Title");          — outputs <head> + open <body> + sidebar
- *   layout_foot();                      — closes main wrapper + </body></html>
- *
- * Expects $user array to be available in calling scope.
- */
+// includes/layout.php
+// Usage: include at top of page after session_start()
+// $pageTitle   = string   — shown in <title> and topbar
+// $activePage  = string   — matches nav item key: dashboard|change-password|admin-index|admin-apps|admin-logs
+// $isAdmin     = bool     — controls admin nav section visibility
 
-function layout_head(string $title, string $active_nav = '') {
-    global $user;
-    $role  = htmlspecialchars($user['role'] ?? 'user');
-    $name  = htmlspecialchars($user['name'] ?? '');
-    $email = htmlspecialchars($user['email'] ?? '');
-    $is_admin = ($user['role'] ?? '') === 'admin';
-    ?>
+if (!isset($pageTitle))  $pageTitle  = 'GUDEG JOGJA';
+if (!isset($activePage)) $activePage = '';
+if (!isset($isAdmin))    $isAdmin    = false;
+
+$baseUrl = '/'; // adjust if in subdirectory
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title><?= htmlspecialchars($title) ?> — GUDEG SSO</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<style>
-/* ── Reset & tokens ─────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --bg:          #0a0c10;
-  --surface:     #12151c;
-  --surface2:    #181c26;
-  --border:      #1e2330;
-  --accent:      #c8a96e;
-  --accent-dim:  #8a7249;
-  --accent-glow: rgba(200,169,110,.12);
-  --text:        #e8e4dc;
-  --text-dim:    #7a7a8a;
-  --danger:      #e57373;
-  --success:     #69d98c;
-  --sidebar-w:   260px;
-  --topbar-h:    52px;
-}
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title><?= htmlspecialchars($pageTitle) ?> — GUDEG JOGJA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    /* ── TOKENS ───────────────────────────────────────── */
+    :root {
+      --bg:         #080f1e;
+      --bg2:        #0d1730;
+      --bg3:        #111f3a;
+      --surface:    #13233f;
+      --border:     rgba(255,255,255,.07);
+      --border-hi:  rgba(255,255,255,.14);
+      --text:       #e2eaf8;
+      --text-muted: #7a94b8;
+      --accent:     #f5c518;   /* kuning GUDEG */
+      --accent-dim: rgba(245,197,24,.12);
+      --blue:       #2f80ed;
+      --blue-dim:   rgba(47,128,237,.15);
+      --danger:     #e05252;
+      --success:    #34c97e;
+      --sidebar-w:  220px;
+      --topbar-h:   52px;
+      --radius:     10px;
+      --font-head:  'Syne', sans-serif;
+      --font-body:  'DM Sans', sans-serif;
+      --shadow:     0 4px 24px rgba(0,0,0,.45);
+    }
 
-html { -webkit-text-size-adjust: 100%; }
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'DM Sans', sans-serif;
-  min-height: 100vh;
-  overflow-x: hidden;
-}
+    /* ── RESET ───────────────────────────────────────── */
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    html { font-size:15px; }
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; font-family: inherit; }
+    input, select, textarea { font-size: 1rem; font-family: inherit; }
 
-a { color: inherit; text-decoration: none; }
+    /* ── LAYOUT SHELL ────────────────────────────────── */
+    #app { display:flex; min-height:100vh; }
 
-/* ── Sidebar overlay (mobile) ───────────────────────────── */
-#sidebar-overlay {
-  display: none;
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,.6);
-  z-index: 40;
-  backdrop-filter: blur(2px);
-}
-#sidebar-overlay.open { display: block; }
+    /* ── SIDEBAR ─────────────────────────────────────── */
+    #sidebar {
+      width: var(--sidebar-w);
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0; left: 0;
+      height: 100vh;
+      z-index: 200;
+      transition: transform .25s cubic-bezier(.4,0,.2,1);
+    }
+    #sidebar.hidden { transform: translateX(-100%); }
 
-/* ── Sidebar ────────────────────────────────────────────── */
-#sidebar {
-  position: fixed;
-  top: 0; left: 0;
-  width: var(--sidebar-w);
-  height: 100%;
-  background: var(--surface);
-  border-right: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  z-index: 50;
-  transform: translateX(-100%);
-  transition: transform .28s cubic-bezier(.4,0,.2,1);
-  overflow-y: auto;
-}
-#sidebar.open, body.sidebar-open #sidebar { transform: translateX(0); }
+    .sidebar-brand {
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-brand .brand-gudeg {
+      font-family: var(--font-head);
+      font-size: 1.3rem;
+      font-weight: 800;
+      letter-spacing: .04em;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .sidebar-brand .brand-jogja {
+      font-family: var(--font-head);
+      font-size: 1.3rem;
+      font-weight: 800;
+      letter-spacing: .04em;
+      color: #fff;
+    }
+    .sidebar-brand .brand-tagline {
+      font-size: .65rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+    }
 
-/* Desktop: always visible */
-@media (min-width: 768px) {
-  #sidebar { transform: translateX(0) !important; }
-  #sidebar-overlay { display: none !important; }
-}
+    .sidebar-nav {
+      flex: 1;
+      padding: 12px 10px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .nav-section-label {
+      font-size: .6rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 10px 10px 4px;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 7px;
+      color: var(--text-muted);
+      font-size: .875rem;
+      font-weight: 500;
+      transition: background .15s, color .15s;
+    }
+    .nav-item:hover { background: var(--bg3); color: var(--text); }
+    .nav-item.active {
+      background: var(--accent-dim);
+      color: var(--accent);
+    }
+    .nav-item svg { width:16px; height:16px; flex-shrink:0; }
 
-/* Sidebar brand */
-.sb-brand {
-  padding: 1.25rem 1.25rem 1rem;
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; gap: .75rem;
-}
-.sb-logo {
-  width: 36px; height: 36px;
-  background: linear-gradient(135deg, var(--accent), var(--accent-dim));
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1rem; flex-shrink: 0;
-}
-.sb-brand-text .sb-title {
-  font-family: 'DM Serif Display', serif;
-  font-size: 1rem; color: var(--accent); line-height: 1.1;
-}
-.sb-brand-text .sb-sub {
-  font-family: 'DM Mono', monospace;
-  font-size: .62rem; color: var(--text-dim);
-  text-transform: uppercase; letter-spacing: .08em;
-}
+    .sidebar-footer {
+      padding: 12px 10px;
+      border-top: 1px solid var(--border);
+    }
+    .sidebar-footer .nav-item { color: var(--danger); }
+    .sidebar-footer .nav-item:hover { background: rgba(224,82,82,.1); color: var(--danger); }
 
-/* User info box */
-.sb-user {
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid var(--border);
-}
-.sb-user-name {
-  font-weight: 500; font-size: .88rem;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.sb-user-email {
-  font-size: .72rem; color: var(--text-dim);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  margin-top: .15rem;
-}
-.sb-role {
-  display: inline-block;
-  margin-top: .4rem;
-  background: var(--accent-glow);
-  border: 1px solid rgba(200,169,110,.2);
-  color: var(--accent);
-  font-family: 'DM Mono', monospace;
-  font-size: .62rem; text-transform: uppercase; letter-spacing: .08em;
-  padding: .15rem .5rem; border-radius: 20px;
-}
+    /* ── OVERLAY (mobile) ────────────────────────────── */
+    #overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.55);
+      z-index: 199;
+      backdrop-filter: blur(2px);
+    }
+    #overlay.show { display: block; }
 
-/* Nav section */
-.sb-nav { flex: 1; padding: .75rem 0; }
-.sb-section-label {
-  font-family: 'DM Mono', monospace;
-  font-size: .6rem; text-transform: uppercase; letter-spacing: .1em;
-  color: var(--text-dim); opacity: .5;
-  padding: .6rem 1.25rem .3rem;
-}
-.sb-link {
-  display: flex; align-items: center; gap: .65rem;
-  padding: .65rem 1.25rem;
-  font-size: .88rem; color: var(--text-dim);
-  border-left: 2px solid transparent;
-  transition: color .15s, background .15s, border-color .15s;
-}
-.sb-link .sb-icon { font-size: 1rem; width: 20px; text-align: center; }
-.sb-link:hover {
-  color: var(--text);
-  background: rgba(255,255,255,.03);
-}
-.sb-link.active {
-  color: var(--accent);
-  background: var(--accent-glow);
-  border-left-color: var(--accent);
-}
+    /* ── TOPBAR ──────────────────────────────────────── */
+    #topbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: var(--topbar-h);
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 12px;
+      z-index: 100;
+    }
+    @media (min-width:768px) {
+      #topbar { left: var(--sidebar-w); }
+    }
+    #hamburger {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      display: flex;
+      padding: 6px;
+      border-radius: 6px;
+      transition: background .15s, color .15s;
+    }
+    #hamburger:hover { background: var(--bg3); color: var(--text); }
+    @media (min-width:768px) { #hamburger { display:none; } }
 
-/* Sidebar footer */
-.sb-footer {
-  padding: .75rem 1.25rem 1.25rem;
-  border-top: 1px solid var(--border);
-}
-.sb-logout {
-  display: flex; align-items: center; gap: .65rem;
-  padding: .6rem .75rem;
-  font-size: .85rem; color: var(--text-dim);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  width: 100%;
-  cursor: pointer; background: transparent;
-  transition: border-color .15s, color .15s;
-  font-family: 'DM Sans', sans-serif;
-}
-.sb-logout:hover { border-color: var(--danger); color: var(--danger); }
+    .topbar-title {
+      font-family: var(--font-head);
+      font-size: .95rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: .02em;
+    }
+    .topbar-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .topbar-user {
+      font-size: .8rem;
+      color: var(--text-muted);
+    }
+    .topbar-user strong { color: var(--text); }
 
-/* ── Topbar (mobile hamburger) ──────────────────────────── */
-#topbar {
-  display: none;
-  position: sticky; top: 0;
-  height: var(--topbar-h);
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  align-items: center;
-  padding: 0 1rem;
-  z-index: 30;
-  gap: .75rem;
-}
-@media (max-width: 767px) { #topbar { display: flex; } }
+    /* ── MAIN CONTENT ────────────────────────────────── */
+    #main {
+      flex: 1;
+      margin-top: var(--topbar-h);
+      padding: 24px 20px;
+      min-width: 0;
+    }
+    @media (min-width:768px) {
+      #main { margin-left: var(--sidebar-w); }
+      #sidebar { transform: none !important; }
+      #sidebar.hidden { transform: none !important; }
+    }
 
-#hamburger {
-  background: none; border: none; cursor: pointer;
-  display: flex; flex-direction: column; gap: 5px; padding: .35rem;
-}
-#hamburger span {
-  display: block; width: 20px; height: 2px;
-  background: var(--text-dim); border-radius: 2px;
-  transition: background .2s;
-}
-#hamburger:hover span { background: var(--accent); }
+    /* ── SHARED COMPONENTS ───────────────────────────── */
+    .page-header {
+      margin-bottom: 20px;
+    }
+    .page-header h1 {
+      font-family: var(--font-head);
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .page-header p {
+      font-size: .825rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
 
-.topbar-title {
-  font-family: 'DM Serif Display', serif;
-  font-size: 1rem; color: var(--accent);
-}
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+    }
+    .card + .card { margin-top: 14px; }
 
-/* ── Page layout ────────────────────────────────────────── */
-#layout {
-  display: flex; min-height: 100vh;
-}
-#main-content {
-  flex: 1;
-  min-width: 0;
-  padding: 2rem 1.5rem;
-}
-@media (min-width: 768px) {
-  #main-content { margin-left: var(--sidebar-w); }
-}
-@media (max-width: 767px) {
-  #main-content { padding: 1.25rem 1rem; }
-}
+    /* form controls */
+    .form-group { margin-bottom: 14px; }
+    .form-label {
+      display: block;
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+      letter-spacing: .03em;
+      text-transform: uppercase;
+    }
+    .form-control {
+      width: 100%;
+      background: var(--bg3);
+      border: 1px solid var(--border-hi);
+      border-radius: 7px;
+      padding: 9px 12px;
+      color: var(--text);
+      font-size: 1rem;
+      transition: border-color .15s, box-shadow .15s;
+      outline: none;
+    }
+    .form-control:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px var(--blue-dim);
+    }
 
-/* ── Shared UI components ───────────────────────────────── */
-.page-title {
-  font-family: 'DM Serif Display', serif;
-  font-size: 1.75rem; line-height: 1.15;
-}
-.page-subtitle {
-  color: var(--text-dim); font-size: .85rem; margin-top: .3rem;
-}
-.page-header { margin-bottom: 1.75rem; }
+    /* buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 9px 18px;
+      border-radius: 7px;
+      font-size: .875rem;
+      font-weight: 600;
+      border: none;
+      transition: opacity .15s, transform .1s;
+    }
+    .btn:active { transform: scale(.97); }
+    .btn-primary {
+      background: var(--blue);
+      color: #fff;
+    }
+    .btn-primary:hover { opacity: .88; }
+    .btn-danger {
+      background: rgba(224,82,82,.15);
+      color: var(--danger);
+      border: 1px solid rgba(224,82,82,.25);
+    }
+    .btn-danger:hover { background: rgba(224,82,82,.25); }
+    .btn-ghost {
+      background: var(--bg3);
+      color: var(--text-muted);
+      border: 1px solid var(--border-hi);
+    }
+    .btn-ghost:hover { color: var(--text); }
+    .btn-sm { padding: 6px 12px; font-size: .8rem; }
+    .btn-block { width: 100%; }
 
-.section-label {
-  font-size: .7rem; font-weight: 500;
-  text-transform: uppercase; letter-spacing: .1em;
-  color: var(--text-dim); margin-bottom: .75rem;
-  font-family: 'DM Mono', monospace;
-}
+    /* alerts */
+    .alert {
+      padding: 10px 14px;
+      border-radius: 7px;
+      font-size: .85rem;
+      margin-bottom: 14px;
+    }
+    .alert-success { background: rgba(52,201,126,.12); border: 1px solid rgba(52,201,126,.25); color: var(--success); }
+    .alert-danger  { background: rgba(224,82,82,.12);  border: 1px solid rgba(224,82,82,.25);  color: var(--danger);  }
 
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-}
-.card-pad { padding: 1.25rem; }
+    /* badge */
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 100px;
+      font-size: .72rem;
+      font-weight: 600;
+    }
+    .badge-blue    { background: var(--blue-dim);          color: var(--blue);    }
+    .badge-green   { background: rgba(52,201,126,.12);     color: var(--success); }
+    .badge-red     { background: rgba(224,82,82,.12);      color: var(--danger);  }
+    .badge-yellow  { background: rgba(245,197,24,.12);     color: var(--accent);  }
+    .badge-muted   { background: var(--bg3);               color: var(--text-muted); }
 
-.msg-box {
-  background: var(--accent-glow);
-  border: 1px solid rgba(200,169,110,.25);
-  color: var(--accent);
-  border-radius: 8px;
-  padding: .7rem 1rem;
-  font-size: .85rem;
-  margin-bottom: 1.25rem;
-}
-.msg-box.error {
-  background: rgba(229,115,115,.08);
-  border-color: rgba(229,115,115,.25);
-  color: var(--danger);
-}
+    /* table */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+    th {
+      text-align: left;
+      padding: 9px 12px;
+      font-size: .7rem;
+      font-weight: 600;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,.02); }
 
-.badge {
-  display: inline-block;
-  padding: .18rem .55rem;
-  border-radius: 20px;
-  font-size: .68rem;
-  font-family: 'DM Mono', monospace;
-  text-transform: uppercase; letter-spacing: .04em;
-}
-.badge-admin   { background: rgba(200,169,110,.15); color: var(--accent); }
-.badge-user    { background: rgba(100,160,220,.15); color: #7ab5f0; }
-.badge-guest   { background: rgba(120,120,120,.15); color: var(--text-dim); }
-.badge-active  { background: rgba(39,174,96,.12);   color: var(--success); }
-.badge-inactive{ background: rgba(229,115,115,.12); color: var(--danger); }
-.badge-hmac    { background: rgba(100,160,220,.12); color: #7ab5f0; }
-.badge-rsa     { background: rgba(200,169,110,.12); color: var(--accent); }
-
-btn, button, .btn {
-  font-family: 'DM Sans', sans-serif;
-  cursor: pointer;
-}
-</style>
+    /* pagination */
+    .pagination {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+    .pagination a, .pagination span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 32px;
+      height: 32px;
+      padding: 0 8px;
+      border-radius: 6px;
+      font-size: .8rem;
+      font-weight: 500;
+      background: var(--bg3);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      transition: background .15s, color .15s;
+    }
+    .pagination a:hover { background: var(--bg2); color: var(--text); }
+    .pagination .active { background: var(--blue); color: #fff; border-color: var(--blue); }
+    .pagination .disabled { opacity: .35; pointer-events: none; }
+  </style>
 </head>
 <body>
+<div id="app">
 
-<!-- Overlay -->
-<div id="sidebar-overlay" onclick="closeSidebar()"></div>
-
-<!-- Topbar (mobile only) -->
-<div id="topbar">
-  <button id="hamburger" onclick="toggleSidebar()" aria-label="Menu">
-    <span></span><span></span><span></span>
-  </button>
-  <span class="topbar-title">GUDEG SSO</span>
-</div>
+<!-- Overlay (mobile) -->
+<div id="overlay" onclick="closeSidebar()"></div>
 
 <!-- Sidebar -->
-<aside id="sidebar">
-  <div class="sb-brand">
-    <div class="sb-logo">🔐</div>
-    <div class="sb-brand-text">
-      <div class="sb-title">GUDEG SSO</div>
-      <div class="sb-sub">Portal Autentikasi</div>
+<nav id="sidebar">
+  <div class="sidebar-brand">
+    <div>
+      <span class="brand-gudeg">GUDEG</span><span class="brand-jogja"> JOGJA</span>
     </div>
+    <div class="brand-tagline">General Unified Database &amp; Employee Gateway</div>
   </div>
 
-  <div class="sb-user">
-    <div class="sb-user-name"><?= $name ?></div>
-    <div class="sb-user-email"><?= $email ?></div>
-    <span class="sb-role"><?= $role ?></span>
-  </div>
+  <div class="sidebar-nav">
+    <span class="nav-section-label">Menu</span>
 
-  <nav class="sb-nav">
-    <div class="sb-section-label">Menu</div>
-    <a href="/dashboard.php" class="sb-link <?= $active_nav === 'dashboard' ? 'active' : '' ?>">
-      <span class="sb-icon">🏠</span> Dashboard
-    </a>
-    <a href="/change-password.php" class="sb-link <?= $active_nav === 'password' ? 'active' : '' ?>">
-      <span class="sb-icon">🔑</span> Ubah Password
+    <a href="/dashboard.php" class="nav-item <?= $activePage==='dashboard' ? 'active' : '' ?>">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+        <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+      </svg>
+      Dashboard
     </a>
 
-    <?php if ($is_admin): ?>
-    <div class="sb-section-label" style="margin-top:.5rem">Admin</div>
-    <a href="/admin/" class="sb-link <?= $active_nav === 'admin-users' ? 'active' : '' ?>">
-      <span class="sb-icon">👥</span> Kelola User
+    <a href="/change-password.php" class="nav-item <?= $activePage==='change-password' ? 'active' : '' ?>">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+      Ganti Password
     </a>
-    <a href="/admin/apps.php" class="sb-link <?= $active_nav === 'admin-apps' ? 'active' : '' ?>">
-      <span class="sb-icon">🖥️</span> Aplikasi SSO
+
+    <?php if ($isAdmin): ?>
+    <span class="nav-section-label" style="margin-top:6px">Admin</span>
+
+    <a href="/admin/index.php" class="nav-item <?= $activePage==='admin-index' ? 'active' : '' ?>">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+      Pengguna
     </a>
-    <a href="/admin/logs.php" class="sb-link <?= $active_nav === 'admin-logs' ? 'active' : '' ?>">
-      <span class="sb-icon">📋</span> Logs
+
+    <a href="/admin/apps.php" class="nav-item <?= $activePage==='admin-apps' ? 'active' : '' ?>">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+      </svg>
+      Aplikasi SSO
+    </a>
+
+    <a href="/admin/logs.php" class="nav-item <?= $activePage==='admin-logs' ? 'active' : '' ?>">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+        <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+      </svg>
+      Log Akses
     </a>
     <?php endif; ?>
-  </nav>
-
-  <div class="sb-footer">
-    <form method="POST" action="/logout.php">
-      <button type="submit" class="sb-logout">
-        <span>↩</span> Keluar
-      </button>
-    </form>
   </div>
-</aside>
+
+  <div class="sidebar-footer">
+    <a href="/logout.php" class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Keluar
+    </a>
+  </div>
+</nav>
+
+<!-- Topbar -->
+<div id="topbar">
+  <button id="hamburger" onclick="toggleSidebar()" aria-label="Toggle menu">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+  </button>
+  <span class="topbar-title"><?= htmlspecialchars($pageTitle) ?></span>
+  <div class="topbar-right">
+    <?php if (isset($_SESSION['name'])): ?>
+    <span class="topbar-user">Halo, <strong><?= htmlspecialchars($_SESSION['name']) ?></strong></span>
+    <?php endif; ?>
+  </div>
+</div>
 
 <!-- Main content wrapper -->
-<div id="layout">
-  <main id="main-content">
+<main id="main">
 <?php
-}
-
-function layout_foot() {
+// page content follows here
 ?>
-  </main>
-</div>
 
 <script>
 function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('open');
-  document.getElementById('sidebar-overlay').classList.toggle('open');
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('overlay');
+  sb.classList.toggle('hidden');
+  ov.classList.toggle('show');
 }
 function closeSidebar() {
-  document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('sidebar-overlay').classList.remove('open');
+  document.getElementById('sidebar').classList.add('hidden');
+  document.getElementById('overlay').classList.remove('show');
 }
-// Close on nav link click (mobile)
-document.querySelectorAll('#sidebar .sb-link').forEach(function(el) {
-  el.addEventListener('click', function() {
-    if (window.innerWidth < 768) closeSidebar();
-  });
+// mobile: start hidden
+if (window.innerWidth < 768) {
+  document.getElementById('sidebar').classList.add('hidden');
+}
+window.addEventListener('resize', () => {
+  if (window.innerWidth >= 768) {
+    document.getElementById('sidebar').classList.remove('hidden');
+    document.getElementById('overlay').classList.remove('show');
+  }
 });
 </script>
+<?php
+// includes/layout_end.php — tutup tag yang dibuka layout.php
+?>
+</main>
+</div><!-- #app -->
 </body>
 </html>
-<?php
-}
