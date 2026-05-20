@@ -6,3 +6,5 @@ config/db.php
 # Keep the folder structure
 !keys/.gitkeep
 !config/.gitkeep
+
+.vs/
