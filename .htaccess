@@ -1,0 +1,22 @@
+Options -Indexes
+
+# Protect keys directory
+<FilesMatch "\.(pem|key)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Protect config
+<Files "db.php">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Allow CORS for verify.php
+<Files "verify.php">
+    Header set Access-Control-Allow-Origin "*"
+</Files>
+
+# PHP settings for InfinityFree
+php_value session.cookie_httponly 1
+php_value session.use_strict_mode 1

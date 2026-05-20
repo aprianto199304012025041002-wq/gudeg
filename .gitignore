@@ -1,0 +1,8 @@
+# Never commit keys or config with credentials
+keys/private.pem
+keys/public.pem
+config/db.php
+
+# Keep the folder structure
+!keys/.gitkeep
+!config/.gitkeep
