@@ -1,5 +1,8 @@
 <?php
-require_once __DIR__ . '/../config/db.php';
+$db_config = __DIR__ . '/../config/db.php';
+if (file_exists($db_config)) {
+    require_once $db_config;
+}
 
 function session_start_safe() {
     if (session_status() === PHP_SESSION_NONE) {
