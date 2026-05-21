@@ -26,14 +26,23 @@ if ($user['role'] !== 'admin') {
     $access = $db->prepare("SELECT 1 FROM user_applications WHERE user_id = ? AND application_id = ? LIMIT 1");
     $access->execute([$user['id'], $app['id']]);
     if (!$access->fetch()) {
-        log_activity($user['id'], $user['name'], $user['email'],
-            'Akses DITOLAK (Tidak ada izin) ke ' . parse_url($app['redirect'], PHP_URL_HOST));
+        log_activity(
+            $user['id'],
+            $user['name'],
+            $user['email'],
+            'Akses DITOLAK (Tidak ada izin) ke ' . parse_url($app['redirect'], PHP_URL_HOST)
+        );
         http_response_code(403);
         die('Anda tidak memiliki izin untuk mengakses aplikasi ini.');
     }
 }
 
-// Generate token
+// ─── Helper: base64url encoding (standar JWT / RFC 7519) ─────────────────────
+function base64url_encode(string $data): string {
+    return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
+}
+
+// ─── Buat payload ─────────────────────────────────────────────────────────────
 $payload = [
     'sub'   => (string) $user['id'],
     'name'  => $user['name'],
@@ -43,22 +52,28 @@ $payload = [
     'jti'   => bin2hex(random_bytes(8)),
 ];
 
+// ─── Generate token ───────────────────────────────────────────────────────────
 if ($app['use_signed_token']) {
-    // RSA-signed JWT
+    // RSA-signed JWT — gunakan class JWT yang sudah ada
     $token = JWT::generate($payload, 3600);
 } else {
-    // Simple HMAC-signed token using client_secret as key
-    $header  = base64_encode(json_encode(['alg' => 'HS256', 'typ' => 'JWT']));
-    $body    = base64_encode(json_encode(array_merge($payload, ['iat' => time(), 'exp' => time() + 3600, 'iss' => 'gudeg-sso'])));
-    $sig     = base64_encode(hash_hmac('sha256', "$header.$body", $app['client_secret'], true));
-    $token   = "$header.$body.$sig";
+    // HMAC-SHA256 dengan base64url (RFC 7519 compliant)
+    $header = base64url_encode(json_encode(['alg' => 'HS256', 'typ' => 'JWT']));
+    $body   = base64url_encode(json_encode(array_merge($payload, [
+        'iat' => time(),
+        'exp' => time() + 3600,
+        'iss' => 'gudeg-sso',
+    ])));
+    $sig    = base64url_encode(hash_hmac('sha256', "$header.$body", $app['client_secret'], true));
+    $token  = "$header.$body.$sig";
 }
 
-// Log the SSO access
+// ─── Log aktivitas SSO ────────────────────────────────────────────────────────
 $host = parse_url($app['redirect'], PHP_URL_HOST) ?? $app['redirect'];
 log_activity($user['id'], $user['name'], $user['email'], 'Akses SSO ke ' . $host);
 
-// Redirect to the app with token
-$redirect_url = $app['redirect'] . (strpos($app['redirect'], '?') !== false ? '&' : '?') . 'token=' . urlencode($token);
+// ─── Redirect ke aplikasi client dengan token ─────────────────────────────────
+$separator    = strpos($app['redirect'], '?') !== false ? '&' : '?';
+$redirect_url = $app['redirect'] . $separator . 'token=' . urlencode($token);
 header("Location: $redirect_url");
 exit;
