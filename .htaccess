@@ -20,3 +20,8 @@ Options -Indexes
 # PHP settings for InfinityFree
 php_value session.cookie_httponly 1
 php_value session.use_strict_mode 1
+
+# Error pages
+ErrorDocument 403 /403.php
+ErrorDocument 404 /404.php
+ErrorDocument 500 /500.php
