@@ -24,60 +24,64 @@ $pages = ceil($total / $per);
 layout_head('Logs', 'admin-logs');
 ?>
 <style>
-/* Tabs */
-.tab-bar { display: flex; gap: .4rem; margin-bottom: 1.5rem; }
-.tab-bar a {
-  padding: .4rem .9rem;
-  border-radius: 7px; font-size: .83rem;
-  border: 1px solid var(--border);
-  color: var(--text-dim); transition: border-color .15s, color .15s;
-}
-.tab-bar a.active, .tab-bar a:hover { border-color: var(--accent); color: var(--accent); }
+*, *::before, *::after { font-weight: 700; }
 
-/* Log list (mobile-first) */
-.log-list { display: flex; flex-direction: column; gap: .5rem; margin-bottom: 1.5rem; }
+.tab-bar { display: flex; gap: 5px; margin-bottom: 12px; }
+.tab-bar a {
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  font-size: 9px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .06em;
+  color: var(--text-dim);
+  transition: border-color .12s, color .12s;
+}
+.tab-bar a.active,
+.tab-bar a:hover { border-color: var(--accent-dim); color: var(--accent); }
+
+.log-list { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
 .log-item {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: .8rem 1rem;
+  border-radius: 4px;
+  padding: 7px 10px;
 }
 .log-item-top {
   display: flex; justify-content: space-between; align-items: flex-start;
-  gap: .5rem; margin-bottom: .3rem;
+  gap: 6px; margin-bottom: 3px;
 }
-.log-action { font-size: .88rem; font-weight: 500; }
+.log-action { font-size: 10px; font-weight: 700; color: var(--text); }
 .log-time {
-  font-family: 'DM Mono', monospace; font-size: .7rem;
-  color: var(--text-dim); white-space: nowrap; flex-shrink: 0;
+  font-size: 9px; color: var(--text-dim);
+  white-space: nowrap; flex-shrink: 0; font-weight: 700;
 }
-.log-meta { font-size: .75rem; color: var(--text-dim); line-height: 1.5; }
-.log-meta span { margin-right: .75rem; }
-.log-id {
-  font-family: 'DM Mono', monospace; font-size: .68rem;
-  color: var(--text-dim); opacity: .5;
-}
+.log-meta { font-size: 9px; color: var(--text-dim); line-height: 1.6; font-weight: 700; }
+.log-meta span { margin-right: 8px; }
+.log-id { font-size: 8px; color: var(--text-muted); font-weight: 700; }
 
-/* Pagination */
 .pagination {
-  display: flex; gap: .35rem; justify-content: center; flex-wrap: wrap;
+  display: flex; gap: 4px; justify-content: center; flex-wrap: wrap;
 }
 .pagination a {
-  padding: .35rem .7rem; border-radius: 6px;
-  font-size: .8rem; border: 1px solid var(--border);
-  color: var(--text-dim); transition: border-color .15s, color .15s;
+  padding: 3px 8px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  font-size: 9px; font-weight: 700;
+  color: var(--text-dim);
+  transition: border-color .12s, color .12s;
 }
-.pagination a.current { border-color: var(--accent); color: var(--accent); }
-.pagination a:hover { border-color: var(--accent); }
+.pagination a.current { border-color: var(--accent-dim); color: var(--accent); }
+.pagination a:hover { border-color: var(--accent-dim); color: var(--accent); }
+.pagination-sep { font-size: 9px; color: var(--text-muted); padding: 3px 2px; font-weight: 700; }
 </style>
 
 <div class="page-header">
-  <h1 class="page-title">Activity Logs</h1>
-  <p class="page-subtitle">Total <?= number_format($total) ?> entri</p>
+  <div class="page-title">Activity Logs</div>
+  <div class="page-subtitle">Total <?= number_format($total) ?> entri</div>
 </div>
 
 <div class="tab-bar">
-  <a href="?tab=user" class="<?= $tab === 'user' ? 'active' : '' ?>">User Logs</a>
+  <a href="?tab=user"  class="<?= $tab === 'user'  ? 'active' : '' ?>">User Logs</a>
   <a href="?tab=admin" class="<?= $tab === 'admin' ? 'active' : '' ?>">Admin Logs</a>
 </div>
 
@@ -112,22 +116,21 @@ layout_head('Logs', 'admin-logs');
 <?php if ($pages > 1): ?>
 <div class="pagination">
   <?php if ($page > 1): ?>
-    <a href="?tab=<?= $tab ?>&page=<?= $page-1 ?>">‹</a>
+    <a href="?tab=<?= $tab ?>&page=<?= $page - 1 ?>">‹</a>
   <?php endif; ?>
   <?php
-  // Show limited page numbers around current
   $start = max(1, $page - 2);
   $end   = min($pages, $page + 2);
-  if ($start > 1) echo '<a href="?tab='.$tab.'&page=1">1</a>';
-  if ($start > 2) echo '<span style="color:var(--text-dim);padding:.35rem .3rem">…</span>';
+  if ($start > 1) echo '<a href="?tab=' . $tab . '&page=1">1</a>';
+  if ($start > 2) echo '<span class="pagination-sep">…</span>';
   for ($i = $start; $i <= $end; $i++):
   ?>
     <a href="?tab=<?= $tab ?>&page=<?= $i ?>" class="<?= $i === $page ? 'current' : '' ?>"><?= $i ?></a>
   <?php endfor; ?>
-  <?php if ($end < $pages - 1) echo '<span style="color:var(--text-dim);padding:.35rem .3rem">…</span>'; ?>
-  <?php if ($end < $pages) echo '<a href="?tab='.$tab.'&page='.$pages.'">'.$pages.'</a>'; ?>
+  <?php if ($end < $pages - 1) echo '<span class="pagination-sep">…</span>'; ?>
+  <?php if ($end < $pages) echo '<a href="?tab=' . $tab . '&page=' . $pages . '">' . $pages . '</a>'; ?>
   <?php if ($page < $pages): ?>
-    <a href="?tab=<?= $tab ?>&page=<?= $page+1 ?>">›</a>
+    <a href="?tab=<?= $tab ?>&page=<?= $page + 1 ?>">›</a>
   <?php endif; ?>
 </div>
 <?php endif; ?>
