@@ -60,103 +60,171 @@ foreach ($db->query("SELECT * FROM user_applications")->fetchAll(PDO::FETCH_ASSO
 layout_head('Kelola User', 'admin-users');
 ?>
 <style>
-/* ── Page header ── */
-.page-header { margin-bottom: 1.5rem; }
+.page-header { margin-bottom: 1rem; }
 
-/* ── User cards (mobile) / table (desktop) ── */
-.user-list { display: flex; flex-direction: column; gap: .75rem; }
+.user-list { display: flex; flex-direction: column; gap: .6rem; }
 
 .user-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 4px;
   overflow: hidden;
 }
+
 .user-card-head {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: .9rem 1.1rem;
-  gap: .75rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: .75rem .9rem;
+  gap: .6rem;
 }
+
 .user-info { min-width: 0; flex: 1; }
-.user-name { font-weight: 500; font-size: .92rem; }
-.user-email { font-size: .75rem; color: var(--text-dim); margin-top: .1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.user-meta { display: flex; gap: .4rem; align-items: center; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
-.user-last-login { font-size: .7rem; color: var(--text-dim); font-family: 'DM Mono', monospace; }
+
+.user-name {
+  font-weight: 700;
+  font-size: .82rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  line-height: 1.3;
+}
+
+.user-email {
+  font-size: .72rem;
+  color: var(--text-dim);
+  margin-top: .15rem;
+  word-break: break-all;
+  line-height: 1.4;
+}
+
+.user-meta {
+  display: flex;
+  gap: .3rem;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  max-width: 110px;
+}
 
 .user-actions {
   border-top: 1px solid var(--border);
-  padding: .75rem 1.1rem;
-  display: flex; flex-wrap: wrap; gap: .5rem; align-items: flex-start;
+  padding: .6rem .9rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  align-items: center;
 }
 
-/* buttons */
 .btn-sm {
   background: var(--surface2);
   border: 1px solid var(--border);
   color: var(--text);
-  border-radius: 6px;
-  padding: .32rem .7rem;
-  font-size: .78rem;
+  border-radius: 2px;
+  padding: .35rem .7rem;
+  font-size: .72rem;
+  font-weight: 700;
   cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
-  transition: border-color .15s, color .15s;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: .05em;
   white-space: nowrap;
+  transition: border-color .15s, color .15s;
+  line-height: 1.2;
 }
 .btn-sm:hover { border-color: var(--accent); color: var(--accent); }
-.btn-sm.danger { border-color: rgba(229,115,115,.3); color: var(--danger); }
+.btn-sm.danger { border-color: rgba(229,115,115,.2); color: var(--danger); }
 .btn-sm.danger:hover { border-color: var(--danger); }
+
+.role-form {
+  display: flex;
+  gap: .35rem;
+  align-items: center;
+  width: 100%;
+}
 
 select.sel-sm {
   background: var(--surface2);
   border: 1px solid var(--border);
   color: var(--text);
-  border-radius: 6px;
-  padding: .32rem .5rem;
-  font-size: .78rem;
+  border-radius: 2px;
+  padding: .35rem .4rem;
+  font-size: .72rem;
+  font-weight: 700;
   cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--mono);
+  flex: 1;
 }
 select.sel-sm:hover { border-color: var(--accent); }
 
-/* Role form inline */
-.role-form { display: flex; gap: .35rem; align-items: center; }
+.user-last-login {
+  font-size: .68rem;
+  color: var(--text-dim);
+  width: 100%;
+  margin-top: .1rem;
+  letter-spacing: .03em;
+  font-family: var(--mono);
+}
 
-/* App access accordion */
-.app-access {
-  border-top: 1px solid var(--border);
-}
+.app-access { border-top: 1px solid var(--border); }
+
 .app-access-toggle {
-  width: 100%; background: none; border: none;
-  padding: .65rem 1.1rem;
-  display: flex; align-items: center; justify-content: space-between;
-  color: var(--text-dim); font-size: .82rem;
-  cursor: pointer; font-family: 'DM Sans', sans-serif;
-  transition: color .15s, background .15s;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: .55rem .9rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--text-dim);
+  font-size: .7rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  cursor: pointer;
+  transition: color .15s;
 }
-.app-access-toggle:hover { color: var(--accent); background: var(--accent-glow); }
-.app-access-toggle .chevron { transition: transform .2s; font-size: .7rem; }
+.app-access-toggle:hover { color: var(--accent); }
+.app-access-toggle .chevron { transition: transform .2s; font-size: .65rem; }
 .app-access-toggle.open .chevron { transform: rotate(180deg); }
 
 .app-access-body {
-  display: none; padding: .75rem 1.1rem 1rem;
+  display: none;
+  padding: .65rem .9rem .85rem;
   border-top: 1px solid var(--border);
 }
 .app-access-body.open { display: block; }
 
-.apps-check { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: .75rem; }
+.apps-check {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  margin-bottom: .6rem;
+}
 .apps-check label {
-  display: flex; align-items: center; gap: .35rem;
-  font-size: .8rem; color: var(--text-dim); cursor: pointer;
-  padding: .3rem .6rem;
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+  font-size: .7rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--text-dim);
+  cursor: pointer;
+  padding: .3rem .55rem;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 2px;
   transition: border-color .15s, color .15s;
 }
 .apps-check label:hover { border-color: var(--accent); color: var(--text); }
 .apps-check input[type=checkbox] { accent-color: var(--accent); }
 
-/* Self row */
-.self-note { font-size: .78rem; color: var(--text-dim); font-style: italic; }
+.self-note {
+  font-size: .7rem;
+  color: var(--text-dim);
+  font-style: italic;
+}
 </style>
 
 <div class="page-header">
@@ -177,7 +245,7 @@ select.sel-sm:hover { border-color: var(--accent); }
       <div class="user-email"><?= htmlspecialchars($u['email']) ?></div>
     </div>
     <div class="user-meta">
-      <span class="badge badge-<?= $u['role'] ?>"><?= $u['role'] ?></span>
+      <span class="badge badge-<?= $u['role'] ?>"><?= strtoupper($u['role']) ?></span>
       <span class="badge <?= $u['is_active'] ? 'badge-active' : 'badge-inactive' ?>">
         <?= $u['is_active'] ? 'Aktif' : 'Nonaktif' ?>
       </span>
@@ -186,7 +254,6 @@ select.sel-sm:hover { border-color: var(--accent); }
 
   <?php if ($u['id'] !== (int)$user['id']): ?>
   <div class="user-actions">
-    <!-- Toggle aktif -->
     <form method="POST" style="display:inline">
       <input type="hidden" name="action" value="toggle_active">
       <input type="hidden" name="target_id" value="<?= $u['id'] ?>">
@@ -195,7 +262,6 @@ select.sel-sm:hover { border-color: var(--accent); }
       </button>
     </form>
 
-    <!-- Ubah role -->
     <form method="POST" class="role-form">
       <input type="hidden" name="action" value="change_role">
       <input type="hidden" name="target_id" value="<?= $u['id'] ?>">
@@ -204,23 +270,21 @@ select.sel-sm:hover { border-color: var(--accent); }
         <option value="user"  <?= $u['role']==='user' ?'selected':'' ?>>User</option>
         <option value="guest" <?= $u['role']==='guest'?'selected':'' ?>>Guest</option>
       </select>
-      <button type="submit" class="btn-sm">Set Role</button>
+      <button type="submit" class="btn-sm">Ubah Role</button>
     </form>
 
-    <!-- Reset password -->
     <form method="POST" style="display:inline"
           onsubmit="return confirm('Reset password <?= htmlspecialchars(addslashes($u['name'])) ?>?')">
       <input type="hidden" name="action" value="reset_password">
       <input type="hidden" name="target_id" value="<?= $u['id'] ?>">
-      <button type="submit" class="btn-sm danger">Reset PW</button>
+      <button type="submit" class="btn-sm danger">Reset Password</button>
     </form>
 
-    <span class="user-last-login" style="width:100%;margin-top:.1rem">
-      Last login: <?= $u['last_login_at'] ? date('d M y H:i', strtotime($u['last_login_at'])) : '—' ?>
+    <span class="user-last-login">
+      Login Terakhir: <?= $u['last_login_at'] ? date('d M Y H:i', strtotime($u['last_login_at'])) : '—' ?>
     </span>
   </div>
 
-  <!-- App access accordion -->
   <div class="app-access">
     <button type="button" class="app-access-toggle"
             onclick="toggleAppAccess(this)"
@@ -243,7 +307,7 @@ select.sel-sm:hover { border-color: var(--accent); }
           <?php endforeach; ?>
         </div>
         <?php else: ?>
-        <p style="font-size:.8rem;color:var(--text-dim);margin-bottom:.75rem">Belum ada aplikasi SSO terdaftar.</p>
+        <p style="font-size:.72rem;color:var(--text-dim);margin-bottom:.6rem">Belum ada aplikasi SSO terdaftar.</p>
         <?php endif; ?>
         <button type="submit" class="btn-sm">Simpan Akses</button>
       </form>
@@ -252,7 +316,7 @@ select.sel-sm:hover { border-color: var(--accent); }
 
   <?php else: ?>
   <div class="user-actions">
-    <span class="self-note">(Anda sendiri)</span>
+    <span class="self-note">(Anda sendiri — tidak dapat diubah)</span>
   </div>
   <?php endif; ?>
 </div>

@@ -65,93 +65,178 @@ $apps = $db->query("SELECT * FROM sso_applications ORDER BY id DESC")->fetchAll(
 layout_head('Aplikasi SSO', 'admin-apps');
 ?>
 <style>
-/* Add form card */
 .add-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 1.25rem;
-  margin-bottom: 1.75rem;
+  border-radius: 4px;
+  padding: .9rem;
+  margin-bottom: 1.2rem;
 }
+
 .add-card-title {
-  font-size: .88rem; font-weight: 500;
-  color: var(--accent); margin-bottom: 1rem;
+  font-size: .72rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-bottom: .8rem;
 }
-.form-row {
-  display: flex; gap: .75rem; flex-wrap: wrap; margin-bottom: .75rem;
-}
-.form-row .fg { flex: 1; min-width: 200px; }
+
+.fg { margin-bottom: .6rem; }
+
 .fg label {
-  display: block; font-size: .7rem; font-weight: 500;
-  color: var(--text-dim); text-transform: uppercase;
-  letter-spacing: .07em; margin-bottom: .4rem;
+  display: block;
+  font-size: .65rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-bottom: .3rem;
+  font-family: var(--mono);
 }
+
 .fg input[type=text] {
   width: 100%;
-  background: var(--bg); border: 1px solid var(--border);
-  border-radius: 7px; padding: .65rem .9rem;
-  color: var(--text); font-family: 'DM Sans', sans-serif;
-  font-size: .88rem; outline: none;
-  transition: border-color .2s; -webkit-appearance: none;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: .55rem .7rem;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: .8rem;
+  font-weight: 700;
+  outline: none;
+  transition: border-color .2s;
+  -webkit-appearance: none;
+  -webkit-box-shadow: 0 0 0 1000px var(--bg) inset;
+  -webkit-text-fill-color: var(--text);
 }
-.fg input:focus { border-color: var(--accent); }
+.fg input[type=text]:focus { border-color: var(--accent); }
 
 .check-label {
-  display: flex; align-items: center; gap: .5rem;
-  font-size: .83rem; color: var(--text-dim);
-  cursor: pointer; margin-top: .25rem;
+  display: flex;
+  align-items: flex-start;
+  gap: .5rem;
+  font-size: .7rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  cursor: pointer;
+  margin-top: .3rem;
+  line-height: 1.5;
 }
-.check-label input { accent-color: var(--accent); }
+.check-label input { accent-color: var(--accent); flex-shrink: 0; margin-top: .2rem; }
 
 .btn-add {
-  background: var(--accent); color: #0a0c10;
-  border: none; border-radius: 8px;
-  padding: .6rem 1.2rem;
-  font-size: .85rem; font-weight: 600;
-  cursor: pointer; font-family: 'DM Sans', sans-serif;
-  margin-top: .85rem;
-  transition: opacity .2s;
+  background: rgba(122,162,212,.1);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  border-radius: 2px;
+  padding: .55rem 1rem;
+  font-size: .72rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-top: .75rem;
+  width: 100%;
+  transition: background .2s;
 }
-.btn-add:hover { opacity: .88; }
+.btn-add:hover { background: rgba(122,162,212,.18); }
 
-/* App cards */
-.app-list { display: flex; flex-direction: column; gap: .75rem; }
+.app-list { display: flex; flex-direction: column; gap: .6rem; }
+
 .app-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px; overflow: hidden;
+  border-radius: 4px;
+  overflow: hidden;
 }
-.app-card-head { padding: .9rem 1.1rem; }
-.app-name { font-weight: 500; font-size: .92rem; margin-bottom: .2rem; }
-.app-desc { font-size: .75rem; color: var(--text-dim); margin-bottom: .6rem; }
-.app-badges { display: flex; gap: .4rem; flex-wrap: wrap; }
+
+.app-card-head { padding: .75rem .9rem; }
+
+.app-name {
+  font-weight: 700;
+  font-size: .82rem;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-bottom: .2rem;
+  line-height: 1.4;
+}
+
+.app-desc {
+  font-size: .7rem;
+  color: var(--text-dim);
+  font-family: var(--mono);
+  margin-bottom: .5rem;
+  line-height: 1.4;
+}
+
+.app-badges { display: flex; gap: .35rem; flex-wrap: wrap; }
 
 .mono-block {
-  font-family: 'DM Mono', monospace;
-  font-size: .72rem; color: var(--text-dim);
-  word-break: break-all; line-height: 1.5;
+  font-family: var(--mono);
+  font-size: .68rem;
+  color: var(--text-dim);
+  word-break: break-all;
+  line-height: 1.7;
   margin-top: .5rem;
 }
+
 .secret-blur {
-  filter: blur(4px); transition: filter .2s; cursor: pointer;
+  filter: blur(4px);
+  transition: filter .2s;
+  cursor: pointer;
   display: inline;
 }
-.secret-blur:hover, .secret-blur.revealed { filter: none; }
+.secret-blur:hover,
+.secret-blur.revealed { filter: none; }
+
+.reveal-hint {
+  font-size: .62rem;
+  color: var(--accent);
+  margin-left: .3rem;
+  cursor: pointer;
+}
+
+.redirect-url {
+  font-size: .64rem;
+  color: var(--text-dim);
+  opacity: .6;
+  margin-top: .2rem;
+}
 
 .app-actions {
   border-top: 1px solid var(--border);
-  padding: .7rem 1.1rem;
-  display: flex; flex-wrap: wrap; gap: .45rem;
+  padding: .6rem .9rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
 }
+
 .btn-sm {
-  background: var(--surface2); border: 1px solid var(--border);
-  color: var(--text); border-radius: 6px;
-  padding: .3rem .65rem; font-size: .78rem;
-  cursor: pointer; font-family: 'DM Sans', sans-serif;
-  transition: border-color .15s, color .15s; white-space: nowrap;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 2px;
+  padding: .35rem .7rem;
+  font-size: .72rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  white-space: nowrap;
+  transition: border-color .15s, color .15s;
+  line-height: 1.2;
 }
 .btn-sm:hover { border-color: var(--accent); color: var(--accent); }
-.btn-sm.danger { border-color: rgba(229,115,115,.3); color: var(--danger); }
+.btn-sm.danger { border-color: rgba(229,115,115,.2); color: var(--danger); }
 .btn-sm.danger:hover { border-color: var(--danger); }
 </style>
 
@@ -164,36 +249,30 @@ layout_head('Aplikasi SSO', 'admin-apps');
   <div class="msg-box"><?= $msg ?></div>
 <?php endif; ?>
 
-<!-- Form tambah aplikasi -->
 <div class="add-card">
   <div class="add-card-title">+ Daftarkan Aplikasi Baru</div>
   <form method="POST">
     <input type="hidden" name="action" value="add_app">
-    <div class="form-row">
-      <div class="fg">
-        <label>Nama Aplikasi</label>
-        <input type="text" name="name" placeholder="Nama aplikasi" required>
-      </div>
-      <div class="fg">
-        <label>Redirect URL (Callback)</label>
-        <input type="text" name="redirect" placeholder="https://app.example.com/callback" required>
-      </div>
+    <div class="fg">
+      <label>Nama Aplikasi</label>
+      <input type="text" name="name" placeholder="Nama aplikasi" required>
     </div>
-    <div class="form-row">
-      <div class="fg">
-        <label>Deskripsi</label>
-        <input type="text" name="description" placeholder="Deskripsi singkat (opsional)">
-      </div>
+    <div class="fg">
+      <label>Redirect URL (Callback)</label>
+      <input type="text" name="redirect" placeholder="https://app.example.com/callback" required>
+    </div>
+    <div class="fg">
+      <label>Deskripsi (Opsional)</label>
+      <input type="text" name="description" placeholder="Deskripsi singkat">
     </div>
     <label class="check-label">
       <input type="checkbox" name="use_signed_token">
       Gunakan RSA Signed Token (lebih aman, memerlukan public key di sisi klien)
     </label>
-    <button type="submit" class="btn-add">Daftarkan</button>
+    <button type="submit" class="btn-add">Daftarkan Aplikasi</button>
   </form>
 </div>
 
-<!-- Daftar aplikasi -->
 <div class="section-label">Aplikasi Terdaftar (<?= count($apps) ?>)</div>
 <div class="app-list">
 <?php foreach ($apps as $app): ?>
@@ -212,12 +291,14 @@ layout_head('Aplikasi SSO', 'admin-apps');
       </span>
     </div>
     <div class="mono-block">
-      <div><?= htmlspecialchars($app['client_id']) ?></div>
+      <div>Client ID: <?= htmlspecialchars($app['client_id']) ?></div>
       <div>
+        Client Secret:
         <span class="secret-blur" onclick="this.classList.toggle('revealed')"
-              title="Klik untuk tampilkan"><?= htmlspecialchars($app['client_secret']) ?></span>
+              title="Ketuk untuk tampilkan"><?= htmlspecialchars($app['client_secret']) ?></span>
+        <span class="reveal-hint" onclick="this.previousElementSibling.classList.toggle('revealed')">[Ketuk untuk tampilkan]</span>
       </div>
-      <div style="margin-top:.25rem;color:var(--text-dim);opacity:.7"><?= htmlspecialchars($app['redirect']) ?></div>
+      <div class="redirect-url">↳ <?= htmlspecialchars($app['redirect']) ?></div>
     </div>
   </div>
   <div class="app-actions">
@@ -237,7 +318,7 @@ layout_head('Aplikasi SSO', 'admin-apps');
           onsubmit="return confirm('Hapus aplikasi <?= htmlspecialchars(addslashes($app['name'])) ?>?')">
       <input type="hidden" name="action" value="delete_app">
       <input type="hidden" name="app_id" value="<?= $app['id'] ?>">
-      <button type="submit" class="btn-sm danger">Hapus</button>
+      <button type="submit" class="btn-sm danger">Hapus Aplikasi</button>
     </form>
   </div>
 </div>
