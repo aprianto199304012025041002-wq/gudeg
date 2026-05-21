@@ -138,6 +138,14 @@ input[type="password"] {
 input[type="text"]:focus,
 input[type="email"]:focus,
 input[type="password"]:focus { border-color: var(--accent-dim); }
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #080a0e inset !important;
+  -webkit-text-fill-color: #a0b4cc !important;
+  caret-color: #a0b4cc;
+  border-color: var(--border) !important;
+}
 .error-msg {
   background: rgba(192,64,64,.08);
   border: 1px solid #3a1818;
