@@ -26,110 +26,167 @@ $recent = $logs->fetchAll(PDO::FETCH_ASSOC);
 layout_head('Dashboard', 'dashboard');
 ?>
 <style>
-.greeting { margin-bottom: 1.75rem; }
-.greeting h2 {
-  font-family: 'DM Serif Display', serif;
-  font-size: 1.6rem;
-}
-.greeting p { color: var(--text-dim); margin-top: .3rem; font-size: .88rem; }
+.greeting { margin-bottom: 1rem; }
 
-/* Guest notice */
+.greeting-name {
+  font-size: .95rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  font-family: var(--mono);
+}
+
+.greeting-sub {
+  font-size: .7rem;
+  color: var(--text-dim);
+  margin-top: .2rem;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  font-family: var(--mono);
+}
+
 .guest-notice {
-  background: rgba(200,169,110,.07);
-  border: 1px solid rgba(200,169,110,.2);
-  border-radius: 12px;
-  padding: 1rem 1.25rem;
-  margin-bottom: 1.5rem;
-  display: flex; align-items: flex-start; gap: .75rem;
+  background: rgba(122,162,212,.06);
+  border: 1px solid rgba(122,162,212,.2);
+  border-radius: 4px;
+  padding: .75rem .9rem;
+  margin-bottom: .9rem;
+  font-size: .72rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--text-dim);
+  line-height: 1.6;
 }
-.guest-notice .gn-icon { font-size: 1.2rem; margin-top: .1rem; }
-.guest-notice p { font-size: .85rem; color: var(--text-dim); line-height: 1.55; }
+.guest-notice strong { color: var(--accent); }
 
-/* Apps grid */
 .apps-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: .85rem;
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: .5rem;
+  margin-bottom: 1.2rem;
 }
-@media (min-width: 480px) {
-  .apps-grid { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
-}
+
 .app-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 1.1rem 1rem;
+  border-radius: 4px;
+  padding: .75rem .8rem;
   display: block;
-  transition: border-color .2s, transform .15s;
+  text-decoration: none;
+  color: var(--text);
+  transition: border-color .15s;
   -webkit-tap-highlight-color: transparent;
 }
-.app-card:hover, .app-card:focus {
-  border-color: var(--accent);
-  transform: translateY(-2px);
-  outline: none;
-}
-.app-card:active { transform: scale(.98); }
+.app-card:hover,
+.app-card:focus { border-color: var(--accent); outline: none; }
+.app-card:active { opacity: .85; }
+
 .app-logo {
-  width: 38px; height: 38px;
-  border-radius: 10px;
-  background: var(--border);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.1rem; margin-bottom: .75rem;
+  width: 28px;
+  height: 28px;
+  border-radius: 3px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .9rem;
+  margin-bottom: .6rem;
   overflow: hidden;
 }
 .app-logo img { width: 100%; height: 100%; object-fit: cover; }
-.app-name { font-weight: 500; font-size: .9rem; margin-bottom: .2rem; }
-.app-desc {
-  font-size: .75rem; color: var(--text-dim); line-height: 1.4;
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.app-launch {
-  margin-top: .65rem;
-  font-size: .68rem; font-family: 'DM Mono', monospace;
-  color: var(--accent); text-transform: uppercase; letter-spacing: .08em;
+
+.app-name {
+  font-weight: 700;
+  font-size: .75rem;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-bottom: .2rem;
+  line-height: 1.3;
 }
 
-/* Empty apps */
+.app-desc {
+  font-size: .68rem;
+  color: var(--text-dim);
+  font-family: var(--mono);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.app-launch {
+  margin-top: .5rem;
+  font-size: .65rem;
+  font-family: var(--mono);
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
 .empty-apps {
   background: var(--surface);
   border: 1px dashed var(--border);
-  border-radius: 12px;
-  padding: 2rem 1.5rem;
+  border-radius: 4px;
+  padding: 1.25rem 1rem;
   text-align: center;
   color: var(--text-dim);
-  font-size: .85rem;
-  margin-bottom: 2rem;
+  font-size: .72rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  line-height: 1.6;
+  margin-bottom: 1.2rem;
 }
 
-/* Log list */
-.log-list { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 1.5rem; }
+.log-list {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
 .log-row {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: .75rem 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .65rem .9rem;
   border-bottom: 1px solid var(--border);
-  gap: .5rem;
+  gap: .6rem;
 }
 .log-row:last-child { border-bottom: none; }
-.log-activity { font-size: .85rem; }
+
+.log-activity {
+  font-size: .72rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  line-height: 1.3;
+}
+
 .log-meta {
   color: var(--text-dim);
-  font-family: 'DM Mono', monospace;
-  font-size: .7rem;
-  text-align: right; flex-shrink: 0;
+  font-family: var(--mono);
+  font-size: .65rem;
+  font-weight: 700;
+  text-align: right;
+  flex-shrink: 0;
+  line-height: 1.6;
 }
 </style>
 
 <div class="page-header greeting">
-  <h2>Halo, <?= htmlspecialchars(explode(' ', $user['name'])[0]) ?>!</h2>
-  <p><?= $user['role'] === 'guest' ? 'Akun Anda masih menunggu aktivasi admin.' : 'Pilih aplikasi yang ingin diakses.' ?></p>
+  <div class="greeting-name">Halo, <?= htmlspecialchars(explode(' ', $user['name'])[0]) ?>!</div>
+  <div class="greeting-sub"><?= $user['role'] === 'guest' ? 'Akun Anda masih menunggu aktivasi admin.' : 'Pilih aplikasi yang ingin diakses.' ?></div>
 </div>
 
 <?php if ($user['role'] === 'guest'): ?>
 <div class="guest-notice">
-  <div class="gn-icon">⏳</div>
-  <p>Akun Anda berstatus <strong>Guest</strong> dan belum memiliki akses ke aplikasi. Tunggu administrator mengaktifkan dan mengatur hak akses Anda.</p>
+  Akun Anda berstatus <strong>Guest</strong> dan belum memiliki akses ke aplikasi. Tunggu administrator mengaktifkan dan mengatur hak akses Anda.
 </div>
 <?php endif; ?>
 
@@ -171,7 +228,7 @@ layout_head('Dashboard', 'dashboard');
   <?php endforeach; ?>
 </div>
 <?php else: ?>
-<div class="empty-apps" style="margin-bottom:1.5rem">Belum ada aktivitas tercatat.</div>
+<div class="empty-apps" style="margin-bottom:1rem">Belum ada aktivitas tercatat.</div>
 <?php endif; ?>
 
 <?php layout_foot(); ?>

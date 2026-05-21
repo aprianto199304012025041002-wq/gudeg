@@ -35,42 +35,80 @@ layout_head('Ubah Password', 'password');
 ?>
 <style>
 .pw-card {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 12px; padding: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1rem .9rem;
   max-width: 440px;
 }
-.form-group { margin-bottom: 1.1rem; }
+
+.form-group { margin-bottom: .75rem; }
+
 .form-group label {
-  display: block; font-size: .72rem; font-weight: 500;
-  color: var(--text-dim); text-transform: uppercase;
-  letter-spacing: .08em; margin-bottom: .4rem;
+  display: block;
+  font-size: .68rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-bottom: .3rem;
+  font-family: var(--mono);
 }
+
 .form-group input[type="password"] {
-  width: 100%; background: var(--bg);
-  border: 1px solid var(--border); border-radius: 8px;
-  padding: .78rem 1rem; color: var(--text);
-  font-family: 'DM Sans', sans-serif; font-size: 1rem;
-  outline: none; transition: border-color .2s;
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: .6rem .8rem;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: .82rem;
+  font-weight: 700;
+  outline: none;
+  transition: border-color .2s;
   -webkit-appearance: none;
+  -webkit-box-shadow: 0 0 0 1000px var(--bg) inset;
+  -webkit-text-fill-color: var(--text);
 }
-.form-group input:focus { border-color: var(--accent); }
+.form-group input[type="password"]:focus { border-color: var(--accent); }
 
 .btn-save {
-  width: 100%; background: var(--accent); color: #0a0c10;
-  border: none; border-radius: 8px; padding: .85rem;
-  font-family: 'DM Sans', sans-serif; font-size: .95rem; font-weight: 600;
-  cursor: pointer; transition: opacity .2s, transform .1s;
-  margin-top: .25rem; -webkit-tap-highlight-color: transparent;
+  width: 100%;
+  background: rgba(122,162,212,.1);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  border-radius: 2px;
+  padding: .7rem;
+  font-family: var(--mono);
+  font-size: .75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  cursor: pointer;
+  margin-top: .5rem;
+  transition: background .2s;
+  -webkit-tap-highlight-color: transparent;
 }
-.btn-save:hover { opacity: .88; }
-.btn-save:active { transform: scale(.98); }
+.btn-save:hover { background: rgba(122,162,212,.18); }
+.btn-save:active { opacity: .85; }
 
 .success-banner {
-  background: rgba(105,217,140,.08); border: 1px solid rgba(105,217,140,.25);
-  color: var(--success); border-radius: 10px;
-  padding: 1rem 1.25rem; font-size: .88rem;
-  display: flex; align-items: center; gap: .6rem;
-  max-width: 440px; margin-bottom: 1rem;
+  background: rgba(74,222,128,.06);
+  border: 1px solid rgba(74,222,128,.2);
+  color: var(--success);
+  border-radius: 4px;
+  padding: .7rem .9rem;
+  font-size: .72rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  max-width: 440px;
+  margin-bottom: .9rem;
 }
 </style>
 
