@@ -9,12 +9,17 @@ $db   = getDB();
 // Apps user punya akses
 $apps = [];
 if ($user['role'] !== 'guest') {
-    $stmt = $db->prepare("
-        SELECT a.* FROM sso_applications a
-        INNER JOIN user_applications ua ON ua.application_id = a.id
-        WHERE ua.user_id = ? AND a.is_active = 1
-    ");
-    $stmt->execute([$user['id']]);
+    if ($user['role'] === 'admin') {
+        $stmt = $db->prepare("SELECT * FROM sso_applications WHERE is_active = 1");
+        $stmt->execute();
+    } else {
+        $stmt = $db->prepare("
+            SELECT a.* FROM sso_applications a
+            INNER JOIN user_applications ua ON ua.application_id = a.id
+            WHERE ua.user_id = ? AND a.is_active = 1
+        ");
+        $stmt->execute([$user['id']]);
+    }
     $apps = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
