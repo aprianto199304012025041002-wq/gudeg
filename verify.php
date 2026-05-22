@@ -17,6 +17,14 @@ function fail($msg) {
     exit;
 }
 
+// ── Helper base64url (RFC 7519) ───────────────────────────────────────────────
+function base64url_encode(string $data): string {
+    return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
+}
+function base64url_decode(string $data): string {
+    return base64_decode(strtr($data, '-_', '+/') . str_repeat('=', (4 - strlen($data) % 4) % 4));
+}
+
 $token         = $_REQUEST['token'] ?? '';
 $client_id     = $_REQUEST['client_id'] ?? '';
 $client_secret = $_REQUEST['client_secret'] ?? '';
@@ -49,9 +57,13 @@ if ($app['use_signed_token']) {
     $parts = explode('.', $token);
     if (count($parts) !== 3) fail('Format token salah.');
     [$header, $body, $sig] = $parts;
-    $expected = base64_encode(hash_hmac('sha256', "$header.$body", $app['client_secret'], true));
+
+    // FIX: gunakan base64url_encode (bukan base64_encode) agar cocok dengan token yang digenerate
+    $expected = base64url_encode(hash_hmac('sha256', "$header.$body", $app['client_secret'], true));
     if (!hash_equals($expected, $sig)) fail('Tanda tangan token tidak valid.');
-    $payload = json_decode(base64_decode($body), true);
+
+    // FIX: gunakan base64url_decode (bukan base64_decode) untuk decode payload JWT
+    $payload = json_decode(base64url_decode($body), true);
     if (!$payload) fail('Payload token tidak dapat dibaca.');
     if (($payload['exp'] ?? 0) < time()) fail('Token sudah kedaluwarsa.');
 }
