@@ -200,7 +200,7 @@ layout_head('Dashboard', 'dashboard');
   <?php if ($apps): ?>
   <div class="apps-grid">
     <?php foreach ($apps as $app): ?>
-    <a href="/sso.php?client_id=<?= urlencode($app['client_id']) ?>" class="app-card">
+    <a href="/sso.php?client_id=<?= urlencode($app['client_id']) ?>" class="app-card" target="_blank" rel="noopener noreferrer">
       <div class="app-logo">
         <?php if (!empty($app['logo'])): ?>
           <img src="/<?= htmlspecialchars($app['logo']) ?>" alt="<?= htmlspecialchars($app['name']) ?>">
