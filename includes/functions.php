@@ -1,4 +1,6 @@
 <?php
+date_default_timezone_set('Asia/Jakarta');
+
 $db_config = __DIR__ . '/../config/db.php';
 if (file_exists($db_config)) {
     require_once $db_config;
