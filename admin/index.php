@@ -351,7 +351,8 @@ select.sel-sm:hover { border-color: var(--accent); }
 <?php if ($msg): ?>
 <div id="page-msg"
      data-msg="<?= htmlspecialchars(strip_tags($msg)) ?>"
-     data-type="<?= htmlspecialchars($msg_type) ?>"></div>
+     data-type="<?= htmlspecialchars($msg_type) ?>"
+     data-full="<?= htmlspecialchars($msg) ?>"></div>
 <?php endif; ?>
 
 <div class="user-list">
@@ -494,9 +495,11 @@ function closeConfirm() {
   _confirmCb = null;
 }
 
+// FIX: simpan referensi callback sebelum closeConfirm() me-null-kan _confirmCb
 document.getElementById('confirmOkBtn').addEventListener('click', function() {
+  var cb = _confirmCb;
   closeConfirm();
-  if (_confirmCb) _confirmCb();
+  if (cb) cb();
 });
 
 document.getElementById('confirmOverlay').addEventListener('click', function(e) {
@@ -522,11 +525,23 @@ function showBubble(type, icon, title, desc, code) {
 (function() {
   var el = document.getElementById('page-msg');
   if (!el) return;
-  var msg  = el.dataset.msg;
   var type = el.dataset.type || 'success';
-  var icons = { success: 'check', info: 'key', danger: 'alert-triangle' };
+  var full = el.dataset.full || el.dataset.msg;
+  var icons  = { success: 'check', info: 'key', danger: 'alert-triangle' };
   var titles = { success: 'Berhasil', info: 'Info', danger: 'Peringatan' };
-  showBubble(type, icons[type] || 'check', titles[type] || 'Info', msg);
+
+  // Untuk reset password: pisahkan password dari pesan agar tampil di bubble-code
+  var code = null;
+  var desc = full;
+  if (type === 'info') {
+    var match = full.match(/<code[^>]*>([^<]+)<\/code>/);
+    if (match) {
+      code = match[1];
+      desc = full.replace(/<code[^>]*>[^<]+<\/code>/, '').trim();
+    }
+  }
+
+  showBubble(type, icons[type] || 'check', titles[type] || 'Info', desc, code);
 })();
 </script>
 
