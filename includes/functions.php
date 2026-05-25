@@ -56,3 +56,74 @@ function get_ip() {
     $ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? 'unknown';
     return explode(',', $ip)[0];
 }
+
+// ── CSRF helpers ─────────────────────────────────────────────────────────────
+
+/**
+ * Buat (atau ambil yang sudah ada) CSRF token untuk sesi ini.
+ */
+function csrf_token(): string {
+    session_start_safe();
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+/**
+ * Output hidden input CSRF — taruh di dalam setiap <form>.
+ */
+function csrf_field(): string {
+    return '<input type="hidden" name="csrf_token" value="' . htmlspecialchars(csrf_token()) . '">';
+}
+
+/**
+ * Validasi CSRF token dari POST request. Mati jika tidak valid.
+ */
+function csrf_verify(): void {
+    session_start_safe();
+    $token = $_POST['csrf_token'] ?? '';
+    if (empty($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $token)) {
+        http_response_code(403);
+        die('Invalid CSRF token.');
+    }
+}
+
+// ── Login attempt rate limiting (simpan di session, cocok untuk InfinityFree) ─
+
+/**
+ * Catat percobaan login gagal.
+ * Kunci berdasarkan IP + email agar tidak mudah di-bypass.
+ */
+function login_fail(string $email): void {
+    session_start_safe();
+    $key = 'lf_' . md5(get_ip() . strtolower($email));
+    $_SESSION[$key]['count'] = ($_SESSION[$key]['count'] ?? 0) + 1;
+    $_SESSION[$key]['last']  = time();
+}
+
+/**
+ * Cek apakah IP+email sedang di-throttle.
+ * Batas: 5 percobaan dalam 10 menit.
+ */
+function login_throttled(string $email): bool {
+    session_start_safe();
+    $key    = 'lf_' . md5(get_ip() . strtolower($email));
+    $data   = $_SESSION[$key] ?? null;
+    if (!$data) return false;
+    // Reset setelah 10 menit
+    if (time() - $data['last'] > 600) {
+        unset($_SESSION[$key]);
+        return false;
+    }
+    return $data['count'] >= 5;
+}
+
+/**
+ * Reset hitungan gagal login (dipanggil saat login berhasil).
+ */
+function login_reset(string $email): void {
+    session_start_safe();
+    $key = 'lf_' . md5(get_ip() . strtolower($email));
+    unset($_SESSION[$key]);
+}

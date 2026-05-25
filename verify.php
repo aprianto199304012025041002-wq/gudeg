@@ -8,12 +8,37 @@
 require_once __DIR__ . '/includes/jwt.php';
 require_once __DIR__ . '/config/db.php';
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST');
+
+// FIX: Jangan pakai Access-Control-Allow-Origin: * untuk endpoint sensitif.
+// Cek Origin request dan izinkan hanya jika cocok dengan domain aplikasi yang terdaftar.
+// Kalau tidak ada Origin header (curl/server-to-server), tetap lanjut tanpa CORS header.
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+if ($origin) {
+    $db_cors = getDB();
+    $origins = $db_cors->query("SELECT redirect FROM sso_applications WHERE is_active = 1")->fetchAll(PDO::FETCH_COLUMN);
+    $allowed = false;
+    foreach ($origins as $redir) {
+        $parsed = parse_url($redir);
+        $base   = ($parsed['scheme'] ?? 'https') . '://' . ($parsed['host'] ?? '');
+        if (isset($parsed['port'])) $base .= ':' . $parsed['port'];
+        if (rtrim($origin, '/') === rtrim($base, '/')) {
+            $allowed = true;
+            break;
+        }
+    }
+    if ($allowed) {
+        header('Access-Control-Allow-Origin: ' . $origin);
+        header('Access-Control-Allow-Methods: GET, POST');
+        header('Vary: Origin');
+    }
+    // Jika origin tidak diizinkan, tidak ada CORS header → browser blokir otomatis
+}
+
 function fail($msg) {
     echo json_encode(['valid' => false, 'error' => $msg]);
     exit;
 }
+
 // ── Helper base64url (RFC 7519) ───────────────────────────────────────────────
 if (!function_exists('base64url_encode')) {
     function base64url_encode(string $data): string {
@@ -25,23 +50,29 @@ if (!function_exists('base64url_decode')) {
         return base64_decode(strtr($data, '-_', '+/') . str_repeat('=', (4 - strlen($data) % 4) % 4));
     }
 }
+
 $token         = $_REQUEST['token'] ?? '';
 $client_id     = $_REQUEST['client_id'] ?? '';
 $client_secret = $_REQUEST['client_secret'] ?? '';
+
 if (!$token || !$client_id || !$client_secret) {
     fail('token, client_id, dan client_secret wajib diisi.');
 }
+
 $db = getDB();
+
 // 1. Cek aplikasi aktif
 $stmt = $db->prepare("SELECT * FROM sso_applications WHERE client_id = ? AND client_secret = ? LIMIT 1");
 $stmt->execute([$client_id, $client_secret]);
 $app = $stmt->fetch(PDO::FETCH_ASSOC);
+
 if (!$app) {
     fail('Aplikasi tidak ditemukan atau kredensial salah.');
 }
 if (!$app['is_active']) {
     fail('Aplikasi telah dinonaktifkan.');
 }
+
 // 2. Verify token
 if ($app['use_signed_token']) {
     $payload = JWT::verify($token);
@@ -58,26 +89,33 @@ if ($app['use_signed_token']) {
     if (!$payload) fail('Payload token tidak dapat dibaca.');
     if (($payload['exp'] ?? 0) < time()) fail('Token sudah kedaluwarsa.');
 }
+
 $user_id = $payload['sub'] ?? null;
 if (!$user_id) {
     fail('Token tidak mengandung identitas user.');
 }
+
 // 3. Cek user masih aktif
 $stmt = $db->prepare("SELECT id, name, email, role, is_active FROM users WHERE id = ? LIMIT 1");
 $stmt->execute([$user_id]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
 if (!$user) {
     fail('User tidak ditemukan.');
 }
 if (!$user['is_active']) {
     fail('Akun user telah dinonaktifkan.');
 }
+
 // 4. Cek user masih punya akses ke aplikasi ini
-$stmt = $db->prepare("SELECT 1 FROM user_applications WHERE user_id = ? AND application_id = ? LIMIT 1");
-$stmt->execute([$user_id, $app['id']]);
-if (!$stmt->fetch()) {
-    fail('Akses user ke aplikasi ini telah dicabut.');
+if ($user['role'] !== 'admin') {
+    $stmt = $db->prepare("SELECT 1 FROM user_applications WHERE user_id = ? AND application_id = ? LIMIT 1");
+    $stmt->execute([$user_id, $app['id']]);
+    if (!$stmt->fetch()) {
+        fail('Akses user ke aplikasi ini telah dicabut.');
+    }
 }
+
 echo json_encode([
     'valid'   => true,
     'payload' => [

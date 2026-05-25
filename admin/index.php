@@ -10,6 +10,9 @@ $msg = '';
 $msg_type = 'success';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // FIX: Validasi CSRF token
+    csrf_verify();
+
     $action    = $_POST['action'] ?? '';
     $target_id = (int)($_POST['target_id'] ?? 0);
 
@@ -374,6 +377,7 @@ select.sel-sm:hover { border-color: var(--accent); }
   <?php if ($u['id'] !== (int)$user['id']): ?>
   <div class="user-actions">
     <form method="POST" style="display:inline">
+      <?= csrf_field() ?>
       <input type="hidden" name="action" value="toggle_active">
       <input type="hidden" name="target_id" value="<?= $u['id'] ?>">
       <button type="submit" class="btn-sm <?= $u['is_active'] ? 'danger' : '' ?>">
@@ -382,6 +386,7 @@ select.sel-sm:hover { border-color: var(--accent); }
     </form>
 
     <form method="POST" class="role-form">
+      <?= csrf_field() ?>
       <input type="hidden" name="action" value="change_role">
       <input type="hidden" name="target_id" value="<?= $u['id'] ?>">
       <select name="new_role" class="sel-sm">
@@ -392,6 +397,7 @@ select.sel-sm:hover { border-color: var(--accent); }
     </form>
 
     <form method="POST" style="display:inline" id="form-reset-<?= $u['id'] ?>">
+      <?= csrf_field() ?>
       <input type="hidden" name="action" value="reset_password">
       <input type="hidden" name="target_id" value="<?= $u['id'] ?>">
       <button type="button" class="btn-sm danger"
@@ -404,6 +410,7 @@ select.sel-sm:hover { border-color: var(--accent); }
     </form>
 
     <form method="POST" style="display:inline" id="form-delete-<?= $u['id'] ?>">
+      <?= csrf_field() ?>
       <input type="hidden" name="action" value="delete_user">
       <input type="hidden" name="target_id" value="<?= $u['id'] ?>">
       <button type="button" class="btn-sm delete"
@@ -429,6 +436,7 @@ select.sel-sm:hover { border-color: var(--accent); }
     </button>
     <div class="app-access-body" id="app-access-<?= $u['id'] ?>">
       <form method="POST">
+        <?= csrf_field() ?>
         <input type="hidden" name="action" value="update_apps">
         <input type="hidden" name="target_id" value="<?= $u['id'] ?>">
         <?php if ($all_apps): ?>

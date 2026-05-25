@@ -11,6 +11,9 @@ $error   = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // FIX: Validasi CSRF token
+    csrf_verify();
+
     $name     = trim($_POST['name'] ?? '');
     $email    = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
@@ -230,6 +233,7 @@ input:-webkit-autofill:focus {
 
     <?php else: ?>
       <form method="POST">
+        <?= csrf_field() ?>
         <div class="form-group">
           <label for="name">Nama Lengkap</label>
           <input type="text" id="name" name="name"

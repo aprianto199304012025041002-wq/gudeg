@@ -10,43 +10,69 @@ if (!empty($_SESSION['user_id'])) {
 $error    = '';
 $redirect = $_GET['redirect'] ?? '/dashboard.php';
 
+// FIX: Hanya izinkan redirect ke path lokal (bukan URL eksternal)
+// Cegah open redirect ke domain lain
+if (parse_url($redirect, PHP_URL_HOST) !== null) {
+    $redirect = '/dashboard.php';
+}
+
 $remembered_email = $_COOKIE['gudeg_remember_email'] ?? '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // FIX: Validasi CSRF token
+    csrf_verify();
+
     $email    = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
     $remember = !empty($_POST['remember']);
 
     if ($email && $password) {
-        $db   = getDB();
-        $stmt = $db->prepare("SELECT * FROM users WHERE email = ? AND deleted_at IS NULL LIMIT 1");
-        $stmt->execute([$email]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($user && password_verify($password, $user['password'])) {
-            if (!$user['is_active']) {
-                $error = 'Akun Anda tidak aktif. Hubungi administrator.';
-            } else {
-                $_SESSION['user_id'] = $user['id'];
-                $_SESSION['name']    = $user['name'];
-                $_SESSION['email']   = $user['email'];
-                $_SESSION['role']    = $user['role'];
-
-                if ($remember) {
-                    setcookie('gudeg_remember_email', $email, time() + (30 * 24 * 3600), '/', '', true, true);
-                } else {
-                    setcookie('gudeg_remember_email', '', time() - 3600, '/', '', true, true);
-                }
-
-                $db->prepare("UPDATE users SET last_login_at = NOW() WHERE id = ?")->execute([$user['id']]);
-                log_activity($user['id'], $user['name'], $user['email'], 'Login');
-
-                $dest = filter_var($redirect, FILTER_VALIDATE_URL) ? $redirect : '/dashboard.php';
-                header("Location: $dest");
-                exit;
-            }
+        // FIX: Cek rate limiting sebelum query DB
+        if (login_throttled($email)) {
+            $error = 'Terlalu banyak percobaan login. Coba lagi dalam 10 menit.';
         } else {
-            $error = 'Email atau password salah.';
+            $db   = getDB();
+            $stmt = $db->prepare("SELECT * FROM users WHERE email = ? AND deleted_at IS NULL LIMIT 1");
+            $stmt->execute([$email]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($user && password_verify($password, $user['password'])) {
+                if (!$user['is_active']) {
+                    $error = 'Akun Anda tidak aktif. Hubungi administrator.';
+                    login_fail($email);
+                } else {
+                    // FIX: Regenerate session ID setelah login berhasil (cegah session fixation)
+                    session_regenerate_id(true);
+
+                    $_SESSION['user_id'] = $user['id'];
+                    $_SESSION['name']    = $user['name'];
+                    $_SESSION['email']   = $user['email'];
+                    $_SESSION['role']    = $user['role'];
+
+                    // Reset hitungan gagal
+                    login_reset($email);
+
+                    if ($remember) {
+                        setcookie('gudeg_remember_email', $email, time() + (30 * 24 * 3600), '/', '', false, true);
+                    } else {
+                        setcookie('gudeg_remember_email', '', time() - 3600, '/', '', false, true);
+                    }
+
+                    $db->prepare("UPDATE users SET last_login_at = NOW() WHERE id = ?")->execute([$user['id']]);
+                    log_activity($user['id'], $user['name'], $user['email'], 'Login');
+
+                    // FIX: Redirect hanya ke path lokal
+                    $dest = (parse_url($redirect, PHP_URL_HOST) === null && str_starts_with($redirect, '/'))
+                        ? $redirect
+                        : '/dashboard.php';
+                    header("Location: $dest");
+                    exit;
+                }
+            } else {
+                // FIX: Catat percobaan gagal
+                login_fail($email);
+                $error = 'Email atau password salah.';
+            }
         }
     } else {
         $error = 'Email dan password wajib diisi.';
@@ -226,6 +252,7 @@ input:-webkit-autofill:focus {
     <?php endif; ?>
 
     <form method="POST">
+      <?= csrf_field() ?>
       <input type="hidden" name="redirect" value="<?= htmlspecialchars($redirect) ?>">
 
       <div class="form-group">

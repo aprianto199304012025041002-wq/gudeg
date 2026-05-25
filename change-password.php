@@ -9,6 +9,9 @@ $error = '';
 $ok    = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // FIX: Validasi CSRF token
+    csrf_verify();
+
     $old  = $_POST['old_password'] ?? '';
     $new  = $_POST['new_password'] ?? '';
     $conf = $_POST['confirm'] ?? '';
@@ -129,6 +132,7 @@ layout_head('Ubah Password', 'password');
 <?php if (!$ok): ?>
 <div class="pw-card">
   <form method="POST">
+    <?= csrf_field() ?>
     <div class="form-group">
       <label for="old_password">Password Lama</label>
       <input type="password" id="old_password" name="old_password"

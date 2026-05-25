@@ -414,6 +414,7 @@ button, .btn { font-family: var(--sans); cursor: pointer; }
       <div class="dt-time" id="sb-clock">--:--:--</div>
     </div>
     <form method="POST" action="/logout.php" style="margin:0">
+      <?= csrf_field() ?>
       <button type="submit" class="sb-logout">
         <i class="ti ti-power" aria-hidden="true"></i><span>Keluar</span>
       </button>
