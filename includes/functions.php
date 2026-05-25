@@ -44,14 +44,16 @@ function log_activity($user_id, $name, $email, $activity) {
     $db = getDB();
     $ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? 'unknown';
     $ip = explode(',', $ip)[0];
-    $stmt = $db->prepare("INSERT INTO user_logs (user_id, user_name, user_email, activity, ip_address) VALUES (?,?,?,?,?)");
-    $stmt->execute([$user_id, $name, $email, $activity, $ip]);
+    $now = date('Y-m-d H:i:s');
+    $stmt = $db->prepare("INSERT INTO user_logs (user_id, user_name, user_email, activity, ip_address, created_at) VALUES (?,?,?,?,?,?)");
+    $stmt->execute([$user_id, $name, $email, $activity, $ip, $now]);
 }
 
 function log_admin_action($admin_id, $admin_name, $action, $target = '-') {
     $db = getDB();
-    $stmt = $db->prepare("INSERT INTO admin_logs (admin_id, admin_name, action, target_user, created_at) VALUES (?,?,?,?,NOW())");
-    $stmt->execute([$admin_id, $admin_name, $action, $target]);
+    $now = date('Y-m-d H:i:s');
+    $stmt = $db->prepare("INSERT INTO admin_logs (admin_id, admin_name, action, target_user, created_at) VALUES (?,?,?,?,?)");
+    $stmt->execute([$admin_id, $admin_name, $action, $target, $now]);
 }
 
 function get_ip() {
