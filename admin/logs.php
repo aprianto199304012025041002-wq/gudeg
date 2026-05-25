@@ -24,15 +24,15 @@ $pages = ceil($total / $per);
 layout_head('Logs', 'admin-logs');
 ?>
 <style>
-*, *::before, *::after { font-weight: 700; }
+*, *::before, *::after { font-weight: inherit; }
 
 .tab-bar { display: flex; gap: 5px; margin-bottom: 12px; }
 .tab-bar a {
-  padding: 4px 10px;
+  padding: 5px 12px;
   border: 1px solid var(--border);
   border-radius: 3px;
-  font-size: 9px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: .06em;
+  font-size: 12px; font-weight: 500;
+  text-transform: uppercase; letter-spacing: .05em;
   color: var(--text-dim);
   transition: border-color .12s, color .12s;
 }
@@ -44,35 +44,35 @@ layout_head('Logs', 'admin-logs');
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 4px;
-  padding: 7px 10px;
+  padding: 9px 12px;
 }
 .log-item-top {
   display: flex; justify-content: space-between; align-items: flex-start;
-  gap: 6px; margin-bottom: 3px;
+  gap: 6px; margin-bottom: 4px;
 }
-.log-action { font-size: 10px; font-weight: 700; color: var(--text); }
+.log-action { font-size: 13px; font-weight: 600; color: var(--text); }
 .log-time {
-  font-size: 9px; color: var(--text-dim);
-  white-space: nowrap; flex-shrink: 0; font-weight: 700;
+  font-size: 12px; color: var(--text-dim);
+  white-space: nowrap; flex-shrink: 0;
 }
-.log-meta { font-size: 9px; color: var(--text-dim); line-height: 1.6; font-weight: 700; }
+.log-meta { font-size: 12px; color: var(--text-dim); line-height: 1.6; }
 .log-meta span { margin-right: 8px; }
-.log-id { font-size: 8px; color: var(--text-muted); font-weight: 700; }
+.log-id { font-size: 11px; color: var(--text-muted); }
 
 .pagination {
   display: flex; gap: 4px; justify-content: center; flex-wrap: wrap;
 }
 .pagination a {
-  padding: 3px 8px;
+  padding: 4px 10px;
   border: 1px solid var(--border);
   border-radius: 3px;
-  font-size: 9px; font-weight: 700;
+  font-size: 12px;
   color: var(--text-dim);
   transition: border-color .12s, color .12s;
 }
 .pagination a.current { border-color: var(--accent-dim); color: var(--accent); }
 .pagination a:hover { border-color: var(--accent-dim); color: var(--accent); }
-.pagination-sep { font-size: 9px; color: var(--text-muted); padding: 3px 2px; font-weight: 700; }
+.pagination-sep { font-size: 12px; color: var(--text-muted); padding: 4px 2px; }
 </style>
 
 <div class="page-header">

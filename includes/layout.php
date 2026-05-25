@@ -65,17 +65,18 @@ function layout_head(string $title, string $active_nav = '') {
   --danger-bdr:   #3a1818;
   --success:      #3a8a60;
   --mono:         'Courier New', Courier, monospace;
-  --sb-expanded:  190px;
-  --sb-collapsed: 28px;
-  --topbar-h:     44px;
+  --sans:         'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --sb-expanded:  200px;
+  --sb-collapsed: 36px;
+  --topbar-h:     48px;
 }
 
 html { -webkit-text-size-adjust: 100%; }
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: var(--mono);
-  font-size: 11px;
+  font-family: var(--sans);
+  font-size: 14px;
   min-height: 100vh;
   overflow-x: hidden;
 }
@@ -133,16 +134,16 @@ a { color: inherit; text-decoration: none; }
   flex-shrink: 0; overflow: hidden;
 }
 .sb-shield { flex-shrink: 0; width: 20px; display: flex; align-items: center; justify-content: center; }
-.sb-shield i { font-size: 20px; color: var(--accent-dim); }
+.sb-shield i { font-size: 22px; color: var(--accent-dim); }
 .sb-brand-text { overflow: hidden; white-space: nowrap; }
 .sb-title {
-  font-size: 12px; font-weight: 900; letter-spacing: .03em; line-height: 1.1;
+  font-size: 14px; font-weight: 800; letter-spacing: .03em; line-height: 1.1;
 }
 .sb-title .gudeg { color: #ffffff; }
 .sb-title .jogja { color: #f0c040; }
 .sb-sub {
-  font-size: 8px; color: var(--text-muted);
-  text-transform: uppercase; letter-spacing: .07em; margin-top: 2px;
+  font-size: 10px; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: .06em; margin-top: 2px;
 }
 
 /* ── User panel ─────────────────────────────────────────── */
@@ -153,46 +154,46 @@ a { color: inherit; text-decoration: none; }
   flex-shrink: 0; overflow: hidden;
 }
 .sb-avatar {
-  width: 30px; height: 30px; border-radius: 50%;
+  width: 32px; height: 32px; border-radius: 50%;
   background: var(--accent-bg); border: 1px solid var(--accent-bdr);
   display: flex; align-items: center; justify-content: center;
-  font-size: 11px; font-weight: 900; color: var(--accent);
+  font-size: 12px; font-weight: 700; color: var(--accent);
   flex-shrink: 0; letter-spacing: .02em;
 }
 .sb-user-info { min-width: 0; flex: 1; overflow: hidden; }
 .sb-user-name {
-  font-size: 11px; color: var(--text); font-weight: 700;
+  font-size: 13px; color: var(--text); font-weight: 600;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .sb-user-email {
-  font-size: 9px; color: var(--text-muted);
+  font-size: 11px; color: var(--text-muted);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px;
 }
 .sb-role {
   display: inline-block; margin-top: 3px;
   background: var(--accent-bg); border: 1px solid var(--accent-bdr);
-  color: var(--accent-dim); font-size: 8px;
-  text-transform: uppercase; letter-spacing: .07em;
-  padding: 1px 5px; border-radius: 3px;
+  color: var(--accent-dim); font-size: 10px;
+  text-transform: uppercase; letter-spacing: .06em;
+  padding: 1px 6px; border-radius: 3px;
 }
 
 /* ── Nav ────────────────────────────────────────────────── */
 .sb-nav { flex: 1; padding: 4px 0; overflow-y: auto; overflow-x: hidden; }
 .sb-section-label {
-  font-size: 8px; text-transform: uppercase; letter-spacing: .1em;
-  color: var(--text-muted); padding: 6px 10px 2px;
+  font-size: 10px; text-transform: uppercase; letter-spacing: .08em;
+  color: var(--text-muted); padding: 8px 10px 3px;
   white-space: nowrap; overflow: hidden;
 }
 .sb-link {
-  display: flex; align-items: center; gap: 7px;
-  padding: 6px 10px;
-  font-size: 10px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: .06em; color: var(--text-dim);
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px;
+  font-size: 13px; font-weight: 500; text-transform: uppercase;
+  letter-spacing: .04em; color: var(--text-dim);
   border-left: 2px solid transparent;
   white-space: nowrap; overflow: hidden;
   transition: color .12s, background .12s, border-color .12s;
 }
-.sb-link i { font-size: 14px; width: 15px; flex-shrink: 0; }
+.sb-link i { font-size: 16px; width: 16px; flex-shrink: 0; }
 .sb-link:hover { color: var(--accent-dim); background: rgba(80,120,180,.04); }
 .sb-link.active {
   color: var(--accent); background: var(--accent-glow);
@@ -220,25 +221,25 @@ a { color: inherit; text-decoration: none; }
   flex-shrink: 0; overflow: hidden;
   display: flex; flex-direction: column; gap: 6px;
 }
-.sb-datetime { font-size: 9px; color: var(--text-muted); }
+.sb-datetime { font-size: 11px; color: var(--text-muted); }
 .sb-datetime .dt-date { color: #3a5070; letter-spacing: .04em; }
 .sb-datetime .dt-time {
-  font-size: 13px; font-weight: 700;
+  font-size: 15px; font-weight: 700;
   color: #3a5a80; letter-spacing: .06em; margin-top: 2px;
 }
 .sb-logout {
   display: flex; align-items: center; gap: 6px;
-  padding: 5px 8px;
-  font-size: 10px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: .06em; color: #7a3030;
+  padding: 6px 8px;
+  font-size: 12px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .05em; color: #7a3030;
   border: 1px solid var(--danger-bdr); border-radius: 4px;
   width: 100%; cursor: pointer; background: transparent;
-  font-family: var(--mono);
+  font-family: var(--sans);
   transition: border-color .12s, color .12s;
   white-space: nowrap;
 }
 .sb-logout:hover { border-color: var(--danger); color: var(--danger); }
-.sb-logout i { font-size: 15px; color: var(--danger); flex-shrink: 0; }
+.sb-logout i { font-size: 16px; color: var(--danger); flex-shrink: 0; }
 
 /* Collapse toggle button (desktop only) */
 .sb-collapse-btn {
@@ -274,7 +275,7 @@ a { color: inherit; text-decoration: none; }
 }
 #hamburger:hover span { background: var(--accent); }
 
-.topbar-title { font-size: 11px; font-weight: 900; letter-spacing: .03em; }
+.topbar-title { font-size: 14px; font-weight: 800; letter-spacing: .03em; }
 .topbar-title .gudeg { color: #ffffff; }
 .topbar-title .jogja { color: #f0c040; }
 
@@ -282,7 +283,7 @@ a { color: inherit; text-decoration: none; }
 #layout { display: flex; min-height: 100vh; }
 #main-content {
   flex: 1; min-width: 0;
-  padding: 16px 14px;
+  padding: 20px 18px;
   transition: margin-left .22s ease;
 }
 @media (min-width: 768px) {
@@ -290,22 +291,22 @@ a { color: inherit; text-decoration: none; }
   body.sb-collapsed #main-content { margin-left: var(--sb-collapsed); }
 }
 @media (max-width: 767px) {
-  #main-content { padding: 12px 10px; }
+  #main-content { padding: 14px 12px; }
 }
 
 /* ── Shared UI components ───────────────────────────────── */
 .page-title {
-  font-size: 13px; font-weight: 900;
+  font-size: 18px; font-weight: 700;
   color: var(--accent); text-transform: uppercase;
-  letter-spacing: .06em; line-height: 1.2;
+  letter-spacing: .04em; line-height: 1.2;
 }
-.page-subtitle { color: var(--text-muted); font-size: 9px; margin-top: 2px; }
-.page-header { margin-bottom: 14px; }
+.page-subtitle { color: var(--text-muted); font-size: 12px; margin-top: 3px; }
+.page-header { margin-bottom: 18px; }
 
 .section-label {
-  font-size: 8px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: .1em;
-  color: var(--text-muted); margin-bottom: 6px;
+  font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .09em;
+  color: var(--text-muted); margin-bottom: 8px;
 }
 
 .card {
@@ -313,16 +314,16 @@ a { color: inherit; text-decoration: none; }
   border: 1px solid var(--border);
   border-radius: 4px;
 }
-.card-pad { padding: 10px 12px; }
+.card-pad { padding: 12px 14px; }
 
 .msg-box {
   background: var(--accent-glow);
   border: 1px solid var(--accent-bdr);
   color: var(--accent);
   border-radius: 4px;
-  padding: 6px 10px;
-  font-size: 10px;
-  margin-bottom: 10px;
+  padding: 8px 12px;
+  font-size: 13px;
+  margin-bottom: 12px;
 }
 .msg-box.error {
   background: var(--danger-bg);
@@ -332,8 +333,8 @@ a { color: inherit; text-decoration: none; }
 
 .badge {
   display: inline-block;
-  padding: 1px 5px; border-radius: 3px;
-  font-size: 8px; font-family: var(--mono);
+  padding: 2px 7px; border-radius: 3px;
+  font-size: 10px; font-family: var(--sans);
   text-transform: uppercase; letter-spacing: .04em;
 }
 .badge-admin    { background: rgba(80,120,180,.12); color: var(--accent);    border: 1px solid var(--accent-bdr); }
@@ -344,7 +345,7 @@ a { color: inherit; text-decoration: none; }
 .badge-hmac     { background: rgba(60,100,160,.1);  color: #5a84b4;          border: 1px solid #1a2a40; }
 .badge-rsa      { background: rgba(80,120,180,.12); color: var(--accent);    border: 1px solid var(--accent-bdr); }
 
-button, .btn { font-family: var(--mono); cursor: pointer; }
+button, .btn { font-family: var(--sans); cursor: pointer; }
 </style>
 </head>
 <body>

@@ -34,31 +34,30 @@ layout_head('Dashboard', 'dashboard');
 .greeting { margin-bottom: 1rem; }
 
 .greeting-name {
-  font-size: .95rem;
+  font-size: 1.1rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: .05em;
-  font-family: var(--mono);
+  letter-spacing: .04em;
+  font-family: var(--sans);
 }
 
 .greeting-sub {
-  font-size: .7rem;
+  font-size: .85rem;
   color: var(--text-dim);
   margin-top: .2rem;
   text-transform: uppercase;
-  letter-spacing: .05em;
-  font-family: var(--mono);
+  letter-spacing: .04em;
+  font-family: var(--sans);
 }
 
 .guest-notice {
   background: rgba(122,162,212,.06);
   border: 1px solid rgba(122,162,212,.2);
   border-radius: 4px;
-  padding: .75rem .9rem;
-  margin-bottom: .9rem;
-  font-size: .72rem;
-  font-weight: 700;
-  font-family: var(--mono);
+  padding: .85rem 1rem;
+  margin-bottom: 1rem;
+  font-size: .85rem;
+  font-family: var(--sans);
   color: var(--text-dim);
   line-height: 1.6;
 }
@@ -102,19 +101,19 @@ layout_head('Dashboard', 'dashboard');
 .app-logo img { width: 100%; height: 100%; object-fit: cover; }
 
 .app-name {
-  font-weight: 700;
-  font-size: .75rem;
-  font-family: var(--mono);
+  font-weight: 600;
+  font-size: .85rem;
+  font-family: var(--sans);
   text-transform: uppercase;
-  letter-spacing: .04em;
+  letter-spacing: .03em;
   margin-bottom: .2rem;
   line-height: 1.3;
 }
 
 .app-desc {
-  font-size: .68rem;
+  font-size: .78rem;
   color: var(--text-dim);
-  font-family: var(--mono);
+  font-family: var(--sans);
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -124,12 +123,12 @@ layout_head('Dashboard', 'dashboard');
 
 .app-launch {
   margin-top: .5rem;
-  font-size: .65rem;
-  font-family: var(--mono);
-  font-weight: 700;
+  font-size: .75rem;
+  font-family: var(--sans);
+  font-weight: 600;
   color: var(--accent);
   text-transform: uppercase;
-  letter-spacing: .08em;
+  letter-spacing: .06em;
 }
 
 .empty-apps {
@@ -139,9 +138,8 @@ layout_head('Dashboard', 'dashboard');
   padding: 1.25rem 1rem;
   text-align: center;
   color: var(--text-dim);
-  font-size: .72rem;
-  font-weight: 700;
-  font-family: var(--mono);
+  font-size: .85rem;
+  font-family: var(--sans);
   line-height: 1.6;
   margin-bottom: 1.2rem;
 }
@@ -165,9 +163,9 @@ layout_head('Dashboard', 'dashboard');
 .log-row:last-child { border-bottom: none; }
 
 .log-activity {
-  font-size: .72rem;
-  font-weight: 700;
-  font-family: var(--mono);
+  font-size: .85rem;
+  font-weight: 600;
+  font-family: var(--sans);
   text-transform: uppercase;
   letter-spacing: .03em;
   line-height: 1.3;
@@ -175,9 +173,8 @@ layout_head('Dashboard', 'dashboard');
 
 .log-meta {
   color: var(--text-dim);
-  font-family: var(--mono);
-  font-size: .65rem;
-  font-weight: 700;
+  font-family: var(--sans);
+  font-size: .78rem;
   text-align: right;
   flex-shrink: 0;
   line-height: 1.6;

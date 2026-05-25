@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <title>Login — GUDEG JOGJA</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; font-weight: 700; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
   --bg:         #080a0e;
   --surface:    #0c0e13;
@@ -74,15 +74,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   --text-dim:   #2e4060;
   --text-muted: #1e2836;
   --danger:     #c04040;
+  --sans:       'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
   --mono:       'Courier New', Courier, monospace;
 }
 html { -webkit-text-size-adjust: 100%; }
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: var(--mono);
-  font-size: 11px;
-  font-weight: 700;
+  font-family: var(--sans);
+  font-size: 14px;
   min-height: 100vh;
   min-height: 100dvh;
   display: flex;
@@ -90,43 +90,43 @@ body {
   justify-content: center;
   padding: 1.25rem 1rem;
 }
-.container { width: 100%; max-width: 380px; }
-.logo-area { text-align: center; margin-bottom: 18px; }
+.container { width: 100%; max-width: 400px; }
+.logo-area { text-align: center; margin-bottom: 20px; }
 .logo-shield {
-  width: 44px; height: 44px;
+  width: 52px; height: 52px;
   background: var(--accent-bg);
   border: 1px solid var(--accent-bdr);
-  border-radius: 10px;
+  border-radius: 12px;
   display: inline-flex; align-items: center; justify-content: center;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
-.logo-shield i { font-size: 24px; color: var(--accent-dim); }
-.logo-title { font-size: 16px; font-weight: 900; letter-spacing: .03em; line-height: 1.1; }
+.logo-shield i { font-size: 28px; color: var(--accent-dim); }
+.logo-title { font-size: 20px; font-weight: 800; letter-spacing: .03em; line-height: 1.1; }
 .logo-title .gudeg { color: #ffffff; }
 .logo-title .jogja { color: #f0c040; }
 .logo-acronym {
-  font-size: 8px; color: var(--text-muted);
-  text-transform: uppercase; letter-spacing: .07em;
-  margin-top: 5px; line-height: 1.6; font-weight: 700;
+  font-size: 11px; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: .06em;
+  margin-top: 6px; line-height: 1.6;
 }
 .logo-acronym strong {
   display: block; color: #3a5272;
-  font-size: 8px; letter-spacing: .05em;
-  margin-top: 2px; font-weight: 700;
+  font-size: 11px; letter-spacing: .04em;
+  margin-top: 2px;
 }
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 6px;
-  padding: 16px 14px;
+  padding: 20px 18px;
 }
-.form-group { margin-bottom: 10px; }
+.form-group { margin-bottom: 14px; }
 label {
   display: block;
-  font-size: 8px; font-weight: 700;
+  font-size: 11px; font-weight: 600;
   color: var(--text-dim);
-  text-transform: uppercase; letter-spacing: .08em;
-  margin-bottom: 4px;
+  text-transform: uppercase; letter-spacing: .07em;
+  margin-bottom: 5px;
 }
 input[type="email"],
 input[type="password"] {
@@ -134,11 +134,10 @@ input[type="password"] {
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 4px;
-  padding: 7px 9px;
+  padding: 9px 11px;
   color: var(--text);
-  font-family: var(--mono);
-  font-size: 11px;
-  font-weight: 700;
+  font-family: var(--sans);
+  font-size: 14px;
   outline: none;
   transition: border-color .15s;
   -webkit-appearance: none;
@@ -154,27 +153,27 @@ input:-webkit-autofill:focus {
   border-color: var(--border) !important;
 }
 .remember-row {
-  display: flex; align-items: center; gap: 7px;
-  margin: 10px 0 4px;
+  display: flex; align-items: center; gap: 8px;
+  margin: 12px 0 6px;
 }
 .remember-row input[type="checkbox"] {
-  width: 13px; height: 13px;
+  width: 15px; height: 15px;
   accent-color: var(--accent-dim);
   cursor: pointer; flex-shrink: 0;
 }
 .remember-row label {
-  font-size: 9px; color: var(--text-dim); cursor: pointer;
-  text-transform: uppercase; letter-spacing: .07em;
-  margin-bottom: 0; font-weight: 700;
+  font-size: 12px; color: var(--text-dim); cursor: pointer;
+  text-transform: uppercase; letter-spacing: .06em;
+  margin-bottom: 0;
 }
 .error-msg {
   background: rgba(192,64,64,.08);
   border: 1px solid #3a1818;
   color: #a04040;
   border-radius: 4px;
-  padding: 6px 9px;
-  font-size: 9px; font-weight: 700;
-  margin-bottom: 10px;
+  padding: 8px 11px;
+  font-size: 13px;
+  margin-bottom: 12px;
 }
 .btn-submit {
   width: 100%;
@@ -182,10 +181,10 @@ input:-webkit-autofill:focus {
   color: var(--accent);
   border: 1px solid var(--accent-bdr);
   border-radius: 4px;
-  padding: 8px;
-  font-family: var(--mono);
-  font-size: 10px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: .08em;
+  padding: 10px;
+  font-family: var(--sans);
+  font-size: 13px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .07em;
   cursor: pointer;
   margin-top: 4px;
   transition: background .15s, border-color .15s;
@@ -193,17 +192,17 @@ input:-webkit-autofill:focus {
 }
 .btn-submit:hover { background: #122030; border-color: var(--accent-dim); }
 .btn-submit:active { transform: scale(.98); }
-.divider { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
+.divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
 .link-row {
-  text-align: center; font-size: 9px;
-  color: var(--text-muted); font-weight: 700;
+  text-align: center; font-size: 13px;
+  color: var(--text-muted);
 }
-.link-row a { color: var(--accent-dim); font-weight: 700; }
+.link-row a { color: var(--accent-dim); }
 .link-row a:hover { color: var(--accent); }
 .footer-note {
-  text-align: center; margin-top: 14px;
-  font-size: 8px; color: var(--text-muted);
-  font-weight: 700; letter-spacing: .05em;
+  text-align: center; margin-top: 16px;
+  font-size: 11px; color: var(--text-muted);
+  letter-spacing: .05em;
   text-transform: uppercase;
 }
 </style>

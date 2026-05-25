@@ -82,15 +82,15 @@ layout_head('Kelola User', 'admin-users');
 .user-info { min-width: 0; flex: 1; }
 
 .user-name {
-  font-weight: 700;
-  font-size: .82rem;
+  font-weight: 600;
+  font-size: .9rem;
   text-transform: uppercase;
-  letter-spacing: .04em;
+  letter-spacing: .03em;
   line-height: 1.3;
 }
 
 .user-email {
-  font-size: .72rem;
+  font-size: .8rem;
   color: var(--text-dim);
   margin-top: .15rem;
   word-break: break-all;
@@ -120,13 +120,13 @@ layout_head('Kelola User', 'admin-users');
   border: 1px solid var(--border);
   color: var(--text);
   border-radius: 2px;
-  padding: .35rem .7rem;
-  font-size: .72rem;
-  font-weight: 700;
+  padding: .38rem .75rem;
+  font-size: .8rem;
+  font-weight: 500;
   cursor: pointer;
-  font-family: var(--mono);
+  font-family: var(--sans);
   text-transform: uppercase;
-  letter-spacing: .05em;
+  letter-spacing: .04em;
   white-space: nowrap;
   transition: border-color .15s, color .15s;
   line-height: 1.2;
@@ -147,22 +147,22 @@ select.sel-sm {
   border: 1px solid var(--border);
   color: var(--text);
   border-radius: 2px;
-  padding: .35rem .4rem;
-  font-size: .72rem;
-  font-weight: 700;
+  padding: .38rem .5rem;
+  font-size: .8rem;
+  font-weight: 500;
   cursor: pointer;
-  font-family: var(--mono);
+  font-family: var(--sans);
   flex: 1;
 }
 select.sel-sm:hover { border-color: var(--accent); }
 
 .user-last-login {
-  font-size: .68rem;
+  font-size: .75rem;
   color: var(--text-dim);
   width: 100%;
   margin-top: .1rem;
-  letter-spacing: .03em;
-  font-family: var(--mono);
+  letter-spacing: .02em;
+  font-family: var(--sans);
 }
 
 .app-access { border-top: 1px solid var(--border); }
@@ -171,21 +171,21 @@ select.sel-sm:hover { border-color: var(--accent); }
   width: 100%;
   background: none;
   border: none;
-  padding: .55rem .9rem;
+  padding: .6rem .9rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   color: var(--text-dim);
-  font-size: .7rem;
-  font-weight: 700;
-  font-family: var(--mono);
+  font-size: .8rem;
+  font-weight: 500;
+  font-family: var(--sans);
   text-transform: uppercase;
-  letter-spacing: .05em;
+  letter-spacing: .04em;
   cursor: pointer;
   transition: color .15s;
 }
 .app-access-toggle:hover { color: var(--accent); }
-.app-access-toggle .chevron { transition: transform .2s; font-size: .65rem; }
+.app-access-toggle .chevron { transition: transform .2s; font-size: .75rem; }
 .app-access-toggle.open .chevron { transform: rotate(180deg); }
 
 .app-access-body {
@@ -204,15 +204,15 @@ select.sel-sm:hover { border-color: var(--accent); }
 .apps-check label {
   display: flex;
   align-items: center;
-  gap: .3rem;
-  font-size: .7rem;
-  font-weight: 700;
-  font-family: var(--mono);
+  gap: .35rem;
+  font-size: .8rem;
+  font-weight: 500;
+  font-family: var(--sans);
   text-transform: uppercase;
-  letter-spacing: .04em;
+  letter-spacing: .03em;
   color: var(--text-dim);
   cursor: pointer;
-  padding: .3rem .55rem;
+  padding: .35rem .6rem;
   border: 1px solid var(--border);
   border-radius: 2px;
   transition: border-color .15s, color .15s;
@@ -221,7 +221,7 @@ select.sel-sm:hover { border-color: var(--accent); }
 .apps-check input[type=checkbox] { accent-color: var(--accent); }
 
 .self-note {
-  font-size: .7rem;
+  font-size: .8rem;
   color: var(--text-dim);
   font-style: italic;
 }

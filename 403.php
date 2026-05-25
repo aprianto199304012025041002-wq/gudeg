@@ -11,8 +11,7 @@ html,body{height:100%}
 body{
   background:#080a0e;
   color:#e2e8f0;
-  font-family:'Courier New',monospace;
-  font-weight:700;
+  font-family:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
   display:flex;
   flex-direction:column;
   align-items:center;
@@ -31,18 +30,18 @@ body{
   margin-bottom:.5rem;
 }
 .err-label{
-  font-size:.65rem;
-  font-weight:700;
+  font-size:.8rem;
+  font-weight:500;
   text-transform:uppercase;
-  letter-spacing:.14em;
+  letter-spacing:.12em;
   color:#64748b;
   margin-bottom:1rem;
 }
 .err-title{
-  font-size:.85rem;
-  font-weight:700;
+  font-size:1rem;
+  font-weight:600;
   text-transform:uppercase;
-  letter-spacing:.06em;
+  letter-spacing:.05em;
   margin-bottom:.75rem;
 }
 .divider{
@@ -51,10 +50,10 @@ body{
   margin:.75rem auto;
 }
 .err-desc{
-  font-size:.72rem;
+  font-size:.9rem;
   color:#64748b;
   line-height:1.7;
-  max-width:280px;
+  max-width:300px;
   margin:0 auto 1.5rem;
 }
 .btn-primary{
@@ -63,12 +62,12 @@ body{
   border:1px solid #7aa2d4;
   color:#7aa2d4;
   border-radius:2px;
-  padding:.6rem 1.4rem;
-  font-size:.7rem;
-  font-weight:700;
-  font-family:'Courier New',monospace;
+  padding:.65rem 1.5rem;
+  font-size:.85rem;
+  font-weight:500;
+  font-family:'Inter','Segoe UI',system-ui,sans-serif;
   text-transform:uppercase;
-  letter-spacing:.07em;
+  letter-spacing:.06em;
   text-decoration:none;
   transition:background .2s;
 }
@@ -79,12 +78,12 @@ body{
   border:1px solid #1a1f2e;
   color:#64748b;
   border-radius:2px;
-  padding:.6rem 1.4rem;
-  font-size:.7rem;
-  font-weight:700;
-  font-family:'Courier New',monospace;
+  padding:.65rem 1.5rem;
+  font-size:.85rem;
+  font-weight:500;
+  font-family:'Inter','Segoe UI',system-ui,sans-serif;
   text-transform:uppercase;
-  letter-spacing:.07em;
+  letter-spacing:.06em;
   text-decoration:none;
   margin-top:.5rem;
   transition:border-color .2s;
@@ -92,11 +91,11 @@ body{
 .btn-secondary:hover{border-color:#64748b}
 .btn-col{display:flex;flex-direction:column;align-items:center;gap:0}
 .err-meta{
-  font-size:.62rem;
+  font-size:.75rem;
   color:#64748b;
   opacity:.45;
   margin-top:2rem;
-  letter-spacing:.06em;
+  letter-spacing:.05em;
   text-transform:uppercase;
 }
 </style>

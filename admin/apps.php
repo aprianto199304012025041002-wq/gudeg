@@ -74,26 +74,26 @@ layout_head('Aplikasi SSO', 'admin-apps');
 }
 
 .add-card-title {
-  font-size: .72rem;
-  font-weight: 700;
-  font-family: var(--mono);
+  font-size: .85rem;
+  font-weight: 600;
+  font-family: var(--sans);
   color: var(--accent);
   text-transform: uppercase;
-  letter-spacing: .08em;
+  letter-spacing: .06em;
   margin-bottom: .8rem;
 }
 
-.fg { margin-bottom: .6rem; }
+.fg { margin-bottom: .7rem; }
 
 .fg label {
   display: block;
-  font-size: .65rem;
-  font-weight: 700;
+  font-size: .72rem;
+  font-weight: 600;
   color: var(--text-dim);
   text-transform: uppercase;
-  letter-spacing: .08em;
-  margin-bottom: .3rem;
-  font-family: var(--mono);
+  letter-spacing: .07em;
+  margin-bottom: .35rem;
+  font-family: var(--sans);
 }
 
 .fg input[type=text] {
@@ -101,11 +101,10 @@ layout_head('Aplikasi SSO', 'admin-apps');
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 2px;
-  padding: .55rem .7rem;
+  padding: .6rem .75rem;
   color: var(--text);
-  font-family: var(--mono);
-  font-size: .8rem;
-  font-weight: 700;
+  font-family: var(--sans);
+  font-size: .9rem;
   outline: none;
   transition: border-color .2s;
   -webkit-appearance: none;
@@ -118,12 +117,12 @@ layout_head('Aplikasi SSO', 'admin-apps');
   display: flex;
   align-items: flex-start;
   gap: .5rem;
-  font-size: .7rem;
-  font-weight: 700;
-  font-family: var(--mono);
+  font-size: .8rem;
+  font-weight: 500;
+  font-family: var(--sans);
   color: var(--text-dim);
   text-transform: uppercase;
-  letter-spacing: .04em;
+  letter-spacing: .03em;
   cursor: pointer;
   margin-top: .3rem;
   line-height: 1.5;
@@ -135,13 +134,13 @@ layout_head('Aplikasi SSO', 'admin-apps');
   border: 1px solid var(--accent);
   color: var(--accent);
   border-radius: 2px;
-  padding: .55rem 1rem;
-  font-size: .72rem;
-  font-weight: 700;
+  padding: .6rem 1rem;
+  font-size: .82rem;
+  font-weight: 600;
   cursor: pointer;
-  font-family: var(--mono);
+  font-family: var(--sans);
   text-transform: uppercase;
-  letter-spacing: .06em;
+  letter-spacing: .05em;
   margin-top: .75rem;
   width: 100%;
   transition: background .2s;
@@ -157,22 +156,22 @@ layout_head('Aplikasi SSO', 'admin-apps');
   overflow: hidden;
 }
 
-.app-card-head { padding: .75rem .9rem; }
+.app-card-head { padding: .85rem 1rem; }
 
 .app-name {
-  font-weight: 700;
-  font-size: .82rem;
-  font-family: var(--mono);
+  font-weight: 600;
+  font-size: .9rem;
+  font-family: var(--sans);
   text-transform: uppercase;
-  letter-spacing: .04em;
+  letter-spacing: .03em;
   margin-bottom: .2rem;
   line-height: 1.4;
 }
 
 .app-desc {
-  font-size: .7rem;
+  font-size: .8rem;
   color: var(--text-dim);
-  font-family: var(--mono);
+  font-family: var(--sans);
   margin-bottom: .5rem;
   line-height: 1.4;
 }
@@ -181,7 +180,7 @@ layout_head('Aplikasi SSO', 'admin-apps');
 
 .mono-block {
   font-family: var(--mono);
-  font-size: .68rem;
+  font-size: .78rem;
   color: var(--text-dim);
   word-break: break-all;
   line-height: 1.7;
@@ -198,14 +197,14 @@ layout_head('Aplikasi SSO', 'admin-apps');
 .secret-blur.revealed { filter: none; }
 
 .reveal-hint {
-  font-size: .62rem;
+  font-size: .72rem;
   color: var(--accent);
   margin-left: .3rem;
   cursor: pointer;
 }
 
 .redirect-url {
-  font-size: .64rem;
+  font-size: .75rem;
   color: var(--text-dim);
   opacity: .6;
   margin-top: .2rem;
@@ -224,13 +223,13 @@ layout_head('Aplikasi SSO', 'admin-apps');
   border: 1px solid var(--border);
   color: var(--text);
   border-radius: 2px;
-  padding: .35rem .7rem;
-  font-size: .72rem;
-  font-weight: 700;
+  padding: .38rem .75rem;
+  font-size: .8rem;
+  font-weight: 500;
   cursor: pointer;
-  font-family: var(--mono);
+  font-family: var(--sans);
   text-transform: uppercase;
-  letter-spacing: .05em;
+  letter-spacing: .04em;
   white-space: nowrap;
   transition: border-color .15s, color .15s;
   line-height: 1.2;

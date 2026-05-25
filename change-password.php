@@ -38,21 +38,21 @@ layout_head('Ubah Password', 'password');
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 4px;
-  padding: 1rem .9rem;
-  max-width: 440px;
+  padding: 1.1rem 1rem;
+  max-width: 460px;
 }
 
-.form-group { margin-bottom: .75rem; }
+.form-group { margin-bottom: 1rem; }
 
 .form-group label {
   display: block;
-  font-size: .68rem;
-  font-weight: 700;
+  font-size: .72rem;
+  font-weight: 600;
   color: var(--text-dim);
   text-transform: uppercase;
-  letter-spacing: .08em;
-  margin-bottom: .3rem;
-  font-family: var(--mono);
+  letter-spacing: .07em;
+  margin-bottom: .35rem;
+  font-family: var(--sans);
 }
 
 .form-group input[type="password"] {
@@ -60,11 +60,10 @@ layout_head('Ubah Password', 'password');
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 2px;
-  padding: .6rem .8rem;
+  padding: .65rem .85rem;
   color: var(--text);
-  font-family: var(--mono);
-  font-size: .82rem;
-  font-weight: 700;
+  font-family: var(--sans);
+  font-size: .9rem;
   outline: none;
   transition: border-color .2s;
   -webkit-appearance: none;
@@ -79,12 +78,12 @@ layout_head('Ubah Password', 'password');
   border: 1px solid var(--accent);
   color: var(--accent);
   border-radius: 2px;
-  padding: .7rem;
-  font-family: var(--mono);
-  font-size: .75rem;
-  font-weight: 700;
+  padding: .75rem;
+  font-family: var(--sans);
+  font-size: .82rem;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: .07em;
+  letter-spacing: .06em;
   cursor: pointer;
   margin-top: .5rem;
   transition: background .2s;
@@ -98,17 +97,17 @@ layout_head('Ubah Password', 'password');
   border: 1px solid rgba(74,222,128,.2);
   color: var(--success);
   border-radius: 4px;
-  padding: .7rem .9rem;
-  font-size: .72rem;
-  font-weight: 700;
-  font-family: var(--mono);
+  padding: .75rem .9rem;
+  font-size: .82rem;
+  font-weight: 600;
+  font-family: var(--sans);
   text-transform: uppercase;
   letter-spacing: .04em;
   display: flex;
   align-items: center;
   gap: .5rem;
-  max-width: 440px;
-  margin-bottom: .9rem;
+  max-width: 460px;
+  margin-bottom: 1rem;
 }
 </style>
 
