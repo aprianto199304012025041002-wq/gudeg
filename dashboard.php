@@ -28,7 +28,7 @@ $logs = $db->prepare("SELECT activity, ip_address, created_at FROM user_logs WHE
 $logs->execute([$user['id']]);
 $recent = $logs->fetchAll(PDO::FETCH_ASSOC);
 
-layout_head('Dashboard', 'dashboard');
+layout_head('Beranda', 'dashboard');
 ?>
 <style>
 .greeting { margin-bottom: 1rem; }

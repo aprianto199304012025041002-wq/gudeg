@@ -388,10 +388,10 @@ button, .btn { font-family: var(--sans); cursor: pointer; }
   <nav class="sb-nav">
     <div class="sb-section-label">Menu</div>
     <a href="/dashboard.php" class="sb-link <?= $active_nav === 'dashboard' ? 'active' : '' ?>">
-      <i class="ti ti-home" aria-hidden="true"></i><span>Dashboard</span>
+      <i class="ti ti-home" aria-hidden="true"></i><span>Beranda</span>
     </a>
     <a href="/change-password.php" class="sb-link <?= $active_nav === 'password' ? 'active' : '' ?>">
-      <i class="ti ti-key" aria-hidden="true"></i><span>Ubah Password</span>
+      <i class="ti ti-settings" aria-hidden="true"></i><span>Pengaturan</span>
     </a>
 
     <?php if ($is_admin): ?>
@@ -400,10 +400,10 @@ button, .btn { font-family: var(--sans); cursor: pointer; }
       <i class="ti ti-users" aria-hidden="true"></i><span>Kelola User</span>
     </a>
     <a href="/admin/apps.php" class="sb-link <?= $active_nav === 'admin-apps' ? 'active' : '' ?>">
-      <i class="ti ti-device-desktop" aria-hidden="true"></i><span>Aplikasi SSO</span>
+      <i class="ti ti-device-desktop" aria-hidden="true"></i><span>Kelola Aplikasi</span>
     </a>
     <a href="/admin/logs.php" class="sb-link <?= $active_nav === 'admin-logs' ? 'active' : '' ?>">
-      <i class="ti ti-clipboard-list" aria-hidden="true"></i><span>Logs</span>
+      <i class="ti ti-clipboard-list" aria-hidden="true"></i><span>Log Aktivitas</span>
     </a>
     <?php endif; ?>
   </nav>

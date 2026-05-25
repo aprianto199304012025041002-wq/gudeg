@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-layout_head('Ubah Password', 'password');
+layout_head('Pengaturan', 'password');
 ?>
 <style>
 .pw-card {
@@ -115,7 +115,7 @@ layout_head('Ubah Password', 'password');
 </style>
 
 <div class="page-header">
-  <h1 class="page-title">Ubah Password</h1>
+  <h1 class="page-title">Pengaturan</h1>
   <p class="page-subtitle">Masuk sebagai <?= htmlspecialchars($user['email']) ?></p>
 </div>
 

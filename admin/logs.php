@@ -21,7 +21,7 @@ if ($tab === 'admin') {
 
 $pages = ceil($total / $per);
 
-layout_head('Logs', 'admin-logs');
+layout_head('Log Aktivitas', 'admin-logs');
 ?>
 <style>
 *, *::before, *::after { font-weight: inherit; }
@@ -76,7 +76,7 @@ layout_head('Logs', 'admin-logs');
 </style>
 
 <div class="page-header">
-  <div class="page-title">Activity Logs</div>
+  <div class="page-title">Log Aktivitas</div>
   <div class="page-subtitle">Total <?= number_format($total) ?> entri</div>
 </div>
 

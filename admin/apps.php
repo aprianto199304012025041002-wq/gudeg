@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $apps = $db->query("SELECT * FROM sso_applications ORDER BY id DESC")->fetchAll(PDO::FETCH_ASSOC);
 
-layout_head('Aplikasi SSO', 'admin-apps');
+layout_head('Kelola Aplikasi', 'admin-apps');
 ?>
 <style>
 .add-card {
@@ -240,7 +240,7 @@ layout_head('Aplikasi SSO', 'admin-apps');
 </style>
 
 <div class="page-header">
-  <h1 class="page-title">Aplikasi SSO</h1>
+  <h1 class="page-title">Kelola Aplikasi</h1>
   <p class="page-subtitle">Daftarkan dan kelola aplikasi yang terintegrasi.</p>
 </div>
 
