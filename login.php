@@ -61,6 +61,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $db->prepare("UPDATE users SET last_login_at = NOW() WHERE id = ?")->execute([$user['id']]);
                     log_activity($user['id'], $user['name'], $user['email'], 'Login');
 
+                    // Simpan sesi ke DB
+                    $sess_id = session_id();
+                    $ua      = $_SERVER['HTTP_USER_AGENT'] ?? '';
+                    $ip_addr = get_ip();
+                    $now_str = date('Y-m-d H:i:s');
+                    $db->prepare("INSERT INTO sessions (id, user_id, ip_address, user_agent, payload, last_activity, created_at)
+                                  VALUES (?,?,?,?,?,?,?)
+                                  ON DUPLICATE KEY UPDATE ip_address=VALUES(ip_address), user_agent=VALUES(user_agent), last_activity=VALUES(last_activity)")
+                       ->execute([$sess_id, $user['id'], $ip_addr, $ua, '', $now_str, $now_str]);
+
                     // FIX: Redirect hanya ke path lokal
                     $dest = (parse_url($redirect, PHP_URL_HOST) === null && str_starts_with($redirect, '/'))
                         ? $redirect

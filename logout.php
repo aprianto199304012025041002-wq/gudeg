@@ -19,6 +19,13 @@ if (!empty($_SESSION['user_id'])) {
     log_activity($_SESSION['user_id'], $_SESSION['name'], $_SESSION['email'], 'Logout');
 }
 
+// Hapus sesi dari DB
+$sess_id = session_id();
+try {
+    $db2 = getDB();
+    $db2->prepare("DELETE FROM sessions WHERE id = ?")->execute([$sess_id]);
+} catch (Exception $e) {}
+
 session_destroy();
 header("Location: /login.php");
 exit;

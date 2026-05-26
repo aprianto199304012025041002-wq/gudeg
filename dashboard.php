@@ -23,11 +23,6 @@ if ($user['role'] !== 'guest') {
     $apps = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-// Aktivitas terakhir
-$logs = $db->prepare("SELECT activity, ip_address, created_at FROM user_logs WHERE user_id = ? ORDER BY id DESC LIMIT 5");
-$logs->execute([$user['id']]);
-$recent = $logs->fetchAll(PDO::FETCH_ASSOC);
-
 layout_head('Beranda', 'dashboard');
 ?>
 <style>
@@ -144,41 +139,6 @@ layout_head('Beranda', 'dashboard');
   margin-bottom: 1.2rem;
 }
 
-.log-list {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  overflow: hidden;
-  margin-bottom: 1rem;
-}
-
-.log-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: .65rem .9rem;
-  border-bottom: 1px solid var(--border);
-  gap: .6rem;
-}
-.log-row:last-child { border-bottom: none; }
-
-.log-activity {
-  font-size: .85rem;
-  font-weight: 600;
-  font-family: var(--sans);
-  text-transform: uppercase;
-  letter-spacing: .03em;
-  line-height: 1.3;
-}
-
-.log-meta {
-  color: var(--text-dim);
-  font-family: var(--sans);
-  font-size: .78rem;
-  text-align: right;
-  flex-shrink: 0;
-  line-height: 1.6;
-}
 </style>
 
 <div class="page-header greeting">
@@ -214,23 +174,6 @@ layout_head('Beranda', 'dashboard');
   <?php else: ?>
   <div class="empty-apps">Belum ada aplikasi yang ditugaskan ke akun Anda.<br>Hubungi administrator.</div>
   <?php endif; ?>
-<?php endif; ?>
-
-<div class="section-label">Aktivitas Terakhir</div>
-<?php if ($recent): ?>
-<div class="log-list">
-  <?php foreach ($recent as $log): ?>
-  <div class="log-row">
-    <span class="log-activity"><?= htmlspecialchars($log['activity']) ?></span>
-    <span class="log-meta">
-      <?= htmlspecialchars($log['ip_address']) ?><br>
-      <?= date('d M, H:i', strtotime($log['created_at'])) ?>
-    </span>
-  </div>
-  <?php endforeach; ?>
-</div>
-<?php else: ?>
-<div class="empty-apps" style="margin-bottom:1rem">Belum ada aktivitas tercatat.</div>
 <?php endif; ?>
 
 <?php layout_foot(); ?>
