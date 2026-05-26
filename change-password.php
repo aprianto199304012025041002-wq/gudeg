@@ -151,7 +151,7 @@ layout_head('Pengaturan', 'password');
   margin-bottom: 1rem;
   align-items: start;
 }
-.two-col > div { display: flex; flex-direction: column; gap: .75rem; }
+.two-col > div { display: flex; flex-direction: column; gap: .4rem; }
 @media (max-width: 700px) {
   .two-col { grid-template-columns: 1fr; }
 }
@@ -280,7 +280,6 @@ layout_head('Pengaturan', 'password');
   </div>
 </div>
 
-<div style="height:.75rem"></div>
 <!-- Panel: Sesi Login Aktif -->
 <div class="panel">
   <div class="panel-hd">
