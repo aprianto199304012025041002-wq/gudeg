@@ -142,13 +142,21 @@ layout_head('Pengaturan', 'password');
   margin-bottom: 1rem;
 }
 
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  align-items: start;
+}
+@media (max-width: 700px) {
+  .two-col { grid-template-columns: 1fr; }
+}
 .panel {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 4px;
-  margin-bottom: 1rem;
   overflow: hidden;
-  max-width: 680px;
 }
 .panel-hd {
   padding: .6rem 1rem;
@@ -261,6 +269,9 @@ layout_head('Pengaturan', 'password');
 <div class="sess-notice"><?= htmlspecialchars($sess_msg) ?></div>
 <?php endif; ?>
 
+<div class="two-col">
+<div><!-- kolom kiri: ubah password + sesi -->
+
 <!-- Panel: 10 Aktivitas Terakhir -->
 <div class="panel">
   <div class="panel-hd">
@@ -283,6 +294,9 @@ layout_head('Pengaturan', 'password');
     <?php endif; ?>
   </div>
 </div>
+
+</div><!-- /kolom kiri -->
+<div><!-- kolom kanan: log aktivitas -->
 
 <!-- Panel: Sesi Login Aktif -->
 <div class="panel">
@@ -309,7 +323,14 @@ layout_head('Pengaturan', 'password');
         elseif (stripos($ua_raw, 'Mac') !== false)       $os = 'Mac';
         elseif (stripos($ua_raw, 'Linux') !== false)     $os = 'Linux';
         $is_current = $sess['id'] === $current_sess_id;
-        $last_act   = $sess['last_activity'] ? date('d M Y H:i', strtotime($sess['last_activity'])) : '—';
+        $la_raw = $sess['last_activity'];
+        if ($la_raw && is_numeric($la_raw)) {
+            $last_act = date('d M Y H:i', (int)$la_raw);
+        } elseif ($la_raw) {
+            $last_act = date('d M Y H:i', strtotime($la_raw));
+        } else {
+            $last_act = '—';
+        }
       ?>
       <div class="sesi-row">
         <div>
@@ -348,5 +369,8 @@ layout_head('Pengaturan', 'password');
     <?php endif; ?>
   </div>
 </div>
+
+</div><!-- /kolom kanan -->
+</div><!-- /two-col -->
 
 <?php layout_foot(); ?>
