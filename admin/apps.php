@@ -8,6 +8,7 @@ $db   = getDB();
 $msg  = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_verify();
     $action = $_POST['action'] ?? '';
 
     if ($action === 'add_app') {
@@ -251,6 +252,7 @@ layout_head('Kelola Aplikasi', 'admin-apps');
 <div class="add-card">
   <div class="add-card-title">+ Daftarkan Aplikasi Baru</div>
   <form method="POST">
+    <?= csrf_field() ?>
     <input type="hidden" name="action" value="add_app">
     <div class="fg">
       <label>Nama Aplikasi</label>
@@ -302,6 +304,7 @@ layout_head('Kelola Aplikasi', 'admin-apps');
   </div>
   <div class="app-actions">
     <form method="POST" style="display:inline">
+      <?= csrf_field() ?>
       <input type="hidden" name="action" value="toggle_status">
       <input type="hidden" name="app_id" value="<?= $app['id'] ?>">
       <button type="submit" class="btn-sm <?= $app['is_active'] ? 'danger' : '' ?>">
@@ -309,12 +312,14 @@ layout_head('Kelola Aplikasi', 'admin-apps');
       </button>
     </form>
     <form method="POST" style="display:inline">
+      <?= csrf_field() ?>
       <input type="hidden" name="action" value="toggle_signed">
       <input type="hidden" name="app_id" value="<?= $app['id'] ?>">
       <button type="submit" class="btn-sm">Toggle RSA</button>
     </form>
     <form method="POST" style="display:inline"
           onsubmit="return confirm('Hapus aplikasi <?= htmlspecialchars(addslashes($app['name'])) ?>?')">
+      <?= csrf_field() ?>
       <input type="hidden" name="action" value="delete_app">
       <input type="hidden" name="app_id" value="<?= $app['id'] ?>">
       <button type="submit" class="btn-sm danger">Hapus Aplikasi</button>

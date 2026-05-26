@@ -1,27 +1,48 @@
 Options -Indexes
 
-# Protect keys directory
+# ── Protect file sensitif ─────────────────────────────────────────────────────
+
+# Protect keys directory (RSA private/public key)
 <FilesMatch "\.(pem|key)$">
     Order allow,deny
     Deny from all
 </FilesMatch>
 
-# Protect config
+# Protect config files
 <Files "db.php">
     Order allow,deny
     Deny from all
 </Files>
 
-# Allow CORS for verify.php
-<Files "verify.php">
-    Header set Access-Control-Allow-Origin "*"
-</Files>
+# Protect dot files dan .env
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
 
-# PHP settings for InfinityFree
+# FIX: CORS untuk verify.php dihandle dinamis di PHP (hanya izinkan origin terdaftar)
+# Baris "Header set Access-Control-Allow-Origin *" DIHAPUS
+
+# ── PHP settings ──────────────────────────────────────────────────────────────
+
+# Session security
 php_value session.cookie_httponly 1
 php_value session.use_strict_mode 1
+php_value session.cookie_samesite Lax
 
-# Error pages
+# FIX: Matikan display error — jangan tampilkan error PHP ke browser
+php_flag display_errors Off
+php_flag log_errors On
+
+# ── Security headers ──────────────────────────────────────────────────────────
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# ── Error pages ───────────────────────────────────────────────────────────────
 ErrorDocument 403 /403.php
 ErrorDocument 404 /404.php
 ErrorDocument 500 /500.php

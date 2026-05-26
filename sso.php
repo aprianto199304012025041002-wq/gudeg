@@ -73,7 +73,15 @@ $host = parse_url($app['redirect'], PHP_URL_HOST) ?? $app['redirect'];
 log_activity($user['id'], $user['name'], $user['email'], 'Akses SSO ke ' . $host);
 
 // ─── Redirect ke aplikasi client dengan token ─────────────────────────────────
+// FIX: Selalu gunakan redirect dari DB, bukan query string (cegah open redirect)
 $separator    = strpos($app['redirect'], '?') !== false ? '&' : '?';
 $redirect_url = $app['redirect'] . $separator . 'token=' . urlencode($token);
+
+// Kembalikan state ke klien jika ada (standar OAuth2, klien wajib verifikasi)
+$state = $_GET['state'] ?? '';
+if ($state) {
+    $redirect_url .= '&state=' . urlencode($state);
+}
+
 header("Location: $redirect_url");
 exit;
