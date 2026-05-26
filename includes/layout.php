@@ -209,17 +209,31 @@ a { color: inherit; text-decoration: none; }
 #sidebar.collapsed .sb-user  { justify-content: center; padding: 8px 0; gap: 0; }
 #sidebar.collapsed .sb-link  { justify-content: center; padding: 6px 0; gap: 0; border-left-width: 2px; }
 #sidebar.collapsed .sb-section-label { padding: 4px 0; }
-#sidebar.collapsed .sb-footer { padding: 7px 0 9px; align-items: center; }
+#sidebar.collapsed .sb-footer { padding: 0 0 0; align-items: center; }
 #sidebar.collapsed .sb-datetime { display: none; }
+#sidebar.collapsed .sb-divider { display: none; }
+#sidebar.collapsed .sb-logout-wrap { padding: 6px 0; width: 100%; }
 #sidebar.collapsed .sb-logout { justify-content: center; padding: 5px 0; border: none; border-radius: 0; width: 100%; }
 #sidebar.collapsed .sb-logout span { display: none; }
+#sidebar.collapsed .sb-collapse-wrap { border-top: none; }
 
 /* ── Footer ─────────────────────────────────────────────── */
 .sb-footer {
-  padding: 7px 10px 9px;
+  padding: 0 0 9px;
   border-top: 1px solid var(--border);
   flex-shrink: 0; overflow: hidden;
-  display: flex; flex-direction: column; gap: 6px;
+  display: flex; flex-direction: column; gap: 0;
+}
+.sb-datetime {
+  padding: 8px 10px 6px;
+}
+.sb-divider {
+  border: none; border-top: 1px solid var(--border); margin: 0;
+}
+.sb-logout-wrap { padding: 6px 10px; }
+.sb-collapse-wrap {
+  border-top: 1px solid var(--border);
+  display: flex; justify-content: center; padding: 5px 0;
 }
 .sb-datetime { font-size: 11px; color: var(--text-muted); }
 .sb-datetime .dt-date { color: #3a5070; letter-spacing: .04em; }
@@ -413,15 +427,20 @@ button, .btn { font-family: var(--sans); cursor: pointer; }
       <div class="dt-date"><?= $tanggal_str ?></div>
       <div class="dt-time" id="sb-clock">--:--:--</div>
     </div>
-    <form method="POST" action="/logout.php" style="margin:0">
-      <?= csrf_field() ?>
-      <button type="submit" class="sb-logout">
-        <i class="ti ti-power" aria-hidden="true"></i><span>Keluar</span>
+    <hr class="sb-divider">
+    <div class="sb-logout-wrap">
+      <form method="POST" action="/logout.php" style="margin:0">
+        <?= csrf_field() ?>
+        <button type="submit" class="sb-logout">
+          <i class="ti ti-power" aria-hidden="true"></i><span>Keluar</span>
+        </button>
+      </form>
+    </div>
+    <div class="sb-collapse-wrap">
+      <button class="sb-collapse-btn" onclick="toggleCollapse()" id="collapse-btn" aria-label="Ciutkan sidebar">
+        <i class="ti ti-chevron-left" id="collapse-icon"></i>
       </button>
-    </form>
-    <button class="sb-collapse-btn" onclick="toggleCollapse()" id="collapse-btn" aria-label="Ciutkan sidebar">
-      <i class="ti ti-chevron-left" id="collapse-icon"></i>
-    </button>
+    </div>
   </div>
 
 </aside>

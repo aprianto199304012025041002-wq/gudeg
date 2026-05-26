@@ -57,11 +57,21 @@ $log_stmt = $db->prepare("SELECT activity, ip_address, created_at FROM user_logs
 $log_stmt->execute([$user['id']]);
 $user_logs = $log_stmt->fetchAll(PDO::FETCH_ASSOC);
 
+// Pastikan sesi sekarang tersimpan di DB
+$current_sess_id = session_id();
+$ua_now  = $_SERVER['HTTP_USER_AGENT'] ?? '';
+$ip_now  = get_ip();
+$now_str = date('Y-m-d H:i:s');
+$now_ts  = (string)time();
+$db->prepare("INSERT INTO sessions (id, user_id, ip_address, user_agent, payload, last_activity, created_at)
+              VALUES (?,?,?,?,?,?,?)
+              ON DUPLICATE KEY UPDATE ip_address=VALUES(ip_address), user_agent=VALUES(user_agent), last_activity=VALUES(last_activity)")
+   ->execute([$current_sess_id, $user['id'], $ip_now, $ua_now, '', $now_ts, $now_str]);
+
 // Ambil sesi aktif user
 $sess_stmt = $db->prepare("SELECT id, ip_address, user_agent, created_at, last_activity FROM sessions WHERE user_id = ? ORDER BY last_activity DESC");
 $sess_stmt->execute([$user['id']]);
 $active_sessions = $sess_stmt->fetchAll(PDO::FETCH_ASSOC);
-$current_sess_id = session_id();
 
 layout_head('Pengaturan', 'password');
 ?>
@@ -141,6 +151,7 @@ layout_head('Pengaturan', 'password');
   margin-bottom: 1rem;
   align-items: start;
 }
+.two-col > div { display: flex; flex-direction: column; gap: .75rem; }
 @media (max-width: 700px) {
   .two-col { grid-template-columns: 1fr; }
 }
@@ -269,32 +280,7 @@ layout_head('Pengaturan', 'password');
   </div>
 </div>
 
-<!-- Panel: 10 Aktivitas Terakhir -->
-<div class="panel">
-  <div class="panel-hd">
-    <i class="ti ti-history" aria-hidden="true"></i>
-    <span class="panel-title">10 Aktivitas Terakhir</span>
-  </div>
-  <div class="panel-body">
-    <?php if ($user_logs): ?>
-      <?php foreach ($user_logs as $log): ?>
-      <div class="log-row">
-        <span class="log-activity"><?= htmlspecialchars($log['activity']) ?></span>
-        <span class="log-meta">
-          <?= htmlspecialchars($log['ip_address']) ?><br>
-          <?= date('d M, H:i', strtotime($log['created_at'])) ?>
-        </span>
-      </div>
-      <?php endforeach; ?>
-    <?php else: ?>
-      <p style="font-size:.82rem;color:var(--text-dim);padding:.5rem 0">Belum ada aktivitas tercatat.</p>
-    <?php endif; ?>
-  </div>
-</div>
-
-</div><!-- /kolom kiri -->
-<div><!-- kolom kanan: log aktivitas -->
-
+<div style="height:.75rem"></div>
 <!-- Panel: Sesi Login Aktif -->
 <div class="panel">
   <div class="panel-hd">
@@ -363,6 +349,32 @@ layout_head('Pengaturan', 'password');
       <?php endif; ?>
     <?php else: ?>
       <p style="font-size:.82rem;color:var(--text-dim);padding:.5rem 0">Tidak ada sesi aktif lain.</p>
+    <?php endif; ?>
+  </div>
+</div>
+
+</div><!-- /kolom kiri -->
+<div><!-- kolom kanan: log aktivitas -->
+
+<!-- Panel: 10 Aktivitas Terakhir -->
+<div class="panel">
+  <div class="panel-hd">
+    <i class="ti ti-history" aria-hidden="true"></i>
+    <span class="panel-title">10 Aktivitas Terakhir</span>
+  </div>
+  <div class="panel-body">
+    <?php if ($user_logs): ?>
+      <?php foreach ($user_logs as $log): ?>
+      <div class="log-row">
+        <span class="log-activity"><?= htmlspecialchars($log['activity']) ?></span>
+        <span class="log-meta">
+          <?= htmlspecialchars($log['ip_address']) ?><br>
+          <?= date('d M, H:i', strtotime($log['created_at'])) ?>
+        </span>
+      </div>
+      <?php endforeach; ?>
+    <?php else: ?>
+      <p style="font-size:.82rem;color:var(--text-dim);padding:.5rem 0">Belum ada aktivitas tercatat.</p>
     <?php endif; ?>
   </div>
 </div>
