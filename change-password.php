@@ -66,14 +66,6 @@ $current_sess_id = session_id();
 layout_head('Pengaturan', 'password');
 ?>
 <style>
-.pw-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 1.1rem 1rem;
-  max-width: 460px;
-}
-
 .form-group { margin-bottom: 1rem; }
 
 .form-group label {
@@ -168,7 +160,7 @@ layout_head('Pengaturan', 'password');
   font-size: 11px; font-weight: 600; text-transform: uppercase;
   letter-spacing: .07em; color: var(--text-dim);
 }
-.panel-body { padding: .5rem 1rem; }
+.panel-body { padding: .75rem 1rem; }
 
 .log-row {
   display: flex; align-items: center; justify-content: space-between;
@@ -231,46 +223,51 @@ layout_head('Pengaturan', 'password');
   <p class="page-subtitle">Masuk sebagai <?= htmlspecialchars($user['email']) ?></p>
 </div>
 
-<?php if ($ok): ?>
-  <div class="success-banner">
-    <span>✓</span> Password berhasil diubah!
-  </div>
-<?php endif; ?>
-
-<?php if ($error): ?>
-  <div class="msg-box error" style="max-width:440px"><?= htmlspecialchars($error) ?></div>
-<?php endif; ?>
-
-<?php if (!$ok): ?>
-<div class="pw-card">
-  <form method="POST">
-    <?= csrf_field() ?>
-    <div class="form-group">
-      <label for="old_password">Password Lama</label>
-      <input type="password" id="old_password" name="old_password"
-             required autocomplete="current-password">
-    </div>
-    <div class="form-group">
-      <label for="new_password">Password Baru</label>
-      <input type="password" id="new_password" name="new_password"
-             placeholder="Min. 8 karakter" required autocomplete="new-password">
-    </div>
-    <div class="form-group">
-      <label for="confirm">Konfirmasi Password Baru</label>
-      <input type="password" id="confirm" name="confirm"
-             required autocomplete="new-password">
-    </div>
-    <button type="submit" class="btn-save">Simpan Password</button>
-  </form>
-</div>
-<?php endif; ?>
-
 <?php if ($sess_msg): ?>
 <div class="sess-notice"><?= htmlspecialchars($sess_msg) ?></div>
 <?php endif; ?>
 
 <div class="two-col">
 <div><!-- kolom kiri: ubah password + sesi -->
+
+<!-- Panel: Ubah Password -->
+<div class="panel">
+  <div class="panel-hd">
+    <i class="ti ti-key" aria-hidden="true"></i>
+    <span class="panel-title">Ubah Password</span>
+  </div>
+  <div class="panel-body">
+    <?php if ($ok): ?>
+      <div class="success-banner" style="margin-bottom:.75rem">
+        <span>✓</span> Password berhasil diubah!
+      </div>
+    <?php endif; ?>
+    <?php if ($error): ?>
+      <div class="msg-box error" style="margin-bottom:.75rem"><?= htmlspecialchars($error) ?></div>
+    <?php endif; ?>
+    <?php if (!$ok): ?>
+    <form method="POST">
+      <?= csrf_field() ?>
+      <div class="form-group">
+        <label for="old_password">Password Lama</label>
+        <input type="password" id="old_password" name="old_password"
+               required autocomplete="current-password">
+      </div>
+      <div class="form-group">
+        <label for="new_password">Password Baru</label>
+        <input type="password" id="new_password" name="new_password"
+               placeholder="Min. 8 karakter" required autocomplete="new-password">
+      </div>
+      <div class="form-group">
+        <label for="confirm">Konfirmasi Password Baru</label>
+        <input type="password" id="confirm" name="confirm"
+               required autocomplete="new-password">
+      </div>
+      <button type="submit" class="btn-save">Simpan Password</button>
+    </form>
+    <?php endif; ?>
+  </div>
+</div>
 
 <!-- Panel: 10 Aktivitas Terakhir -->
 <div class="panel">
