@@ -257,8 +257,6 @@ layout_head('Pengaturan', 'password');
 </div>
 <?php endif; ?>
 
-<?php endif; ?>
-
 <?php if ($sess_msg): ?>
 <div class="sess-notice"><?= htmlspecialchars($sess_msg) ?></div>
 <?php endif; ?>
