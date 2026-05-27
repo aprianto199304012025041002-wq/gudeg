@@ -150,20 +150,21 @@ a { color: inherit; text-decoration: none; }
 .sb-user {
   padding: 8px 10px;
   border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; gap: 8px;
+  display: flex; align-items: flex-start; gap: 8px;
   flex-shrink: 0; overflow: hidden;
+  min-height: 72px;
 }
 .sb-avatar {
   width: 32px; height: 32px; border-radius: 50%;
   background: var(--accent-bg); border: 1px solid var(--accent-bdr);
   display: flex; align-items: center; justify-content: center;
   font-size: 12px; font-weight: 700; color: var(--accent);
-  flex-shrink: 0; letter-spacing: .02em;
+  flex-shrink: 0; letter-spacing: .02em; margin-top: 2px;
 }
-.sb-user-info { min-width: 0; flex: 1; overflow: hidden; }
+.sb-user-info { min-width: 0; flex: 1; }
 .sb-user-name {
   font-size: 13px; color: var(--text); font-weight: 600;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  white-space: normal; line-height: 1.35; word-break: break-word;
 }
 .sb-user-email {
   font-size: 11px; color: var(--text-muted);
