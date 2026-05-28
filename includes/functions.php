@@ -52,10 +52,11 @@ function log_activity($user_id, $name, $email, $activity) {
 }
 
 function log_admin_action($admin_id, $admin_name, $action, $target = '-') {
-    $db = getDB();
+    $db  = getDB();
     $now = date('Y-m-d H:i:s');
-    $stmt = $db->prepare("INSERT INTO admin_logs (admin_id, admin_name, action, target_user, created_at) VALUES (?,?,?,?,?)");
-    $stmt->execute([$admin_id, $admin_name, $action, $target, $now]);
+    $ip  = get_ip(); // FIX: catat IP admin yang melakukan aksi
+    $stmt = $db->prepare("INSERT INTO admin_logs (admin_id, admin_name, action, target_user, ip_address, created_at) VALUES (?,?,?,?,?,?)");
+    $stmt->execute([$admin_id, $admin_name, $action, $target, $ip, $now]);
 }
 
 function get_ip() {

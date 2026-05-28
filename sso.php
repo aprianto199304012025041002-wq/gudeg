@@ -55,13 +55,13 @@ $payload = [
 // ─── Generate token ───────────────────────────────────────────────────────────
 if ($app['use_signed_token']) {
     // RSA-signed JWT — gunakan class JWT yang sudah ada
-    $token = JWT::generate($payload, 3600);
+    $token = JWT::generate($payload, 900); // FIX: 15 menit (dari 1 jam)
 } else {
     // HMAC-SHA256 dengan base64url (RFC 7519 compliant)
     $header = base64url_encode(json_encode(['alg' => 'HS256', 'typ' => 'JWT']));
     $body   = base64url_encode(json_encode(array_merge($payload, [
         'iat' => time(),
-        'exp' => time() + 3600,
+        'exp' => time() + 900, // FIX: 15 menit (dari 1 jam)
         'iss' => 'gudeg-sso',
     ])));
     $sig    = base64url_encode(hash_hmac('sha256', "$header.$body", $app['client_secret'], true));

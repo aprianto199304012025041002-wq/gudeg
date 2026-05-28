@@ -51,6 +51,9 @@ if (!function_exists('base64url_decode')) {
     }
 }
 
+// Auto-cleanup token blacklist yang sudah expired
+try { $db->prepare("DELETE FROM token_blacklist WHERE exp < ?")->execute([time()]); } catch (\Throwable $e) {}
+
 $token         = $_REQUEST['token'] ?? '';
 $client_id     = $_REQUEST['client_id'] ?? '';
 $client_secret = $_REQUEST['client_secret'] ?? '';
