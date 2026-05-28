@@ -17,13 +17,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $desc     = trim($_POST['description'] ?? '');
         $signed   = isset($_POST['use_signed_token']) ? 1 : 0;
         if ($name && $redirect) {
-            $cid = bin2hex(random_bytes(8));
-            $sec = bin2hex(random_bytes(32));
+            $cid      = bin2hex(random_bytes(8));
+            $sec_plain = bin2hex(random_bytes(32)); // secret plaintext — tampilkan sekali ke admin
+            $sec_hash  = hash_client_secret($sec_plain); // hash untuk disimpan ke DB
             $db->prepare("INSERT INTO sso_applications (name, redirect, client_id, client_secret, description, use_signed_token, is_active, created_at, updated_at) VALUES (?,?,?,?,?,?,1,NOW(),NOW())")
-               ->execute([$name, $redirect, $cid, $sec, $desc, $signed]);
+               ->execute([$name, $redirect, $cid, $sec_hash, $desc, $signed]);
             log_admin_action($user['id'], $user['name'],
                 'Registrasi Aplikasi Baru' . ($signed ? ' (Signed Token)' : ''), $name);
-            $msg = "Aplikasi <strong>$name</strong> berhasil didaftarkan. Client ID: <code style='font-family:monospace;background:rgba(0,0,0,.3);padding:.1rem .4rem;border-radius:4px'>$cid</code>";
+            $msg = "Aplikasi <strong>$name</strong> berhasil didaftarkan.<br>Client ID: <code style='font-family:monospace;background:rgba(0,0,0,.3);padding:.1rem .4rem;border-radius:4px'>$cid</code><br>Client Secret: <code style='font-family:monospace;background:rgba(0,0,0,.3);padding:.1rem .4rem;border-radius:4px'>$sec_plain</code><br><small style='color:var(--danger);font-weight:600'>⚠ Simpan secret ini sekarang — tidak akan ditampilkan lagi!</small>";
         }
     } elseif ($action === 'toggle_status') {
         $id  = (int)$_POST['app_id'];

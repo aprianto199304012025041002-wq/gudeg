@@ -189,3 +189,66 @@ function validate_password_strength(string $password): ?string {
     }
     return null;
 }
+
+// ── Login IP detection ────────────────────────────────────────────────────────
+
+/**
+ * Cek apakah IP ini baru (belum pernah dipakai user ini login).
+ * Return true jika IP baru/mencurigakan.
+ */
+function is_new_ip(int $user_id, string $ip): bool {
+    $db = getDB();
+    try {
+        $stmt = $db->prepare("SELECT 1 FROM user_logs WHERE user_id = ? AND ip_address = ? AND activity = 'Login' LIMIT 1");
+        $stmt->execute([$user_id, $ip]);
+        return !$stmt->fetch();
+    } catch (\Throwable $e) {
+        return false;
+    }
+}
+
+// ── Client secret hashing ─────────────────────────────────────────────────────
+
+/**
+ * Hash client_secret sebelum disimpan ke DB.
+ * Pakai password_hash agar tidak bisa di-reverse kalau DB bocor.
+ */
+function hash_client_secret(string $secret): string {
+    return password_hash($secret, PASSWORD_BCRYPT);
+}
+
+/**
+ * Verifikasi client_secret dari request terhadap hash di DB.
+ */
+function verify_client_secret(string $plain, string $hash): bool {
+    return password_verify($plain, $hash);
+}
+
+// ── Token replay blacklist ────────────────────────────────────────────────────
+
+/**
+ * Tandai token sebagai sudah dipakai (blacklist berdasarkan JTI).
+ * Return false kalau token sudah pernah dipakai (replay attack).
+ */
+function token_use(string $jti, int $exp): bool {
+    $db = getDB();
+    try {
+        // Hapus token expired dulu supaya tabel tidak membengkak
+        $db->prepare("DELETE FROM token_blacklist WHERE exp < ?")->execute([time()]);
+
+        // Cek apakah JTI sudah ada
+        $stmt = $db->prepare("SELECT 1 FROM token_blacklist WHERE jti = ? LIMIT 1");
+        $stmt->execute([$jti]);
+        if ($stmt->fetch()) {
+            return false; // sudah dipakai = replay attack
+        }
+
+        // Simpan JTI ke blacklist
+        $db->prepare("INSERT INTO token_blacklist (jti, exp, used_at) VALUES (?, ?, NOW())")
+           ->execute([$jti, $exp]);
+        return true;
+    } catch (\Throwable $e) {
+        // Kalau tabel belum ada, skip blacklist (jangan crash)
+        return true;
+    }
+}

@@ -6,6 +6,14 @@ require_login();
 $user = get_current_user_data();
 $db   = getDB();
 
+// Dismiss IP warning banner
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['dismiss_ip_warning'])) {
+    csrf_verify();
+    unset($_SESSION['new_ip_warning']);
+    header("Location: /dashboard.php");
+    exit;
+}
+
 // Apps user punya akses
 $apps = [];
 if ($user['role'] !== 'guest') {
@@ -140,6 +148,34 @@ layout_head('Beranda', 'dashboard');
 }
 
 </style>
+
+<?php if (!empty($_SESSION['new_ip_warning'])): ?>
+<div style="
+  background:rgba(192,64,64,.08);
+  border:1px solid rgba(192,64,64,.25);
+  border-radius:4px;
+  padding:.75rem 1rem;
+  margin-bottom:1rem;
+  font-size:.82rem;
+  font-family:var(--sans);
+  color:var(--danger);
+  display:flex;
+  align-items:flex-start;
+  gap:.6rem;
+">
+  <i class="ti ti-alert-triangle" aria-hidden="true" style="font-size:16px;flex-shrink:0;margin-top:1px"></i>
+  <div>
+    <strong style="text-transform:uppercase;letter-spacing:.03em;display:block;margin-bottom:2px">Login dari Perangkat Baru</strong>
+    Kami mendeteksi login dari IP baru: <code style="font-family:var(--mono);background:rgba(0,0,0,.2);padding:1px 6px;border-radius:3px"><?= htmlspecialchars($_SESSION['new_ip_warning']) ?></code>.
+    Jika ini bukan Anda, segera <a href="/change-password.php" style="color:var(--danger);text-decoration:underline">ubah password</a> dan hubungi administrator.
+  </div>
+  <form method="POST" action="/dashboard.php" style="margin:0;flex-shrink:0">
+    <?= csrf_field() ?>
+    <input type="hidden" name="dismiss_ip_warning" value="1">
+    <button type="submit" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:18px;line-height:1;opacity:.6;padding:0" title="Tutup">&#215;</button>
+  </form>
+</div>
+<?php endif; ?>
 
 <div class="page-header greeting">
   <div class="greeting-name">Halo, <?= htmlspecialchars(explode(' ', $user['name'])[0]) ?>!</div>

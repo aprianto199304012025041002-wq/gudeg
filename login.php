@@ -60,7 +60,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
 
                     $db->prepare("UPDATE users SET last_login_at = NOW() WHERE id = ?")->execute([$user['id']]);
+
+                    // Deteksi IP baru sebelum log (log_activity akan tambah IP ini ke history)
+                    $current_ip = get_ip();
+                    $is_new = is_new_ip($user['id'], $current_ip);
+
                     log_activity($user['id'], $user['name'], $user['email'], 'Login');
+
+                    // Kalau IP baru: simpan flag ke session untuk warning di dashboard
+                    // dan catat ke admin log
+                    if ($is_new) {
+                        $_SESSION['new_ip_warning'] = $current_ip;
+                        log_admin_action(0, 'SYSTEM', 'Login dari IP Baru: ' . $current_ip, $user['name'] . ' (' . $user['email'] . ')');
+                    }
 
                     // Simpan sesi ke DB
                     $sess_id = session_id();

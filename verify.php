@@ -62,11 +62,13 @@ if (!$token || !$client_id || !$client_secret) {
 $db = getDB();
 
 // 1. Cek aplikasi aktif
-$stmt = $db->prepare("SELECT * FROM sso_applications WHERE client_id = ? AND client_secret = ? LIMIT 1");
-$stmt->execute([$client_id, $client_secret]);
+// FIX: Cari berdasarkan client_id saja, verifikasi secret pakai password_verify
+// (secret di DB sekarang tersimpan sebagai bcrypt hash)
+$stmt = $db->prepare("SELECT * FROM sso_applications WHERE client_id = ? LIMIT 1");
+$stmt->execute([$client_id]);
 $app = $stmt->fetch(PDO::FETCH_ASSOC);
 
-if (!$app) {
+if (!$app || !verify_client_secret($client_secret, $app['client_secret'])) {
     fail('Aplikasi tidak ditemukan atau kredensial salah.');
 }
 if (!$app['is_active']) {
@@ -93,6 +95,15 @@ if ($app['use_signed_token']) {
 $user_id = $payload['sub'] ?? null;
 if (!$user_id) {
     fail('Token tidak mengandung identitas user.');
+}
+
+// FIX: Cek token replay — setiap token hanya boleh diverifikasi sekali
+// JTI (JWT ID) unik per token, disimpan di blacklist sampai expired
+$jti = $payload['jti'] ?? null;
+if ($jti) {
+    if (!token_use($jti, (int)($payload['exp'] ?? time()))) {
+        fail('Token sudah pernah digunakan (replay attack).');
+    }
 }
 
 // 3. Cek user masih aktif
