@@ -23,8 +23,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Semua field wajib diisi.';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = 'Format email tidak valid.';
-    } elseif (strlen($password) < 8) {
-        $error = 'Password minimal 8 karakter.';
+    } elseif ($strength_err = validate_password_strength($password)) {
+        $error = $strength_err;
     } elseif ($password !== $confirm) {
         $error = 'Konfirmasi password tidak cocok.';
     } else {
@@ -254,8 +254,30 @@ input:-webkit-autofill:focus {
           <label for="password">Password</label>
           <input type="password" id="password" name="password"
                  placeholder="Min. 8 karakter"
-                 required autocomplete="new-password">
+                 required autocomplete="new-password"
+                 oninput="checkStrength(this.value)">
+          <div id="pw-hint" style="margin-top:6px;font-size:11px;line-height:1.8;color:var(--text-muted);font-family:var(--sans)">
+            <span id="pw-len">○ Min. 8 karakter</span><br>
+            <span id="pw-upper">○ Huruf besar (A-Z)</span><br>
+            <span id="pw-lower">○ Huruf kecil (a-z)</span><br>
+            <span id="pw-num">○ Angka (0-9)</span><br>
+            <span id="pw-sym">○ Karakter spesial (!, @, #, dll)</span>
+          </div>
         </div>
+        <script>
+        function checkStrength(v) {
+          function set(id, ok, label) {
+            var el = document.getElementById(id);
+            el.textContent = (ok ? "● " : "○ ") + label;
+            el.style.color = ok ? "#3a8a60" : "";
+          }
+          set("pw-len",   v.length >= 8,        "Min. 8 karakter");
+          set("pw-upper", /[A-Z]/.test(v),      "Huruf besar (A-Z)");
+          set("pw-lower", /[a-z]/.test(v),      "Huruf kecil (a-z)");
+          set("pw-num",   /[0-9]/.test(v),      "Angka (0-9)");
+          set("pw-sym",   /[^a-zA-Z0-9]/.test(v), "Karakter spesial (!, @, #, dll)");
+        }
+        </script>
 
         <div class="form-group">
           <label for="confirm">Konfirmasi Password</label>

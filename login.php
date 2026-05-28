@@ -9,6 +9,7 @@ if (!empty($_SESSION['user_id'])) {
 
 $error    = '';
 $redirect = $_GET['redirect'] ?? '/dashboard.php';
+$timeout  = ($_GET['reason'] ?? '') === 'timeout';
 
 // FIX: Hanya izinkan redirect ke path lokal (bukan URL eksternal)
 // Cegah open redirect ke domain lain
@@ -257,6 +258,9 @@ input:-webkit-autofill:focus {
   </div>
 
   <div class="card">
+    <?php if ($timeout && !$error): ?>
+      <div class="error-msg">Sesi Anda telah berakhir karena tidak aktif. Silakan login kembali.</div>
+    <?php endif; ?>
     <?php if ($error): ?>
       <div class="error-msg"><?= htmlspecialchars($error) ?></div>
     <?php endif; ?>

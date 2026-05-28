@@ -19,6 +19,8 @@ function require_login() {
         header("Location: /login.php?redirect=$redirect");
         exit;
     }
+    // Cek session timeout setiap request
+    check_session_timeout();
 }
 
 function require_admin() {
@@ -130,4 +132,60 @@ function login_reset(string $email): void {
     session_start_safe();
     $key = 'lf_' . md5(get_ip() . strtolower($email));
     unset($_SESSION[$key]);
+}
+
+// ── Session timeout ───────────────────────────────────────────────────────────
+
+define('SESSION_TIMEOUT', 30 * 60); // 30 menit tidak aktif → auto logout
+
+/**
+ * Cek apakah sesi sudah timeout.
+ * Dipanggil otomatis via require_login().
+ */
+function check_session_timeout(): void {
+    session_start_safe();
+    if (empty($_SESSION['user_id'])) return;
+
+    $last = $_SESSION['last_activity'] ?? null;
+    if ($last !== null && (time() - $last) > SESSION_TIMEOUT) {
+        $db = getDB();
+        try {
+            $db->prepare("DELETE FROM sessions WHERE id = ?")->execute([session_id()]);
+        } catch (\Throwable $e) {}
+
+        session_unset();
+        session_destroy();
+
+        $redirect = urlencode($_SERVER['REQUEST_URI']);
+        header("Location: /login.php?redirect=$redirect&reason=timeout");
+        exit;
+    }
+
+    $_SESSION['last_activity'] = time();
+}
+
+// ── Password strength ─────────────────────────────────────────────────────────
+
+/**
+ * Validasi kekuatan password.
+ * Return string pesan error, atau null jika valid.
+ * Syarat: 8+ karakter, huruf besar, huruf kecil, angka, karakter spesial.
+ */
+function validate_password_strength(string $password): ?string {
+    if (strlen($password) < 8) {
+        return 'Password minimal 8 karakter.';
+    }
+    if (!preg_match('/[A-Z]/', $password)) {
+        return 'Password harus mengandung minimal 1 huruf besar.';
+    }
+    if (!preg_match('/[a-z]/', $password)) {
+        return 'Password harus mengandung minimal 1 huruf kecil.';
+    }
+    if (!preg_match('/[0-9]/', $password)) {
+        return 'Password harus mengandung minimal 1 angka.';
+    }
+    if (!preg_match('/[\W_]/', $password)) {
+        return 'Password harus mengandung minimal 1 karakter spesial (!, @, #, dll).';
+    }
+    return null;
 }
