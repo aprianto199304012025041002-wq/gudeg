@@ -231,6 +231,25 @@ function verify_client_secret(string $plain, string $hash): bool {
  * Tandai token sebagai sudah dipakai (blacklist berdasarkan JTI).
  * Return false kalau token sudah pernah dipakai (replay attack).
  */
+// ── Auto-cleanup log lama ────────────────────────────────────────────────────
+
+/**
+ * Hapus log lebih dari 90 hari secara otomatis.
+ * Dipanggil dari halaman log admin — tidak perlu cron job.
+ * Jalankan dengan probabilitas 5% per request supaya tidak berat.
+ */
+function cleanup_old_logs(): void {
+    // Jalankan hanya ~5% request supaya tidak memperlambat setiap page load
+    if (rand(1, 100) > 5) return;
+
+    $db      = getDB();
+    $cutoff  = date('Y-m-d H:i:s', strtotime('-90 days'));
+    try {
+        $db->prepare("DELETE FROM user_logs  WHERE created_at < ?")->execute([$cutoff]);
+        $db->prepare("DELETE FROM admin_logs WHERE created_at < ?")->execute([$cutoff]);
+    } catch (\Throwable $e) {}
+}
+
 function token_use(string $jti, int $exp): bool {
     $db = getDB();
     try {

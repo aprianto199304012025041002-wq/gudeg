@@ -48,6 +48,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $hash = password_hash($new, PASSWORD_BCRYPT);
         $db->prepare("UPDATE users SET password = ?, password_changed_at = NOW() WHERE id = ?")->execute([$hash, $user['id']]);
         log_activity($user['id'], $user['name'], $user['email'], 'Ubah Password Sendiri');
+
+        // FIX: Logout semua sesi lain setelah password diganti
+        // Sesi yang sedang aktif (current) tetap jalan, sisanya dihapus
+        try {
+            $db->prepare("DELETE FROM sessions WHERE user_id = ? AND id != ?")
+               ->execute([$user['id'], session_id()]);
+        } catch (\Throwable $e) {}
+
         $ok = true;
     }
 }

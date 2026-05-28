@@ -41,6 +41,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $hash = password_hash($new_pass, PASSWORD_BCRYPT);
             $db->prepare("UPDATE users SET password = ?, password_changed_at = NOW() WHERE id = ?")->execute([$hash, $target_id]);
             log_admin_action($user['id'], $user['name'], "Reset Password — password baru: $new_pass", $target['email']);
+            // FIX: Matikan semua sesi aktif user yang passwordnya direset
+            try {
+                $db->prepare("DELETE FROM sessions WHERE user_id = ?")->execute([$target_id]);
+            } catch (\Throwable $e) {}
             $msg = "Password <strong>{$target['name']}</strong> direset ke: <code style='font-family:monospace;background:rgba(0,0,0,.3);padding:.1rem .4rem;border-radius:4px'>$new_pass</code>";
             $msg_type = 'info';
         } elseif ($action === 'delete_user') {

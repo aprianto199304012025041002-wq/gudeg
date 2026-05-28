@@ -6,11 +6,14 @@ require_admin();
 $user = get_current_user_data();
 $db   = getDB();
 
-// ── Auto-cleanup token blacklist (no 4) ──────────────────────────────────────
-// Jalankan cleanup setiap kali halaman log dibuka — ringan dan tidak perlu cron
+// ── Auto-cleanup ─────────────────────────────────────────────────────────────
+// Cleanup token blacklist expired
 try {
     $db->prepare("DELETE FROM token_blacklist WHERE exp < ?")->execute([time()]);
 } catch (\Throwable $e) {}
+
+// Cleanup log lama > 90 hari (probabilistik 5%, tidak perlu cron)
+cleanup_old_logs();
 
 $page = max(1, (int)($_GET['page'] ?? 1));
 $per  = 50;
