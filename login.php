@@ -23,8 +23,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // FIX: Validasi CSRF token
     csrf_verify();
 
-    $email    = trim($_POST['email'] ?? '');
-    $password = $_POST['password'] ?? '';
+    $email    = sanitize_input($_POST['email'] ?? '', 150);
+    $password = substr($_POST['password'] ?? '', 0, 200); // limit panjang, cegah bcrypt DoS
     $remember = !empty($_POST['remember']);
 
     if ($email && $password) {

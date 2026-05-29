@@ -250,6 +250,26 @@ function cleanup_old_logs(): void {
     } catch (\Throwable $e) {}
 }
 
+// ── Input sanitization ───────────────────────────────────────────────────────
+
+/**
+ * Potong dan bersihkan string input — cegah spam DB dan buffer overflow.
+ * Gunakan di semua form input sebelum simpan ke DB.
+ */
+function sanitize_input(string $value, int $max_len = 255): string {
+    return substr(trim($value), 0, $max_len);
+}
+
+/**
+ * Validasi panjang input, return pesan error atau null jika valid.
+ */
+function validate_length(string $field, string $value, int $max): ?string {
+    if (strlen($value) > $max) {
+        return "$field terlalu panjang (maksimal $max karakter).";
+    }
+    return null;
+}
+
 function token_use(string $jti, int $exp): bool {
     $db = getDB();
     try {

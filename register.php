@@ -14,8 +14,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // FIX: Validasi CSRF token
     csrf_verify();
 
-    $name     = trim($_POST['name'] ?? '');
-    $email    = trim($_POST['email'] ?? '');
+    $name     = sanitize_input($_POST['name'] ?? '', 100);
+    $email    = sanitize_input($_POST['email'] ?? '', 150);
     $password = $_POST['password'] ?? '';
     $confirm  = $_POST['confirm'] ?? '';
 
@@ -23,6 +23,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Semua field wajib diisi.';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = 'Format email tidak valid.';
+    } elseif ($len_err = validate_length('Nama', $name, 100) ?? validate_length('Email', $email, 150)) {
+        $error = $len_err;
     } elseif ($strength_err = validate_password_strength($password)) {
         $error = $strength_err;
     } elseif ($password !== $confirm) {

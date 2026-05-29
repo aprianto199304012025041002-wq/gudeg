@@ -51,8 +51,51 @@ if (!function_exists('base64url_decode')) {
     }
 }
 
+$db = getDB(); // inisialisasi $db — dipakai oleh semua query di bawah
+
 // Auto-cleanup token blacklist yang sudah expired
 try { $db->prepare("DELETE FROM token_blacklist WHERE exp < ?")->execute([time()]); } catch (\Throwable $e) {}
+
+// FIX: Rate limiting verify.php — cegah brute force client_secret
+$verify_ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+$verify_ip = trim(explode(',', $verify_ip)[0]);
+$rl_jti    = 'rl_verify_' . md5($verify_ip);
+$rl_window = 60;   // 1 menit
+$rl_max    = 30;   // max 30 request per menit per IP
+
+try {
+    // Cleanup rate limit record yang sudah expired (window habis)
+    $db->prepare("DELETE FROM token_blacklist WHERE jti LIKE 'rl_%' AND exp < ?")
+       ->execute([time()]);
+
+    // Cek apakah sudah ada record untuk IP ini dalam window aktif
+    $rl_stmt = $db->prepare("SELECT exp FROM token_blacklist WHERE jti = ? LIMIT 1");
+    $rl_stmt->execute([$rl_jti]);
+    $rl_row = $rl_stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($rl_row) {
+        // exp menyimpan: unix timestamp kapan window habis (bagian bawah 20 bit)
+        // dan count request (bagian atas)
+        // Pendekatan lebih simpel: exp = window_end, count disimpan di used_at trick
+        // SIMPAN: jti = key, exp = count request, used_at = window end time sebagai string
+        $req_count = (int)$rl_row['exp'];
+        if ($req_count >= $rl_max) {
+            http_response_code(429);
+            fail('Terlalu banyak request. Coba lagi dalam 1 menit.');
+        }
+        $db->prepare("UPDATE token_blacklist SET exp = exp + 1 WHERE jti = ?")
+           ->execute([$rl_jti]);
+    } else {
+        // Request pertama dari IP ini — buat window baru
+        // exp = jumlah request (mulai dari 1), used_at = kapan window ini mulai
+        $db->prepare("INSERT INTO token_blacklist (jti, exp, used_at) VALUES (?, 1, NOW())")
+           ->execute([$rl_jti]);
+    }
+} catch (\Throwable $e) {
+    // Kalau rate limit gagal karena DB error, tetap lanjut
+    // (jangan block legitimate request karena masalah infrastruktur)
+    if (!isset($db)) $db = getDB();
+}
 
 $token         = $_REQUEST['token'] ?? '';
 $client_id     = $_REQUEST['client_id'] ?? '';
@@ -61,8 +104,6 @@ $client_secret = $_REQUEST['client_secret'] ?? '';
 if (!$token || !$client_id || !$client_secret) {
     fail('token, client_id, dan client_secret wajib diisi.');
 }
-
-$db = getDB();
 
 // 1. Cek aplikasi aktif
 // FIX: Cari berdasarkan client_id saja, verifikasi secret pakai password_verify
