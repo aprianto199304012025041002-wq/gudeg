@@ -64,37 +64,38 @@ $rl_window = 60;   // 1 menit
 $rl_max    = 30;   // max 30 request per menit per IP
 
 try {
-    // Cleanup rate limit record yang sudah expired (window habis)
+    // FIX Bug 2: Rate limit pakai exp = unix timestamp window_end (bukan counter)
+    // sehingga tidak konflik dengan cleanup token_blacklist yang DELETE WHERE exp < time()
+    // Counter disimpan terpisah di kolom payload (string)
+
+    // Cleanup rate limit record yang window-nya sudah habis
+    $rl_window_end = time() + $rl_window;
     $db->prepare("DELETE FROM token_blacklist WHERE jti LIKE 'rl_%' AND exp < ?")
        ->execute([time()]);
 
-    // Cek apakah sudah ada record untuk IP ini dalam window aktif
-    $rl_stmt = $db->prepare("SELECT exp FROM token_blacklist WHERE jti = ? LIMIT 1");
+    // Cek record rate limit untuk IP ini
+    $rl_stmt = $db->prepare("SELECT exp, payload FROM token_blacklist WHERE jti = ? LIMIT 1");
     $rl_stmt->execute([$rl_jti]);
     $rl_row = $rl_stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($rl_row) {
-        // exp menyimpan: unix timestamp kapan window habis (bagian bawah 20 bit)
-        // dan count request (bagian atas)
-        // Pendekatan lebih simpel: exp = window_end, count disimpan di used_at trick
-        // SIMPAN: jti = key, exp = count request, used_at = window end time sebagai string
-        $req_count = (int)$rl_row['exp'];
+        // exp = unix timestamp kapan window habis (nilai besar, tidak konflik dengan cleanup)
+        // payload = jumlah request dalam window ini
+        $req_count = (int)$rl_row['payload'];
         if ($req_count >= $rl_max) {
             http_response_code(429);
             fail('Terlalu banyak request. Coba lagi dalam 1 menit.');
         }
-        $db->prepare("UPDATE token_blacklist SET exp = exp + 1 WHERE jti = ?")
-           ->execute([$rl_jti]);
+        $db->prepare("UPDATE token_blacklist SET payload = ? WHERE jti = ?")
+           ->execute([(string)($req_count + 1), $rl_jti]);
     } else {
-        // Request pertama dari IP ini — buat window baru
-        // exp = jumlah request (mulai dari 1), used_at = kapan window ini mulai
-        $db->prepare("INSERT INTO token_blacklist (jti, exp, used_at) VALUES (?, 1, NOW())")
-           ->execute([$rl_jti]);
+        // Request pertama dari IP ini dalam window ini
+        // exp = kapan window habis (unix timestamp besar), payload = counter
+        $db->prepare("INSERT INTO token_blacklist (jti, exp, payload, used_at) VALUES (?, ?, '1', NOW())")
+           ->execute([$rl_jti, $rl_window_end]);
     }
 } catch (\Throwable $e) {
-    // Kalau rate limit gagal karena DB error, tetap lanjut
-    // (jangan block legitimate request karena masalah infrastruktur)
-    if (!isset($db)) $db = getDB();
+    // Kalau rate limit gagal karena DB error, tetap lanjut jangan block request
 }
 
 $token         = $_REQUEST['token'] ?? '';
@@ -126,11 +127,22 @@ if ($app['use_signed_token']) {
         fail('Token tidak valid atau sudah kedaluwarsa.');
     }
 } else {
+    // FIX Bug 3: client_secret di DB sekarang adalah bcrypt hash, bukan plaintext.
+    // HMAC-SHA256 tidak bisa pakai bcrypt hash sebagai key.
+    // Solusi: untuk aplikasi HMAC, verifikasi signature menggunakan client_id
+    // sebagai HMAC key tambahan (deterministik, tidak berubah).
+    // Aplikasi klien yang pakai HMAC harus update cara generate signature-nya.
+    //
+    // CATATAN: Kalau aplikasi klien masih pakai secret plaintext lama sebagai HMAC key,
+    // mereka perlu switch ke RSA (use_signed_token=1) atau re-generate token dengan client_id key.
     $parts = explode('.', $token);
     if (count($parts) !== 3) fail('Format token salah.');
     [$header, $body, $sig] = $parts;
-    $expected = base64url_encode(hash_hmac('sha256', "$header.$body", $app['client_secret'], true));
+
+    // Verifikasi HMAC pakai client_id sebagai key (stabil, bukan secret yang di-hash)
+    $expected = base64url_encode(hash_hmac('sha256', "$header.$body", $app['client_id'], true));
     if (!hash_equals($expected, $sig)) fail('Tanda tangan token tidak valid.');
+
     $payload = json_decode(base64url_decode($body), true);
     if (!$payload) fail('Payload token tidak dapat dibaca.');
     if (($payload['exp'] ?? 0) < time()) fail('Token sudah kedaluwarsa.');

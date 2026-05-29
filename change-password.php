@@ -17,16 +17,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'logou
         $db->prepare("DELETE FROM sessions WHERE id = ? AND user_id = ?")->execute([$target_sess, $user['id']]);
         $sess_msg = 'Sesi berhasil diakhiri.';
     }
-}
-
-// Handle logout semua sesi lain
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'logout_all_sessions') {
+    // Jangan lanjut ke handler POST utama
+} elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'logout_all_sessions') {
+    // Handle logout semua sesi lain
     csrf_verify();
     $db->prepare("DELETE FROM sessions WHERE user_id = ? AND id != ?")->execute([$user['id'], session_id()]);
     $sess_msg = 'Semua sesi lain berhasil diakhiri.';
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Jangan lanjut ke handler POST utama
+} elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // FIX: Validasi CSRF token
     csrf_verify();
 

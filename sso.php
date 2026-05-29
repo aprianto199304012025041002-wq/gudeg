@@ -64,7 +64,8 @@ if ($app['use_signed_token']) {
         'exp' => time() + 900, // FIX: 15 menit (dari 1 jam)
         'iss' => 'gudeg-sso',
     ])));
-    $sig    = base64url_encode(hash_hmac('sha256', "$header.$body", $app['client_secret'], true));
+    // FIX Bug 3: pakai client_id sebagai HMAC key (client_secret di DB sudah bcrypt hash)
+    $sig    = base64url_encode(hash_hmac('sha256', "$header.$body", $app['client_id'], true));
     $token  = "$header.$body.$sig";
 }
 
