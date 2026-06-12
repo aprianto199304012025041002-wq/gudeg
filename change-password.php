@@ -109,6 +109,7 @@ layout_head('Pengaturan', 'password');
   -webkit-appearance: none;
   -webkit-box-shadow: 0 0 0 1000px var(--bg) inset;
   -webkit-text-fill-color: var(--text);
+  box-sizing: border-box; /* FIX: pastikan padding tidak bikin overflow */
 }
 .form-group input[type="password"]:focus { border-color: var(--accent); }
 
@@ -157,7 +158,13 @@ layout_head('Pengaturan', 'password');
   margin-bottom: 1rem;
   align-items: start;
 }
-.two-col > div { display: flex; flex-direction: column; gap: .4rem; }
+/* FIX: kolom grid harus bisa menyusut, default min-width: auto bikin overflow */
+.two-col > div {
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+  min-width: 0; /* FIX */
+}
 @media (max-width: 700px) {
   .two-col { grid-template-columns: 1fr; }
 }
@@ -166,6 +173,7 @@ layout_head('Pengaturan', 'password');
   border: 1px solid var(--border);
   border-radius: 4px;
   overflow: hidden;
+  min-width: 0; /* FIX: panel juga harus bisa menyusut */
 }
 .panel-hd {
   padding: .6rem 1rem;
@@ -187,6 +195,10 @@ layout_head('Pengaturan', 'password');
 .log-activity {
   font-size: .82rem; font-weight: 600; font-family: var(--sans);
   text-transform: uppercase; letter-spacing: .03em; color: var(--text);
+  /* FIX: teks panjang seperti nama domain tidak meluber keluar panel */
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 .log-meta {
   color: var(--text-dim); font-family: var(--sans);
@@ -202,14 +214,28 @@ layout_head('Pengaturan', 'password');
   font-size: .82rem; font-weight: 600; font-family: var(--sans);
   text-transform: uppercase; letter-spacing: .03em; color: var(--text);
   display: flex; align-items: center; gap: 6px;
+  /* FIX: sama seperti log-activity */
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
-.sesi-device i { font-size: 14px; color: var(--accent-dim); }
-.sesi-meta { font-size: .75rem; color: var(--text-dim); margin-top: 2px; }
+.sesi-device i { font-size: 14px; color: var(--accent-dim); flex-shrink: 0; }
+.sesi-meta {
+  font-size: .75rem; color: var(--text-dim); margin-top: 2px;
+  /* FIX: IP panjang juga bisa wrap */
+  word-break: break-all;
+}
+/* FIX: kolom kiri sesi-row (info device) harus bisa menyusut */
+.sesi-row > div:first-child {
+  min-width: 0;
+  flex: 1 1 0;
+}
 .badge-current {
   display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 3px;
   background: rgba(58,138,96,.1); color: var(--success);
   border: 1px solid rgba(58,138,96,.2); text-transform: uppercase;
   letter-spacing: .04em; margin-left: 4px;
+  white-space: nowrap; /* badge jangan wrap */
 }
 .btn-logout-sess {
   background: rgba(192,64,64,.08); border: 1px solid rgba(192,64,64,.25);
@@ -225,6 +251,7 @@ layout_head('Pengaturan', 'password');
   font-size: .8rem; font-weight: 600; text-transform: uppercase;
   letter-spacing: .05em; cursor: pointer; font-family: var(--sans);
   margin-top: .75rem;
+  box-sizing: border-box; /* FIX */
 }
 .btn-logout-all:hover { background: rgba(192,64,64,.12); }
 .sess-notice {
