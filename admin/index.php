@@ -6,13 +6,11 @@ require_admin();
 $user = get_current_user_data();
 $db   = getDB();
 
-$msg = '';
+$msg  = '';
 $msg_type = 'success';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // FIX: Validasi CSRF token
     csrf_verify();
-
     $action    = $_POST['action'] ?? '';
     $target_id = (int)($_POST['target_id'] ?? 0);
 
@@ -41,11 +39,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $hash = password_hash($new_pass, PASSWORD_BCRYPT);
             $db->prepare("UPDATE users SET password = ?, password_changed_at = NOW() WHERE id = ?")->execute([$hash, $target_id]);
             log_admin_action($user['id'], $user['name'], "Reset Password — password baru: $new_pass", $target['email']);
-            // FIX: Matikan semua sesi aktif user yang passwordnya direset
             try {
                 $db->prepare("DELETE FROM sessions WHERE user_id = ?")->execute([$target_id]);
             } catch (\Throwable $e) {}
-            $msg = "Password <strong>{$target['name']}</strong> direset ke: <code style='font-family:monospace;background:rgba(0,0,0,.3);padding:.1rem .4rem;border-radius:4px'>$new_pass</code>";
+            $msg = "Password <strong>{$target['name']}</strong> direset ke: <code>$new_pass</code>";
             $msg_type = 'info';
         } elseif ($action === 'delete_user') {
             $db->prepare("DELETE FROM user_applications WHERE user_id = ?")->execute([$target_id]);
@@ -252,6 +249,7 @@ select.sel-sm:hover { border-color: var(--accent); }
   color: var(--danger);
 }
 
+/* ── Confirm dialog ──────────────────────────────────────── */
 .confirm-overlay {
   display: none;
   position: fixed;
@@ -292,20 +290,24 @@ select.sel-sm:hover { border-color: var(--accent); }
   justify-content: flex-end;
 }
 
+/* ── Floating bubble ─────────────────────────────────────── */
 .bubble-wrap {
   position: fixed;
-  top: 14px;
-  right: 14px;
+  bottom: 16px;
+  right: 16px;
   display: flex;
-  flex-direction: column;
-  gap: 6px;
-  z-index: 300;
-  width: 300px;
+  flex-direction: column-reverse;
+  gap: 8px;
+  z-index: 9999;
+  width: 320px;
   pointer-events: none;
 }
+@media (max-width: 480px) {
+  .bubble-wrap { bottom: 12px; right: 8px; left: 8px; width: auto; }
+}
 .bubble {
-  border-radius: 4px;
-  padding: 10px 12px;
+  border-radius: 6px;
+  padding: 10px 32px 10px 14px;
   font-size: .8rem;
   line-height: 1.5;
   border: 1px solid;
@@ -313,16 +315,21 @@ select.sel-sm:hover { border-color: var(--accent); }
   align-items: flex-start;
   gap: 8px;
   pointer-events: all;
-  transition: opacity .3s;
-  font-family: var(--sans);
+  animation: bubbleIn .25s ease;
+  box-shadow: 0 4px 20px rgba(0,0,0,.4);
+  position: relative;
 }
-.bubble.success { background: rgba(58,138,96,.12); border-color: rgba(58,138,96,.3); color: #3a8a60; }
-.bubble.info    { background: var(--acc-bg);        border-color: var(--acc-bdr);       color: var(--acc); }
-.bubble.danger  { background: rgba(192,64,64,.1);   border-color: rgba(192,64,64,.3);   color: var(--danger); }
+@keyframes bubbleIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.bubble.success { background: rgba(58,138,96,.12);  border-color: rgba(58,138,96,.35);  color: #60c890; }
+.bubble.info    { background: rgba(122,162,212,.12); border-color: rgba(122,162,212,.35); color: #7aa2d4; }
+.bubble.danger  { background: rgba(192,64,64,.12);  border-color: rgba(192,64,64,.35);  color: #e08080; }
 .bubble i { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
 .bubble-body { flex: 1; min-width: 0; }
-.bubble-title { font-weight: 600; text-transform: uppercase; letter-spacing: .03em; margin-bottom: 2px; }
-.bubble-desc  { font-size: .75rem; opacity: .85; }
+.bubble-title { font-weight: 700; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 2px; font-size: .75rem; }
+.bubble-desc  { font-size: .78rem; opacity: .9; }
 .bubble-code  {
   font-family: var(--mono);
   font-size: .8rem;
@@ -332,22 +339,21 @@ select.sel-sm:hover { border-color: var(--accent); }
   letter-spacing: .05em;
   display: inline-block;
   margin-top: 4px;
-  color: var(--acc);
 }
 .bubble-close {
-  margin-left: auto;
-  cursor: pointer;
-  opacity: .5;
-  font-size: 18px;
-  flex-shrink: 0;
-  color: inherit;
-  background: none;
-  border: none;
-  font-family: inherit;
-  padding: 0 2px;
-  line-height: 1;
+  position: absolute; top: 6px; right: 8px;
+  cursor: pointer; opacity: .5; font-size: 16px;
+  color: inherit; background: none; border: none; padding: 0; line-height: 1;
+  -webkit-tap-highlight-color: transparent;
 }
 .bubble-close:hover { opacity: 1; }
+.bubble-progress {
+  position: absolute; bottom: 0; left: 0;
+  height: 2px; background: currentColor; opacity: .3;
+  border-radius: 0 0 6px 6px;
+  animation: bubbleProgress 6s linear forwards;
+}
+@keyframes bubbleProgress { from { width: 100%; } to { width: 0%; } }
 </style>
 
 <div class="page-header">
@@ -357,7 +363,6 @@ select.sel-sm:hover { border-color: var(--accent); }
 
 <?php if ($msg): ?>
 <div id="page-msg"
-     data-msg="<?= htmlspecialchars(strip_tags($msg)) ?>"
      data-type="<?= htmlspecialchars($msg_type) ?>"
      data-full="<?= htmlspecialchars($msg) ?>"></div>
 <?php endif; ?>
@@ -470,6 +475,7 @@ select.sel-sm:hover { border-color: var(--accent); }
 <?php endforeach; ?>
 </div>
 
+<!-- Confirm dialog -->
 <div class="confirm-overlay" id="confirmOverlay">
   <div class="confirm-box">
     <div class="confirm-title" id="confirmTitle"></div>
@@ -481,6 +487,7 @@ select.sel-sm:hover { border-color: var(--accent); }
   </div>
 </div>
 
+<!-- Floating bubble container -->
 <div class="bubble-wrap" id="bubbleWrap"></div>
 
 <script>
@@ -507,7 +514,6 @@ function closeConfirm() {
   _confirmCb = null;
 }
 
-// FIX: simpan referensi callback sebelum closeConfirm() me-null-kan _confirmCb
 document.getElementById('confirmOkBtn').addEventListener('click', function() {
   var cb = _confirmCb;
   closeConfirm();
@@ -518,42 +524,51 @@ document.getElementById('confirmOverlay').addEventListener('click', function(e) 
   if (e.target === this) closeConfirm();
 });
 
-function showBubble(type, icon, title, desc, code) {
+function showBubble(type, icon, title, desc, code, duration) {
+  duration = duration || 6000;
   var wrap = document.getElementById('bubbleWrap');
   var b = document.createElement('div');
   b.className = 'bubble ' + type;
-  var codeHtml = code ? '<div class="bubble-code">' + code + '</div>' : '';
-  b.innerHTML = '<i class="ti ti-' + icon + '" aria-hidden="true"></i>'
-    + '<div class="bubble-body"><div class="bubble-title">' + title + '</div>'
-    + '<div class="bubble-desc">' + desc + codeHtml + '</div></div>'
-    + '<button class="bubble-close" onclick="this.parentNode.remove()" aria-label="Tutup">&#215;</button>';
-  wrap.prepend(b);
-  setTimeout(function() {
-    b.style.opacity = '0';
-    setTimeout(function() { if (b.parentNode) b.remove(); }, 350);
-  }, 6000);
+  var codeHtml = code ? '<span class="bubble-code">' + code + '</span>' : '';
+  b.innerHTML =
+    '<i class="ti ti-' + icon + '" aria-hidden="true"></i>' +
+    '<div class="bubble-body"><div class="bubble-title">' + title + '</div>' +
+    '<div class="bubble-desc">' + desc + codeHtml + '</div></div>' +
+    '<button class="bubble-close" aria-label="Tutup" onclick="closeBubble(this.parentNode)">&#215;</button>' +
+    '<div class="bubble-progress" style="animation-duration:' + (duration/1000) + 's"></div>';
+  wrap.appendChild(b);
+  setTimeout(function() { closeBubble(b); }, duration);
+}
+
+function closeBubble(b) {
+  if (!b || !b.parentNode) return;
+  b.style.transition = 'opacity .3s, transform .3s';
+  b.style.opacity = '0';
+  b.style.transform = 'translateY(10px)';
+  setTimeout(function() { if (b.parentNode) b.remove(); }, 320);
 }
 
 (function() {
   var el = document.getElementById('page-msg');
   if (!el) return;
   var type = el.dataset.type || 'success';
-  var full = el.dataset.full || el.dataset.msg;
+  var full = el.dataset.full || '';
   var icons  = { success: 'check', info: 'key', danger: 'alert-triangle' };
   var titles = { success: 'Berhasil', info: 'Info', danger: 'Peringatan' };
 
-  // Untuk reset password: pisahkan password dari pesan agar tampil di bubble-code
   var code = null;
   var desc = full;
   if (type === 'info') {
     var match = full.match(/<code[^>]*>([^<]+)<\/code>/);
     if (match) {
       code = match[1];
-      desc = full.replace(/<code[^>]*>[^<]+<\/code>/, '').trim();
+      desc = full.replace(/<code[^>]*>[^<]+<\/code>/, '').replace(/<[^>]+>/g, '').trim();
     }
+  } else {
+    desc = full.replace(/<[^>]+>/g, '');
   }
 
-  showBubble(type, icons[type] || 'check', titles[type] || 'Info', desc, code);
+  showBubble(type, icons[type] || 'check', titles[type] || 'Info', desc, code, type === 'info' ? 10000 : 6000);
 })();
 </script>
 

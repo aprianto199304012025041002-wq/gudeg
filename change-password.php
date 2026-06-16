@@ -8,6 +8,7 @@ $db    = getDB();
 $error = '';
 $ok    = false;
 $sess_msg = '';
+$sess_msg_type = 'success';
 
 // Handle logout sesi lain
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'logout_session') {
@@ -17,15 +18,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'logou
         $db->prepare("DELETE FROM sessions WHERE id = ? AND user_id = ?")->execute([$target_sess, $user['id']]);
         $sess_msg = 'Sesi berhasil diakhiri.';
     }
-    // Jangan lanjut ke handler POST utama
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'logout_all_sessions') {
-    // Handle logout semua sesi lain
     csrf_verify();
     $db->prepare("DELETE FROM sessions WHERE user_id = ? AND id != ?")->execute([$user['id'], session_id()]);
     $sess_msg = 'Semua sesi lain berhasil diakhiri.';
-    // Jangan lanjut ke handler POST utama
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // FIX: Validasi CSRF token
     csrf_verify();
 
     $old  = $_POST['old_password'] ?? '';
@@ -47,8 +44,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'logou
         $db->prepare("UPDATE users SET password = ?, password_changed_at = NOW() WHERE id = ?")->execute([$hash, $user['id']]);
         log_activity($user['id'], $user['name'], $user['email'], 'Ubah Password Sendiri');
 
-        // FIX: Logout semua sesi lain setelah password diganti
-        // Sesi yang sedang aktif (current) tetap jalan, sisanya dihapus
         try {
             $db->prepare("DELETE FROM sessions WHERE user_id = ? AND id != ?")
                ->execute([$user['id'], session_id()]);
@@ -109,7 +104,7 @@ layout_head('Pengaturan', 'password');
   -webkit-appearance: none;
   -webkit-box-shadow: 0 0 0 1000px var(--bg) inset;
   -webkit-text-fill-color: var(--text);
-  box-sizing: border-box; /* FIX: pastikan padding tidak bikin overflow */
+  box-sizing: border-box;
 }
 .form-group input[type="password"]:focus { border-color: var(--accent); }
 
@@ -133,24 +128,6 @@ layout_head('Pengaturan', 'password');
 .btn-save:hover { background: rgba(122,162,212,.18); }
 .btn-save:active { opacity: .85; }
 
-.success-banner {
-  background: rgba(74,222,128,.06);
-  border: 1px solid rgba(74,222,128,.2);
-  color: var(--success);
-  border-radius: 4px;
-  padding: .75rem .9rem;
-  font-size: .82rem;
-  font-weight: 600;
-  font-family: var(--sans);
-  text-transform: uppercase;
-  letter-spacing: .04em;
-  display: flex;
-  align-items: center;
-  gap: .5rem;
-  max-width: 460px;
-  margin-bottom: 1rem;
-}
-
 .two-col {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -158,12 +135,11 @@ layout_head('Pengaturan', 'password');
   margin-bottom: 1rem;
   align-items: start;
 }
-/* FIX: kolom grid harus bisa menyusut, default min-width: auto bikin overflow */
 .two-col > div {
   display: flex;
   flex-direction: column;
   gap: .4rem;
-  min-width: 0; /* FIX */
+  min-width: 0;
 }
 @media (max-width: 700px) {
   .two-col { grid-template-columns: 1fr; }
@@ -173,7 +149,7 @@ layout_head('Pengaturan', 'password');
   border: 1px solid var(--border);
   border-radius: 4px;
   overflow: hidden;
-  min-width: 0; /* FIX: panel juga harus bisa menyusut */
+  min-width: 0;
 }
 .panel-hd {
   padding: .6rem 1rem;
@@ -195,7 +171,6 @@ layout_head('Pengaturan', 'password');
 .log-activity {
   font-size: .82rem; font-weight: 600; font-family: var(--sans);
   text-transform: uppercase; letter-spacing: .03em; color: var(--text);
-  /* FIX: teks panjang seperti nama domain tidak meluber keluar panel */
   word-break: break-word;
   overflow-wrap: anywhere;
   min-width: 0;
@@ -214,7 +189,6 @@ layout_head('Pengaturan', 'password');
   font-size: .82rem; font-weight: 600; font-family: var(--sans);
   text-transform: uppercase; letter-spacing: .03em; color: var(--text);
   display: flex; align-items: center; gap: 6px;
-  /* FIX: sama seperti log-activity */
   word-break: break-word;
   overflow-wrap: anywhere;
   min-width: 0;
@@ -222,10 +196,8 @@ layout_head('Pengaturan', 'password');
 .sesi-device i { font-size: 14px; color: var(--accent-dim); flex-shrink: 0; }
 .sesi-meta {
   font-size: .75rem; color: var(--text-dim); margin-top: 2px;
-  /* FIX: IP panjang juga bisa wrap */
   word-break: break-all;
 }
-/* FIX: kolom kiri sesi-row (info device) harus bisa menyusut */
 .sesi-row > div:first-child {
   min-width: 0;
   flex: 1 1 0;
@@ -235,7 +207,7 @@ layout_head('Pengaturan', 'password');
   background: rgba(58,138,96,.1); color: var(--success);
   border: 1px solid rgba(58,138,96,.2); text-transform: uppercase;
   letter-spacing: .04em; margin-left: 4px;
-  white-space: nowrap; /* badge jangan wrap */
+  white-space: nowrap;
 }
 .btn-logout-sess {
   background: rgba(192,64,64,.08); border: 1px solid rgba(192,64,64,.25);
@@ -251,25 +223,70 @@ layout_head('Pengaturan', 'password');
   font-size: .8rem; font-weight: 600; text-transform: uppercase;
   letter-spacing: .05em; cursor: pointer; font-family: var(--sans);
   margin-top: .75rem;
-  box-sizing: border-box; /* FIX */
+  box-sizing: border-box;
 }
 .btn-logout-all:hover { background: rgba(192,64,64,.12); }
-.sess-notice {
-  background: rgba(58,138,96,.08); border: 1px solid rgba(58,138,96,.2);
-  color: var(--success); border-radius: 4px; padding: .6rem .9rem;
-  font-size: .82rem; font-weight: 600; font-family: var(--sans);
-  max-width: 680px; margin-bottom: .75rem;
+
+/* ── Floating bubble ─────────────────────────────────────── */
+.bubble-wrap {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 8px;
+  z-index: 9999;
+  width: 320px;
+  pointer-events: none;
 }
+@media (max-width: 480px) {
+  .bubble-wrap { bottom: 12px; right: 8px; left: 8px; width: auto; }
+}
+.bubble {
+  border-radius: 6px;
+  padding: 10px 32px 10px 14px;
+  font-size: .8rem;
+  line-height: 1.5;
+  border: 1px solid;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  pointer-events: all;
+  animation: bubbleIn .25s ease;
+  box-shadow: 0 4px 20px rgba(0,0,0,.4);
+  position: relative;
+}
+@keyframes bubbleIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.bubble.success { background: rgba(58,138,96,.12);  border-color: rgba(58,138,96,.35);  color: #60c890; }
+.bubble.danger  { background: rgba(192,64,64,.12);  border-color: rgba(192,64,64,.35);  color: #e08080; }
+.bubble.info    { background: rgba(122,162,212,.12); border-color: rgba(122,162,212,.35); color: #7aa2d4; }
+.bubble i { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.bubble-body { flex: 1; min-width: 0; }
+.bubble-title { font-weight: 700; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 2px; font-size: .75rem; }
+.bubble-desc  { font-size: .78rem; opacity: .9; }
+.bubble-close {
+  position: absolute; top: 6px; right: 8px;
+  cursor: pointer; opacity: .5; font-size: 16px;
+  color: inherit; background: none; border: none; padding: 0; line-height: 1;
+  -webkit-tap-highlight-color: transparent;
+}
+.bubble-close:hover { opacity: 1; }
+.bubble-progress {
+  position: absolute; bottom: 0; left: 0;
+  height: 2px; background: currentColor; opacity: .3;
+  border-radius: 0 0 6px 6px;
+  animation: bubbleProgress 6s linear forwards;
+}
+@keyframes bubbleProgress { from { width: 100%; } to { width: 0%; } }
 </style>
 
 <div class="page-header">
   <h1 class="page-title">Pengaturan</h1>
   <p class="page-subtitle">Masuk sebagai <?= htmlspecialchars($user['email']) ?></p>
 </div>
-
-<?php if ($sess_msg): ?>
-<div class="sess-notice"><?= htmlspecialchars($sess_msg) ?></div>
-<?php endif; ?>
 
 <div class="two-col">
 <div><!-- kolom kiri: ubah password + sesi -->
@@ -281,14 +298,6 @@ layout_head('Pengaturan', 'password');
     <span class="panel-title">Ubah Password</span>
   </div>
   <div class="panel-body">
-    <?php if ($ok): ?>
-      <div class="success-banner" style="margin-bottom:.75rem">
-        <span>✓</span> Password berhasil diubah!
-      </div>
-    <?php endif; ?>
-    <?php if ($error): ?>
-      <div class="msg-box error" style="margin-bottom:.75rem"><?= htmlspecialchars($error) ?></div>
-    <?php endif; ?>
     <?php if (!$ok): ?>
     <form method="POST">
       <?= csrf_field() ?>
@@ -331,6 +340,8 @@ layout_head('Pengaturan', 'password');
       </div>
       <button type="submit" class="btn-save">Simpan Password</button>
     </form>
+    <?php else: ?>
+      <p style="font-size:.82rem;color:var(--text-dim);padding:.5rem 0">Password berhasil diubah. Semua sesi lain telah diakhiri.</p>
     <?php endif; ?>
   </div>
 </div>
@@ -435,5 +446,42 @@ layout_head('Pengaturan', 'password');
 
 </div><!-- /kolom kanan -->
 </div><!-- /two-col -->
+
+<!-- Floating bubble container -->
+<div class="bubble-wrap" id="bubbleWrap"></div>
+
+<script>
+function showBubble(type, icon, title, desc, duration) {
+  duration = duration || 6000;
+  var wrap = document.getElementById('bubbleWrap');
+  var b = document.createElement('div');
+  b.className = 'bubble ' + type;
+  b.innerHTML =
+    '<i class="ti ti-' + icon + '" aria-hidden="true"></i>' +
+    '<div class="bubble-body"><div class="bubble-title">' + title + '</div>' +
+    '<div class="bubble-desc">' + desc + '</div></div>' +
+    '<button class="bubble-close" aria-label="Tutup" onclick="closeBubble(this.parentNode)">&#215;</button>' +
+    '<div class="bubble-progress" style="animation-duration:' + (duration/1000) + 's"></div>';
+  wrap.appendChild(b);
+  setTimeout(function() { closeBubble(b); }, duration);
+}
+function closeBubble(b) {
+  if (!b || !b.parentNode) return;
+  b.style.transition = 'opacity .3s, transform .3s';
+  b.style.opacity = '0';
+  b.style.transform = 'translateY(10px)';
+  setTimeout(function() { if (b.parentNode) b.remove(); }, 320);
+}
+
+<?php if ($ok): ?>
+showBubble('success', 'check', 'Password Diubah', 'Password berhasil diubah. Semua sesi lain telah diakhiri.');
+<?php elseif ($error): ?>
+showBubble('danger', 'alert-circle', 'Gagal', <?= json_encode(htmlspecialchars($error)) ?>);
+<?php endif; ?>
+
+<?php if ($sess_msg): ?>
+showBubble('info', 'device-laptop', 'Sesi', <?= json_encode(htmlspecialchars($sess_msg)) ?>);
+<?php endif; ?>
+</script>
 
 <?php layout_foot(); ?>
