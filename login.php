@@ -12,7 +12,6 @@ $redirect = $_GET['redirect'] ?? '/dashboard.php';
 $timeout  = ($_GET['reason'] ?? '') === 'timeout';
 
 // FIX: Hanya izinkan redirect ke path lokal (bukan URL eksternal)
-// Cegah open redirect ke domain lain
 if (parse_url($redirect, PHP_URL_HOST) !== null) {
     $redirect = '/dashboard.php';
 }
@@ -20,15 +19,13 @@ if (parse_url($redirect, PHP_URL_HOST) !== null) {
 $remembered_email = $_COOKIE['gudeg_remember_email'] ?? '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // FIX: Validasi CSRF token
     csrf_verify();
 
     $email    = sanitize_input($_POST['email'] ?? '', 150);
-    $password = substr($_POST['password'] ?? '', 0, 200); // limit panjang, cegah bcrypt DoS
+    $password = substr($_POST['password'] ?? '', 0, 200);
     $remember = !empty($_POST['remember']);
 
     if ($email && $password) {
-        // FIX: Cek rate limiting sebelum query DB
         if (login_throttled($email)) {
             $error = 'Terlalu banyak percobaan login. Coba lagi dalam 10 menit.';
         } else {
@@ -42,7 +39,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $error = 'Akun Anda tidak aktif. Hubungi administrator.';
                     login_fail($email);
                 } else {
-                    // FIX: Regenerate session ID setelah login berhasil (cegah session fixation)
                     session_regenerate_id(true);
 
                     $_SESSION['user_id'] = $user['id'];
@@ -50,7 +46,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $_SESSION['email']   = $user['email'];
                     $_SESSION['role']    = $user['role'];
 
-                    // Reset hitungan gagal
                     login_reset($email);
 
                     if ($remember) {
@@ -61,20 +56,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     $db->prepare("UPDATE users SET last_login_at = NOW() WHERE id = ?")->execute([$user['id']]);
 
-                    // Deteksi IP baru sebelum log (log_activity akan tambah IP ini ke history)
                     $current_ip = get_ip();
                     $is_new = is_new_ip($user['id'], $current_ip);
 
                     log_activity($user['id'], $user['name'], $user['email'], 'Login');
 
-                    // Kalau IP baru: simpan flag ke session untuk warning di dashboard
-                    // dan catat ke admin log
                     if ($is_new) {
                         $_SESSION['new_ip_warning'] = $current_ip;
                         log_admin_action(0, 'SYSTEM', 'Login dari IP Baru: ' . $current_ip, $user['name'] . ' (' . $user['email'] . ')');
                     }
 
-                    // Simpan sesi ke DB
                     $sess_id = session_id();
                     $ua      = $_SERVER['HTTP_USER_AGENT'] ?? '';
                     $ip_addr = get_ip();
@@ -84,7 +75,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                   ON DUPLICATE KEY UPDATE ip_address=VALUES(ip_address), user_agent=VALUES(user_agent), last_activity=VALUES(last_activity)")
                        ->execute([$sess_id, $user['id'], $ip_addr, $ua, '', $now_str, $now_str]);
 
-                    // FIX: Redirect hanya ke path lokal
                     $dest = (parse_url($redirect, PHP_URL_HOST) === null && str_starts_with($redirect, '/'))
                         ? $redirect
                         : '/dashboard.php';
@@ -92,7 +82,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     exit;
                 }
             } else {
-                // FIX: Catat percobaan gagal
                 login_fail($email);
                 $error = 'Email atau password salah.';
             }
@@ -215,15 +204,6 @@ input:-webkit-autofill:focus {
   text-transform: uppercase; letter-spacing: .06em;
   margin-bottom: 0;
 }
-.error-msg {
-  background: rgba(192,64,64,.08);
-  border: 1px solid #3a1818;
-  color: #a04040;
-  border-radius: 4px;
-  padding: 8px 11px;
-  font-size: 13px;
-  margin-bottom: 12px;
-}
 .btn-submit {
   width: 100%;
   background: var(--accent-bg);
@@ -254,6 +234,60 @@ input:-webkit-autofill:focus {
   letter-spacing: .05em;
   text-transform: uppercase;
 }
+
+/* ── Floating bubble ────────────────────────────────────── */
+.bubble-wrap {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 8px;
+  z-index: 9999;
+  width: 320px;
+  pointer-events: none;
+}
+@media (max-width: 480px) {
+  .bubble-wrap { bottom: 12px; right: 8px; left: 8px; width: auto; }
+}
+.bubble {
+  border-radius: 6px;
+  padding: 10px 32px 10px 14px;
+  font-size: .8rem;
+  line-height: 1.5;
+  border: 1px solid;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  pointer-events: all;
+  animation: bubbleIn .25s ease;
+  box-shadow: 0 4px 20px rgba(0,0,0,.4);
+  position: relative;
+}
+@keyframes bubbleIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.bubble.danger  { background: rgba(192,64,64,.12); border-color: rgba(192,64,64,.35); color: #e08080; }
+.bubble.warning { background: rgba(192,140,64,.12); border-color: rgba(192,140,64,.35); color: #e0b060; }
+.bubble i { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.bubble-body { flex: 1; min-width: 0; }
+.bubble-title { font-weight: 700; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 2px; font-size: .75rem; }
+.bubble-desc  { font-size: .78rem; opacity: .9; }
+.bubble-close {
+  position: absolute; top: 6px; right: 8px;
+  cursor: pointer; opacity: .5; font-size: 16px;
+  color: inherit; background: none; border: none; padding: 0; line-height: 1;
+  -webkit-tap-highlight-color: transparent;
+}
+.bubble-close:hover { opacity: 1; }
+.bubble-progress {
+  position: absolute; bottom: 0; left: 0;
+  height: 2px; background: currentColor; opacity: .3;
+  border-radius: 0 0 6px 6px;
+  animation: bubbleProgress 6s linear forwards;
+}
+@keyframes bubbleProgress { from { width: 100%; } to { width: 0%; } }
 </style>
 </head>
 <body>
@@ -270,13 +304,6 @@ input:-webkit-autofill:focus {
   </div>
 
   <div class="card">
-    <?php if ($timeout && !$error): ?>
-      <div class="error-msg">Sesi Anda telah berakhir karena tidak aktif. Silakan login kembali.</div>
-    <?php endif; ?>
-    <?php if ($error): ?>
-      <div class="error-msg"><?= htmlspecialchars($error) ?></div>
-    <?php endif; ?>
-
     <form method="POST">
       <?= csrf_field() ?>
       <input type="hidden" name="redirect" value="<?= htmlspecialchars($redirect) ?>">
@@ -311,5 +338,38 @@ input:-webkit-autofill:focus {
 
   <p class="footer-note">© 2026 QOS Balmon Jogja Team</p>
 </div>
+
+<!-- Floating bubble container -->
+<div class="bubble-wrap" id="bubbleWrap"></div>
+
+<script>
+function showBubble(type, icon, title, desc, duration) {
+  duration = duration || 6000;
+  var wrap = document.getElementById('bubbleWrap');
+  var b = document.createElement('div');
+  b.className = 'bubble ' + type;
+  b.innerHTML =
+    '<i class="ti ti-' + icon + '" aria-hidden="true"></i>' +
+    '<div class="bubble-body"><div class="bubble-title">' + title + '</div>' +
+    '<div class="bubble-desc">' + desc + '</div></div>' +
+    '<button class="bubble-close" aria-label="Tutup" onclick="closeBubble(this.parentNode)">&#215;</button>' +
+    '<div class="bubble-progress" style="animation-duration:' + (duration/1000) + 's"></div>';
+  wrap.appendChild(b);
+  setTimeout(function() { closeBubble(b); }, duration);
+}
+function closeBubble(b) {
+  if (!b || !b.parentNode) return;
+  b.style.transition = 'opacity .3s, transform .3s';
+  b.style.opacity = '0';
+  b.style.transform = 'translateY(10px)';
+  setTimeout(function() { if (b.parentNode) b.remove(); }, 320);
+}
+
+<?php if ($error): ?>
+showBubble('danger', 'alert-circle', 'Login Gagal', <?= json_encode(htmlspecialchars($error)) ?>);
+<?php elseif ($timeout): ?>
+showBubble('warning', 'clock', 'Sesi Berakhir', 'Sesi Anda telah berakhir karena tidak aktif. Silakan login kembali.');
+<?php endif; ?>
+</script>
 </body>
 </html>

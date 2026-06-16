@@ -147,35 +147,102 @@ layout_head('Beranda', 'dashboard');
   margin-bottom: 1.2rem;
 }
 
+/* ── Floating bubble system ─────────────────────────────── */
+.bubble-wrap {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 8px;
+  z-index: 9999;
+  width: 320px;
+  pointer-events: none;
+}
+@media (max-width: 480px) {
+  .bubble-wrap {
+    bottom: 12px;
+    right: 8px;
+    left: 8px;
+    width: auto;
+  }
+}
+.bubble {
+  border-radius: 6px;
+  padding: 10px 12px 10px 14px;
+  font-size: .8rem;
+  line-height: 1.5;
+  border: 1px solid;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  pointer-events: all;
+  animation: bubbleIn .25s ease;
+  box-shadow: 0 4px 20px rgba(0,0,0,.4);
+  position: relative;
+}
+@keyframes bubbleIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.bubble.danger {
+  background: rgba(192,64,64,.12);
+  border-color: rgba(192,64,64,.35);
+  color: #e08080;
+}
+.bubble i { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.bubble-body { flex: 1; min-width: 0; }
+.bubble-title {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-bottom: 3px;
+  font-family: var(--sans);
+  font-size: .78rem;
+}
+.bubble-desc {
+  font-size: .78rem;
+  opacity: .9;
+  line-height: 1.6;
+}
+.bubble-desc a { color: inherit; text-decoration: underline; }
+.bubble-desc code {
+  font-family: var(--mono);
+  background: rgba(0,0,0,.25);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: .75rem;
+}
+.bubble-close {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  cursor: pointer;
+  opacity: .5;
+  font-size: 16px;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  line-height: 1;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+.bubble-close:hover { opacity: 1; }
+.bubble-progress {
+  position: absolute;
+  bottom: 0; left: 0;
+  height: 2px;
+  background: currentColor;
+  opacity: .3;
+  border-radius: 0 0 6px 6px;
+  animation: bubbleProgress 8s linear forwards;
+}
+@keyframes bubbleProgress {
+  from { width: 100%; }
+  to   { width: 0%; }
+}
 </style>
-
-<?php if (!empty($_SESSION['new_ip_warning'])): ?>
-<div style="
-  background:rgba(192,64,64,.08);
-  border:1px solid rgba(192,64,64,.25);
-  border-radius:4px;
-  padding:.75rem 1rem;
-  margin-bottom:1rem;
-  font-size:.82rem;
-  font-family:var(--sans);
-  color:var(--danger);
-  display:flex;
-  align-items:flex-start;
-  gap:.6rem;
-">
-  <i class="ti ti-alert-triangle" aria-hidden="true" style="font-size:16px;flex-shrink:0;margin-top:1px"></i>
-  <div>
-    <strong style="text-transform:uppercase;letter-spacing:.03em;display:block;margin-bottom:2px">Login dari Perangkat Baru</strong>
-    Kami mendeteksi login dari IP baru: <code style="font-family:var(--mono);background:rgba(0,0,0,.2);padding:1px 6px;border-radius:3px"><?= htmlspecialchars($_SESSION['new_ip_warning']) ?></code>.
-    Jika ini bukan Anda, segera <a href="/change-password.php" style="color:var(--danger);text-decoration:underline">ubah password</a> dan hubungi administrator.
-  </div>
-  <form method="POST" action="/dashboard.php" style="margin:0;flex-shrink:0">
-    <?= csrf_field() ?>
-    <input type="hidden" name="dismiss_ip_warning" value="1">
-    <button type="submit" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:18px;line-height:1;opacity:.6;padding:0" title="Tutup">&#215;</button>
-  </form>
-</div>
-<?php endif; ?>
 
 <div class="page-header greeting">
   <div class="greeting-name">Halo, <?= htmlspecialchars(explode(' ', $user['name'])[0]) ?>!</div>
@@ -210,6 +277,51 @@ layout_head('Beranda', 'dashboard');
   <?php else: ?>
   <div class="empty-apps">Belum ada aplikasi yang ditugaskan ke akun Anda.<br>Hubungi administrator.</div>
   <?php endif; ?>
+<?php endif; ?>
+
+<!-- Floating bubble container -->
+<div class="bubble-wrap" id="bubbleWrap"></div>
+
+<?php if (!empty($_SESSION['new_ip_warning'])): ?>
+<script>
+(function() {
+  var ip = <?= json_encode(htmlspecialchars($_SESSION['new_ip_warning'])) ?>;
+  var wrap = document.getElementById('bubbleWrap');
+  var b = document.createElement('div');
+  b.className = 'bubble danger';
+  b.innerHTML =
+    '<i class="ti ti-alert-triangle" aria-hidden="true"></i>' +
+    '<div class="bubble-body">' +
+      '<div class="bubble-title">Login dari Perangkat Baru</div>' +
+      '<div class="bubble-desc">IP baru terdeteksi: <code>' + ip + '</code>. ' +
+        'Bukan Anda? Segera <a href="/change-password.php">ubah password</a> dan hubungi administrator.</div>' +
+    '</div>' +
+    '<button class="bubble-close" aria-label="Tutup" onclick="dismissIPWarning(this)">&#215;</button>' +
+    '<div class="bubble-progress"></div>';
+  wrap.appendChild(b);
+
+  // Auto-dismiss after 8s
+  setTimeout(function() { dismissBubble(b); }, 8000);
+})();
+
+function dismissBubble(b) {
+  b.style.transition = 'opacity .3s, transform .3s';
+  b.style.opacity = '0';
+  b.style.transform = 'translateY(10px)';
+  setTimeout(function() { if (b.parentNode) b.remove(); }, 320);
+}
+
+function dismissIPWarning(btn) {
+  var b = btn.closest('.bubble');
+  dismissBubble(b);
+
+  // Kirim dismiss ke server via fetch
+  var fd = new FormData();
+  fd.append('dismiss_ip_warning', '1');
+  fd.append('csrf_token', <?= json_encode($_SESSION['csrf_token'] ?? '') ?>);
+  fetch('/dashboard.php', { method: 'POST', body: fd, credentials: 'same-origin' });
+}
+</script>
 <?php endif; ?>
 
 <?php layout_foot(); ?>
