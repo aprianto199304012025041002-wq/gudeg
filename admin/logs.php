@@ -96,7 +96,7 @@ layout_head('Log Aktivitas', 'admin-logs');
 <style>
 *, *::before, *::after { font-weight: inherit; }
 
-.tab-bar { display: flex; gap: 5px; margin-bottom: 12px; }
+.tab-bar { display: flex; gap: 5px; margin-bottom: 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; }
 .tab-bar a {
   padding: 5px 12px;
   border: 1px solid var(--border);
@@ -105,6 +105,7 @@ layout_head('Log Aktivitas', 'admin-logs');
   text-transform: uppercase; letter-spacing: .05em;
   color: var(--text-dim);
   transition: border-color .12s, color .12s;
+  white-space: nowrap; flex-shrink: 0;
 }
 .tab-bar a.active,
 .tab-bar a:hover { border-color: var(--accent-dim); color: var(--accent); }
@@ -127,6 +128,20 @@ layout_head('Log Aktivitas', 'admin-logs');
 .filter-bar input[type="text"] { width: 180px; }
 .filter-bar input[type="date"] { width: 140px; }
 .filter-bar input:focus { border-color: var(--accent-dim); }
+
+/* ── Mobile: filter inputs full-width ─────────────────── */
+@media (max-width: 600px) {
+  .filter-bar { flex-direction: column; align-items: stretch; }
+  .filter-bar input[type="text"],
+  .filter-bar input[type="date"] { width: 100%; }
+  .filter-bar button { width: 100%; text-align: center; }
+  .log-item-top { flex-direction: column; gap: 2px; }
+  .log-time { font-size: 11px; }
+  .log-action { font-size: 12px; }
+  .log-meta span { display: block; margin-right: 0; }
+  .pagination { gap: 3px; }
+  .pagination a { padding: 4px 8px; font-size: 11px; }
+}
 .filter-bar button {
   background: var(--surface);
   border: 1px solid var(--border);

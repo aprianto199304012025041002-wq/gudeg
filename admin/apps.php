@@ -253,6 +253,17 @@ layout_head('Kelola Aplikasi', 'admin-apps');
 .btn-sm.danger { border-color: rgba(229,115,115,.2); color: var(--danger); }
 .btn-sm.danger:hover { border-color: var(--danger); }
 
+/* ── Mobile optimizations ─────────────────────────────── */
+@media (max-width: 600px) {
+  .add-card { padding: .75rem; }
+  .fg input[type=text] { font-size: .85rem; }
+  .mono-block { font-size: .72rem; word-break: break-all; }
+  .app-actions { gap: .3rem; padding: .5rem .75rem; }
+  .btn-sm { padding: .35rem .6rem; font-size: .75rem; }
+  .app-card-head { padding: .75rem; }
+  .secret-blur { display: block; }
+}
+
 /* ── Floating bubble ─────────────────────────────────────── */
 .bubble-wrap {
   position: fixed;

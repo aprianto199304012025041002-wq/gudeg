@@ -68,9 +68,13 @@ layout_head('Beranda', 'dashboard');
 
 .apps-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: .5rem;
   margin-bottom: 1.2rem;
+}
+@media (max-width: 400px) {
+  .apps-grid { grid-template-columns: 1fr 1fr; }
+  .app-card { padding: .6rem .7rem; }
 }
 
 .app-card {

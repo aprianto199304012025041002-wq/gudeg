@@ -249,6 +249,29 @@ select.sel-sm:hover { border-color: var(--accent); }
   color: var(--danger);
 }
 
+/* ── Mobile optimizations ─────────────────────────────── */
+@media (max-width: 600px) {
+  /* Role form: select + button sejajar, tidak meluber */
+  .role-form { flex-wrap: nowrap; }
+  select.sel-sm { min-width: 0; }
+
+  /* User actions lebih padat */
+  .user-actions { gap: .3rem; padding: .5rem .75rem; }
+  .btn-sm { padding: .32rem .55rem; font-size: .75rem; }
+  .user-card-head { padding: .6rem .75rem; }
+  .user-name { font-size: .82rem; }
+  .user-email { font-size: .72rem; }
+  .user-last-login { font-size: .7rem; }
+
+  /* App access toggle */
+  .app-access-toggle { padding: .5rem .75rem; font-size: .75rem; }
+  .app-access-body { padding: .5rem .75rem .7rem; }
+  .apps-check label { font-size: .72rem; padding: .28rem .5rem; }
+
+  /* Confirm dialog full-width */
+  .confirm-box { width: calc(100vw - 32px); padding: 16px; }
+}
+
 /* ── Confirm dialog ──────────────────────────────────────── */
 .confirm-overlay {
   display: none;

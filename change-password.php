@@ -144,6 +144,23 @@ layout_head('Pengaturan', 'password');
 @media (max-width: 700px) {
   .two-col { grid-template-columns: 1fr; }
 }
+
+/* ── Mobile optimizations ─────────────────────────────── */
+@media (max-width: 767px) {
+  .panel-body { padding: .6rem .8rem; }
+  .panel-hd   { padding: .5rem .8rem; }
+  .btn-save   { padding: .65rem; }
+  .btn-logout-all { padding: .55rem; }
+  .log-meta { font-size: .7rem; }
+  .sesi-meta { font-size: .7rem; }
+  /* Stack sesi-row jika layar sempit */
+  .sesi-row { flex-wrap: wrap; }
+  .sesi-row > div:first-child { width: 100%; }
+}
+@media (max-width: 400px) {
+  .log-row { flex-direction: column; align-items: flex-start; gap: .25rem; }
+  .log-meta { text-align: left; }
+}
 .panel {
   background: var(--surface);
   border: 1px solid var(--border);
