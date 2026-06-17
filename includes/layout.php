@@ -517,7 +517,7 @@ button, .btn { font-family: var(--sans); cursor: pointer; }
     <div class="sb-theme-wrap">
       <button class="sb-theme-btn" onclick="toggleTheme()" aria-label="Ganti tema">
         <i class="ti ti-sun theme-toggle-icon" aria-hidden="true"></i>
-        <span class="theme-toggle-label">Terang</span>
+        <span class="theme-toggle-label">Bright</span>
       </button>
     </div>
     <div class="sb-logout-wrap">
@@ -559,7 +559,7 @@ function layout_foot() {
       ic.className = 'ti ' + (theme === 'light' ? 'ti-moon' : 'ti-sun') + ' theme-toggle-icon';
     });
     document.querySelectorAll('.theme-toggle-label').forEach(function(lb) {
-      lb.textContent = theme === 'light' ? 'Dark' : 'Terang';
+      lb.textContent = theme === 'light' ? 'Dark' : 'Bright';
     });
   }
   function getTheme() {
