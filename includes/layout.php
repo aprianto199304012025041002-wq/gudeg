@@ -34,7 +34,7 @@ function layout_head(string $title, string $active_nav = '') {
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title><?= htmlspecialchars($title) ?> — GUDEG JOGJA</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <style>
@@ -407,16 +407,6 @@ a { color: inherit; text-decoration: none; }
 
 button, .btn { font-family: var(--sans); cursor: pointer; }
 
-/* ── Android WebView safe area ───────────────────────────── */
-@supports (padding-top: env(safe-area-inset-top)) {
-  body {
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
-  }
-}
-
 /* ── Mobile optimizations ───────────────────────────────── */
 @media (max-width: 767px) {
   /* Padding konten lebih hemat di HP */
@@ -440,6 +430,29 @@ button, .btn { font-family: var(--sans); cursor: pointer; }
 @media (max-width: 400px) {
   #main-content { padding: 10px 8px 20px; }
   .sb-user-email { max-width: 110px; }
+}
+
+/* ── Safe area untuk Android WebView (notch & navbar) ────── */
+/* Diletakkan PALING BAWAH agar tidak ditimpa rule lain      */
+@supports (padding-top: env(safe-area-inset-top)) {
+  #sidebar {
+    top: env(safe-area-inset-top);
+    height: calc(100dvh - env(safe-area-inset-top));
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  #topbar {
+    padding-top: env(safe-area-inset-top);
+    height: calc(var(--topbar-h) + env(safe-area-inset-top));
+  }
+  @media (max-width: 767px) {
+    #main-content { padding: 12px 10px calc(20px + env(safe-area-inset-bottom)); }
+  }
+  @media (max-width: 400px) {
+    #main-content { padding: 10px 8px calc(20px + env(safe-area-inset-bottom)); }
+  }
+  @media (min-width: 768px) {
+    #main-content { padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
+  }
 }
 </style>
 
