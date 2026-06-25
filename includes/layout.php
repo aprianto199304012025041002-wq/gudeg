@@ -407,6 +407,16 @@ a { color: inherit; text-decoration: none; }
 
 button, .btn { font-family: var(--sans); cursor: pointer; }
 
+/* ── Android WebView safe area ───────────────────────────── */
+@supports (padding-top: env(safe-area-inset-top)) {
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
 /* ── Mobile optimizations ───────────────────────────────── */
 @media (max-width: 767px) {
   /* Padding konten lebih hemat di HP */
@@ -517,7 +527,7 @@ button, .btn { font-family: var(--sans); cursor: pointer; }
     <div class="sb-theme-wrap">
       <button class="sb-theme-btn" onclick="toggleTheme()" aria-label="Ganti tema">
         <i class="ti ti-sun theme-toggle-icon" aria-hidden="true"></i>
-        <span class="theme-toggle-label">Bright</span>
+        <span class="theme-toggle-label">Terang</span>
       </button>
     </div>
     <div class="sb-logout-wrap">
@@ -559,7 +569,7 @@ function layout_foot() {
       ic.className = 'ti ' + (theme === 'light' ? 'ti-moon' : 'ti-sun') + ' theme-toggle-icon';
     });
     document.querySelectorAll('.theme-toggle-label').forEach(function(lb) {
-      lb.textContent = theme === 'light' ? 'Dark' : 'Bright';
+      lb.textContent = theme === 'light' ? 'Dark' : 'Terang';
     });
   }
   function getTheme() {
