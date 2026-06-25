@@ -246,6 +246,14 @@ layout_head('Beranda', 'dashboard');
   from { width: 100%; }
   to   { width: 0%; }
 }
+
+/* ── Safe area Android WebView ───────────────────────── */
+@supports (padding-top: env(safe-area-inset-top)) {
+  .bubble-wrap { bottom: calc(16px + env(safe-area-inset-bottom)); }
+  @media (max-width: 480px) {
+    .bubble-wrap { bottom: calc(12px + env(safe-area-inset-bottom)); right: 8px; left: 8px; width: auto; }
+  }
+}
 </style>
 
 <div class="page-header greeting">
