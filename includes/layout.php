@@ -453,6 +453,10 @@ button, .btn { font-family: var(--sans); cursor: pointer; }
   @media (min-width: 768px) {
     #main-content { padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
   }
+  /* Bubble notif tidak kepotong navbar */
+  .bubble-wrap {
+    bottom: calc(16px + env(safe-area-inset-bottom));
+  }
 }
 </style>
 

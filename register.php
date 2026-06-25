@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Daftar — GUDEG JOGJA</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <!-- Apply theme before paint (no flash) -->
@@ -314,6 +314,21 @@ input:-webkit-autofill:focus {
   animation: bubbleProgress 6s linear forwards;
 }
 @keyframes bubbleProgress { from { width: 100%; } to { width: 0%; } }
+
+/* ── Safe area Android WebView ───────────────────────── */
+@supports (padding-top: env(safe-area-inset-top)) {
+  body {
+    padding-top: calc(1.25rem + env(safe-area-inset-top));
+    padding-bottom: calc(1.25rem + env(safe-area-inset-bottom));
+  }
+  .theme-fab { top: calc(14px + env(safe-area-inset-top)); }
+  .bubble-wrap { bottom: calc(16px + env(safe-area-inset-bottom)); }
+  @media (max-width: 480px) {
+    body { padding-top: calc(60px + env(safe-area-inset-top)); }
+    .theme-fab { top: calc(10px + env(safe-area-inset-top)); }
+    .bubble-wrap { bottom: calc(12px + env(safe-area-inset-bottom)); right: 8px; left: 8px; width: auto; }
+  }
+}
 </style>
 </head>
 <body>
