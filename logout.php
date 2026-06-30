@@ -27,5 +27,5 @@ try {
 } catch (Exception $e) {}
 
 session_destroy();
-header("Location: /login.php");
+header("Location: /login.php?clear_biometric=1");
 exit;

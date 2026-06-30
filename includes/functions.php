@@ -8,6 +8,12 @@ if (file_exists($db_config)) {
 
 function session_start_safe() {
     if (session_status() === PHP_SESSION_NONE) {
+        // APK: perpanjang umur cookie session jadi 30 hari
+        // (deteksi manual karena is_from_apk() didefinisikan di bawah)
+        $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
+        if (stripos($ua, 'GudegJogjaApp') !== false) {
+            session_set_cookie_params(30 * 24 * 3600); // 30 hari
+        }
         session_start();
     }
 }
@@ -140,12 +146,28 @@ function login_reset(string $email): void {
 define('SESSION_TIMEOUT', 30 * 60); // 30 menit tidak aktif → auto logout
 
 /**
+ * Deteksi apakah request berasal dari APK Android (WebView GUDEG JOGJA).
+ * Dicek dari User-Agent yang di-set khusus di MainActivity.java.
+ */
+function is_from_apk(): bool {
+    $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
+    return stripos($ua, 'GudegJogjaApp') !== false;
+}
+
+/**
  * Cek apakah sesi sudah timeout.
  * Dipanggil otomatis via require_login().
+ * Request dari APK tidak pernah timeout (selama akun masih aktif).
  */
 function check_session_timeout(): void {
     session_start_safe();
     if (empty($_SESSION['user_id'])) return;
+
+    // APK: skip timeout sepenuhnya, hanya update last_activity untuk log
+    if (is_from_apk()) {
+        $_SESSION['last_activity'] = time();
+        return;
+    }
 
     $last = $_SESSION['last_activity'] ?? null;
     if ($last !== null && (time() - $last) > SESSION_TIMEOUT) {

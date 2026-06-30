@@ -2,6 +2,12 @@
 /**
  * includes/layout.php
  * Shared sidebar layout helpers.
+ *
+ * Usage:
+ *   layout_head("Page Title");          — outputs <head> + open <body> + sidebar
+ *   layout_foot();                      — closes main wrapper + </body></html>
+ *
+ * Expects $user array to be available in calling scope.
  */
 
 function layout_head(string $title, string $active_nav = '') {
@@ -11,6 +17,7 @@ function layout_head(string $title, string $active_nav = '') {
     $email    = htmlspecialchars($user['email'] ?? '');
     $is_admin = ($user['role'] ?? '') === 'admin';
 
+    // Avatar: ambil huruf pertama dari kata pertama dan terakhir nama
     $name_parts = preg_split('/\s+/', trim($user['name'] ?? ''));
     $initials   = '';
     if (count($name_parts) >= 2) {
@@ -20,6 +27,7 @@ function layout_head(string $title, string $active_nav = '') {
     }
     $initials = htmlspecialchars($initials);
 
+    // Hari dalam Bahasa Indonesia (format 24 jam ditangani JS)
     $hari_id = ['Sunday'=>'MINGGU','Monday'=>'SENIN','Tuesday'=>'SELASA',
                 'Wednesday'=>'RABU','Thursday'=>'KAMIS','Friday'=>'JUMAT','Saturday'=>'SABTU'];
     $bulan_id = ['January'=>'JANUARI','February'=>'FEBRUARI','March'=>'MARET',
@@ -34,16 +42,13 @@ function layout_head(string $title, string $active_nav = '') {
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title><?= htmlspecialchars($title) ?> — GUDEG JOGJA</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <style>
 /* ── Reset & tokens ─────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-/* DARK theme (default) */
-:root,
-[data-theme="dark"] {
+:root {
   --bg:           #080a0e;
   --surface:      #0c0e13;
   --border:       #161b25;
@@ -64,29 +69,6 @@ function layout_head(string $title, string $active_nav = '') {
   --sb-expanded:  200px;
   --sb-collapsed: 36px;
   --topbar-h:     48px;
-  --autofill-bg:  #080a0e;
-  --autofill-txt: #a0b4cc;
-}
-
-/* LIGHT theme */
-[data-theme="light"] {
-  --bg:           #f0f4f8;
-  --surface:      #ffffff;
-  --border:       #d0dae6;
-  --accent:       #2a6ab4;
-  --accent-dim:   #1e52a0;
-  --accent-glow:  rgba(42,106,180,.07);
-  --accent-bg:    #e8f0fb;
-  --accent-bdr:   #b0c8e8;
-  --text:         #1e2e44;
-  --text-dim:     #4a6080;
-  --text-muted:   #8099b8;
-  --danger:       #c03030;
-  --danger-bg:    rgba(192,48,48,.07);
-  --danger-bdr:   #e0aaaa;
-  --success:      #2a7a50;
-  --autofill-bg:  #ffffff;
-  --autofill-txt: #1e2e44;
 }
 
 html { -webkit-text-size-adjust: 100%; }
@@ -97,7 +79,6 @@ body {
   font-size: 14px;
   min-height: 100vh;
   overflow-x: hidden;
-  transition: background .2s, color .2s;
 }
 a { color: inherit; text-decoration: none; }
 
@@ -123,9 +104,10 @@ a { color: inherit; text-decoration: none; }
   flex-direction: column;
   z-index: 50;
   overflow: hidden;
-  transition: width .22s ease, transform .22s ease, background .2s, border-color .2s;
+  transition: width .22s ease, transform .22s ease;
 }
 
+/* Mobile: hidden off-screen by default, overlay open */
 @media (max-width: 767px) {
   #sidebar {
     transform: translateX(-100%);
@@ -137,6 +119,7 @@ a { color: inherit; text-decoration: none; }
   .sb-collapse-btn { display: none !important; }
 }
 
+/* Desktop: always visible, collapsible */
 @media (min-width: 768px) {
   #sidebar { transform: translateX(0) !important; }
   #sidebar-overlay { display: none !important; }
@@ -156,9 +139,8 @@ a { color: inherit; text-decoration: none; }
 .sb-title {
   font-size: 14px; font-weight: 800; letter-spacing: .03em; line-height: 1.1;
 }
-.sb-title .gudeg { color: var(--text); }
-.sb-title .jogja { color: #d4a800; }
-[data-theme="dark"] .sb-title .gudeg { color: #ffffff; }
+.sb-title .gudeg { color: #ffffff; }
+.sb-title .jogja { color: #f0c040; }
 .sb-sub {
   font-size: 10px; color: var(--text-muted);
   text-transform: uppercase; letter-spacing: .06em; margin-top: 2px;
@@ -219,7 +201,7 @@ a { color: inherit; text-decoration: none; }
   border-left-color: var(--accent-dim);
 }
 
-/* Collapsed state */
+/* Collapsed state: hide text, labels, user-info, brand-text */
 #sidebar.collapsed .sb-brand-text,
 #sidebar.collapsed .sb-user-info,
 #sidebar.collapsed .sb-section-label,
@@ -235,25 +217,6 @@ a { color: inherit; text-decoration: none; }
 #sidebar.collapsed .sb-logout { justify-content: center; padding: 5px 0; border: none; border-radius: 0; width: 100%; }
 #sidebar.collapsed .sb-logout span { display: none; }
 #sidebar.collapsed .sb-collapse-wrap { border-top: none; }
-#sidebar.collapsed .sb-theme-wrap { padding: 4px 0; }
-#sidebar.collapsed .sb-theme-btn { justify-content: center; border: none; border-radius: 0; width: 100%; padding: 5px 0; }
-#sidebar.collapsed .sb-theme-btn .theme-toggle-label { display: none; }
-
-/* ── Theme toggle button (sidebar) ─────────────────────── */
-.sb-theme-wrap { padding: 4px 10px; }
-.sb-theme-btn {
-  display: flex; align-items: center; gap: 6px;
-  padding: 6px 8px;
-  font-size: 12px; font-weight: 600; text-transform: uppercase;
-  letter-spacing: .05em; color: var(--text-dim);
-  border: 1px solid var(--border); border-radius: 4px;
-  width: 100%; cursor: pointer; background: transparent;
-  font-family: var(--sans);
-  transition: border-color .15s, color .15s, background .15s;
-  white-space: nowrap;
-}
-.sb-theme-btn:hover { border-color: var(--accent-dim); color: var(--accent); }
-.sb-theme-btn i { font-size: 15px; flex-shrink: 0; }
 
 /* ── Footer ─────────────────────────────────────────────── */
 .sb-footer {
@@ -262,18 +225,22 @@ a { color: inherit; text-decoration: none; }
   flex-shrink: 0; overflow: hidden;
   display: flex; flex-direction: column; gap: 0;
 }
-.sb-datetime { padding: 8px 10px 6px; }
-.sb-divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+.sb-datetime {
+  padding: 8px 10px 6px;
+}
+.sb-divider {
+  border: none; border-top: 1px solid var(--border); margin: 0;
+}
 .sb-logout-wrap { padding: 6px 10px; }
 .sb-collapse-wrap {
   border-top: 1px solid var(--border);
   display: flex; justify-content: center; padding: 5px 0;
 }
 .sb-datetime { font-size: 11px; color: var(--text-muted); }
-.sb-datetime .dt-date { color: var(--text-dim); letter-spacing: .04em; }
+.sb-datetime .dt-date { color: #3a5070; letter-spacing: .04em; }
 .sb-datetime .dt-time {
   font-size: 15px; font-weight: 700;
-  color: var(--accent-dim); letter-spacing: .06em; margin-top: 2px;
+  color: #3a5a80; letter-spacing: .06em; margin-top: 2px;
 }
 .sb-logout {
   display: flex; align-items: center; gap: 6px;
@@ -289,6 +256,7 @@ a { color: inherit; text-decoration: none; }
 .sb-logout:hover { border-color: var(--danger); color: var(--danger); }
 .sb-logout i { font-size: 16px; color: var(--danger); flex-shrink: 0; }
 
+/* Collapse toggle button (desktop only) */
 .sb-collapse-btn {
   display: flex; align-items: center; justify-content: center;
   background: none; border: none; cursor: pointer;
@@ -322,22 +290,9 @@ a { color: inherit; text-decoration: none; }
 }
 #hamburger:hover span { background: var(--accent); }
 
-.topbar-title { font-size: 14px; font-weight: 800; letter-spacing: .03em; flex: 1; }
-.topbar-title .gudeg { color: var(--text); }
-.topbar-title .jogja { color: #d4a800; }
-[data-theme="dark"] .topbar-title .gudeg { color: #ffffff; }
-
-/* Topbar theme toggle (mobile) */
-.topbar-theme-btn {
-  display: flex; align-items: center; justify-content: center;
-  width: 32px; height: 32px;
-  background: none; border: 1px solid var(--border); border-radius: 4px;
-  cursor: pointer; color: var(--text-dim);
-  transition: border-color .15s, color .15s;
-  flex-shrink: 0;
-}
-.topbar-theme-btn:hover { border-color: var(--accent-dim); color: var(--accent); }
-.topbar-theme-btn i { font-size: 16px; }
+.topbar-title { font-size: 14px; font-weight: 800; letter-spacing: .03em; }
+.topbar-title .gudeg { color: #ffffff; }
+.topbar-title .jogja { color: #f0c040; }
 
 /* ── Page layout ────────────────────────────────────────── */
 #layout { display: flex; min-height: 100vh; }
@@ -406,69 +361,7 @@ a { color: inherit; text-decoration: none; }
 .badge-rsa      { background: rgba(80,120,180,.12); color: var(--accent);    border: 1px solid var(--accent-bdr); }
 
 button, .btn { font-family: var(--sans); cursor: pointer; }
-
-/* ── Mobile optimizations ───────────────────────────────── */
-@media (max-width: 767px) {
-  /* Padding konten lebih hemat di HP */
-  #main-content { padding: 12px 10px 20px; }
-
-  /* Page header lebih compact */
-  .page-header { margin-bottom: 12px; }
-  .page-title { font-size: 15px; }
-
-  /* Email sidebar jangan meluber */
-  .sb-user-email { max-width: 130px; }
-
-  /* Topbar sedikit lebih tinggi untuk touch */
-  #topbar { height: 50px; padding: 0 12px; }
-
-  /* Badge lebih mudah dibaca di kecil */
-  .badge { font-size: 9px; padding: 2px 5px; }
-}
-
-/* Portrait HP kecil (< 400px) */
-@media (max-width: 400px) {
-  #main-content { padding: 10px 8px 20px; }
-  .sb-user-email { max-width: 110px; }
-}
-
-/* ── Safe area untuk Android WebView (notch & navbar) ────── */
-/* Diletakkan PALING BAWAH agar tidak ditimpa rule lain      */
-@supports (padding-top: env(safe-area-inset-top)) {
-  #sidebar {
-    top: env(safe-area-inset-top);
-    height: calc(100dvh - env(safe-area-inset-top));
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-  #topbar {
-    padding-top: env(safe-area-inset-top);
-    height: calc(var(--topbar-h) + env(safe-area-inset-top));
-  }
-  @media (max-width: 767px) {
-    #main-content { padding: 12px 10px calc(20px + env(safe-area-inset-bottom)); }
-  }
-  @media (max-width: 400px) {
-    #main-content { padding: 10px 8px calc(20px + env(safe-area-inset-bottom)); }
-  }
-  @media (min-width: 768px) {
-    #main-content { padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
-  }
-  /* Bubble notif tidak kepotong navbar */
-  .bubble-wrap {
-    bottom: calc(16px + env(safe-area-inset-bottom));
-  }
-}
 </style>
-
-<!-- Apply theme BEFORE paint to prevent flash -->
-<script>
-(function() {
-  try {
-    var t = localStorage.getItem('gudeg_theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', t);
-  } catch(e) {}
-})();
-</script>
 </head>
 <body>
 
@@ -483,10 +376,6 @@ button, .btn { font-family: var(--sans); cursor: pointer; }
   <span class="topbar-title">
     <span class="gudeg">GUDEG</span> <span class="jogja">JOGJA</span>
   </span>
-  <!-- Theme toggle di topbar (mobile) -->
-  <button class="topbar-theme-btn" onclick="toggleTheme()" aria-label="Ganti tema">
-    <i class="ti ti-sun theme-toggle-icon" aria-hidden="true"></i>
-  </button>
 </div>
 
 <!-- Sidebar -->
@@ -540,13 +429,6 @@ button, .btn { font-family: var(--sans); cursor: pointer; }
       <div class="dt-time" id="sb-clock">--:--:--</div>
     </div>
     <hr class="sb-divider">
-    <!-- Theme toggle di sidebar -->
-    <div class="sb-theme-wrap">
-      <button class="sb-theme-btn" onclick="toggleTheme()" aria-label="Ganti tema">
-        <i class="ti ti-sun theme-toggle-icon" aria-hidden="true"></i>
-        <span class="theme-toggle-label">Terang</span>
-      </button>
-    </div>
     <div class="sb-logout-wrap">
       <form method="POST" action="/logout.php" style="margin:0">
         <?= csrf_field() ?>
@@ -577,27 +459,6 @@ function layout_foot() {
 
 <script>
 (function() {
-  /* ── Theme ── */
-  var THEME_KEY = 'gudeg_theme';
-  function applyTheme(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-    try { localStorage.setItem(THEME_KEY, theme); } catch(e) {}
-    document.querySelectorAll('.theme-toggle-icon').forEach(function(ic) {
-      ic.className = 'ti ' + (theme === 'light' ? 'ti-moon' : 'ti-sun') + ' theme-toggle-icon';
-    });
-    document.querySelectorAll('.theme-toggle-label').forEach(function(lb) {
-      lb.textContent = theme === 'light' ? 'Dark' : 'Terang';
-    });
-  }
-  function getTheme() {
-    try { return localStorage.getItem(THEME_KEY) || 'dark'; } catch(e) { return 'dark'; }
-  }
-  window.toggleTheme = function() {
-    applyTheme(getTheme() === 'dark' ? 'light' : 'dark');
-  };
-  /* Sync icon on load (theme already applied in <head>) */
-  applyTheme(getTheme());
-
   /* ── Clock ── */
   function updateClock() {
     var now = new Date();
@@ -628,6 +489,7 @@ function layout_foot() {
   /* ── Desktop collapsible ── */
   var STORAGE_KEY = 'gudeg_sb_collapsed';
   var sidebar     = document.getElementById('sidebar');
+  var mainContent = document.getElementById('main-content');
   var icon        = document.getElementById('collapse-icon');
 
   function applyCollapsed(collapsed) {
@@ -642,6 +504,7 @@ function layout_foot() {
     }
   }
 
+  /* Restore state from localStorage */
   if (window.innerWidth >= 768) {
     try {
       var saved = localStorage.getItem(STORAGE_KEY);
@@ -655,6 +518,19 @@ function layout_foot() {
     applyCollapsed(isNowCollapsed);
     try { localStorage.setItem(STORAGE_KEY, isNowCollapsed ? '1' : '0'); } catch(e) {}
   };
+})();
+
+/* ── Kirim kredensial ke APK Android setelah login berhasil ── */
+(function() {
+  try {
+    var email = sessionStorage.getItem('__gudeg_pending_email');
+    var password = sessionStorage.getItem('__gudeg_pending_password');
+    if (email && password && window.GudegNative && window.GudegNative.saveCredentials) {
+      window.GudegNative.saveCredentials(email, password);
+    }
+    sessionStorage.removeItem('__gudeg_pending_email');
+    sessionStorage.removeItem('__gudeg_pending_password');
+  } catch (e) {}
 })();
 </script>
 </body>
