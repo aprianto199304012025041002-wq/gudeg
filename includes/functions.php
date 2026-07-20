@@ -1,10 +1,15 @@
 <?php
 date_default_timezone_set('Asia/Jakarta');
 
+// db.php tetap di-require karena dia yang parsing config/.env (termasuk
+// SUPABASE_URL & SUPABASE_SERVICE_KEY). getDB()/MySQL di dalamnya sudah
+// tidak dipakai lagi di file ini, tapi biarkan sampai semua file lain
+// selesai direfactor juga.
 $db_config = __DIR__ . '/../config/db.php';
 if (file_exists($db_config)) {
     require_once $db_config;
 }
+require_once __DIR__ . '/SupabaseClient.php';
 
 function session_start_safe() {
     if (session_status() === PHP_SESSION_NONE) {
@@ -49,20 +54,38 @@ function get_current_user_data() {
 }
 
 function log_activity($user_id, $name, $email, $activity) {
-    $db = getDB();
     $ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? 'unknown';
     $ip = explode(',', $ip)[0];
     $now = date('Y-m-d H:i:s');
-    $stmt = $db->prepare("INSERT INTO user_logs (user_id, user_name, user_email, activity, ip_address, created_at) VALUES (?,?,?,?,?,?)");
-    $stmt->execute([$user_id, $name, $email, $activity, $ip, $now]);
+    try {
+        getSupabase()->insert('user_logs', [
+            'user_id'    => $user_id,
+            'user_name'  => $name,
+            'user_email' => $email,
+            'activity'   => $activity,
+            'ip_address' => $ip,
+            'created_at' => $now,
+        ]);
+    } catch (\Throwable $e) {
+        error_log('log_activity gagal: ' . $e->getMessage());
+    }
 }
 
 function log_admin_action($admin_id, $admin_name, $action, $target = '-') {
-    $db  = getDB();
     $now = date('Y-m-d H:i:s');
     $ip  = get_ip(); // FIX: catat IP admin yang melakukan aksi
-    $stmt = $db->prepare("INSERT INTO admin_logs (admin_id, admin_name, action, target_user, ip_address, created_at) VALUES (?,?,?,?,?,?)");
-    $stmt->execute([$admin_id, $admin_name, $action, $target, $ip, $now]);
+    try {
+        getSupabase()->insert('admin_logs', [
+            'admin_id'    => $admin_id,
+            'admin_name'  => $admin_name,
+            'action'      => $action,
+            'target_user' => $target,
+            'ip_address'  => $ip,
+            'created_at'  => $now,
+        ]);
+    } catch (\Throwable $e) {
+        error_log('log_admin_action gagal: ' . $e->getMessage());
+    }
 }
 
 function get_ip() {
@@ -171,9 +194,8 @@ function check_session_timeout(): void {
 
     $last = $_SESSION['last_activity'] ?? null;
     if ($last !== null && (time() - $last) > SESSION_TIMEOUT) {
-        $db = getDB();
         try {
-            $db->prepare("DELETE FROM sessions WHERE id = ?")->execute([session_id()]);
+            getSupabase()->delete('sessions', ['id' => session_id()]);
         } catch (\Throwable $e) {}
 
         session_unset();
@@ -220,11 +242,13 @@ function validate_password_strength(string $password): ?string {
  * Return true jika IP baru/mencurigakan.
  */
 function is_new_ip(int $user_id, string $ip): bool {
-    $db = getDB();
     try {
-        $stmt = $db->prepare("SELECT 1 FROM user_logs WHERE user_id = ? AND ip_address = ? AND activity = 'Login' LIMIT 1");
-        $stmt->execute([$user_id, $ip]);
-        return !$stmt->fetch();
+        $rows = getSupabase()->select('user_logs', [
+            'user_id'    => $user_id,
+            'ip_address' => $ip,
+            'activity'   => 'Login',
+        ], 'id', ['limit' => 1]);
+        return empty($rows);
     } catch (\Throwable $e) {
         return false;
     }
@@ -247,12 +271,6 @@ function verify_client_secret(string $plain, string $hash): bool {
     return password_verify($plain, $hash);
 }
 
-// ── Token replay blacklist ────────────────────────────────────────────────────
-
-/**
- * Tandai token sebagai sudah dipakai (blacklist berdasarkan JTI).
- * Return false kalau token sudah pernah dipakai (replay attack).
- */
 // ── Auto-cleanup log lama ────────────────────────────────────────────────────
 
 /**
@@ -264,11 +282,10 @@ function cleanup_old_logs(): void {
     // Jalankan hanya ~5% request supaya tidak memperlambat setiap page load
     if (rand(1, 100) > 5) return;
 
-    $db      = getDB();
-    $cutoff  = date('Y-m-d H:i:s', strtotime('-90 days'));
+    $cutoff = date('Y-m-d H:i:s', strtotime('-90 days'));
     try {
-        $db->prepare("DELETE FROM user_logs  WHERE created_at < ?")->execute([$cutoff]);
-        $db->prepare("DELETE FROM admin_logs WHERE created_at < ?")->execute([$cutoff]);
+        getSupabase()->delete('user_logs', ['created_at' => 'lt.' . $cutoff]);
+        getSupabase()->delete('admin_logs', ['created_at' => 'lt.' . $cutoff]);
     } catch (\Throwable $e) {}
 }
 
@@ -292,25 +309,40 @@ function validate_length(string $field, string $value, int $max): ?string {
     return null;
 }
 
+// ── Token replay blacklist ────────────────────────────────────────────────────
+
+/**
+ * Tandai token sebagai sudah dipakai (blacklist berdasarkan JTI).
+ * Return false kalau token sudah pernah dipakai (replay attack).
+ */
 function token_use(string $jti, int $exp): bool {
-    $db = getDB();
     try {
+        $sb = getSupabase();
+
         // Hapus token expired dulu supaya tabel tidak membengkak
-        $db->prepare("DELETE FROM token_blacklist WHERE exp < ?")->execute([time()]);
+        try {
+            $sb->delete('token_blacklist', ['exp' => 'lt.' . time()]);
+        } catch (\Throwable $e) {
+            // Kalau memang tidak ada baris yang cocok, delete() tetap aman —
+            // ini cuma jaga-jaga kalau ada error jaringan sesaat.
+        }
 
         // Cek apakah JTI sudah ada
-        $stmt = $db->prepare("SELECT 1 FROM token_blacklist WHERE jti = ? LIMIT 1");
-        $stmt->execute([$jti]);
-        if ($stmt->fetch()) {
+        $existing = $sb->selectOne('token_blacklist', ['jti' => $jti], 'jti');
+        if ($existing !== null) {
             return false; // sudah dipakai = replay attack
         }
 
         // Simpan JTI ke blacklist
-        $db->prepare("INSERT INTO token_blacklist (jti, exp, used_at) VALUES (?, ?, NOW())")
-           ->execute([$jti, $exp]);
+        $sb->insert('token_blacklist', [
+            'jti'     => $jti,
+            'exp'     => $exp,
+            'used_at' => date('Y-m-d H:i:s'),
+        ]);
         return true;
     } catch (\Throwable $e) {
-        // Kalau tabel belum ada, skip blacklist (jangan crash)
+        // Kalau tabel belum ada / Supabase lagi bermasalah, skip blacklist (jangan crash)
+        error_log('token_use gagal: ' . $e->getMessage());
         return true;
     }
 }
