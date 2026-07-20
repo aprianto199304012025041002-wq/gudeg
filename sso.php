@@ -4,7 +4,7 @@ require_once __DIR__ . '/includes/jwt.php';
 require_login();
 
 $user = get_current_user_data();
-$db   = getDB();
+$sb   = getSupabase();
 
 $client_id = $_GET['client_id'] ?? '';
 
@@ -13,9 +13,7 @@ if (!$client_id) {
 }
 
 // Fetch the SSO application
-$stmt = $db->prepare("SELECT * FROM sso_applications WHERE client_id = ? AND is_active = 1 LIMIT 1");
-$stmt->execute([$client_id]);
-$app = $stmt->fetch(PDO::FETCH_ASSOC);
+$app = $sb->selectOne('sso_applications', ['client_id' => $client_id, 'is_active' => true]);
 
 if (!$app) {
     die('Aplikasi tidak ditemukan atau tidak aktif.');
@@ -23,9 +21,8 @@ if (!$app) {
 
 // Check user has access to this app (admin always has access)
 if ($user['role'] !== 'admin') {
-    $access = $db->prepare("SELECT 1 FROM user_applications WHERE user_id = ? AND application_id = ? LIMIT 1");
-    $access->execute([$user['id'], $app['id']]);
-    if (!$access->fetch()) {
+    $access = $sb->selectOne('user_applications', ['user_id' => $user['id'], 'application_id' => $app['id']], 'user_id');
+    if (!$access) {
         log_activity(
             $user['id'],
             $user['name'],
