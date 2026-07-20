@@ -4,12 +4,12 @@ require_once __DIR__ . '/../includes/layout.php';
 require_admin();
 
 $user = get_current_user_data();
-$db   = getDB();
+$sb   = getSupabase();
 
 // ── Auto-cleanup ─────────────────────────────────────────────────────────────
 // Cleanup token blacklist expired
 try {
-    $db->prepare("DELETE FROM token_blacklist WHERE exp < ?")->execute([time()]);
+    $sb->delete('token_blacklist', ['exp' => 'lt.' . time()]);
 } catch (\Throwable $e) {}
 
 // Cleanup log lama > 90 hari (probabilistik 5%, tidak perlu cron)
@@ -21,65 +21,47 @@ $off  = ($page - 1) * $per;
 $tab  = ($_GET['tab'] ?? 'user') === 'admin' ? 'admin' : 'user';
 
 // ── Filter params ─────────────────────────────────────────────────────────────
-$search     = trim($_GET['search'] ?? '');
-$filter_ip  = trim($_GET['ip'] ?? '');
+$search      = trim($_GET['search'] ?? '');
+$filter_ip   = trim($_GET['ip'] ?? '');
 $filter_date = trim($_GET['date'] ?? '');
 
-// ── Build query dengan filter ─────────────────────────────────────────────────
-$where  = [];
-$params = [];
-
-if ($tab === 'admin') {
-    if ($search) {
-        $where[]  = "(action LIKE ? OR admin_name LIKE ? OR target_user LIKE ?)";
-        $params[] = "%$search%";
-        $params[] = "%$search%";
-        $params[] = "%$search%";
-    }
-    if ($filter_ip) {
-        $where[]  = "ip_address LIKE ?";
-        $params[] = "%$filter_ip%";
-    }
-    if ($filter_date) {
-        $where[]  = "DATE(created_at) = ?";
-        $params[] = $filter_date;
-    }
-
-    $where_sql = $where ? 'WHERE ' . implode(' AND ', $where) : '';
-
-    $count_stmt = $db->prepare("SELECT COUNT(*) FROM admin_logs $where_sql");
-    $count_stmt->execute($params);
-    $total = $count_stmt->fetchColumn();
-
-    $log_stmt = $db->prepare("SELECT * FROM admin_logs $where_sql ORDER BY id DESC LIMIT $per OFFSET $off");
-    $log_stmt->execute($params);
-    $logs = $log_stmt->fetchAll(PDO::FETCH_ASSOC);
-} else {
-    if ($search) {
-        $where[]  = "(activity LIKE ? OR user_name LIKE ? OR user_email LIKE ?)";
-        $params[] = "%$search%";
-        $params[] = "%$search%";
-        $params[] = "%$search%";
-    }
-    if ($filter_ip) {
-        $where[]  = "ip_address LIKE ?";
-        $params[] = "%$filter_ip%";
-    }
-    if ($filter_date) {
-        $where[]  = "DATE(created_at) = ?";
-        $params[] = $filter_date;
-    }
-
-    $where_sql = $where ? 'WHERE ' . implode(' AND ', $where) : '';
-
-    $count_stmt = $db->prepare("SELECT COUNT(*) FROM user_logs $where_sql");
-    $count_stmt->execute($params);
-    $total = $count_stmt->fetchColumn();
-
-    $log_stmt = $db->prepare("SELECT * FROM user_logs $where_sql ORDER BY id DESC LIMIT $per OFFSET $off");
-    $log_stmt->execute($params);
-    $logs = $log_stmt->fetchAll(PDO::FETCH_ASSOC);
+/**
+ * Escape karakter yang punya arti khusus di syntax or() PostgREST
+ * (koma memisah kondisi, kurung buat grouping) supaya pencarian user
+ * yang kebetulan mengandung karakter itu tidak merusak query.
+ */
+function pgrest_escape_search(string $v): string {
+    return str_replace([',', '(', ')'], ['\,', '\(', '\)'], $v);
 }
+
+// ── Build filter dengan syntax PostgREST ────────────────────────────────────
+$table   = $tab === 'admin' ? 'admin_logs' : 'user_logs';
+$filters = [];
+
+if ($search) {
+    $needle = '*' . pgrest_escape_search($search) . '*';
+    if ($tab === 'admin') {
+        $filters[] = 'or=(action.ilike.' . rawurlencode($needle)
+                   . ',admin_name.ilike.' . rawurlencode($needle)
+                   . ',target_user.ilike.' . rawurlencode($needle) . ')';
+    } else {
+        $filters[] = 'or=(activity.ilike.' . rawurlencode($needle)
+                   . ',user_name.ilike.' . rawurlencode($needle)
+                   . ',user_email.ilike.' . rawurlencode($needle) . ')';
+    }
+}
+if ($filter_ip) {
+    $filters[] = 'ip_address=ilike.' . rawurlencode('*' . pgrest_escape_search($filter_ip) . '*');
+}
+if ($filter_date && preg_match('/^\d{4}-\d{2}-\d{2}$/', $filter_date)) {
+    $next = date('Y-m-d', strtotime($filter_date . ' +1 day'));
+    $filters[] = 'created_at=gte.' . rawurlencode($filter_date . 'T00:00:00');
+    $filters[] = 'created_at=lt.'  . rawurlencode($next . 'T00:00:00');
+}
+
+$result = $sb->selectRaw($table, $filters, '*', $per, $off, 'id.desc', true);
+$logs   = $result['data'];
+$total  = $result['total'] ?? count($logs);
 
 $pages = ceil($total / $per);
 

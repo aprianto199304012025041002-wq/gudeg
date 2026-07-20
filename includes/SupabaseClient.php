@@ -147,6 +147,92 @@ class SupabaseClient
         return $this->request('POST', 'rpc/' . $functionName, [], $params);
     }
 
+    // ── SELECT tingkat lanjut ────────────────────────────────────────────────
+    /**
+     * Dipakai untuk kasus yang tidak bisa dicover select() biasa:
+     * - pencarian OR di banyak kolom sekaligus (mis. search box admin logs)
+     * - filter yang sama kolomnya dipakai 2x (mis. rentang tanggal: created_at >= X AND created_at < Y)
+     * - butuh total jumlah baris buat pagination (COUNT(*) versi MySQL)
+     *
+     * @param string   $table
+     * @param string[] $rawFilters  Array string query PostgREST siap pakai, SUDAH di-encode
+     *                               sendiri oleh caller. Contoh:
+     *                               ["ip_address=ilike." . rawurlencode('*182*'),
+     *                                "created_at=gte." . rawurlencode('2026-01-01T00:00:00'),
+     *                                "or=(" . "action.ilike." . rawurlencode('*login*') . ")"]
+     *                               Dipisah jadi array (bukan assoc array) khusus supaya
+     *                               kolom yang sama boleh muncul lebih dari sekali
+     *                               (assoc array PHP tidak bisa punya key dobel).
+     * @param bool     $withCount   Kalau true, kirim header "Prefer: count=exact" dan baca
+     *                               total baris dari header response "Content-Range".
+     * @return array{data: array, total: ?int}
+     */
+    public function selectRaw(
+        string $table,
+        array $rawFilters = [],
+        string $columns = '*',
+        ?int $limit = null,
+        ?int $offset = null,
+        ?string $order = null,
+        bool $withCount = false
+    ): array {
+        $parts = ['select=' . rawurlencode($columns)];
+        foreach ($rawFilters as $f) {
+            $parts[] = $f;
+        }
+        if ($order !== null)  $parts[] = 'order=' . rawurlencode($order);
+        if ($limit !== null)  $parts[] = 'limit=' . (int)$limit;
+        if ($offset !== null) $parts[] = 'offset=' . (int)$offset;
+
+        $url = $this->baseUrl . '/' . $table . '?' . implode('&', $parts);
+
+        $headers = [
+            'apikey: ' . $this->serviceKey,
+            'Authorization: Bearer ' . $this->serviceKey,
+            'Content-Type: application/json',
+        ];
+        if ($withCount) {
+            $headers[] = 'Prefer: count=exact';
+        }
+
+        $responseHeaders = '';
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER     => $headers,
+            CURLOPT_TIMEOUT        => 10,
+            CURLOPT_HEADERFUNCTION => function ($curl, $header) use (&$responseHeaders) {
+                $responseHeaders .= $header;
+                return strlen($header);
+            },
+        ]);
+        $body      = curl_exec($ch);
+        $httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
+        curl_close($ch);
+
+        if ($body === false) {
+            error_log("Supabase cURL error (selectRaw $table): $curlError");
+            throw new SupabaseException("Gagal menghubungi Supabase: $curlError");
+        }
+        if ($httpCode >= 400) {
+            error_log("Supabase error $httpCode (selectRaw $table): $body");
+            throw new SupabaseException("Supabase menolak request ($httpCode): $body");
+        }
+
+        $data = $body === '' ? [] : json_decode($body, true);
+        if (!is_array($data)) {
+            $data = [];
+        }
+
+        $total = null;
+        if ($withCount && preg_match('#Content-Range:\s*\S*/(\d+)#i', $responseHeaders, $m)) {
+            $total = (int)$m[1];
+        }
+
+        return ['data' => $data, 'total' => $total];
+    }
+
     // ── Inti pengiriman request ─────────────────────────────────────────────
     private function request(string $method, string $path, array $query = [], ?array $body = null): array
     {
