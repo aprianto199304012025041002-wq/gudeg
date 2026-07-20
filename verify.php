@@ -6,7 +6,7 @@
  * Response JSON: { valid: true/false, payload: {...} }
  */
 require_once __DIR__ . '/includes/jwt.php';
-require_once __DIR__ . '/config/db.php';
+require_once __DIR__ . '/includes/functions.php';
 header('Content-Type: application/json');
 
 // FIX: Jangan pakai Access-Control-Allow-Origin: * untuk endpoint sensitif.
@@ -14,8 +14,9 @@ header('Content-Type: application/json');
 // Kalau tidak ada Origin header (curl/server-to-server), tetap lanjut tanpa CORS header.
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 if ($origin) {
-    $db_cors = getDB();
-    $origins = $db_cors->query("SELECT redirect FROM sso_applications WHERE is_active = 1")->fetchAll(PDO::FETCH_COLUMN);
+    $sb_cors = getSupabase();
+    $rows    = $sb_cors->select('sso_applications', ['is_active' => true], 'redirect');
+    $origins = array_column($rows, 'redirect');
     $allowed = false;
     foreach ($origins as $redir) {
         $parsed = parse_url($redir);
@@ -51,10 +52,10 @@ if (!function_exists('base64url_decode')) {
     }
 }
 
-$db = getDB(); // inisialisasi $db — dipakai oleh semua query di bawah
+$sb = getSupabase(); // inisialisasi $sb — dipakai oleh semua query di bawah
 
 // Auto-cleanup token blacklist yang sudah expired
-try { $db->prepare("DELETE FROM token_blacklist WHERE exp < ?")->execute([time()]); } catch (\Throwable $e) {}
+try { $sb->delete('token_blacklist', ['exp' => 'lt.' . time()]); } catch (\Throwable $e) {}
 
 // FIX: Rate limiting verify.php — cegah brute force client_secret
 $verify_ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? 'unknown';
@@ -70,13 +71,10 @@ try {
 
     // Cleanup rate limit record yang window-nya sudah habis
     $rl_window_end = time() + $rl_window;
-    $db->prepare("DELETE FROM token_blacklist WHERE jti LIKE 'rl_%' AND exp < ?")
-       ->execute([time()]);
+    $sb->delete('token_blacklist', ['jti' => 'like.rl_*', 'exp' => 'lt.' . time()]);
 
     // Cek record rate limit untuk IP ini
-    $rl_stmt = $db->prepare("SELECT exp, payload FROM token_blacklist WHERE jti = ? LIMIT 1");
-    $rl_stmt->execute([$rl_jti]);
-    $rl_row = $rl_stmt->fetch(PDO::FETCH_ASSOC);
+    $rl_row = $sb->selectOne('token_blacklist', ['jti' => $rl_jti], 'exp,payload');
 
     if ($rl_row) {
         // exp = unix timestamp kapan window habis (nilai besar, tidak konflik dengan cleanup)
@@ -86,13 +84,16 @@ try {
             http_response_code(429);
             fail('Terlalu banyak request. Coba lagi dalam 1 menit.');
         }
-        $db->prepare("UPDATE token_blacklist SET payload = ? WHERE jti = ?")
-           ->execute([(string)($req_count + 1), $rl_jti]);
+        $sb->update('token_blacklist', ['jti' => $rl_jti], ['payload' => (string)($req_count + 1)]);
     } else {
         // Request pertama dari IP ini dalam window ini
         // exp = kapan window habis (unix timestamp besar), payload = counter
-        $db->prepare("INSERT INTO token_blacklist (jti, exp, payload, used_at) VALUES (?, ?, '1', NOW())")
-           ->execute([$rl_jti, $rl_window_end]);
+        $sb->insert('token_blacklist', [
+            'jti'     => $rl_jti,
+            'exp'     => $rl_window_end,
+            'payload' => '1',
+            'used_at' => date('Y-m-d H:i:s'),
+        ]);
     }
 } catch (\Throwable $e) {
     // Kalau rate limit gagal karena DB error, tetap lanjut jangan block request
@@ -109,9 +110,7 @@ if (!$token || !$client_id || !$client_secret) {
 // 1. Cek aplikasi aktif
 // FIX: Cari berdasarkan client_id saja, verifikasi secret pakai password_verify
 // (secret di DB sekarang tersimpan sebagai bcrypt hash)
-$stmt = $db->prepare("SELECT * FROM sso_applications WHERE client_id = ? LIMIT 1");
-$stmt->execute([$client_id]);
-$app = $stmt->fetch(PDO::FETCH_ASSOC);
+$app = $sb->selectOne('sso_applications', ['client_id' => $client_id]);
 
 if (!$app || !verify_client_secret($client_secret, $app['client_secret'])) {
     fail('Aplikasi tidak ditemukan atau kredensial salah.');
@@ -163,9 +162,7 @@ if ($jti) {
 }
 
 // 3. Cek user masih aktif
-$stmt = $db->prepare("SELECT id, name, email, role, is_active FROM users WHERE id = ? LIMIT 1");
-$stmt->execute([$user_id]);
-$user = $stmt->fetch(PDO::FETCH_ASSOC);
+$user = $sb->selectOne('users', ['id' => $user_id], 'id,name,email,role,is_active');
 
 if (!$user) {
     fail('User tidak ditemukan.');
@@ -176,9 +173,8 @@ if (!$user['is_active']) {
 
 // 4. Cek user masih punya akses ke aplikasi ini
 if ($user['role'] !== 'admin') {
-    $stmt = $db->prepare("SELECT 1 FROM user_applications WHERE user_id = ? AND application_id = ? LIMIT 1");
-    $stmt->execute([$user_id, $app['id']]);
-    if (!$stmt->fetch()) {
+    $access = $sb->selectOne('user_applications', ['user_id' => $user_id, 'application_id' => $app['id']], 'user_id');
+    if (!$access) {
         fail('Akses user ke aplikasi ini telah dicabut.');
     }
 }

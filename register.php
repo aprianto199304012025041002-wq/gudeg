@@ -29,16 +29,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($password !== $confirm) {
         $error = 'Konfirmasi password tidak cocok.';
     } else {
-        $db    = getDB();
-        $check = $db->prepare("SELECT id FROM users WHERE email = ? LIMIT 1");
-        $check->execute([$email]);
-        if ($check->fetch()) {
+        $sb    = getSupabase();
+        $check = $sb->selectOne('users', ['email' => $email], 'id');
+        if ($check) {
             $error = 'Email sudah terdaftar.';
         } else {
             $hash = password_hash($password, PASSWORD_BCRYPT);
-            $stmt = $db->prepare("INSERT INTO users (name, email, password, role, is_active, password_changed_at, created_at, updated_at, last_login_at) VALUES (?,?,?,'guest',1,NOW(),NOW(),NOW(),NOW())");
-            $stmt->execute([$name, $email, $hash]);
-            $new_id = $db->lastInsertId();
+            $now  = date('Y-m-d H:i:s');
+            $inserted = $sb->insert('users', [
+                'name'                 => $name,
+                'email'                => $email,
+                'password'             => $hash,
+                'role'                 => 'guest',
+                'is_active'            => true,
+                'password_changed_at'  => $now,
+                'created_at'           => $now,
+                'updated_at'           => $now,
+                'last_login_at'        => $now,
+            ]);
+            $new_id = $inserted['id'] ?? null;
             log_activity($new_id, $name, $email, 'Register Akun Baru (Guest)');
             $success = true;
         }

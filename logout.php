@@ -22,8 +22,7 @@ if (!empty($_SESSION['user_id'])) {
 // Hapus sesi dari DB
 $sess_id = session_id();
 try {
-    $db2 = getDB();
-    $db2->prepare("DELETE FROM sessions WHERE id = ?")->execute([$sess_id]);
+    getSupabase()->delete('sessions', ['id' => $sess_id]);
 } catch (Exception $e) {}
 
 session_destroy();
