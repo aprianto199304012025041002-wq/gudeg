@@ -4,7 +4,7 @@ require_once __DIR__ . '/../includes/layout.php';
 require_admin();
 
 $user = get_current_user_data();
-$db   = getDB();
+$sb   = getSupabase();
 
 $bubble_type  = '';
 $bubble_title = '';
@@ -24,8 +24,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $cid      = bin2hex(random_bytes(8));
             $sec_plain = bin2hex(random_bytes(32));
             $sec_hash  = hash_client_secret($sec_plain);
-            $db->prepare("INSERT INTO sso_applications (name, redirect, client_id, client_secret, description, use_signed_token, is_active, created_at, updated_at) VALUES (?,?,?,?,?,?,1,NOW(),NOW())")
-               ->execute([$name, $redirect, $cid, $sec_hash, $desc, $signed]);
+            $now = date('Y-m-d H:i:s');
+            $sb->insert('sso_applications', [
+                'name'             => $name,
+                'redirect'         => $redirect,
+                'client_id'        => $cid,
+                'client_secret'    => $sec_hash,
+                'description'      => $desc,
+                'use_signed_token' => (bool)$signed,
+                'is_active'        => true,
+                'created_at'       => $now,
+                'updated_at'       => $now,
+            ]);
             log_admin_action($user['id'], $user['name'],
                 'Registrasi Aplikasi Baru' . ($signed ? ' (Signed Token)' : ''), $name);
             $bubble_type  = 'success';
@@ -35,12 +45,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } elseif ($action === 'toggle_status') {
         $id  = (int)$_POST['app_id'];
-        $row = $db->prepare("SELECT * FROM sso_applications WHERE id = ? LIMIT 1");
-        $row->execute([$id]);
-        $app = $row->fetch(PDO::FETCH_ASSOC);
+        $app = $sb->selectOne('sso_applications', ['id' => $id]);
         if ($app) {
-            $new = $app['is_active'] ? 0 : 1;
-            $db->prepare("UPDATE sso_applications SET is_active = ? WHERE id = ?")->execute([$new, $id]);
+            $new = !$app['is_active'];
+            $sb->update('sso_applications', ['id' => $id], ['is_active' => $new]);
             log_admin_action($user['id'], $user['name'], 'Update Status Aplikasi', $app['name'] . ' (' . ($new ? 'Aktif' : 'Deaktif') . ')');
             $bubble_type  = 'success';
             $bubble_title = 'Status Diperbarui';
@@ -48,12 +56,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } elseif ($action === 'toggle_signed') {
         $id  = (int)$_POST['app_id'];
-        $row = $db->prepare("SELECT * FROM sso_applications WHERE id = ? LIMIT 1");
-        $row->execute([$id]);
-        $app = $row->fetch(PDO::FETCH_ASSOC);
+        $app = $sb->selectOne('sso_applications', ['id' => $id]);
         if ($app) {
-            $new = $app['use_signed_token'] ? 0 : 1;
-            $db->prepare("UPDATE sso_applications SET use_signed_token = ? WHERE id = ?")->execute([$new, $id]);
+            $new = !$app['use_signed_token'];
+            $sb->update('sso_applications', ['id' => $id], ['use_signed_token' => $new]);
             log_admin_action($user['id'], $user['name'], 'Toggle Signed Token: ' . ($new ? 'ON' : 'OFF'), $app['name']);
             $bubble_type  = 'info';
             $bubble_title = 'Token Mode';
@@ -61,12 +67,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } elseif ($action === 'delete_app') {
         $id  = (int)$_POST['app_id'];
-        $row = $db->prepare("SELECT name FROM sso_applications WHERE id = ? LIMIT 1");
-        $row->execute([$id]);
-        $app = $row->fetch(PDO::FETCH_ASSOC);
+        $app = $sb->selectOne('sso_applications', ['id' => $id], 'name');
         if ($app) {
-            $db->prepare("DELETE FROM sso_applications WHERE id = ?")->execute([$id]);
-            $db->prepare("DELETE FROM user_applications WHERE application_id = ?")->execute([$id]);
+            $sb->delete('sso_applications', ['id' => $id]);
+            $sb->delete('user_applications', ['application_id' => $id]);
             log_admin_action($user['id'], $user['name'], 'Hapus Aplikasi', $app['name']);
             $bubble_type  = 'danger';
             $bubble_title = 'Aplikasi Dihapus';
@@ -75,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$apps = $db->query("SELECT * FROM sso_applications ORDER BY id DESC")->fetchAll(PDO::FETCH_ASSOC);
+$apps = $sb->select('sso_applications', [], '*', ['order' => 'id.desc']);
 
 layout_head('Kelola Aplikasi', 'admin-apps');
 ?>
