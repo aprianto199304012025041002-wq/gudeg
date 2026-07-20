@@ -4,7 +4,7 @@ require_once __DIR__ . '/../includes/layout.php';
 require_admin();
 
 $user = get_current_user_data();
-$db   = getDB();
+$sb   = getSupabase();
 
 $msg  = '';
 $msg_type = 'success';
@@ -14,14 +14,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action    = $_POST['action'] ?? '';
     $target_id = (int)($_POST['target_id'] ?? 0);
 
-    $row = $db->prepare("SELECT * FROM users WHERE id = ? LIMIT 1");
-    $row->execute([$target_id]);
-    $target = $row->fetch(PDO::FETCH_ASSOC);
+    $target = $sb->selectOne('users', ['id' => $target_id]);
 
     if ($target && $target_id !== (int)$user['id']) {
         if ($action === 'toggle_active') {
-            $new_status = $target['is_active'] ? 0 : 1;
-            $db->prepare("UPDATE users SET is_active = ? WHERE id = ?")->execute([$new_status, $target_id]);
+            $new_status = !$target['is_active'];
+            $sb->update('users', ['id' => $target_id], ['is_active' => $new_status]);
             $label = $new_status ? 'Status Akun Diaktifkan' : 'Status Akun Dinonaktifkan';
             log_admin_action($user['id'], $user['name'], $label, $target['name']);
             $msg = "Akun <strong>{$target['name']}</strong> berhasil " . ($new_status ? 'diaktifkan' : 'dinonaktifkan') . '.';
@@ -29,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($action === 'change_role') {
             $new_role = $_POST['new_role'] ?? '';
             if (in_array($new_role, ['user', 'guest'])) {
-                $db->prepare("UPDATE users SET role = ? WHERE id = ?")->execute([$new_role, $target_id]);
+                $sb->update('users', ['id' => $target_id], ['role' => $new_role]);
                 log_admin_action($user['id'], $user['name'], "Ubah Role menjadi " . strtoupper($new_role), $target['name']);
                 $msg = "Role <strong>{$target['name']}</strong> diubah ke $new_role.";
                 $msg_type = 'success';
@@ -37,24 +35,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($action === 'reset_password') {
             $new_pass = bin2hex(random_bytes(6));
             $hash = password_hash($new_pass, PASSWORD_BCRYPT);
-            $db->prepare("UPDATE users SET password = ?, password_changed_at = NOW() WHERE id = ?")->execute([$hash, $target_id]);
+            $sb->update('users', ['id' => $target_id], [
+                'password'             => $hash,
+                'password_changed_at'  => date('Y-m-d H:i:s'),
+            ]);
             log_admin_action($user['id'], $user['name'], "Reset Password — password baru: $new_pass", $target['email']);
             try {
-                $db->prepare("DELETE FROM sessions WHERE user_id = ?")->execute([$target_id]);
+                $sb->delete('sessions', ['user_id' => $target_id]);
             } catch (\Throwable $e) {}
             $msg = "Password <strong>{$target['name']}</strong> direset ke: <code>$new_pass</code>";
             $msg_type = 'info';
         } elseif ($action === 'delete_user') {
-            $db->prepare("DELETE FROM user_applications WHERE user_id = ?")->execute([$target_id]);
-            $db->prepare("DELETE FROM users WHERE id = ?")->execute([$target_id]);
+            $sb->delete('user_applications', ['user_id' => $target_id]);
+            $sb->delete('users', ['id' => $target_id]);
             log_admin_action($user['id'], $user['name'], 'Hapus User', $target['name'] . ' (' . $target['email'] . ')');
             $msg = "Akun <strong>{$target['name']}</strong> telah dihapus permanen.";
             $msg_type = 'danger';
         } elseif ($action === 'update_apps') {
             $app_ids = array_map('intval', $_POST['app_ids'] ?? []);
-            $db->prepare("DELETE FROM user_applications WHERE user_id = ?")->execute([$target_id]);
+            $sb->delete('user_applications', ['user_id' => $target_id]);
             foreach ($app_ids as $aid) {
-                $db->prepare("INSERT INTO user_applications (user_id, application_id) VALUES (?,?)")->execute([$target_id, $aid]);
+                $sb->insert('user_applications', ['user_id' => $target_id, 'application_id' => $aid]);
             }
             log_admin_action($user['id'], $user['name'], 'Update Akses Aplikasi SSO', $target['name']);
             $msg = "Akses aplikasi <strong>{$target['name']}</strong> diperbarui.";
@@ -63,11 +64,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$users    = $db->query("SELECT * FROM users WHERE deleted_at IS NULL ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
-$all_apps = $db->query("SELECT * FROM sso_applications ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
+$users    = $sb->select('users', ['deleted_at' => 'is.null'], '*', ['order' => 'id.asc']);
+$all_apps = $sb->select('sso_applications', [], '*', ['order' => 'id.asc']);
 
 $ua_map = [];
-foreach ($db->query("SELECT * FROM user_applications")->fetchAll(PDO::FETCH_ASSOC) as $r) {
+foreach ($sb->select('user_applications') as $r) {
     $ua_map[$r['user_id']][] = $r['application_id'];
 }
 
