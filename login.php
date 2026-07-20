@@ -28,10 +28,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (login_throttled($email)) {
             $error = 'Terlalu banyak percobaan login. Coba lagi dalam 10 menit.';
         } else {
-            $db   = getDB();
-            $stmt = $db->prepare("SELECT * FROM users WHERE email = ? AND deleted_at IS NULL LIMIT 1");
-            $stmt->execute([$email]);
-            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            $sb   = getSupabase();
+            $user = $sb->selectOne('users', ['email' => $email, 'deleted_at' => 'is.null']);
 
             if ($user && password_verify($password, $user['password'])) {
                 if (!$user['is_active']) {
@@ -53,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         setcookie('gudeg_remember_email', '', time() - 3600, '/', '', false, true);
                     }
 
-                    $db->prepare("UPDATE users SET last_login_at = NOW() WHERE id = ?")->execute([$user['id']]);
+                    $sb->update('users', ['id' => $user['id']], ['last_login_at' => date('Y-m-d H:i:s')]);
 
                     $current_ip = get_ip();
                     $is_new = is_new_ip($user['id'], $current_ip);
@@ -65,14 +63,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         log_admin_action(0, 'SYSTEM', 'Login dari IP Baru: ' . $current_ip, $user['name'] . ' (' . $user['email'] . ')');
                     }
 
-                    $sess_id = session_id();
-                    $ua      = $_SERVER['HTTP_USER_AGENT'] ?? '';
-                    $ip_addr = get_ip();
-                    $now_str = date('Y-m-d H:i:s');
-                    $db->prepare("INSERT INTO sessions (id, user_id, ip_address, user_agent, payload, last_activity, created_at)
-                                  VALUES (?,?,?,?,?,?,?)
-                                  ON DUPLICATE KEY UPDATE ip_address=VALUES(ip_address), user_agent=VALUES(user_agent), last_activity=VALUES(last_activity)")
-                       ->execute([$sess_id, $user['id'], $ip_addr, $ua, '', $now_str, $now_str]);
+                    // Upsert manual: sessions.id itu primary key (bukan auto id),
+                    // PostgREST tidak punya ON DUPLICATE KEY UPDATE bawaan lewat
+                    // insert biasa, jadi cek dulu ada atau belum.
+                    $sess_id  = session_id();
+                    $ua       = $_SERVER['HTTP_USER_AGENT'] ?? '';
+                    $ip_addr  = get_ip();
+                    $now_str  = date('Y-m-d H:i:s');
+                    $existing_session = $sb->selectOne('sessions', ['id' => $sess_id], 'id');
+                    $session_data = [
+                        'user_id'       => (string)$user['id'],
+                        'ip_address'    => $ip_addr,
+                        'user_agent'    => $ua,
+                        'last_activity' => $now_str,
+                    ];
+                    if ($existing_session) {
+                        $sb->update('sessions', ['id' => $sess_id], $session_data);
+                    } else {
+                        $session_data['id']         = $sess_id;
+                        $session_data['payload']    = '';
+                        $session_data['created_at'] = $now_str;
+                        $sb->insert('sessions', $session_data);
+                    }
 
                     $dest = (parse_url($redirect, PHP_URL_HOST) === null && str_starts_with($redirect, '/'))
                         ? $redirect
