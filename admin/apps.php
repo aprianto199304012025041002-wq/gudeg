@@ -6,128 +6,235 @@ require_admin();
 $user = get_current_user_data();
 $sb   = getSupabase();
 
-$msg  = '';
-$msg_type = 'success';
+$bubble_type  = '';
+$bubble_title = '';
+$bubble_desc  = '';
+$bubble_code  = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify();
-    $action    = $_POST['action'] ?? '';
-    $target_id = (int)($_POST['target_id'] ?? 0);
+    $action = $_POST['action'] ?? '';
 
-    $target = $sb->selectOne('users', ['id' => $target_id]);
-
-    if ($target && $target_id !== (int)$user['id']) {
-        if ($action === 'toggle_active') {
-            $new_status = !$target['is_active'];
-            $sb->update('users', ['id' => $target_id], ['is_active' => $new_status]);
-            $label = $new_status ? 'Status Akun Diaktifkan' : 'Status Akun Dinonaktifkan';
-            log_admin_action($user['id'], $user['name'], $label, $target['name']);
-            $msg = "Akun <strong>{$target['name']}</strong> berhasil " . ($new_status ? 'diaktifkan' : 'dinonaktifkan') . '.';
-            $msg_type = 'success';
-        } elseif ($action === 'change_role') {
-            $new_role = $_POST['new_role'] ?? '';
-            if (in_array($new_role, ['user', 'guest'])) {
-                $sb->update('users', ['id' => $target_id], ['role' => $new_role]);
-                log_admin_action($user['id'], $user['name'], "Ubah Role menjadi " . strtoupper($new_role), $target['name']);
-                $msg = "Role <strong>{$target['name']}</strong> diubah ke $new_role.";
-                $msg_type = 'success';
-            }
-        } elseif ($action === 'reset_password') {
-            $new_pass = bin2hex(random_bytes(6));
-            $hash = password_hash($new_pass, PASSWORD_BCRYPT);
-            $sb->update('users', ['id' => $target_id], [
-                'password'             => $hash,
-                'password_changed_at'  => date('Y-m-d H:i:s'),
+    if ($action === 'add_app') {
+        $name     = trim($_POST['name'] ?? '');
+        $redirect = trim($_POST['redirect'] ?? '');
+        $desc     = trim($_POST['description'] ?? '');
+        $signed   = isset($_POST['use_signed_token']) ? 1 : 0;
+        if ($name && $redirect) {
+            $cid      = bin2hex(random_bytes(8));
+            $sec_plain = bin2hex(random_bytes(32));
+            $sec_hash  = hash_client_secret($sec_plain);
+            $now = date('Y-m-d H:i:s');
+            $sb->insert('sso_applications', [
+                'name'             => $name,
+                'redirect'         => $redirect,
+                'client_id'        => $cid,
+                'client_secret'    => $sec_hash,
+                'description'      => $desc,
+                'use_signed_token' => (bool)$signed,
+                'is_active'        => true,
+                'created_at'       => $now,
+                'updated_at'       => $now,
             ]);
-            log_admin_action($user['id'], $user['name'], "Reset Password — password baru: $new_pass", $target['email']);
-            try {
-                $sb->delete('sessions', ['user_id' => $target_id]);
-            } catch (\Throwable $e) {}
-            $msg = "Password <strong>{$target['name']}</strong> direset ke: <code>$new_pass</code>";
-            $msg_type = 'info';
-        } elseif ($action === 'delete_user') {
-            $sb->delete('user_applications', ['user_id' => $target_id]);
-            $sb->delete('users', ['id' => $target_id]);
-            log_admin_action($user['id'], $user['name'], 'Hapus User', $target['name'] . ' (' . $target['email'] . ')');
-            $msg = "Akun <strong>{$target['name']}</strong> telah dihapus permanen.";
-            $msg_type = 'danger';
-        } elseif ($action === 'update_apps') {
-            $app_ids = array_map('intval', $_POST['app_ids'] ?? []);
-            $sb->delete('user_applications', ['user_id' => $target_id]);
-            foreach ($app_ids as $aid) {
-                $sb->insert('user_applications', ['user_id' => $target_id, 'application_id' => $aid]);
-            }
-            log_admin_action($user['id'], $user['name'], 'Update Akses Aplikasi SSO', $target['name']);
-            $msg = "Akses aplikasi <strong>{$target['name']}</strong> diperbarui.";
-            $msg_type = 'success';
+            log_admin_action($user['id'], $user['name'],
+                'Registrasi Aplikasi Baru' . ($signed ? ' (Signed Token)' : ''), $name);
+            $bubble_type  = 'success';
+            $bubble_title = 'Aplikasi Didaftarkan';
+            $bubble_desc  = htmlspecialchars($name) . ' berhasil didaftarkan. Client ID: <code>' . htmlspecialchars($cid) . '</code>';
+            $bubble_code  = $sec_plain;
+        }
+    } elseif ($action === 'toggle_status') {
+        $id  = (int)$_POST['app_id'];
+        $app = $sb->selectOne('sso_applications', ['id' => $id]);
+        if ($app) {
+            $new = !$app['is_active'];
+            $sb->update('sso_applications', ['id' => $id], ['is_active' => $new]);
+            log_admin_action($user['id'], $user['name'], 'Update Status Aplikasi', $app['name'] . ' (' . ($new ? 'Aktif' : 'Deaktif') . ')');
+            $bubble_type  = 'success';
+            $bubble_title = 'Status Diperbarui';
+            $bubble_desc  = htmlspecialchars($app['name']) . ' ' . ($new ? 'diaktifkan' : 'dinonaktifkan') . '.';
+        }
+    } elseif ($action === 'toggle_signed') {
+        $id  = (int)$_POST['app_id'];
+        $app = $sb->selectOne('sso_applications', ['id' => $id]);
+        if ($app) {
+            $new = !$app['use_signed_token'];
+            $sb->update('sso_applications', ['id' => $id], ['use_signed_token' => $new]);
+            log_admin_action($user['id'], $user['name'], 'Toggle Signed Token: ' . ($new ? 'ON' : 'OFF'), $app['name']);
+            $bubble_type  = 'info';
+            $bubble_title = 'Token Mode';
+            $bubble_desc  = htmlspecialchars($app['name']) . ' diubah ke ' . ($new ? 'RSA' : 'HMAC') . '.';
+        }
+    } elseif ($action === 'delete_app') {
+        $id  = (int)$_POST['app_id'];
+        $app = $sb->selectOne('sso_applications', ['id' => $id], 'name');
+        if ($app) {
+            $sb->delete('sso_applications', ['id' => $id]);
+            $sb->delete('user_applications', ['application_id' => $id]);
+            log_admin_action($user['id'], $user['name'], 'Hapus Aplikasi', $app['name']);
+            $bubble_type  = 'danger';
+            $bubble_title = 'Aplikasi Dihapus';
+            $bubble_desc  = htmlspecialchars($app['name']) . ' telah dihapus permanen.';
         }
     }
 }
 
-$users    = $sb->select('users', ['deleted_at' => 'is.null'], '*', ['order' => 'id.asc']);
-$all_apps = $sb->select('sso_applications', [], '*', ['order' => 'id.asc']);
+$apps = $sb->select('sso_applications', [], '*', ['order' => 'id.desc']);
 
-$ua_map = [];
-foreach ($sb->select('user_applications') as $r) {
-    $ua_map[$r['user_id']][] = $r['application_id'];
-}
-
-layout_head('Kelola User', 'admin-users');
+layout_head('Kelola Aplikasi', 'admin-apps');
 ?>
 <style>
-.page-header { margin-bottom: 1rem; }
+.add-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: .9rem;
+  margin-bottom: 1.2rem;
+}
 
-.user-list { display: flex; flex-direction: column; gap: .6rem; }
+.add-card-title {
+  font-size: .85rem;
+  font-weight: 600;
+  font-family: var(--sans);
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: .8rem;
+}
 
-.user-card {
+.fg { margin-bottom: .7rem; }
+
+.fg label {
+  display: block;
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  margin-bottom: .35rem;
+  font-family: var(--sans);
+}
+
+.fg input[type=text] {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: .6rem .75rem;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: .9rem;
+  outline: none;
+  transition: border-color .2s;
+  -webkit-appearance: none;
+  -webkit-box-shadow: 0 0 0 1000px var(--bg) inset;
+  -webkit-text-fill-color: var(--text);
+}
+.fg input[type=text]:focus { border-color: var(--accent); }
+
+.check-label {
+  display: flex;
+  align-items: flex-start;
+  gap: .5rem;
+  font-size: .8rem;
+  font-weight: 500;
+  font-family: var(--sans);
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  cursor: pointer;
+  margin-top: .3rem;
+  line-height: 1.5;
+}
+.check-label input { accent-color: var(--accent); flex-shrink: 0; margin-top: .2rem; }
+
+.btn-add {
+  background: rgba(122,162,212,.1);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  border-radius: 2px;
+  padding: .6rem 1rem;
+  font-size: .82rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--sans);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-top: .75rem;
+  width: 100%;
+  transition: background .2s;
+}
+.btn-add:hover { background: rgba(122,162,212,.18); }
+
+.app-list { display: flex; flex-direction: column; gap: .6rem; }
+
+.app-card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 4px;
   overflow: hidden;
 }
 
-.user-card-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  padding: .75rem .9rem;
-  gap: .6rem;
-}
+.app-card-head { padding: .85rem 1rem; }
 
-.user-info { min-width: 0; flex: 1; }
-
-.user-name {
+.app-name {
   font-weight: 600;
   font-size: .9rem;
+  font-family: var(--sans);
   text-transform: uppercase;
   letter-spacing: .03em;
-  line-height: 1.3;
-}
-
-.user-email {
-  font-size: .8rem;
-  color: var(--text-dim);
-  margin-top: .15rem;
-  word-break: break-all;
+  margin-bottom: .2rem;
   line-height: 1.4;
 }
 
-.user-meta {
-  display: flex;
-  gap: .3rem;
-  flex-shrink: 0;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  max-width: 110px;
+.app-desc {
+  font-size: .8rem;
+  color: var(--text-dim);
+  font-family: var(--sans);
+  margin-bottom: .5rem;
+  line-height: 1.4;
 }
 
-.user-actions {
+.app-badges { display: flex; gap: .35rem; flex-wrap: wrap; }
+
+.mono-block {
+  font-family: var(--mono);
+  font-size: .78rem;
+  color: var(--text-dim);
+  word-break: break-all;
+  line-height: 1.7;
+  margin-top: .5rem;
+}
+
+.secret-blur {
+  filter: blur(4px);
+  transition: filter .2s;
+  cursor: pointer;
+  display: inline;
+}
+.secret-blur:hover,
+.secret-blur.revealed { filter: none; }
+
+.reveal-hint {
+  font-size: .72rem;
+  color: var(--accent);
+  margin-left: .3rem;
+  cursor: pointer;
+}
+
+.redirect-url {
+  font-size: .75rem;
+  color: var(--text-dim);
+  opacity: .6;
+  margin-top: .2rem;
+}
+
+.app-actions {
   border-top: 1px solid var(--border);
   padding: .6rem .9rem;
   display: flex;
   flex-wrap: wrap;
   gap: .4rem;
-  align-items: center;
 }
 
 .btn-sm {
@@ -150,168 +257,15 @@ layout_head('Kelola User', 'admin-users');
 .btn-sm.danger { border-color: rgba(229,115,115,.2); color: var(--danger); }
 .btn-sm.danger:hover { border-color: var(--danger); }
 
-.role-form {
-  display: flex;
-  gap: .35rem;
-  align-items: center;
-  width: 100%;
-}
-
-select.sel-sm {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  color: var(--text);
-  border-radius: 2px;
-  padding: .38rem .5rem;
-  font-size: .8rem;
-  font-weight: 500;
-  cursor: pointer;
-  font-family: var(--sans);
-  flex: 1;
-}
-select.sel-sm:hover { border-color: var(--accent); }
-
-.user-last-login {
-  font-size: .75rem;
-  color: var(--text-dim);
-  width: 100%;
-  margin-top: .1rem;
-  letter-spacing: .02em;
-  font-family: var(--sans);
-}
-
-.app-access { border-top: 1px solid var(--border); }
-
-.app-access-toggle {
-  width: 100%;
-  background: none;
-  border: none;
-  padding: .6rem .9rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  color: var(--text-dim);
-  font-size: .8rem;
-  font-weight: 500;
-  font-family: var(--sans);
-  text-transform: uppercase;
-  letter-spacing: .04em;
-  cursor: pointer;
-  transition: color .15s;
-}
-.app-access-toggle:hover { color: var(--accent); }
-.app-access-toggle .chevron { transition: transform .2s; font-size: .75rem; }
-.app-access-toggle.open .chevron { transform: rotate(180deg); }
-
-.app-access-body {
-  display: none;
-  padding: .65rem .9rem .85rem;
-  border-top: 1px solid var(--border);
-}
-.app-access-body.open { display: block; }
-
-.apps-check {
-  display: flex;
-  flex-wrap: wrap;
-  gap: .4rem;
-  margin-bottom: .6rem;
-}
-.apps-check label {
-  display: flex;
-  align-items: center;
-  gap: .35rem;
-  font-size: .8rem;
-  font-weight: 500;
-  font-family: var(--sans);
-  text-transform: uppercase;
-  letter-spacing: .03em;
-  color: var(--text-dim);
-  cursor: pointer;
-  padding: .35rem .6rem;
-  border: 1px solid var(--border);
-  border-radius: 2px;
-  transition: border-color .15s, color .15s;
-}
-.apps-check label:hover { border-color: var(--accent); color: var(--text); }
-.apps-check input[type=checkbox] { accent-color: var(--accent); }
-
-.self-note {
-  font-size: .8rem;
-  color: var(--text-dim);
-  font-style: italic;
-}
-
-.btn-sm.delete {
-  border-color: rgba(192,64,64,.2);
-  color: #a03030;
-}
-.btn-sm.delete:hover {
-  border-color: var(--danger);
-  color: var(--danger);
-}
-
 /* ── Mobile optimizations ─────────────────────────────── */
 @media (max-width: 600px) {
-  /* Role form: select + button sejajar, tidak meluber */
-  .role-form { flex-wrap: nowrap; }
-  select.sel-sm { min-width: 0; }
-
-  /* User actions lebih padat */
-  .user-actions { gap: .3rem; padding: .5rem .75rem; }
-  .btn-sm { padding: .32rem .55rem; font-size: .75rem; }
-  .user-card-head { padding: .6rem .75rem; }
-  .user-name { font-size: .82rem; }
-  .user-email { font-size: .72rem; }
-  .user-last-login { font-size: .7rem; }
-
-  /* App access toggle */
-  .app-access-toggle { padding: .5rem .75rem; font-size: .75rem; }
-  .app-access-body { padding: .5rem .75rem .7rem; }
-  .apps-check label { font-size: .72rem; padding: .28rem .5rem; }
-
-  /* Confirm dialog full-width */
-  .confirm-box { width: calc(100vw - 32px); padding: 16px; }
-}
-
-/* ── Confirm dialog ──────────────────────────────────────── */
-.confirm-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.6);
-  z-index: 200;
-  align-items: center;
-  justify-content: center;
-}
-.confirm-overlay.show { display: flex; }
-
-.confirm-box {
-  background: var(--surface);
-  border: 1px solid var(--accent-bdr);
-  border-radius: 6px;
-  padding: 20px 22px;
-  width: 320px;
-  max-width: 90vw;
-}
-.confirm-title {
-  font-size: .9rem;
-  font-weight: 600;
-  color: var(--text);
-  text-transform: uppercase;
-  letter-spacing: .03em;
-  margin-bottom: 8px;
-}
-.confirm-msg {
-  font-size: .85rem;
-  color: var(--text-dim);
-  line-height: 1.6;
-  margin-bottom: 16px;
-}
-.confirm-msg strong { color: var(--text); }
-.confirm-btns {
-  display: flex;
-  gap: 8px;
-  justify-content: flex-end;
+  .add-card { padding: .75rem; }
+  .fg input[type=text] { font-size: .85rem; }
+  .mono-block { font-size: .72rem; word-break: break-all; }
+  .app-actions { gap: .3rem; padding: .5rem .75rem; }
+  .btn-sm { padding: .35rem .6rem; font-size: .75rem; }
+  .app-card-head { padding: .75rem; }
+  .secret-blur { display: block; }
 }
 
 /* ── Floating bubble ─────────────────────────────────────── */
@@ -348,21 +302,37 @@ select.sel-sm:hover { border-color: var(--accent); }
   to   { opacity: 1; transform: translateY(0); }
 }
 .bubble.success { background: rgba(58,138,96,.12);  border-color: rgba(58,138,96,.35);  color: #60c890; }
-.bubble.info    { background: rgba(122,162,212,.12); border-color: rgba(122,162,212,.35); color: #7aa2d4; }
 .bubble.danger  { background: rgba(192,64,64,.12);  border-color: rgba(192,64,64,.35);  color: #e08080; }
+.bubble.info    { background: rgba(122,162,212,.12); border-color: rgba(122,162,212,.35); color: #7aa2d4; }
 .bubble i { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
 .bubble-body { flex: 1; min-width: 0; }
 .bubble-title { font-weight: 700; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 2px; font-size: .75rem; }
-.bubble-desc  { font-size: .78rem; opacity: .9; }
-.bubble-code  {
+.bubble-desc  { font-size: .78rem; opacity: .9; line-height: 1.5; }
+.bubble-desc code {
   font-family: var(--mono);
-  font-size: .8rem;
-  background: rgba(0,0,0,.3);
-  padding: 2px 7px;
+  background: rgba(0,0,0,.25);
+  padding: 1px 5px;
   border-radius: 3px;
-  letter-spacing: .05em;
-  display: inline-block;
+  font-size: .72rem;
+  word-break: break-all;
+}
+.bubble-code {
+  font-family: var(--mono);
+  font-size: .78rem;
+  background: rgba(0,0,0,.3);
+  padding: 3px 8px;
+  border-radius: 3px;
+  display: block;
+  margin-top: 5px;
+  word-break: break-all;
+  letter-spacing: .04em;
+  color: inherit;
+}
+.bubble-warn {
+  font-size: .72rem;
   margin-top: 4px;
+  opacity: .8;
+  font-weight: 600;
 }
 .bubble-close {
   position: absolute; top: 6px; right: 8px;
@@ -375,7 +345,7 @@ select.sel-sm:hover { border-color: var(--accent); }
   position: absolute; bottom: 0; left: 0;
   height: 2px; background: currentColor; opacity: .3;
   border-radius: 0 0 6px 6px;
-  animation: bubbleProgress 6s linear forwards;
+  animation: bubbleProgress 10s linear forwards;
 }
 @keyframes bubbleProgress { from { width: 100%; } to { width: 0%; } }
 
@@ -389,189 +359,111 @@ select.sel-sm:hover { border-color: var(--accent); }
 </style>
 
 <div class="page-header">
-  <h1 class="page-title">Kelola User</h1>
-  <p class="page-subtitle">Total <?= count($users) ?> pengguna terdaftar</p>
+  <h1 class="page-title">Kelola Aplikasi</h1>
+  <p class="page-subtitle">Daftarkan dan kelola aplikasi yang terintegrasi.</p>
 </div>
 
-<?php if ($msg): ?>
-<div id="page-msg"
-     data-type="<?= htmlspecialchars($msg_type) ?>"
-     data-full="<?= htmlspecialchars($msg) ?>"></div>
-<?php endif; ?>
-
-<div class="user-list">
-<?php foreach ($users as $u): ?>
-<div class="user-card">
-  <div class="user-card-head">
-    <div class="user-info">
-      <div class="user-name"><?= htmlspecialchars($u['name']) ?></div>
-      <div class="user-email"><?= htmlspecialchars($u['email']) ?></div>
+<div class="add-card">
+  <div class="add-card-title">+ Daftarkan Aplikasi Baru</div>
+  <form method="POST">
+    <?= csrf_field() ?>
+    <input type="hidden" name="action" value="add_app">
+    <div class="fg">
+      <label>Nama Aplikasi</label>
+      <input type="text" name="name" placeholder="Nama aplikasi" required>
     </div>
-    <div class="user-meta">
-      <span class="badge badge-<?= $u['role'] ?>"><?= strtoupper($u['role']) ?></span>
-      <span class="badge <?= $u['is_active'] ? 'badge-active' : 'badge-inactive' ?>">
-        <?= $u['is_active'] ? 'Aktif' : 'Nonaktif' ?>
+    <div class="fg">
+      <label>Redirect URL (Callback)</label>
+      <input type="text" name="redirect" placeholder="https://app.example.com/callback" required>
+    </div>
+    <div class="fg">
+      <label>Deskripsi (Opsional)</label>
+      <input type="text" name="description" placeholder="Deskripsi singkat">
+    </div>
+    <label class="check-label">
+      <input type="checkbox" name="use_signed_token">
+      Gunakan RSA Signed Token (lebih aman, memerlukan public key di sisi klien)
+    </label>
+    <button type="submit" class="btn-add">Daftarkan Aplikasi</button>
+  </form>
+</div>
+
+<div class="section-label">Aplikasi Terdaftar (<?= count($apps) ?>)</div>
+<div class="app-list">
+<?php foreach ($apps as $app): ?>
+<div class="app-card">
+  <div class="app-card-head">
+    <div class="app-name"><?= htmlspecialchars($app['name']) ?></div>
+    <?php if ($app['description']): ?>
+      <div class="app-desc"><?= htmlspecialchars($app['description']) ?></div>
+    <?php endif; ?>
+    <div class="app-badges">
+      <span class="badge <?= $app['is_active'] ? 'badge-active' : 'badge-inactive' ?>">
+        <?= $app['is_active'] ? 'Aktif' : 'Nonaktif' ?>
+      </span>
+      <span class="badge <?= $app['use_signed_token'] ? 'badge-rsa' : 'badge-hmac' ?>">
+        <?= $app['use_signed_token'] ? 'RSA' : 'HMAC' ?>
       </span>
     </div>
+    <div class="mono-block">
+      <div>Client ID: <?= htmlspecialchars($app['client_id']) ?></div>
+      <div>
+        Client Secret:
+        <span class="secret-blur" onclick="this.classList.toggle('revealed')"
+              title="Ketuk untuk tampilkan"><?= htmlspecialchars($app['client_secret']) ?></span>
+        <span class="reveal-hint" onclick="this.previousElementSibling.classList.toggle('revealed')">[Ketuk untuk tampilkan]</span>
+      </div>
+      <div class="redirect-url">↳ <?= htmlspecialchars($app['redirect']) ?></div>
+    </div>
   </div>
-
-  <?php if ($u['id'] !== (int)$user['id']): ?>
-  <div class="user-actions">
+  <div class="app-actions">
     <form method="POST" style="display:inline">
       <?= csrf_field() ?>
-      <input type="hidden" name="action" value="toggle_active">
-      <input type="hidden" name="target_id" value="<?= $u['id'] ?>">
-      <button type="submit" class="btn-sm <?= $u['is_active'] ? 'danger' : '' ?>">
-        <?= $u['is_active'] ? 'Nonaktifkan' : 'Aktifkan' ?>
+      <input type="hidden" name="action" value="toggle_status">
+      <input type="hidden" name="app_id" value="<?= $app['id'] ?>">
+      <button type="submit" class="btn-sm <?= $app['is_active'] ? 'danger' : '' ?>">
+        <?= $app['is_active'] ? 'Nonaktifkan' : 'Aktifkan' ?>
       </button>
     </form>
-
-    <form method="POST" class="role-form">
+    <form method="POST" style="display:inline">
       <?= csrf_field() ?>
-      <input type="hidden" name="action" value="change_role">
-      <input type="hidden" name="target_id" value="<?= $u['id'] ?>">
-      <select name="new_role" class="sel-sm">
-        <option value="user"  <?= $u['role']==='user' ?'selected':'' ?>>User</option>
-        <option value="guest" <?= $u['role']==='guest'?'selected':'' ?>>Guest</option>
-      </select>
-      <button type="submit" class="btn-sm">Ubah Role</button>
+      <input type="hidden" name="action" value="toggle_signed">
+      <input type="hidden" name="app_id" value="<?= $app['id'] ?>">
+      <button type="submit" class="btn-sm">Toggle RSA</button>
     </form>
-
-    <form method="POST" style="display:inline" id="form-reset-<?= $u['id'] ?>">
+    <form method="POST" style="display:inline"
+          onsubmit="return confirm('Hapus aplikasi <?= htmlspecialchars(addslashes($app['name'])) ?>?')">
       <?= csrf_field() ?>
-      <input type="hidden" name="action" value="reset_password">
-      <input type="hidden" name="target_id" value="<?= $u['id'] ?>">
-      <button type="button" class="btn-sm danger"
-              onclick="showConfirm('Reset Password',
-                'Reset password <strong><?= htmlspecialchars(addslashes($u['name'])) ?></strong>? Password baru akan muncul di notifikasi dan log admin.',
-                'Ya, Reset', 'danger',
-                function(){ document.getElementById('form-reset-<?= $u['id'] ?>').submit(); })">
-        Reset Password
-      </button>
+      <input type="hidden" name="action" value="delete_app">
+      <input type="hidden" name="app_id" value="<?= $app['id'] ?>">
+      <button type="submit" class="btn-sm danger">Hapus Aplikasi</button>
     </form>
-
-    <form method="POST" style="display:inline" id="form-delete-<?= $u['id'] ?>">
-      <?= csrf_field() ?>
-      <input type="hidden" name="action" value="delete_user">
-      <input type="hidden" name="target_id" value="<?= $u['id'] ?>">
-      <button type="button" class="btn-sm delete"
-              onclick="showConfirm('Hapus User Permanen',
-                '<span style=\'color:var(--danger);font-weight:600\'>PERINGATAN:</span> Hapus akun <strong><?= htmlspecialchars(addslashes($u['name'])) ?></strong> secara permanen? Seluruh data user akan dihapus dan tidak bisa dikembalikan.',
-                'Ya, Hapus Permanen', 'danger',
-                function(){ document.getElementById('form-delete-<?= $u['id'] ?>').submit(); })">
-        &#128465; Hapus User
-      </button>
-    </form>
-
-    <span class="user-last-login">
-      Login Terakhir: <?= $u['last_login_at'] ? date('d M Y H:i', strtotime($u['last_login_at'])) : '—' ?>
-    </span>
   </div>
-
-  <div class="app-access">
-    <button type="button" class="app-access-toggle"
-            onclick="toggleAppAccess(this)"
-            data-uid="<?= $u['id'] ?>">
-      <span>Akses Aplikasi (<?= count($ua_map[$u['id']] ?? []) ?>)</span>
-      <span class="chevron">▼</span>
-    </button>
-    <div class="app-access-body" id="app-access-<?= $u['id'] ?>">
-      <form method="POST">
-        <?= csrf_field() ?>
-        <input type="hidden" name="action" value="update_apps">
-        <input type="hidden" name="target_id" value="<?= $u['id'] ?>">
-        <?php if ($all_apps): ?>
-        <div class="apps-check">
-          <?php foreach ($all_apps as $app): ?>
-          <label>
-            <input type="checkbox" name="app_ids[]" value="<?= $app['id'] ?>"
-              <?= in_array($app['id'], $ua_map[$u['id']] ?? []) ? 'checked' : '' ?>>
-            <?= htmlspecialchars($app['name']) ?>
-          </label>
-          <?php endforeach; ?>
-        </div>
-        <?php else: ?>
-        <p style="font-size:.72rem;color:var(--text-dim);margin-bottom:.6rem">Belum ada aplikasi SSO terdaftar.</p>
-        <?php endif; ?>
-        <button type="submit" class="btn-sm">Simpan Akses</button>
-      </form>
-    </div>
-  </div>
-
-  <?php else: ?>
-  <div class="user-actions">
-    <span class="self-note">(Anda sendiri — tidak dapat diubah)</span>
-  </div>
-  <?php endif; ?>
 </div>
 <?php endforeach; ?>
-</div>
-
-<!-- Confirm dialog -->
-<div class="confirm-overlay" id="confirmOverlay">
-  <div class="confirm-box">
-    <div class="confirm-title" id="confirmTitle"></div>
-    <div class="confirm-msg" id="confirmMsg"></div>
-    <div class="confirm-btns">
-      <button class="btn-sm" onclick="closeConfirm()">Batal</button>
-      <button class="btn-sm" id="confirmOkBtn">Lanjutkan</button>
-    </div>
-  </div>
 </div>
 
 <!-- Floating bubble container -->
 <div class="bubble-wrap" id="bubbleWrap"></div>
 
 <script>
-function toggleAppAccess(btn) {
-  btn.classList.toggle('open');
-  var uid = btn.dataset.uid;
-  document.getElementById('app-access-' + uid).classList.toggle('open');
-}
-
-var _confirmCb = null;
-
-function showConfirm(title, msg, btnLabel, btnClass, cb) {
-  document.getElementById('confirmTitle').textContent = title;
-  document.getElementById('confirmMsg').innerHTML = msg;
-  var ok = document.getElementById('confirmOkBtn');
-  ok.textContent = btnLabel;
-  ok.className = 'btn-sm ' + (btnClass === 'danger' ? 'danger' : '');
-  _confirmCb = cb;
-  document.getElementById('confirmOverlay').classList.add('show');
-}
-
-function closeConfirm() {
-  document.getElementById('confirmOverlay').classList.remove('show');
-  _confirmCb = null;
-}
-
-document.getElementById('confirmOkBtn').addEventListener('click', function() {
-  var cb = _confirmCb;
-  closeConfirm();
-  if (cb) cb();
-});
-
-document.getElementById('confirmOverlay').addEventListener('click', function(e) {
-  if (e.target === this) closeConfirm();
-});
-
-function showBubble(type, icon, title, desc, code, duration) {
+function showBubble(type, icon, title, desc, code, warn, duration) {
   duration = duration || 6000;
   var wrap = document.getElementById('bubbleWrap');
   var b = document.createElement('div');
   b.className = 'bubble ' + type;
-  var codeHtml = code ? '<span class="bubble-code">' + code + '</span>' : '';
+  var extra = '';
+  if (code) extra += '<span class="bubble-code">' + code + '</span>';
+  if (warn) extra += '<div class="bubble-warn">⚠ ' + warn + '</div>';
   b.innerHTML =
     '<i class="ti ti-' + icon + '" aria-hidden="true"></i>' +
     '<div class="bubble-body"><div class="bubble-title">' + title + '</div>' +
-    '<div class="bubble-desc">' + desc + codeHtml + '</div></div>' +
+    '<div class="bubble-desc">' + desc + extra + '</div></div>' +
     '<button class="bubble-close" aria-label="Tutup" onclick="closeBubble(this.parentNode)">&#215;</button>' +
     '<div class="bubble-progress" style="animation-duration:' + (duration/1000) + 's"></div>';
   wrap.appendChild(b);
   setTimeout(function() { closeBubble(b); }, duration);
 }
-
 function closeBubble(b) {
   if (!b || !b.parentNode) return;
   b.style.transition = 'opacity .3s, transform .3s';
@@ -580,28 +472,24 @@ function closeBubble(b) {
   setTimeout(function() { if (b.parentNode) b.remove(); }, 320);
 }
 
-(function() {
-  var el = document.getElementById('page-msg');
-  if (!el) return;
-  var type = el.dataset.type || 'success';
-  var full = el.dataset.full || '';
-  var icons  = { success: 'check', info: 'key', danger: 'alert-triangle' };
-  var titles = { success: 'Berhasil', info: 'Info', danger: 'Peringatan' };
-
-  var code = null;
-  var desc = full;
-  if (type === 'info') {
-    var match = full.match(/<code[^>]*>([^<]+)<\/code>/);
-    if (match) {
-      code = match[1];
-      desc = full.replace(/<code[^>]*>[^<]+<\/code>/, '').replace(/<[^>]+>/g, '').trim();
-    }
-  } else {
-    desc = full.replace(/<[^>]+>/g, '');
-  }
-
-  showBubble(type, icons[type] || 'check', titles[type] || 'Info', desc, code, type === 'info' ? 10000 : 6000);
-})();
+<?php if ($bubble_type): ?>
+<?php
+  $icon_map = ['success' => 'check', 'danger' => 'trash', 'info' => 'key'];
+  $icon = $icon_map[$bubble_type] ?? 'check';
+  // Untuk add_app: tampilkan lama (10 detik) karena ada secret penting
+  $duration = $bubble_code ? 10000 : 6000;
+  $warn = $bubble_code ? 'Simpan secret ini sekarang — tidak akan ditampilkan lagi!' : '';
+?>
+showBubble(
+  <?= json_encode($bubble_type) ?>,
+  <?= json_encode($icon) ?>,
+  <?= json_encode($bubble_title) ?>,
+  <?= json_encode($bubble_desc) ?>,
+  <?= json_encode($bubble_code) ?>,
+  <?= json_encode($warn) ?>,
+  <?= $duration ?>
+);
+<?php endif; ?>
 </script>
 
 <?php layout_foot(); ?>
