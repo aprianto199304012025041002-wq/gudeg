@@ -1,0 +1,62 @@
+<?php
+/**
+ * jwks.json — JSON Web Key Set (RFC 7517)
+ *
+ * Expose the RSA PUBLIC key used to verify RS256-signed SSO tokens
+ * (aplikasi dengan use_signed_token = true). Ini dieksekusi sebagai PHP
+ * lewat trik ForceType di .htaccess, jadi tetap bisa diakses dengan URL
+ * "cantik" /jwks.json walau isinya dinamis.
+ *
+ * CATATAN: aplikasi yang pakai mode HMAC (use_signed_token = false) TIDAK
+ * memakai JWKS ini — signature mereka diverifikasi dengan client_id sebagai
+ * shared key langsung di verify.php, bukan lewat kunci publik.
+ */
+
+header('Content-Type: application/json; charset=utf-8');
+header('Cache-Control: public, max-age=3600');
+
+function base64url_encode_raw(string $data): string {
+    return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
+}
+
+$public_key_path = __DIR__ . '/keys/public.pem';
+
+if (!file_exists($public_key_path)) {
+    // Belum ada kunci publik ter-deploy di server ini.
+    http_response_code(503);
+    echo json_encode(['keys' => []]);
+    exit;
+}
+
+$pem = file_get_contents($public_key_path);
+$pub = openssl_pkey_get_public($pem);
+
+if (!$pub) {
+    http_response_code(500);
+    echo json_encode(['error' => 'invalid_public_key']);
+    exit;
+}
+
+$details = openssl_pkey_get_details($pub);
+
+if (!$details || !isset($details['rsa']['n'], $details['rsa']['e'])) {
+    http_response_code(500);
+    echo json_encode(['error' => 'not_an_rsa_key']);
+    exit;
+}
+
+// kid stabil, diturunkan dari hash kunci publik itu sendiri (bukan rahasia)
+$kid = substr(hash('sha256', $pem), 0, 16);
+
+echo json_encode([
+    'keys' => [
+        [
+            'kty' => 'RSA',
+            'use' => 'sig',
+            'alg' => 'RS256',
+            'kid' => $kid,
+            'n'   => base64url_encode_raw($details['rsa']['n']),
+            'e'   => base64url_encode_raw($details['rsa']['e']),
+        ],
+    ],
+], JSON_UNESCAPED_SLASHES);

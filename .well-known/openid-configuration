@@ -1,0 +1,14 @@
+{
+  "issuer": "https://gudeg.xo.je",
+  "authorization_endpoint": "https://gudeg.xo.je/sso.php",
+  "token_endpoint": "https://gudeg.xo.je/verify.php",
+  "jwks_uri": "https://gudeg.xo.je/jwks.json",
+  "response_types_supported": ["token"],
+  "subject_types_supported": ["public"],
+  "id_token_signing_alg_values_supported": ["RS256"],
+  "token_endpoint_auth_methods_supported": ["client_secret_post"],
+  "scopes_supported": ["openid", "profile", "email"],
+  "claims_supported": ["sub", "name", "email", "role", "app", "iat", "exp", "iss", "jti"],
+  "grant_types_supported": ["implicit"],
+  "service_documentation": "https://gudeg.xo.je/dashboard.php"
+}

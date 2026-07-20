@@ -42,6 +42,22 @@ php_flag log_errors On
     Header set Referrer-Policy "strict-origin-when-cross-origin"
 </IfModule>
 
+# ── OpenID Connect discovery ───────────────────────────────────────────────────
+
+# /.well-known/openid-configuration adalah file JSON statis biasa (tanpa
+# ekstensi), jadi kita paksa Content-Type-nya supaya klien OIDC/HTTP library
+# mengenalinya sebagai JSON, bukan text/plain atau octet-stream.
+<Files "openid-configuration">
+    ForceType application/json
+</Files>
+
+# jwks.json sebenarnya adalah skrip PHP (perlu baca keys/public.pem secara
+# dinamis), tapi supaya URL publiknya tetap /jwks.json sesuai standar JWKS,
+# kita paksa Apache mengeksekusinya lewat PHP handler meski ekstensinya .json.
+<Files "jwks.json">
+    ForceType application/x-httpd-php
+</Files>
+
 # ── Error pages ───────────────────────────────────────────────────────────────
 ErrorDocument 403 /403.php
 ErrorDocument 404 /404.php
