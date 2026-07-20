@@ -25,8 +25,7 @@ if (!empty($_SESSION['user_id'])) {
 
 $sess_id = session_id();
 try {
-    $db = getDB();
-    $db->prepare("DELETE FROM sessions WHERE id = ?")->execute([$sess_id]);
+    getSupabase()->delete('sessions', ['id' => $sess_id]);
 } catch (Exception $e) {}
 
 session_unset();

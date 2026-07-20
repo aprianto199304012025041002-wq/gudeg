@@ -4,7 +4,7 @@ require_once __DIR__ . '/includes/layout.php';
 require_login();
 
 $user  = get_current_user_data();
-$db    = getDB();
+$sb    = getSupabase();
 $error = '';
 $ok    = false;
 $sess_msg = '';
@@ -15,12 +15,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'logou
     csrf_verify();
     $target_sess = $_POST['session_id'] ?? '';
     if ($target_sess && $target_sess !== session_id()) {
-        $db->prepare("DELETE FROM sessions WHERE id = ? AND user_id = ?")->execute([$target_sess, $user['id']]);
+        $sb->delete('sessions', ['id' => $target_sess, 'user_id' => $user['id']]);
         $sess_msg = 'Sesi berhasil diakhiri.';
     }
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'logout_all_sessions') {
     csrf_verify();
-    $db->prepare("DELETE FROM sessions WHERE user_id = ? AND id != ?")->execute([$user['id'], session_id()]);
+    $sb->delete('sessions', ['user_id' => $user['id'], 'id' => 'neq.' . session_id()]);
     $sess_msg = 'Semua sesi lain berhasil diakhiri.';
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify();
@@ -29,9 +29,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'logou
     $new  = $_POST['new_password'] ?? '';
     $conf = $_POST['confirm'] ?? '';
 
-    $row = $db->prepare("SELECT password FROM users WHERE id = ? LIMIT 1");
-    $row->execute([$user['id']]);
-    $current = $row->fetchColumn();
+    $row     = $sb->selectOne('users', ['id' => $user['id']], 'password');
+    $current = $row['password'] ?? '';
 
     if (!password_verify($old, $current)) {
         $error = 'Password lama tidak cocok.';
@@ -41,12 +40,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'logou
         $error = 'Konfirmasi password tidak cocok.';
     } else {
         $hash = password_hash($new, PASSWORD_BCRYPT);
-        $db->prepare("UPDATE users SET password = ?, password_changed_at = NOW() WHERE id = ?")->execute([$hash, $user['id']]);
+        $sb->update('users', ['id' => $user['id']], [
+            'password'            => $hash,
+            'password_changed_at' => date('Y-m-d H:i:s'),
+        ]);
         log_activity($user['id'], $user['name'], $user['email'], 'Ubah Password Sendiri');
 
         try {
-            $db->prepare("DELETE FROM sessions WHERE user_id = ? AND id != ?")
-               ->execute([$user['id'], session_id()]);
+            $sb->delete('sessions', ['user_id' => $user['id'], 'id' => 'neq.' . session_id()]);
         } catch (\Throwable $e) {}
 
         $ok = true;
@@ -54,9 +55,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'logou
 }
 
 // Ambil 10 log aktivitas terakhir user
-$log_stmt = $db->prepare("SELECT activity, ip_address, created_at FROM user_logs WHERE user_id = ? ORDER BY id DESC LIMIT 10");
-$log_stmt->execute([$user['id']]);
-$user_logs = $log_stmt->fetchAll(PDO::FETCH_ASSOC);
+$user_logs = $sb->select('user_logs', ['user_id' => $user['id']], 'activity,ip_address,created_at', [
+    'limit' => 10,
+    'order' => 'id.desc',
+]);
 
 // Pastikan sesi sekarang tersimpan di DB
 $current_sess_id = session_id();
@@ -64,15 +66,27 @@ $ua_now  = $_SERVER['HTTP_USER_AGENT'] ?? '';
 $ip_now  = get_ip();
 $now_str = date('Y-m-d H:i:s');
 $now_ts  = (string)time();
-$db->prepare("INSERT INTO sessions (id, user_id, ip_address, user_agent, payload, last_activity, created_at)
-              VALUES (?,?,?,?,?,?,?)
-              ON DUPLICATE KEY UPDATE ip_address=VALUES(ip_address), user_agent=VALUES(user_agent), last_activity=VALUES(last_activity)")
-   ->execute([$current_sess_id, $user['id'], $ip_now, $ua_now, '', $now_ts, $now_str]);
+
+$existing_session = $sb->selectOne('sessions', ['id' => $current_sess_id], 'id');
+$session_data = [
+    'user_id'       => (string)$user['id'],
+    'ip_address'    => $ip_now,
+    'user_agent'    => $ua_now,
+    'last_activity' => $now_ts,
+];
+if ($existing_session) {
+    $sb->update('sessions', ['id' => $current_sess_id], $session_data);
+} else {
+    $session_data['id']         = $current_sess_id;
+    $session_data['payload']    = '';
+    $session_data['created_at'] = $now_str;
+    $sb->insert('sessions', $session_data);
+}
 
 // Ambil sesi aktif user
-$sess_stmt = $db->prepare("SELECT id, ip_address, user_agent, created_at, last_activity FROM sessions WHERE user_id = ? ORDER BY last_activity DESC");
-$sess_stmt->execute([$user['id']]);
-$active_sessions = $sess_stmt->fetchAll(PDO::FETCH_ASSOC);
+$active_sessions = $sb->select('sessions', ['user_id' => $user['id']], 'id,ip_address,user_agent,created_at,last_activity', [
+    'order' => 'last_activity.desc',
+]);
 
 layout_head('Pengaturan', 'password');
 ?>
