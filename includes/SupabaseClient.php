@@ -28,6 +28,26 @@ class SupabaseClient
         $this->serviceKey = $serviceKey;
     }
 
+    // Operator PostgREST yang valid di depan sebuah filter, mis. "eq.", "lt.", "is."
+    private const FILTER_OPERATORS = ['eq', 'neq', 'gt', 'gte', 'lt', 'lte', 'like', 'ilike', 'is', 'in', 'not'];
+
+    /**
+     * Ubah value filter jadi format PostgREST yang benar.
+     * PENTING: dulu pakai cek "mengandung titik" buat deteksi operator manual,
+     * itu BUG — email seperti "admin@dummy.com" juga mengandung titik dan
+     * kesalah-deteksi sebagai filter mentah. Sekarang cek prefix operator
+     * yang benar-benar valid pakai regex, baru dianggap "sudah ada operator".
+     */
+    private function formatFilterValue($val): string
+    {
+        $val = (string)$val;
+        $pattern = '/^(' . implode('|', self::FILTER_OPERATORS) . ')\./';
+        if (preg_match($pattern, $val)) {
+            return $val; // sudah dalam format "operator.value", pakai apa adanya
+        }
+        return 'eq.' . $val; // default: exact match
+    }
+
     // ── SELECT ──────────────────────────────────────────────────────────────
     /**
      * Ambil data dari sebuah tabel.
@@ -46,7 +66,7 @@ class SupabaseClient
     {
         $query = ['select' => $columns];
         foreach ($filters as $col => $val) {
-            $query[$col] = str_contains((string)$val, '.') ? $val : 'eq.' . $val;
+            $query[$col] = $this->formatFilterValue($val);
         }
         if (!empty($options['limit'])) {
             $query['limit'] = $options['limit'];
@@ -93,7 +113,7 @@ class SupabaseClient
         }
         $query = [];
         foreach ($filters as $col => $val) {
-            $query[$col] = str_contains((string)$val, '.') ? $val : 'eq.' . $val;
+            $query[$col] = $this->formatFilterValue($val);
         }
         return $this->request('PATCH', $table, $query, $data);
     }
@@ -111,7 +131,7 @@ class SupabaseClient
         }
         $query = [];
         foreach ($filters as $col => $val) {
-            $query[$col] = str_contains((string)$val, '.') ? $val : 'eq.' . $val;
+            $query[$col] = $this->formatFilterValue($val);
         }
         return $this->request('DELETE', $table, $query);
     }
