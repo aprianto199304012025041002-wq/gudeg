@@ -4,7 +4,7 @@ require_once __DIR__ . '/includes/layout.php';
 require_login();
 
 $user = get_current_user_data();
-$db   = getDB();
+$sb   = getSupabase();
 
 // Dismiss IP warning banner
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['dismiss_ip_warning'])) {
@@ -18,17 +18,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['dismiss_ip_warning']
 $apps = [];
 if ($user['role'] !== 'guest') {
     if ($user['role'] === 'admin') {
-        $stmt = $db->prepare("SELECT * FROM sso_applications WHERE is_active = 1");
-        $stmt->execute();
+        $apps = $sb->select('sso_applications', ['is_active' => true]);
     } else {
-        $stmt = $db->prepare("
-            SELECT a.* FROM sso_applications a
-            INNER JOIN user_applications ua ON ua.application_id = a.id
-            WHERE ua.user_id = ? AND a.is_active = 1
-        ");
-        $stmt->execute([$user['id']]);
+        // PostgREST tidak punya JOIN langsung kayak SQL, jadi 2 langkah:
+        // 1) ambil daftar application_id yang jadi hak akses user ini
+        $ua_rows = $sb->select('user_applications', ['user_id' => $user['id']], 'application_id');
+        $app_ids = array_column($ua_rows, 'application_id');
+        // 2) ambil detail aplikasinya yang masih aktif, filter id yang cocok pakai operator "in"
+        if ($app_ids) {
+            $apps = $sb->select('sso_applications', [
+                'id'        => 'in.(' . implode(',', $app_ids) . ')',
+                'is_active' => true,
+            ]);
+        }
     }
-    $apps = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
 layout_head('Beranda', 'dashboard');
