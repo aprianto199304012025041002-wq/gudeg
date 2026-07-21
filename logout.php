@@ -25,6 +25,7 @@ try {
     getSupabase()->delete('sessions', ['id' => $sess_id]);
 } catch (Exception $e) {}
 
+$from_apk = is_from_apk();
 session_destroy();
-header("Location: /login.php?clear_biometric=1");
+header("Location: /login.php" . ($from_apk ? "?clear_biometric=1" : ""));
 exit;

@@ -362,12 +362,11 @@ input:-webkit-autofill:focus {
 @keyframes bubbleProgress { from { width: 100%; } to { width: 0%; } }
 
 .theme-fab { top: calc(14px + env(safe-area-inset-top)); }
-  .bubble-wrap { bottom: calc(16px + env(safe-area-inset-bottom)); }
-  @media (max-width: 480px) {
-    body { padding-top: calc(60px + env(safe-area-inset-top)); }
-    .theme-fab { top: calc(10px + env(safe-area-inset-top)); }
-    .bubble-wrap { bottom: calc(12px + env(safe-area-inset-bottom)); right: 8px; left: 8px; width: auto; }
-  }
+.bubble-wrap { bottom: calc(16px + env(safe-area-inset-bottom)); }
+@media (max-width: 480px) {
+  body { padding-top: calc(60px + env(safe-area-inset-top)); }
+  .theme-fab { top: calc(10px + env(safe-area-inset-top)); }
+  .bubble-wrap { bottom: calc(12px + env(safe-area-inset-bottom)); right: 8px; left: 8px; width: auto; }
 }
 </style>
 </head>

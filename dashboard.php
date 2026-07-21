@@ -340,3 +340,22 @@ function dismissIPWarning(btn) {
 <?php endif; ?>
 
 <?php layout_foot(); ?>
+<script>
+// APK: Simpan kredensial ke EncryptedSharedPreferences setelah login berhasil
+// Data sementara disimpan di sessionStorage oleh form login, lalu kita
+// teruskan ke native bridge di sini dan langsung hapus dari sessionStorage.
+(function () {
+  try {
+    var email    = sessionStorage.getItem('__gudeg_pending_email');
+    var password = sessionStorage.getItem('__gudeg_pending_password');
+    if (email && password && window.GudegNative && window.GudegNative.saveCredentials) {
+      window.GudegNative.saveCredentials(email, password);
+    }
+  } catch (e) {}
+  // Hapus dari sessionStorage apapun hasilnya — jangan simpan password di sini
+  try {
+    sessionStorage.removeItem('__gudeg_pending_email');
+    sessionStorage.removeItem('__gudeg_pending_password');
+  } catch (e) {}
+})();
+</script>
