@@ -13,11 +13,26 @@ require_once __DIR__ . '/SupabaseClient.php';
 
 function session_start_safe() {
     if (session_status() === PHP_SESSION_NONE) {
-        // APK: perpanjang umur cookie session jadi 30 hari
-        // (deteksi manual karena is_from_apk() didefinisikan di bawah)
         $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
+        $is_https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+                    || ($_SERVER['SERVER_PORT'] ?? 80) == 443;
+
         if (stripos($ua, 'GudegJogjaApp') !== false) {
-            session_set_cookie_params(30 * 24 * 3600); // 30 hari
+            // APK: perpanjang umur cookie session jadi 30 hari
+            session_set_cookie_params([
+                'lifetime' => 30 * 24 * 3600,
+                'secure'   => $is_https,
+                'httponly' => true,
+                'samesite' => 'Lax',
+            ]);
+        } else {
+            // Web: session cookie standar + secure flag
+            session_set_cookie_params([
+                'lifetime' => 0,
+                'secure'   => $is_https,
+                'httponly' => true,
+                'samesite' => 'Lax',
+            ]);
         }
         session_start();
     }
