@@ -15,20 +15,19 @@ jobs:
 
       - name: Buat config/.env dari secret
         run: |
-          mkdir -p htdocs/config
-          cat > htdocs/config/.env <<EOF
-          SUPABASE_URL=${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_KEY=${{ secrets.SUPABASE_SERVICE_KEY }}
-          EOF
+          mkdir -p config
+          printf 'SUPABASE_URL=%s\nSUPABASE_SERVICE_KEY=%s\n' \
+            '${{ secrets.SUPABASE_URL }}' \
+            '${{ secrets.SUPABASE_SERVICE_KEY }}' > config/.env
 
       - name: Buat keys/private.pem dari secret
         run: |
-          mkdir -p htdocs/keys
-          echo "${{ secrets.RSA_PRIVATE_KEY }}" > htdocs/keys/private.pem
+          mkdir -p keys
+          printf '%s' '${{ secrets.RSA_PRIVATE_KEY }}' > keys/private.pem
 
       - name: Buat keys/public.pem dari secret
         run: |
-          echo "${{ secrets.RSA_PUBLIC_KEY }}" > htdocs/keys/public.pem
+          printf '%s' '${{ secrets.RSA_PUBLIC_KEY }}' > keys/public.pem
 
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -36,9 +35,12 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./htdocs/
+          local-dir: ./
           server-dir: /htdocs/
           exclude: |
             **/.git*
             **/.git*/**
+            **/.vs/**
             **/node_modules/**
+            README.md
+            .ftp-deploy-sync-state.json
