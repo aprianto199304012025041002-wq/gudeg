@@ -28,73 +28,85 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (login_throttled($email)) {
             $error = 'Terlalu banyak percobaan login. Coba lagi dalam 10 menit.';
         } else {
-            $sb   = getSupabase();
-            $user = $sb->selectOne('users', ['email' => $email, 'deleted_at' => 'is.null']);
+            // Bungkus semua operasi Supabase dengan try/catch.
+            // Kalau DB/Supabase sedang error, halaman login tetap tampil
+            // dengan pesan error — BUKAN HTTP 500 yang bikin WebView crash.
+            try {
+                $sb   = getSupabase();
+                $user = $sb->selectOne('users', ['email' => $email, 'deleted_at' => 'is.null']);
 
-            if ($user && password_verify($password, $user['password'])) {
-                if (!$user['is_active']) {
-                    $error = 'Akun Anda tidak aktif. Hubungi administrator.';
-                    login_fail($email);
+                if ($user && password_verify($password, $user['password'])) {
+                    if (!$user['is_active']) {
+                        $error = 'Akun Anda tidak aktif. Hubungi administrator.';
+                        login_fail($email);
+                    } else {
+                        session_regenerate_id(true);
+
+                        $_SESSION['user_id'] = $user['id'];
+                        $_SESSION['name']    = $user['name'];
+                        $_SESSION['email']   = $user['email'];
+                        $_SESSION['role']    = $user['role'];
+
+                        login_reset($email);
+
+                        if ($remember) {
+                            setcookie('gudeg_remember_email', $email, time() + (30 * 24 * 3600), '/', '', false, true);
+                        } else {
+                            setcookie('gudeg_remember_email', '', time() - 3600, '/', '', false, true);
+                        }
+
+                        try { $sb->update('users', ['id' => $user['id']], ['last_login_at' => date('Y-m-d H:i:s')]); } catch (\Throwable $e) { error_log('update last_login_at gagal: ' . $e->getMessage()); }
+
+                        $current_ip = get_ip();
+                        $is_new = is_new_ip($user['id'], $current_ip);
+
+                        log_activity($user['id'], $user['name'], $user['email'], 'Login');
+
+                        if ($is_new) {
+                            $_SESSION['new_ip_warning'] = $current_ip;
+                            log_admin_action(0, 'SYSTEM', 'Login dari IP Baru: ' . $current_ip, $user['name'] . ' (' . $user['email'] . ')');
+                        }
+
+                        // Upsert session ke DB — tidak kritikal, lanjutkan login meski gagal
+                        try {
+                            $sess_id  = session_id();
+                            $ua       = $_SERVER['HTTP_USER_AGENT'] ?? '';
+                            $ip_addr  = get_ip();
+                            $now_str  = date('Y-m-d H:i:s');
+                            $existing_session = $sb->selectOne('sessions', ['id' => $sess_id], 'id');
+                            $session_data = [
+                                'user_id'       => (string)$user['id'],
+                                'ip_address'    => $ip_addr,
+                                'user_agent'    => $ua,
+                                'last_activity' => $now_str,
+                            ];
+                            if ($existing_session) {
+                                $sb->update('sessions', ['id' => $sess_id], $session_data);
+                            } else {
+                                $session_data['id']         = $sess_id;
+                                $session_data['payload']    = '';
+                                $session_data['created_at'] = $now_str;
+                                $sb->insert('sessions', $session_data);
+                            }
+                        } catch (\Throwable $e) {
+                            error_log('upsert session gagal (login tetap lanjut): ' . $e->getMessage());
+                        }
+
+                        $dest = (parse_url($redirect, PHP_URL_HOST) === null && str_starts_with($redirect, '/'))
+                            ? $redirect
+                            : '/dashboard.php';
+                        header("Location: $dest");
+                        exit;
+                    }
                 } else {
-                    session_regenerate_id(true);
-
-                    $_SESSION['user_id'] = $user['id'];
-                    $_SESSION['name']    = $user['name'];
-                    $_SESSION['email']   = $user['email'];
-                    $_SESSION['role']    = $user['role'];
-
-                    login_reset($email);
-
-                    if ($remember) {
-                        setcookie('gudeg_remember_email', $email, time() + (30 * 24 * 3600), '/', '', false, true);
-                    } else {
-                        setcookie('gudeg_remember_email', '', time() - 3600, '/', '', false, true);
-                    }
-
-                    $sb->update('users', ['id' => $user['id']], ['last_login_at' => date('Y-m-d H:i:s')]);
-
-                    $current_ip = get_ip();
-                    $is_new = is_new_ip($user['id'], $current_ip);
-
-                    log_activity($user['id'], $user['name'], $user['email'], 'Login');
-
-                    if ($is_new) {
-                        $_SESSION['new_ip_warning'] = $current_ip;
-                        log_admin_action(0, 'SYSTEM', 'Login dari IP Baru: ' . $current_ip, $user['name'] . ' (' . $user['email'] . ')');
-                    }
-
-                    // Upsert manual: sessions.id itu primary key (bukan auto id),
-                    // PostgREST tidak punya ON DUPLICATE KEY UPDATE bawaan lewat
-                    // insert biasa, jadi cek dulu ada atau belum.
-                    $sess_id  = session_id();
-                    $ua       = $_SERVER['HTTP_USER_AGENT'] ?? '';
-                    $ip_addr  = get_ip();
-                    $now_str  = date('Y-m-d H:i:s');
-                    $existing_session = $sb->selectOne('sessions', ['id' => $sess_id], 'id');
-                    $session_data = [
-                        'user_id'       => (string)$user['id'],
-                        'ip_address'    => $ip_addr,
-                        'user_agent'    => $ua,
-                        'last_activity' => $now_str,
-                    ];
-                    if ($existing_session) {
-                        $sb->update('sessions', ['id' => $sess_id], $session_data);
-                    } else {
-                        $session_data['id']         = $sess_id;
-                        $session_data['payload']    = '';
-                        $session_data['created_at'] = $now_str;
-                        $sb->insert('sessions', $session_data);
-                    }
-
-                    $dest = (parse_url($redirect, PHP_URL_HOST) === null && str_starts_with($redirect, '/'))
-                        ? $redirect
-                        : '/dashboard.php';
-                    header("Location: $dest");
-                    exit;
+                    login_fail($email);
+                    $error = 'Email atau password salah.';
                 }
-            } else {
-                login_fail($email);
-                $error = 'Email atau password salah.';
+            } catch (\Throwable $e) {
+                // Supabase / config error — catat ke log, tampilkan pesan ramah
+                // Jangan biarkan exception ini bubble up jadi HTTP 500
+                error_log('login.php: Supabase error: ' . $e->getMessage());
+                $error = 'Layanan sedang gangguan, coba beberapa saat lagi.';
             }
         }
     } else {

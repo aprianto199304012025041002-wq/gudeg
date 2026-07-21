@@ -300,8 +300,10 @@ function getSupabase(): SupabaseClient
     if ($client === null) {
         if (!defined('SUPABASE_URL') || !defined('SUPABASE_SERVICE_KEY') || !SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
             error_log('Supabase config missing — cek SUPABASE_URL & SUPABASE_SERVICE_KEY di config/.env');
-            http_response_code(500);
-            die('Konfigurasi server tidak lengkap. Hubungi administrator.');
+            // Lempar exception agar caller bisa catch dan tetap render halaman HTML.
+            // JANGAN die() atau http_response_code(500) di sini — kalau dipanggil dari
+            // login.php, WebView akan mendapat ERR_HTTP_RESPONSE_CODE_FAILURE.
+            throw new SupabaseException('Konfigurasi server tidak lengkap. Hubungi administrator.');
         }
         $client = new SupabaseClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
     }
