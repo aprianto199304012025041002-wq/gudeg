@@ -2,7 +2,9 @@
   "ExpandedNodes": [
     "",
     "\\.github",
-    "\\.github\\workflows"
+    "\\.github\\workflows",
+    "\\config"
   ],
+  "SelectedNode": "\\config\\db (2).php",
   "PreviewInSolutionExplorer": false
 }
