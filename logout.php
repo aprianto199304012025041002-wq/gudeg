@@ -2,7 +2,7 @@
 require_once __DIR__ . '/includes/functions.php';
 session_start_safe();
 
-// FIX: Logout harus diproteksi CSRF agar tidak bisa dipicu dari luar
+// Logout harus diproteksi CSRF agar tidak bisa dipicu dari luar
 // Terima GET dengan token (untuk link biasa) atau POST dengan csrf_verify
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify();
@@ -25,7 +25,11 @@ try {
     getSupabase()->delete('sessions', ['id' => $sess_id]);
 } catch (Exception $e) {}
 
-$from_apk = is_from_apk();
 session_destroy();
-header("Location: /login.php" . ($from_apk ? "?clear_biometric=1" : ""));
+
+// JANGAN kirim ?clear_biometric=1 saat logout biasa.
+// Kredensial biometrik di APK hanya dihapus kalau user eksplisit
+// minta hapus (misal ganti password) — bukan setiap tutup app.
+// Dengan begitu fingerprint tetap tersedia saat buka app berikutnya.
+header("Location: /login.php");
 exit;
