@@ -1,10 +1,22 @@
-# Never commit keys or config with credentials
-keys/private.pem
-keys/public.pem
-config/db.php
+# ── Secrets & konfigurasi sensitif ───────────────────────────────────────────
+htdocs/config/.env
+htdocs/config/db.php
 
-# Keep the folder structure
-!keys/.gitkeep
-!config/.gitkeep
+# RSA keys
+htdocs/keys/private.pem
+htdocs/keys/public.pem
 
-.vs/
+# Tapi tetap track placeholder-nya supaya folder tidak hilang dari repo
+!htdocs/config/.gitkeep
+!htdocs/keys/.gitkeep
+
+# ── FTP deploy state (tidak perlu di-commit) ──────────────────────────────────
+htdocs/.ftp-deploy-sync-state.json
+
+# ── OS & editor junk ─────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
