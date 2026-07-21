@@ -1,4 +1,4 @@
-name: Deploy to InfinityFree
+name: Deploy ke InfinityFree
 
 on:
   push:
@@ -8,10 +8,27 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Buat config/.env dari secret
+        run: |
+          mkdir -p htdocs/config
+          cat > htdocs/config/.env <<EOF
+          SUPABASE_URL=${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY=${{ secrets.SUPABASE_SERVICE_KEY }}
+          EOF
+
+      - name: Buat keys/private.pem dari secret
+        run: |
+          mkdir -p htdocs/keys
+          echo "${{ secrets.RSA_PRIVATE_KEY }}" > htdocs/keys/private.pem
+
+      - name: Buat keys/public.pem dari secret
+        run: |
+          echo "${{ secrets.RSA_PUBLIC_KEY }}" > htdocs/keys/public.pem
 
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -19,10 +36,9 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./htdocs/
           server-dir: /htdocs/
           exclude: |
             **/.git*
             **/.git*/**
-            **/keys/private.pem
-            **/keys/public.pem
-            **/config/db.php
+            **/node_modules/**
