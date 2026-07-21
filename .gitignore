@@ -1,6 +1,5 @@
 # ── Secrets & konfigurasi sensitif ───────────────────────────────────────────
 config/.env
-config/db.php
 
 # RSA keys
 keys/private.pem
