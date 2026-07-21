@@ -69,7 +69,7 @@ $now_ts  = (string)time();
 
 $existing_session = $sb->selectOne('sessions', ['id' => $current_sess_id], 'id');
 $session_data = [
-    'user_id'       => (string)$user['id'],
+    'user_id'       => (int)$user['id'],
     'ip_address'    => $ip_now,
     'user_agent'    => $ua_now,
     'last_activity' => $now_ts,

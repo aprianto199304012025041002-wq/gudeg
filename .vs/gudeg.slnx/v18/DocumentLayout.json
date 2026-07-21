@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "C:\\Users\\BALMON 019\\source\\repos\\aprianto199304012025041002-wq\\gudeg\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\BALMON 019\\source\\repos\\aprianto199304012025041002-wq\\gudeg\\change-password.php||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:change-password.php||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\BALMON 019\\source\\repos\\aprianto199304012025041002-wq\\gudeg\\.gitignore||{3B902123-F8A7-4915-9F01-361F908088D0}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:.gitignore||{3B902123-F8A7-4915-9F01-361F908088D0}"
     }
@@ -27,6 +31,19 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "change-password.php",
+              "DocumentMoniker": "C:\\Users\\BALMON 019\\source\\repos\\aprianto199304012025041002-wq\\gudeg\\change-password.php",
+              "RelativeDocumentMoniker": "change-password.php",
+              "ToolTip": "C:\\Users\\BALMON 019\\source\\repos\\aprianto199304012025041002-wq\\gudeg\\change-password.php",
+              "RelativeToolTip": "change-password.php",
+              "ViewState": "AgIAAN4BAAAAAAAAAAAiwA0CAAAXAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-07-21T05:20:17.265Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": ".gitignore",
               "DocumentMoniker": "C:\\Users\\BALMON 019\\source\\repos\\aprianto199304012025041002-wq\\gudeg\\.gitignore",
               "RelativeDocumentMoniker": ".gitignore",
