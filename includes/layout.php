@@ -36,6 +36,45 @@ function layout_head(string $title, string $active_nav = '') {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title><?= htmlspecialchars($title) ?> — GUDEG JOGJA</title>
+
+<?php
+// ── SEO & Open Graph meta tags ────────────────────────────────────────────────
+$meta_description = $meta_description ?? 'GUDEG JOGJA — Sistem Single Sign-On terpusat untuk layanan internal Balai Monitor Frekuensi Radio Kelas I Yogyakarta.';
+$meta_robots      = $meta_robots ?? 'noindex, nofollow'; // default: halaman internal tidak diindeks
+$canonical_url    = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http')
+                  . '://' . ($_SERVER['HTTP_HOST'] ?? 'gudeg.balmonjogja.info')
+                  . strtok($_SERVER['REQUEST_URI'] ?? '/', '?');
+$og_title         = htmlspecialchars($title) . ' — GUDEG JOGJA';
+$og_image         = '/assets/img/og-image.png'; // siapkan file ini (1200×630 px)
+?>
+
+<!-- SEO -->
+<meta name="description" content="<?= htmlspecialchars($meta_description) ?>">
+<meta name="robots" content="<?= htmlspecialchars($meta_robots) ?>">
+<link rel="canonical" href="<?= htmlspecialchars($canonical_url) ?>">
+
+<!-- Open Graph -->
+<meta property="og:type"        content="website">
+<meta property="og:title"       content="<?= $og_title ?>">
+<meta property="og:description" content="<?= htmlspecialchars($meta_description) ?>">
+<meta property="og:url"         content="<?= htmlspecialchars($canonical_url) ?>">
+<meta property="og:image"       content="<?= htmlspecialchars($og_image) ?>">
+<meta property="og:locale"      content="id_ID">
+<meta property="og:site_name"   content="GUDEG JOGJA">
+
+<!-- Twitter Card -->
+<meta name="twitter:card"        content="summary_large_image">
+<meta name="twitter:title"       content="<?= $og_title ?>">
+<meta name="twitter:description" content="<?= htmlspecialchars($meta_description) ?>">
+<meta name="twitter:image"       content="<?= htmlspecialchars($og_image) ?>">
+
+<!-- Favicon -->
+<link rel="icon"             type="image/x-icon"       href="/favicon.ico">
+<link rel="icon"             type="image/png" sizes="32x32" href="/assets/img/favicon-32x32.png">
+<link rel="icon"             type="image/png" sizes="16x16" href="/assets/img/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180"              href="/assets/img/apple-touch-icon.png">
+<link rel="manifest"         href="/site.webmanifest">
+
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <style>
 /* ── Reset & tokens ─────────────────────────────────────── */

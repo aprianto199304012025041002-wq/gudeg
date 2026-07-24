@@ -1,0 +1,26 @@
+{
+  "name": "GUDEG JOGJA",
+  "short_name": "GUDEG",
+  "description": "Sistem SSO terpusat Balai Monitor Frekuensi Radio Kelas I Yogyakarta",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#080a0e",
+  "theme_color": "#7aa2d4",
+  "icons": [
+    {
+      "src": "/assets/img/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/img/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/img/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}
