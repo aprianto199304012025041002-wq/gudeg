@@ -38,29 +38,29 @@ php_flag log_errors On
 # ── Security headers ──────────────────────────────────────────────────────────
 <IfModule mod_headers.c>
     # Cegah MIME sniffing
-    Header set X-Content-Type-Options "nosniff"
+    Header always set X-Content-Type-Options "nosniff"
 
     # Cegah clickjacking
-    Header set X-Frame-Options "SAMEORIGIN"
+    Header always set X-Frame-Options "SAMEORIGIN"
 
     # XSS Protection (legacy browser)
-    Header set X-XSS-Protection "1; mode=block"
+    Header always set X-XSS-Protection "1; mode=block"
 
     # Batasi info referrer
-    Header set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
 
     # HSTS — paksa HTTPS selama 1 tahun (termasuk subdomain)
-    Header set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
 
-    # Content Security Policy
-    Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; img-src 'self' data:; connect-src 'self' https://*.supabase.co; frame-ancestors 'self'; form-action 'self'; base-uri 'self'"
+    # CSP dinonaktifkan sementara — konflik dengan Kaspersky EPR SSL inspection
+    # Aktifkan kembali setelah gudeg.xo.je di-whitelist di Kaspersky Security Center
 
     # Permissions Policy — nonaktifkan fitur browser yang tidak dipakai
-    Header set Permissions-Policy "geolocation=(), camera=(), microphone=(), payment=(), usb=(), interest-cohort=()"
+    Header always set Permissions-Policy "geolocation=(), camera=(), microphone=(), payment=(), usb=(), interest-cohort=()"
 
     # Hapus header yang bocorkan info server
-    Header unset X-Powered-By
-    Header unset Server
+    Header always unset X-Powered-By
+    Header always unset Server
 </IfModule>
 
 # ── OpenID Connect discovery ───────────────────────────────────────────────────
