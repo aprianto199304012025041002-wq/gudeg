@@ -75,7 +75,7 @@ $og_image         = '/assets/img/og-image.png'; // siapkan file ini (1200×630 p
 <link rel="apple-touch-icon" sizes="180x180"              href="/assets/img/apple-touch-icon.png">
 <link rel="manifest"         href="/site.webmanifest">
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.45.0/dist/tabler-icons.min.css">
 <style>
 /* ── Reset & tokens ─────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
