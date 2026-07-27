@@ -1,4 +1,17 @@
 <?php
+/**
+ * sso.php — final
+ *
+ * Improvement #3: Ganti HMAC key dari client_id → client_secret_plain
+ * ────────────────────────────────────────────────────────────────────
+ * client_id bersifat publik (dikirim via query string). Memakai
+ * client_id sebagai HMAC key berarti siapapun yang tahu client_id
+ * bisa memalsukan token.
+ *
+ * Solusi: pakai client_secret_plain (hex 64-char random) yang disimpan
+ * di DB dan hanya bisa diakses via service_role key Supabase.
+ */
+
 require_once __DIR__ . '/includes/functions.php';
 require_once __DIR__ . '/includes/jwt.php';
 require_login();
@@ -19,6 +32,14 @@ if (!$app) {
     die('Aplikasi tidak ditemukan atau tidak aktif.');
 }
 
+// Pastikan app sudah punya client_secret_plain (hasil migration).
+// Kalau belum ada, tolak — jangan fallback ke client_id yang tidak aman.
+if (empty($app['client_secret_plain'])) {
+    http_response_code(503);
+    error_log("SSO: app '{$app['name']}' belum punya client_secret_plain. Jalankan migration SQL.");
+    die('Konfigurasi aplikasi belum lengkap. Hubungi administrator.');
+}
+
 // Check user has access to this app (admin always has access)
 if ($user['role'] !== 'admin') {
     $access = $sb->selectOne('user_applications', ['user_id' => $user['id'], 'application_id' => $app['id']], 'user_id');
@@ -35,7 +56,8 @@ if ($user['role'] !== 'admin') {
 }
 
 // ─── Helper: base64url encoding (standar JWT / RFC 7519) ─────────────────────
-function base64url_encode(string $data): string {
+function base64url_encode(string $data): string
+{
     return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
 }
 
@@ -51,19 +73,20 @@ $payload = [
 
 // ─── Generate token ───────────────────────────────────────────────────────────
 if ($app['use_signed_token']) {
-    // RSA-signed JWT — gunakan class JWT yang sudah ada
-    $token = JWT::generate($payload, 900); // FIX: 15 menit (dari 1 jam)
+    // RSA-signed JWT — tidak butuh client_secret_plain
+    $token = JWT::generate($payload, 900);
 } else {
-    // HMAC-SHA256 dengan base64url (RFC 7519 compliant)
     $header = base64url_encode(json_encode(['alg' => 'HS256', 'typ' => 'JWT']));
     $body   = base64url_encode(json_encode(array_merge($payload, [
         'iat' => time(),
-        'exp' => time() + 900, // FIX: 15 menit (dari 1 jam)
+        'exp' => time() + 900,
         'iss' => 'gudeg-sso',
     ])));
-    // FIX Bug 3: pakai client_id sebagai HMAC key (client_secret di DB sudah bcrypt hash)
-    $sig    = base64url_encode(hash_hmac('sha256', "$header.$body", $app['client_id'], true));
-    $token  = "$header.$body.$sig";
+
+    // HMAC key = client_secret_plain (plaintext hex, hanya ada di DB server-side)
+    // App client menyimpan nilai yang sama di environment mereka untuk verifikasi.
+    $sig   = base64url_encode(hash_hmac('sha256', "$header.$body", $app['client_secret_plain'], true));
+    $token = "$header.$body.$sig";
 }
 
 // ─── Log aktivitas SSO ────────────────────────────────────────────────────────
@@ -71,11 +94,9 @@ $host = parse_url($app['redirect'], PHP_URL_HOST) ?? $app['redirect'];
 log_activity($user['id'], $user['name'], $user['email'], 'Akses SSO ke ' . $host);
 
 // ─── Redirect ke aplikasi client dengan token ─────────────────────────────────
-// FIX: Selalu gunakan redirect dari DB, bukan query string (cegah open redirect)
 $separator    = strpos($app['redirect'], '?') !== false ? '&' : '?';
 $redirect_url = $app['redirect'] . $separator . 'token=' . urlencode($token);
 
-// Kembalikan state ke klien jika ada (standar OAuth2, klien wajib verifikasi)
 $state = $_GET['state'] ?? '';
 if ($state) {
     $redirect_url .= '&state=' . urlencode($state);
