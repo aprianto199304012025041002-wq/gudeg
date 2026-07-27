@@ -36,10 +36,6 @@ function layout_head(string $title, string $active_nav = '') {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title><?= htmlspecialchars($title) ?> — GUDEG JOGJA</title>
-<meta name="description" content="Sistem SSO terpusat Balai Monitor Frekuensi Radio Kelas I Yogyakarta.">
-<meta name="robots" content="noindex, nofollow">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="GUDEG JOGJA">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <style>
 /* ── Reset & tokens ─────────────────────────────────────── */
