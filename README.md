@@ -168,17 +168,7 @@ create table token_blacklist (
   jti  text primary key,
   exp  bigint
 );
-
--- Indexes performa (jalankan di SQL Editor Supabase)
-create index if not exists idx_sessions_user_id       on sessions (user_id);
-create index if not exists idx_sessions_last_activity on sessions (last_activity);
-create index if not exists idx_user_logs_user_id      on user_logs (user_id);
-create index if not exists idx_user_logs_created_at   on user_logs (created_at desc);
-create index if not exists idx_admin_logs_created_at  on admin_logs (created_at desc);
-create index if not exists idx_token_blacklist_exp    on token_blacklist (exp);
 ```
-
-> 💡 File lengkap tersedia di `migrations/001_add_indexes.sql`
 
 ---
 
