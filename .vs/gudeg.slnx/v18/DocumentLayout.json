@@ -3,6 +3,14 @@
   "WorkspaceRootPath": "C:\\Users\\BALMON 019\\source\\repos\\aprianto199304012025041002-wq\\gudeg\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\BALMON 019\\source\\repos\\aprianto199304012025041002-wq\\gudeg\\register.php||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:register.php||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\BALMON 019\\source\\repos\\aprianto199304012025041002-wq\\gudeg\\login.php||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:login.php||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\BALMON 019\\source\\repos\\aprianto199304012025041002-wq\\gudeg\\includes\\layout.php||{3B902123-F8A7-4915-9F01-361F908088D0}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:includes\\layout.php||{3B902123-F8A7-4915-9F01-361F908088D0}"
     }
@@ -27,12 +35,38 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "register.php",
+              "DocumentMoniker": "C:\\Users\\BALMON 019\\source\\repos\\aprianto199304012025041002-wq\\gudeg\\register.php",
+              "RelativeDocumentMoniker": "register.php",
+              "ToolTip": "C:\\Users\\BALMON 019\\source\\repos\\aprianto199304012025041002-wq\\gudeg\\register.php",
+              "RelativeToolTip": "register.php",
+              "ViewState": "AgIAAKsBAAAAAAAAAAAiwNcBAAAHAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-07-27T03:07:57.776Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "login.php",
+              "DocumentMoniker": "C:\\Users\\BALMON 019\\source\\repos\\aprianto199304012025041002-wq\\gudeg\\login.php",
+              "RelativeDocumentMoniker": "login.php",
+              "ToolTip": "C:\\Users\\BALMON 019\\source\\repos\\aprianto199304012025041002-wq\\gudeg\\login.php",
+              "RelativeToolTip": "login.php",
+              "ViewState": "AgIAAK4BAAAAAAAAAAAiwOABAAAHAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-07-27T03:07:11.027Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "layout.php",
               "DocumentMoniker": "C:\\Users\\BALMON 019\\source\\repos\\aprianto199304012025041002-wq\\gudeg\\includes\\layout.php",
               "RelativeDocumentMoniker": "includes\\layout.php",
               "ToolTip": "C:\\Users\\BALMON 019\\source\\repos\\aprianto199304012025041002-wq\\gudeg\\includes\\layout.php",
               "RelativeToolTip": "includes\\layout.php",
-              "ViewState": "AgIAAE0CAAAAAAAAAAAiwIgCAAABAAAAAAAAAA==",
+              "ViewState": "AgIAAE0CAAAAAAAAAAAkwIgCAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
               "WhenOpened": "2026-07-27T03:01:15.928Z",
               "EditorCaption": ""

@@ -60,8 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Daftar — GUDEG JOGJA</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
-<!-- Apply theme before paint (no flash) -->
+<link rel="stylesheet" href="/assets/tabler/tabler-icons.min.css">
 <script>
 (function(){
   try {
@@ -73,7 +72,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* DARK (default) */
 :root,
 [data-theme="dark"] {
   --bg:          #080a0e;
@@ -96,7 +94,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   --autofill-txt: #a0b4cc;
 }
 
-/* LIGHT */
 [data-theme="light"] {
   --bg:          #f0f4f8;
   --surface:     #ffffff;
@@ -132,7 +129,6 @@ body {
 }
 .container { width: 100%; max-width: 400px; }
 
-/* ── Theme toggle FAB ───────────────────────────────────── */
 .theme-fab {
   position: fixed;
   top: 14px; right: 14px;
@@ -150,7 +146,6 @@ body {
 .theme-fab:hover { border-color: var(--accent-dim); color: var(--accent); }
 .theme-fab i { font-size: 17px; }
 
-/* ── Logo ───────────────────────────────────────────────── */
 .logo-area { text-align: center; margin-bottom: 20px; }
 .logo-shield {
   width: 52px; height: 52px;
@@ -176,7 +171,6 @@ body {
   margin-top: 2px;
 }
 
-/* ── Card & form ────────────────────────────────────────── */
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -265,7 +259,6 @@ input:-webkit-autofill:focus {
   text-transform: uppercase;
 }
 
-/* ── Floating bubble ────────────────────────────────────── */
 .bubble-wrap {
   position: fixed;
   bottom: 16px; right: 16px;
@@ -276,14 +269,13 @@ input:-webkit-autofill:focus {
   .bubble-wrap { bottom: 12px; right: 8px; left: 8px; width: auto; }
 }
 
-/* ── Mobile optimizations ─────────────────────────────── */
 @media (max-width: 480px) {
   body { padding: 1rem .75rem; align-items: flex-start; padding-top: 60px; }
   .container { max-width: 100%; }
   .card { padding: 16px 14px; }
   input[type="text"],
   input[type="email"],
-  input[type="password"] { padding: 11px 11px; font-size: 16px; } /* 16px cegah zoom iOS */
+  input[type="password"] { padding: 11px 11px; font-size: 16px; }
   .btn-submit { padding: 12px; font-size: 14px; }
   .theme-fab { top: 10px; right: 10px; }
   .logo-shield { width: 44px; height: 44px; }
@@ -324,7 +316,6 @@ input:-webkit-autofill:focus {
 }
 @keyframes bubbleProgress { from { width: 100%; } to { width: 0%; } }
 
-/* ── Safe area Android WebView ───────────────────────── */
 @supports (padding-top: env(safe-area-inset-top)) {
   body {
     padding-top: calc(1.25rem + env(safe-area-inset-top));
@@ -342,7 +333,6 @@ input:-webkit-autofill:focus {
 </head>
 <body>
 
-<!-- Theme toggle FAB pojok kanan atas -->
 <button class="theme-fab" onclick="toggleTheme()" aria-label="Ganti tema">
   <i class="ti ti-sun theme-toggle-icon" aria-hidden="true"></i>
 </button>
@@ -423,7 +413,6 @@ input:-webkit-autofill:focus {
 <div class="bubble-wrap" id="bubbleWrap"></div>
 
 <script>
-/* ── Theme ── */
 (function() {
   var THEME_KEY = 'gudeg_theme';
   function applyTheme(theme) {
@@ -440,7 +429,6 @@ input:-webkit-autofill:focus {
   applyTheme(getTheme());
 })();
 
-/* ── Password strength ── */
 function checkStrength(v) {
   function set(id, ok, label) {
     var el = document.getElementById(id);
@@ -454,7 +442,6 @@ function checkStrength(v) {
   set('pw-sym',   /[^a-zA-Z0-9]/.test(v), 'Karakter spesial (!, @, #, dll)');
 }
 
-/* ── Bubble ── */
 function showBubble(type, icon, title, desc, duration) {
   duration = duration || 6000;
   var wrap = document.getElementById('bubbleWrap');

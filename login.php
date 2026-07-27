@@ -28,9 +28,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (login_throttled($email)) {
             $error = 'Terlalu banyak percobaan login. Coba lagi dalam 10 menit.';
         } else {
-            // Bungkus semua operasi Supabase dengan try/catch.
-            // Kalau DB/Supabase sedang error, halaman login tetap tampil
-            // dengan pesan error — BUKAN HTTP 500 yang bikin WebView crash.
             try {
                 $sb   = getSupabase();
                 $user = $sb->selectOne('users', ['email' => $email, 'deleted_at' => 'is.null']);
@@ -67,7 +64,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             log_admin_action(0, 'SYSTEM', 'Login dari IP Baru: ' . $current_ip, $user['name'] . ' (' . $user['email'] . ')');
                         }
 
-                        // Upsert session ke DB — tidak kritikal, lanjutkan login meski gagal
                         try {
                             $sess_id  = session_id();
                             $ua       = $_SERVER['HTTP_USER_AGENT'] ?? '';
@@ -103,8 +99,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $error = 'Email atau password salah.';
                 }
             } catch (\Throwable $e) {
-                // Supabase / config error — catat ke log, tampilkan pesan ramah
-                // Jangan biarkan exception ini bubble up jadi HTTP 500
                 error_log('login.php: Supabase error: ' . $e->getMessage());
                 $error = 'Layanan sedang gangguan, coba beberapa saat lagi.';
             }
@@ -120,8 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Login — GUDEG JOGJA</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
-<!-- Apply theme before paint (no flash) -->
+<link rel="stylesheet" href="/assets/tabler/tabler-icons.min.css">
 <script>
 (function(){
   try {
@@ -133,7 +126,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* DARK (default) */
 :root,
 [data-theme="dark"] {
   --bg:         #080a0e;
@@ -153,7 +145,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   --autofill-txt: #a0b4cc;
 }
 
-/* LIGHT */
 [data-theme="light"] {
   --bg:         #f0f4f8;
   --surface:    #ffffff;
@@ -186,7 +177,6 @@ body {
 }
 .container { width: 100%; max-width: 400px; }
 
-/* ── Theme toggle (pojok kanan atas) ───────────────────── */
 .theme-fab {
   position: fixed;
   top: 14px; right: 14px;
@@ -204,7 +194,6 @@ body {
 .theme-fab:hover { border-color: var(--accent-dim); color: var(--accent); }
 .theme-fab i { font-size: 17px; }
 
-/* ── Logo ───────────────────────────────────────────────── */
 .logo-area { text-align: center; margin-bottom: 20px; }
 .logo-shield {
   width: 52px; height: 52px;
@@ -230,7 +219,6 @@ body {
   margin-top: 2px;
 }
 
-/* ── Card & form ────────────────────────────────────────── */
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -315,7 +303,6 @@ input:-webkit-autofill:focus {
   text-transform: uppercase;
 }
 
-/* ── Floating bubble ────────────────────────────────────── */
 .bubble-wrap {
   position: fixed;
   bottom: 16px; right: 16px;
@@ -326,13 +313,12 @@ input:-webkit-autofill:focus {
   .bubble-wrap { bottom: 12px; right: 8px; left: 8px; width: auto; }
 }
 
-/* ── Mobile optimizations ─────────────────────────────── */
 @media (max-width: 480px) {
   body { padding: 1rem .75rem; align-items: flex-start; padding-top: 60px; }
   .container { max-width: 100%; }
   .card { padding: 16px 14px; }
   input[type="email"],
-  input[type="password"] { padding: 11px 11px; font-size: 16px; } /* 16px cegah zoom iOS */
+  input[type="password"] { padding: 11px 11px; font-size: 16px; }
   .remember-row label { font-size: 13px; }
   .btn-submit { padding: 12px; font-size: 14px; }
   .theme-fab { top: 10px; right: 10px; }
@@ -384,7 +370,6 @@ input:-webkit-autofill:focus {
 </head>
 <body>
 
-<!-- Theme toggle FAB pojok kanan atas -->
 <button class="theme-fab" onclick="toggleTheme()" aria-label="Ganti tema">
   <i class="ti ti-sun theme-toggle-icon" aria-hidden="true"></i>
 </button>
@@ -440,7 +425,6 @@ input:-webkit-autofill:focus {
 <div class="bubble-wrap" id="bubbleWrap"></div>
 
 <script>
-/* ── Theme ── */
 (function() {
   var THEME_KEY = 'gudeg_theme';
   function applyTheme(theme) {
@@ -457,7 +441,6 @@ input:-webkit-autofill:focus {
   applyTheme(getTheme());
 })();
 
-/* ── Bubble ── */
 function showBubble(type, icon, title, desc, duration) {
   duration = duration || 6000;
   var wrap = document.getElementById('bubbleWrap');
