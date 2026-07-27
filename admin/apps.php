@@ -10,31 +10,33 @@ $bubble_type  = '';
 $bubble_title = '';
 $bubble_desc  = '';
 $bubble_code  = '';
+$bubble_warn  = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify();
     $action = $_POST['action'] ?? '';
 
     if ($action === 'add_app') {
-        $name     = trim($_POST['name'] ?? '');
-        $redirect = trim($_POST['redirect'] ?? '');
-        $desc     = trim($_POST['description'] ?? '');
-        $signed   = isset($_POST['use_signed_token']) ? 1 : 0;
+        $name      = trim($_POST['name'] ?? '');
+        $redirect  = trim($_POST['redirect'] ?? '');
+        $desc      = trim($_POST['description'] ?? '');
+        $signed    = isset($_POST['use_signed_token']) ? 1 : 0;
         if ($name && $redirect) {
-            $cid      = bin2hex(random_bytes(8));
+            $cid       = bin2hex(random_bytes(8));
             $sec_plain = bin2hex(random_bytes(32));
             $sec_hash  = hash_client_secret($sec_plain);
             $now = date('Y-m-d H:i:s');
             $sb->insert('sso_applications', [
-                'name'             => $name,
-                'redirect'         => $redirect,
-                'client_id'        => $cid,
-                'client_secret'    => $sec_hash,
-                'description'      => $desc,
-                'use_signed_token' => (bool)$signed,
-                'is_active'        => true,
-                'created_at'       => $now,
-                'updated_at'       => $now,
+                'name'                => $name,
+                'redirect'            => $redirect,
+                'client_id'           => $cid,
+                'client_secret'       => $sec_hash,
+                'client_secret_plain' => $sec_plain,
+                'description'         => $desc,
+                'use_signed_token'    => (bool)$signed,
+                'is_active'           => true,
+                'created_at'          => $now,
+                'updated_at'          => $now,
             ]);
             log_admin_action($user['id'], $user['name'],
                 'Registrasi Aplikasi Baru' . ($signed ? ' (Signed Token)' : ''), $name);
@@ -42,6 +44,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $bubble_title = 'Aplikasi Didaftarkan';
             $bubble_desc  = htmlspecialchars($name) . ' berhasil didaftarkan. Client ID: <code>' . htmlspecialchars($cid) . '</code>';
             $bubble_code  = $sec_plain;
+            $bubble_warn  = 'Simpan secret ini sekarang — tidak akan ditampilkan lagi!';
+        }
+    } elseif ($action === 'regenerate_secret') {
+        $id  = (int)$_POST['app_id'];
+        $app = $sb->selectOne('sso_applications', ['id' => $id], 'id,name');
+        if ($app) {
+            $new_plain = bin2hex(random_bytes(32));
+            $new_hash  = hash_client_secret($new_plain);
+            $sb->update('sso_applications', ['id' => $id], [
+                'client_secret'       => $new_hash,
+                'client_secret_plain' => $new_plain,
+                'updated_at'          => date('Y-m-d H:i:s'),
+            ]);
+            log_admin_action($user['id'], $user['name'], 'Regenerate Client Secret', $app['name']);
+            $bubble_type  = 'info';
+            $bubble_title = 'Secret Diperbarui';
+            $bubble_desc  = 'Secret baru untuk <strong>' . htmlspecialchars($app['name']) . '</strong>. Update nilai ini di GitHub Secrets repo aplikasi klien.';
+            $bubble_code  = $new_plain;
+            $bubble_warn  = 'Simpan secret baru ini sekarang — tidak akan ditampilkan lagi!';
         }
     } elseif ($action === 'toggle_status') {
         $id  = (int)$_POST['app_id'];
@@ -256,6 +277,48 @@ layout_head('Kelola Aplikasi', 'admin-apps');
 .btn-sm:hover { border-color: var(--accent); color: var(--accent); }
 .btn-sm.danger { border-color: rgba(229,115,115,.2); color: var(--danger); }
 .btn-sm.danger:hover { border-color: var(--danger); }
+.btn-sm.warn { border-color: rgba(212,168,0,.25); color: #d4a800; }
+.btn-sm.warn:hover { border-color: #d4a800; }
+
+/* ── Confirm dialog ─────────────────────────────────────── */
+.confirm-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.6);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+}
+.confirm-overlay.show { display: flex; }
+.confirm-box {
+  background: var(--surface);
+  border: 1px solid var(--accent-bdr);
+  border-radius: 6px;
+  padding: 20px 22px;
+  width: 320px;
+  max-width: 90vw;
+}
+.confirm-title {
+  font-size: .9rem;
+  font-weight: 600;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  margin-bottom: 8px;
+}
+.confirm-msg {
+  font-size: .85rem;
+  color: var(--text-dim);
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+.confirm-msg strong { color: var(--text); }
+.confirm-btns {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
 
 /* ── Mobile optimizations ─────────────────────────────── */
 @media (max-width: 600px) {
@@ -266,6 +329,7 @@ layout_head('Kelola Aplikasi', 'admin-apps');
   .btn-sm { padding: .35rem .6rem; font-size: .75rem; }
   .app-card-head { padding: .75rem; }
   .secret-blur { display: block; }
+  .confirm-box { width: calc(100vw - 32px); padding: 16px; }
 }
 
 /* ── Floating bubble ─────────────────────────────────────── */
@@ -408,11 +472,21 @@ layout_head('Kelola Aplikasi', 'admin-apps');
     <div class="mono-block">
       <div>Client ID: <?= htmlspecialchars($app['client_id']) ?></div>
       <div>
-        Client Secret:
+        Client Secret (hash):
         <span class="secret-blur" onclick="this.classList.toggle('revealed')"
-              title="Ketuk untuk tampilkan"><?= htmlspecialchars($app['client_secret']) ?></span>
+              title="Ketuk untuk tampilkan"><?= htmlspecialchars($app['client_secret'] ?? '—') ?></span>
         <span class="reveal-hint" onclick="this.previousElementSibling.classList.toggle('revealed')">[Ketuk untuk tampilkan]</span>
       </div>
+      <?php if (!empty($app['client_secret_plain'])): ?>
+      <div>
+        Client Secret (plain):
+        <span class="secret-blur" onclick="this.classList.toggle('revealed')"
+              title="Ketuk untuk tampilkan"><?= htmlspecialchars($app['client_secret_plain']) ?></span>
+        <span class="reveal-hint" onclick="this.previousElementSibling.classList.toggle('revealed')">[Ketuk untuk tampilkan]</span>
+      </div>
+      <?php else: ?>
+      <div style="color:var(--danger);font-size:.72rem;">⚠ client_secret_plain kosong — klik Regenerate Secret</div>
+      <?php endif; ?>
       <div class="redirect-url">↳ <?= htmlspecialchars($app['redirect']) ?></div>
     </div>
   </div>
@@ -431,6 +505,20 @@ layout_head('Kelola Aplikasi', 'admin-apps');
       <input type="hidden" name="app_id" value="<?= $app['id'] ?>">
       <button type="submit" class="btn-sm">Toggle RSA</button>
     </form>
+    <form method="POST" style="display:inline" id="form-regen-<?= $app['id'] ?>">
+      <?= csrf_field() ?>
+      <input type="hidden" name="action" value="regenerate_secret">
+      <input type="hidden" name="app_id" value="<?= $app['id'] ?>">
+      <button type="button" class="btn-sm warn"
+              onclick="showConfirm(
+                'Regenerate Client Secret',
+                'Generate secret baru untuk <strong><?= htmlspecialchars(addslashes($app['name'])) ?></strong>? Secret lama akan langsung tidak berlaku. Kamu harus update GitHub Secrets di repo aplikasi klien.',
+                'Ya, Regenerate',
+                function(){ document.getElementById(\'form-regen-<?= $app['id'] ?>\').submit(); }
+              )">
+        🔑 Regenerate Secret
+      </button>
+    </form>
     <form method="POST" style="display:inline"
           onsubmit="return confirm('Hapus aplikasi <?= htmlspecialchars(addslashes($app['name'])) ?>?')">
       <?= csrf_field() ?>
@@ -443,10 +531,48 @@ layout_head('Kelola Aplikasi', 'admin-apps');
 <?php endforeach; ?>
 </div>
 
+<!-- Confirm dialog -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="confirm-title" id="confirmTitle"></div>
+    <div class="confirm-msg" id="confirmMsg"></div>
+    <div class="confirm-btns">
+      <button class="btn-sm" onclick="closeConfirm()">Batal</button>
+      <button class="btn-sm warn" id="confirmOkBtn">Lanjutkan</button>
+    </div>
+  </div>
+</div>
+
 <!-- Floating bubble container -->
 <div class="bubble-wrap" id="bubbleWrap"></div>
 
 <script>
+var _confirmCb = null;
+
+function showConfirm(title, msg, btnLabel, cb) {
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmMsg').innerHTML = msg;
+  var ok = document.getElementById('confirmOkBtn');
+  ok.textContent = btnLabel;
+  _confirmCb = cb;
+  document.getElementById('confirmOverlay').classList.add('show');
+}
+
+function closeConfirm() {
+  document.getElementById('confirmOverlay').classList.remove('show');
+  _confirmCb = null;
+}
+
+document.getElementById('confirmOkBtn').addEventListener('click', function() {
+  var cb = _confirmCb;
+  closeConfirm();
+  if (cb) cb();
+});
+
+document.getElementById('confirmOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeConfirm();
+});
+
 function showBubble(type, icon, title, desc, code, warn, duration) {
   duration = duration || 6000;
   var wrap = document.getElementById('bubbleWrap');
@@ -475,10 +601,8 @@ function closeBubble(b) {
 <?php if ($bubble_type): ?>
 <?php
   $icon_map = ['success' => 'check', 'danger' => 'trash', 'info' => 'key'];
-  $icon = $icon_map[$bubble_type] ?? 'check';
-  // Untuk add_app: tampilkan lama (10 detik) karena ada secret penting
-  $duration = $bubble_code ? 10000 : 6000;
-  $warn = $bubble_code ? 'Simpan secret ini sekarang — tidak akan ditampilkan lagi!' : '';
+  $icon     = $icon_map[$bubble_type] ?? 'check';
+  $duration = $bubble_code ? 15000 : 6000;
 ?>
 showBubble(
   <?= json_encode($bubble_type) ?>,
@@ -486,7 +610,7 @@ showBubble(
   <?= json_encode($bubble_title) ?>,
   <?= json_encode($bubble_desc) ?>,
   <?= json_encode($bubble_code) ?>,
-  <?= json_encode($warn) ?>,
+  <?= json_encode($bubble_warn) ?>,
   <?= $duration ?>
 );
 <?php endif; ?>
