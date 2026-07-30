@@ -39,15 +39,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'password'             => $hash,
                 'password_changed_at'  => date('Y-m-d H:i:s'),
             ]);
-            log_admin_action($user['id'], $user['name'], "Reset Password — password baru: $new_pass", $target['email']);
+            // Catat aksi reset tanpa menyertakan password plaintext di log
+            log_admin_action($user['id'], $user['name'], 'Reset Password', $target['email']);
             try {
                 $sb->delete('sessions', ['user_id' => $target_id]);
             } catch (\Throwable $e) {}
             $msg = "Password <strong>{$target['name']}</strong> direset ke: <code>$new_pass</code>";
             $msg_type = 'info';
         } elseif ($action === 'delete_user') {
+            // Hapus semua data terkait user sebelum hapus akun utama
+            // agar tidak ada orphan data tersisa di DB
+            $sb->delete('sessions',          ['user_id' => $target_id]);
+            $sb->delete('user_logs',         ['user_id' => $target_id]);
             $sb->delete('user_applications', ['user_id' => $target_id]);
-            $sb->delete('users', ['id' => $target_id]);
+            $sb->delete('users',             ['id'      => $target_id]);
             log_admin_action($user['id'], $user['name'], 'Hapus User', $target['name'] . ' (' . $target['email'] . ')');
             $msg = "Akun <strong>{$target['name']}</strong> telah dihapus permanen.";
             $msg_type = 'danger';
