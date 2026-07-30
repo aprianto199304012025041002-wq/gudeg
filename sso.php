@@ -55,11 +55,7 @@ if ($user['role'] !== 'admin') {
     }
 }
 
-// ─── Helper: base64url encoding (standar JWT / RFC 7519) ─────────────────────
-function base64url_encode(string $data): string
-{
-    return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
-}
+// base64url_encode tersedia via includes/functions.php
 
 // ─── Buat payload ─────────────────────────────────────────────────────────────
 $payload = [

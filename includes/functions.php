@@ -24,6 +24,15 @@ if (!headers_sent()) {
 }
 
 
+// ── Helper: base64url encoding/decoding (RFC 7519) ───────────────────────────
+// Didefinisikan di sini sekali — dipakai oleh sso.php dan verify.php.
+function base64url_encode(string $data): string {
+    return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
+}
+function base64url_decode(string $data): string {
+    return base64_decode(strtr($data, '-_', '+/') . str_repeat('=', (4 - strlen($data) % 4) % 4));
+}
+
 
 function session_start_safe() {
     if (session_status() === PHP_SESSION_NONE) {
