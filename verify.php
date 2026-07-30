@@ -44,8 +44,10 @@ function fail($msg) {
 
 $sb = getSupabase(); // inisialisasi $sb — dipakai oleh semua query di bawah
 
-// Auto-cleanup token blacklist yang sudah expired
-try { $sb->delete('token_blacklist', ['exp' => 'lt.' . time()]); } catch (\Throwable $e) {}
+// Auto-cleanup token blacklist yang sudah expired.
+// Pisah antara token asli (jti tidak pakai prefix 'rl_') dan rate limit counter (prefix 'rl_'),
+// supaya cleanup token expired tidak ikut menghapus counter rate limit yang masih aktif.
+try { $sb->delete('token_blacklist', ['jti' => 'not.like.rl_%', 'exp' => 'lt.' . time()]); } catch (\Throwable $e) {}
 
 // FIX: Rate limiting verify.php — cegah brute force client_secret
 $verify_ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? 'unknown';
@@ -55,13 +57,14 @@ $rl_window = 60;   // 1 menit
 $rl_max    = 30;   // max 30 request per menit per IP
 
 try {
-    // FIX Bug 2: Rate limit pakai exp = unix timestamp window_end (bukan counter)
-    // sehingga tidak konflik dengan cleanup token_blacklist yang DELETE WHERE exp < time()
-    // Counter disimpan terpisah di kolom payload (string)
+    // Rate limit counter disimpan di token_blacklist dengan prefix jti='rl_verify_*'.
+    // exp = unix timestamp window_end (bukan token expiry), payload = request counter.
+    // Cleanup token asli (baris di atas) sudah dipisah dengan filter 'not.like.rl_%',
+    // jadi cleanup rate limit di sini tidak akan ikut menghapus token asli yang masih valid.
 
     // Cleanup rate limit record yang window-nya sudah habis
     $rl_window_end = time() + $rl_window;
-    $sb->delete('token_blacklist', ['jti' => 'like.rl_*', 'exp' => 'lt.' . time()]);
+    $sb->delete('token_blacklist', ['jti' => 'like.rl_%', 'exp' => 'lt.' . time()]);
 
     // Cek record rate limit untuk IP ini
     $rl_row = $sb->selectOne('token_blacklist', ['jti' => $rl_jti], 'exp,payload');
@@ -100,13 +103,12 @@ if (!$token || !$client_id || !$client_secret) {
 // 1. Cek aplikasi aktif
 // FIX: Cari berdasarkan client_id saja, verifikasi secret pakai password_verify
 // (secret di DB sekarang tersimpan sebagai bcrypt hash)
-$app = $sb->selectOne('sso_applications', ['client_id' => $client_id]);
+// Sertakan is_active=true di query awal agar app nonaktif langsung tidak ketemu (null),
+// tanpa bocorkan alasan spesifik ke caller.
+$app = $sb->selectOne('sso_applications', ['client_id' => $client_id, 'is_active' => true]);
 
 if (!$app || !verify_client_secret($client_secret, $app['client_secret'])) {
     fail('Aplikasi tidak ditemukan atau kredensial salah.');
-}
-if (!$app['is_active']) {
-    fail('Aplikasi telah dinonaktifkan.');
 }
 
 // 2. Verify token
