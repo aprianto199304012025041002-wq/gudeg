@@ -41,11 +41,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'email'                => $email,
                 'password'             => $hash,
                 'role'                 => 'guest',
-                'is_active'            => true,
+                'is_active'            => false,
                 'password_changed_at'  => $now,
                 'created_at'           => $now,
                 'updated_at'           => $now,
-                'last_login_at'        => $now,
             ]);
             $new_id = $inserted['id'] ?? null;
             log_activity($new_id, $name, $email, 'Register Akun Baru (Guest)');
