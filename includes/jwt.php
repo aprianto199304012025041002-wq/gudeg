@@ -58,6 +58,9 @@ class JWT {
         if (!$payload) return false;
         if ($payload['exp'] < time()) return false;
 
+        // Validasi issuer — tolak token yang bukan dari sistem ini
+        if (($payload['iss'] ?? '') !== 'gudeg-sso') return false;
+
         return $payload;
     }
 }
