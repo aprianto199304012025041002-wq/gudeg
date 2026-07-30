@@ -1,0 +1,82 @@
+<?php
+/**
+ * healthcheck.php — Cek status koneksi Supabase & konfigurasi setelah deploy.
+ *
+ * Akses: GET /healthcheck.php?key=HEALTH_KEY
+ * Dilindungi HEALTH_KEY dari environment agar tidak bisa diakses publik.
+ *
+ * Dipanggil otomatis oleh GitHub Actions setelah FTP deploy selesai.
+ * Juga bisa dipanggil manual untuk diagnosa.
+ */
+
+require_once __DIR__ . '/includes/functions.php';
+
+header('Content-Type: application/json');
+
+// ── Auth: cek HEALTH_KEY ─────────────────────────────────────────────────────
+$key_from_request = $_GET['key'] ?? $_SERVER['HTTP_X_HEALTH_KEY'] ?? '';
+$health_key       = defined('HEALTH_KEY') ? HEALTH_KEY : '';
+
+if (!$health_key || !hash_equals($health_key, $key_from_request)) {
+    http_response_code(403);
+    echo json_encode(['ok' => false, 'error' => 'Forbidden']);
+    exit;
+}
+
+$checks = [];
+$all_ok = true;
+
+// ── 1. Cek Supabase koneksi ──────────────────────────────────────────────────
+try {
+    $sb   = getSupabase();
+    $rows = $sb->select('users', [], 'id', ['limit' => 1]);
+    $checks['supabase'] = ['ok' => true, 'msg' => 'Connected'];
+} catch (\Throwable $e) {
+    $checks['supabase'] = ['ok' => false, 'msg' => $e->getMessage()];
+    $all_ok = false;
+}
+
+// ── 2. Cek config/.env terbaca ───────────────────────────────────────────────
+$checks['env'] = [
+    'ok'  => defined('SUPABASE_URL') && defined('SUPABASE_SERVICE_KEY'),
+    'msg' => defined('SUPABASE_URL') ? 'SUPABASE_URL defined' : 'SUPABASE_URL missing',
+];
+if (!$checks['env']['ok']) $all_ok = false;
+
+// ── 3. Cek RSA keys ada ──────────────────────────────────────────────────────
+$private_ok = file_exists(__DIR__ . '/keys/private.pem');
+$public_ok  = file_exists(__DIR__ . '/keys/public.pem');
+$checks['rsa_keys'] = [
+    'ok'  => $private_ok && $public_ok,
+    'msg' => $private_ok && $public_ok
+        ? 'private.pem & public.pem found'
+        : 'Missing: ' . (!$private_ok ? 'private.pem ' : '') . (!$public_ok ? 'public.pem' : ''),
+];
+if (!$checks['rsa_keys']['ok']) $all_ok = false;
+
+// ── 4. Cek /tmp writable (untuk LocalCache & RateLimiter) ───────────────────
+$tmp_ok = is_writable('/tmp');
+$checks['tmp_writable'] = [
+    'ok'  => $tmp_ok,
+    'msg' => $tmp_ok ? '/tmp is writable' : '/tmp is NOT writable',
+];
+if (!$tmp_ok) $all_ok = false;
+
+// ── 5. Cek LocalCache SQLite ─────────────────────────────────────────────────
+try {
+    require_once __DIR__ . '/includes/LocalCache.php';
+    // Coba operasi sederhana untuk pastikan SQLite berfungsi
+    LocalCache::cleanup();
+    $checks['local_cache'] = ['ok' => true, 'msg' => 'SQLite LocalCache OK'];
+} catch (\Throwable $e) {
+    $checks['local_cache'] = ['ok' => false, 'msg' => $e->getMessage()];
+    // Ini warning, bukan critical — app masih bisa jalan tanpa cache
+}
+
+// ── Response ─────────────────────────────────────────────────────────────────
+http_response_code($all_ok ? 200 : 503);
+echo json_encode([
+    'ok'      => $all_ok,
+    'time'    => date('Y-m-d H:i:s'),
+    'checks'  => $checks,
+], JSON_PRETTY_PRINT);

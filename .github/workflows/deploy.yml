@@ -16,9 +16,10 @@ jobs:
       - name: Buat config/.env dari secret
         run: |
           mkdir -p config
-          printf 'SUPABASE_URL=%s\nSUPABASE_SERVICE_KEY=%s\n' \
+          printf 'SUPABASE_URL=%s\nSUPABASE_SERVICE_KEY=%s\nHEALTH_KEY=%s\n' \
             '${{ secrets.SUPABASE_URL }}' \
-            '${{ secrets.SUPABASE_SERVICE_KEY }}' > config/.env
+            '${{ secrets.SUPABASE_SERVICE_KEY }}' \
+            '${{ secrets.HEALTH_KEY }}' > config/.env
 
       - name: Buat keys/private.pem dari secret
         run: |
@@ -44,3 +45,16 @@ jobs:
             **/node_modules/**
             README.md
             .ftp-deploy-sync-state.json
+
+      - name: Health check setelah deploy
+        run: |
+          sleep 10
+          STATUS=$(curl -s -o /tmp/hc_body.json -w "%{http_code}" \
+            "${{ vars.SITE_URL }}/healthcheck.php?key=${{ secrets.HEALTH_KEY }}")
+          echo "HTTP Status: $STATUS"
+          cat /tmp/hc_body.json
+          if [ "$STATUS" != "200" ]; then
+            echo "Health check GAGAL (HTTP $STATUS)"
+            exit 1
+          fi
+          echo "Health check OK"

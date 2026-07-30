@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__ . '/includes/functions.php';
+require_once __DIR__ . '/includes/RateLimiter.php';
+require_once __DIR__ . '/includes/LocalCache.php';
 session_start_safe();
 
 if (!empty($_SESSION['user_id'])) {
@@ -25,8 +27,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $remember = !empty($_POST['remember']);
 
     if ($email && $password) {
-        if (login_throttled($email)) {
-            $error = 'Terlalu banyak percobaan login. Coba lagi dalam 10 menit.';
+        $ip = get_ip();
+        if (RateLimiter::throttled($ip, $email)) {
+            $secs = RateLimiter::secondsLeft($ip, $email);
+            $mins = (int)ceil($secs / 60);
+            $error = 'Terlalu banyak percobaan login. Coba lagi dalam ' . $mins . ' menit.';
         } else {
             try {
                 $sb   = getSupabase();
@@ -35,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($user && password_verify($password, $user['password'])) {
                     if (!$user['is_active']) {
                         $error = 'Akun Anda tidak aktif. Hubungi administrator.';
-                        login_fail($email);
+                        RateLimiter::fail($ip, $email);
                     } else {
                         session_regenerate_id(true);
 
@@ -44,7 +49,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $_SESSION['email']   = $user['email'];
                         $_SESSION['role']    = $user['role'];
 
-                        login_reset($email);
+                        RateLimiter::reset($ip, $email);
+                        // Cache user data untuk graceful degrade saat Supabase sesaat down
+                        LocalCache::setUser((string)$user['id'], [
+                            'id'        => $user['id'],
+                            'name'      => $user['name'],
+                            'email'     => $user['email'],
+                            'role'      => $user['role'],
+                            'is_active' => $user['is_active'],
+                        ]);
 
                         if ($remember) {
                             setcookie('gudeg_remember_email', $email, time() + (30 * 24 * 3600), '/', '', false, true);
@@ -95,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         exit;
                     }
                 } else {
-                    login_fail($email);
+                    RateLimiter::fail($ip, $email);
                     $error = 'Email atau password salah.';
                 }
             } catch (\Throwable $e) {
