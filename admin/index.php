@@ -47,13 +47,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $msg = "Password <strong>{$target['name']}</strong> direset ke: <code>$new_pass</code>";
             $msg_type = 'info';
         } elseif ($action === 'delete_user') {
-            // Hapus semua data terkait user sebelum hapus akun utama
-            // agar tidak ada orphan data tersisa di DB
+            // Soft delete: set deleted_at + nonaktifkan akun
+            // Konsisten dengan login.php & query user list yang filter deleted_at = is.null
+            // Data relasi tetap dibersihkan karena tidak relevan setelah akun dihapus
+            $sb->update('users', ['id' => $target_id], [
+                'deleted_at' => date('Y-m-d H:i:s'),
+                'is_active'  => false,
+            ]);
             $sb->delete('sessions',          ['user_id' => $target_id]);
             $sb->delete('user_logs',         ['user_id' => $target_id]);
             $sb->delete('user_applications', ['user_id' => $target_id]);
-            $sb->delete('users',             ['id'      => $target_id]);
-            log_admin_action($user['id'], $user['name'], 'Hapus User', $target['name'] . ' (' . $target['email'] . ')');
+            log_admin_action($user['id'], $user['name'], 'Hapus User (Soft Delete)', $target['name'] . ' (' . $target['email'] . ')');
             $msg = "Akun <strong>{$target['name']}</strong> telah dihapus permanen.";
             $msg_type = 'danger';
         } elseif ($action === 'update_apps') {
