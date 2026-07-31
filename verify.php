@@ -85,26 +85,8 @@ if ($app['use_signed_token']) {
         fail('Token tidak valid atau sudah kedaluwarsa.');
     }
 } else {
-    // HMAC-SHA256: key pakai client_secret_plain (sama persis dengan sso.php)
-    // client_secret_plain adalah hex 64-char yang disimpan plaintext di DB,
-    // hanya bisa diakses via service_role key Supabase (server-side only).
-    if (empty($app['client_secret_plain'])) {
-        fail('Konfigurasi aplikasi belum lengkap. Hubungi administrator.');
-    }
-
-    $parts = explode('.', $token);
-    if (count($parts) !== 3) fail('Format token salah.');
-    [$header, $body, $sig] = $parts;
-
-    // Verifikasi HMAC pakai client_secret_plain — konsisten dengan sso.php
-    $expected = base64url_encode(hash_hmac('sha256', "$header.$body", $app['client_secret_plain'], true));
-    if (!hash_equals($expected, $sig)) fail('Tanda tangan token tidak valid.');
-
-    $payload = json_decode(base64url_decode($body), true);
-    if (!$payload) fail('Payload token tidak dapat dibaca.');
-    if (($payload['exp'] ?? 0) < time()) fail('Token sudah kedaluwarsa.');
-    // Validasi issuer — tolak token yang bukan dari sistem ini
-    if (($payload['iss'] ?? '') !== 'gudeg-sso') fail('Issuer token tidak valid.');
+    // HMAC mode tidak didukung — semua aplikasi wajib pakai RSA (use_signed_token = true)
+    fail('Mode token tidak didukung. Hubungi administrator untuk mengaktifkan signed token.');
 }
 
 $user_id = $payload['sub'] ?? null;
