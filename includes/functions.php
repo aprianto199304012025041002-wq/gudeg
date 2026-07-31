@@ -284,12 +284,26 @@ function verify_client_secret(string $plain, string $hash): bool {
  * Jalankan dengan probabilitas 5% per request supaya tidak berat.
  */
 function cleanup_old_logs(): void {
-    // Jalankan hanya ~5% request supaya tidak memperlambat setiap page load
-    if (rand(1, 100) > 5) return;
+    // Jalankan maksimal sekali per 24 jam — simpan timestamp di LocalCache SQLite.
+    // Lebih reliable dari rand() yang bisa tidak jalan berhari-hari kalau traffic rendah.
+    if (class_exists('LocalCache')) {
+        try {
+            $last = LocalCache::getUser('__cleanup_last__');
+            $last_ts = $last['ts'] ?? 0;
+            if ((time() - $last_ts) < 86400) return; // belum 24 jam
+            LocalCache::setUser('__cleanup_last__', ['ts' => time()], 90000); // TTL 25 jam
+        } catch (\Throwable $e) {
+            // LocalCache error — fallback ke rand() supaya cleanup tetap sesekali jalan
+            if (rand(1, 100) > 5) return;
+        }
+    } else {
+        // LocalCache tidak tersedia — fallback ke rand()
+        if (rand(1, 100) > 5) return;
+    }
 
     $cutoff = date('Y-m-d H:i:s', strtotime('-90 days'));
     try {
-        getSupabase()->delete('user_logs', ['created_at' => 'lt.' . $cutoff]);
+        getSupabase()->delete('user_logs',  ['created_at' => 'lt.' . $cutoff]);
         getSupabase()->delete('admin_logs', ['created_at' => 'lt.' . $cutoff]);
     } catch (\Throwable $e) {}
 }
