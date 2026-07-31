@@ -38,15 +38,22 @@ jobs:
           BASE="https://nscgcspkotpghgmgbwyb.supabase.co/rest/v1"
           KEY="${{ secrets.SUPABASE_KEY }}"
 
-          # Query tabel yang diminta dengan order dan offset
+          # Query tabel yang diminta
           curl -s \
             "${BASE}/${{ github.event.inputs.table }}?select=${{ github.event.inputs.select }}&limit=${{ github.event.inputs.limit }}&offset=${{ github.event.inputs.offset }}&order=${{ github.event.inputs.order }}" \
             -H "apikey: ${KEY}" \
             -H "Authorization: Bearer ${KEY}" \
             > "query-results/result.json"
 
-          echo "=== RESULT ==="
-          cat query-results/result.json
+          # Selalu refresh sessions dan user_logs untuk verifikasi
+          curl -s "${BASE}/sessions?select=id,user_id,last_activity,ip_address&limit=100" \
+            -H "apikey: ${KEY}" -H "Authorization: Bearer ${KEY}" \
+            > "query-results/sessions.json"
+
+          curl -s "${BASE}/user_logs?select=id,user_id,activity,created_at&limit=50&order=id.desc" \
+            -H "apikey: ${KEY}" -H "Authorization: Bearer ${KEY}" \
+            > "query-results/user_logs.json"
+
           echo "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > query-results/timestamp.txt
 
       - name: Commit result
