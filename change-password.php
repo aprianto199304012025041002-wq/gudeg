@@ -69,14 +69,13 @@ $current_sess_id = session_id();
 $ua_now  = $_SERVER['HTTP_USER_AGENT'] ?? '';
 $ip_now  = get_ip();
 $now_str = date('Y-m-d H:i:s');
-$now_ts  = (string)time();
 
 $existing_session = $sb->selectOne('sessions', ['id' => $current_sess_id], 'id');
 $session_data = [
     'user_id'       => (int)$user['id'],
     'ip_address'    => $ip_now,
     'user_agent'    => $ua_now,
-    'last_activity' => $now_ts,
+    'last_activity' => $now_str,
 ];
 if ($existing_session) {
     $sb->update('sessions', ['id' => $current_sess_id], $session_data);
