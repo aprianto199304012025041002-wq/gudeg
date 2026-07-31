@@ -27,16 +27,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $sec_hash  = hash_client_secret($sec_plain);
             $now = date('Y-m-d H:i:s');
             $sb->insert('sso_applications', [
-                'name'                => $name,
-                'redirect'            => $redirect,
-                'client_id'           => $cid,
-                'client_secret'       => $sec_hash,
-                'client_secret_plain' => $sec_plain,
-                'description'         => $desc,
-                'use_signed_token'    => (bool)$signed,
-                'is_active'           => true,
-                'created_at'          => $now,
-                'updated_at'          => $now,
+                'name'             => $name,
+                'redirect'         => $redirect,
+                'client_id'        => $cid,
+                'client_secret'    => $sec_hash,
+                'description'      => $desc,
+                'use_signed_token' => (bool)$signed,
+                'is_active'        => true,
+                'created_at'       => $now,
+                'updated_at'       => $now,
             ]);
             log_admin_action($user['id'], $user['name'],
                 'Registrasi Aplikasi Baru' . ($signed ? ' (Signed Token)' : ''), $name);
@@ -53,9 +52,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $new_plain = bin2hex(random_bytes(32));
             $new_hash  = hash_client_secret($new_plain);
             $sb->update('sso_applications', ['id' => $id], [
-                'client_secret'       => $new_hash,
-                'client_secret_plain' => $new_plain,
-                'updated_at'          => date('Y-m-d H:i:s'),
+                'client_secret' => $new_hash,
+                'updated_at'    => date('Y-m-d H:i:s'),
             ]);
             log_admin_action($user['id'], $user['name'], 'Regenerate Client Secret', $app['name']);
             $bubble_type  = 'info';
@@ -477,16 +475,7 @@ layout_head('Kelola Aplikasi', 'admin-apps');
               title="Ketuk untuk tampilkan"><?= htmlspecialchars($app['client_secret'] ?? '—') ?></span>
         <span class="reveal-hint" onclick="this.previousElementSibling.classList.toggle('revealed')">[Ketuk untuk tampilkan]</span>
       </div>
-      <?php if (!empty($app['client_secret_plain'])): ?>
-      <div>
-        Client Secret (plain):
-        <span class="secret-blur" onclick="this.classList.toggle('revealed')"
-              title="Ketuk untuk tampilkan"><?= htmlspecialchars($app['client_secret_plain']) ?></span>
-        <span class="reveal-hint" onclick="this.previousElementSibling.classList.toggle('revealed')">[Ketuk untuk tampilkan]</span>
-      </div>
-      <?php else: ?>
-      <div style="color:var(--danger);font-size:.72rem;">⚠ client_secret_plain kosong — klik Regenerate Secret</div>
-      <?php endif; ?>
+
       <div class="redirect-url">↳ <?= htmlspecialchars($app['redirect']) ?></div>
     </div>
   </div>
