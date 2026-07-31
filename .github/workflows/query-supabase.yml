@@ -1,0 +1,47 @@
+name: Query Supabase
+
+on:
+  workflow_dispatch:
+    inputs:
+      query:
+        description: 'SQL query to run'
+        required: true
+        default: "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name"
+
+jobs:
+  query:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Supabase query
+        run: |
+          RESULT=$(curl -s \
+            -X POST \
+            "https://nscgcspkotpghgmgbwyb.supabase.co/rest/v1/rpc/query" \
+            -H "apikey: ${{ secrets.SUPABASE_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"query\": \"${{ github.event.inputs.query }}\"}" \
+          )
+
+          # Fallback: pakai PostgREST langsung
+          if echo "$RESULT" | grep -q "error\|404\|Could not"; then
+            RESULT=$(curl -s \
+              "https://nscgcspkotpghgmgbwyb.supabase.co/rest/v1/${{ github.event.inputs.query }}" \
+              -H "apikey: ${{ secrets.SUPABASE_KEY }}" \
+              -H "Authorization: Bearer ${{ secrets.SUPABASE_KEY }}" \
+            )
+          fi
+
+          mkdir -p query-results
+          echo "$RESULT" > query-results/result.json
+          echo "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > query-results/timestamp.txt
+
+      - name: Commit result
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+          git add query-results/
+          git commit -m "query result $(date -u +%Y%m%d-%H%M%S)" || echo "nothing to commit"
+          git push
