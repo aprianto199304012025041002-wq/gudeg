@@ -176,7 +176,6 @@ layout_head('Beranda', 'dashboard');
   margin-bottom: 1.2rem;
 }
 
-/* ── Floating bubble system ─────────────────────────────── */
 .bubble-wrap {
   position: fixed;
   bottom: 16px;
@@ -189,12 +188,7 @@ layout_head('Beranda', 'dashboard');
   pointer-events: none;
 }
 @media (max-width: 480px) {
-  .bubble-wrap {
-    bottom: 12px;
-    right: 8px;
-    left: 8px;
-    width: auto;
-  }
+  .bubble-wrap { bottom: 12px; right: 8px; left: 8px; width: auto; }
 }
 .bubble {
   border-radius: 6px;
@@ -244,16 +238,9 @@ layout_head('Beranda', 'dashboard');
 }
 .bubble-close {
   position: absolute;
-  top: 6px;
-  right: 8px;
-  cursor: pointer;
-  opacity: .5;
-  font-size: 16px;
-  color: inherit;
-  background: none;
-  border: none;
-  padding: 0;
-  line-height: 1;
+  top: 6px; right: 8px;
+  cursor: pointer; opacity: .5; font-size: 16px;
+  color: inherit; background: none; border: none; padding: 0; line-height: 1;
   flex-shrink: 0;
   -webkit-tap-highlight-color: transparent;
 }
@@ -262,8 +249,7 @@ layout_head('Beranda', 'dashboard');
   position: absolute;
   bottom: 0; left: 0;
   height: 2px;
-  background: currentColor;
-  opacity: .3;
+  background: currentColor; opacity: .3;
   border-radius: 0 0 6px 6px;
   animation: bubbleProgress 8s linear forwards;
 }
@@ -272,7 +258,6 @@ layout_head('Beranda', 'dashboard');
   to   { width: 0%; }
 }
 
-/* ── Safe area Android WebView ───────────────────────── */
 @supports (padding-top: env(safe-area-inset-top)) {
   .bubble-wrap { bottom: calc(16px + env(safe-area-inset-bottom)); }
   @media (max-width: 480px) {
@@ -343,7 +328,6 @@ layout_head('Beranda', 'dashboard');
     '<div class="bubble-progress"></div>';
   wrap.appendChild(b);
 
-  // Auto-dismiss after 8s
   setTimeout(function() { dismissBubble(b); }, 8000);
 })();
 
@@ -358,7 +342,6 @@ function dismissIPWarning(btn) {
   var b = btn.closest('.bubble');
   dismissBubble(b);
 
-  // Kirim dismiss ke server via fetch
   var fd = new FormData();
   fd.append('dismiss_ip_warning', '1');
   fd.append('csrf_token', <?= json_encode($_SESSION['csrf_token'] ?? '') ?>);
@@ -368,22 +351,3 @@ function dismissIPWarning(btn) {
 <?php endif; ?>
 
 <?php layout_foot(); ?>
-<script>
-// APK: Simpan kredensial ke EncryptedSharedPreferences setelah login berhasil
-// Data sementara disimpan di sessionStorage oleh form login, lalu kita
-// teruskan ke native bridge di sini dan langsung hapus dari sessionStorage.
-(function () {
-  try {
-    var email    = sessionStorage.getItem('__gudeg_pending_email');
-    var password = sessionStorage.getItem('__gudeg_pending_password');
-    if (email && password && window.GudegNative && window.GudegNative.saveCredentials) {
-      window.GudegNative.saveCredentials(email, password);
-    }
-  } catch (e) {}
-  // Hapus dari sessionStorage apapun hasilnya — jangan simpan password di sini
-  try {
-    sessionStorage.removeItem('__gudeg_pending_email');
-    sessionStorage.removeItem('__gudeg_pending_password');
-  } catch (e) {}
-})();
-</script>

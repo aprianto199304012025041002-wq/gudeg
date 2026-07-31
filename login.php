@@ -19,6 +19,12 @@ if (parse_url($redirect, PHP_URL_HOST) !== null) {
 
 $remembered_email = $_COOKIE['gudeg_remember_email'] ?? '';
 
+// Flag: apakah login berhasil dan perlu render bridge APK?
+$login_success   = false;
+$login_email     = '';
+$login_password  = '';
+$login_dest      = '/dashboard.php';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify();
 
@@ -50,7 +56,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $_SESSION['role']    = $user['role'];
 
                         RateLimiter::reset($ip, $email);
-                        // Cache user data untuk graceful degrade saat Supabase sesaat down
                         LocalCache::setUser((string)$user['id'], [
                             'id'        => $user['id'],
                             'name'      => $user['name'],
@@ -104,8 +109,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $dest = (parse_url($redirect, PHP_URL_HOST) === null && str_starts_with($redirect, '/'))
                             ? $redirect
                             : '/dashboard.php';
-                        header("Location: $dest");
-                        exit;
+
+                        // Deteksi request dari APK berdasarkan User-Agent
+                        $is_apk = is_from_apk();
+
+                        if ($is_apk) {
+                            // APK: jangan redirect 302 langsung.
+                            // Render halaman bridge tipis yang memanggil
+                            // GudegNative.saveCredentials() terlebih dahulu,
+                            // lalu JS redirect ke dashboard.
+                            // Dengan cara ini password TIDAK pernah mampir di
+                            // sessionStorage — langsung ke EncryptedSharedPreferences.
+                            $login_success  = true;
+                            $login_email    = $email;
+                            $login_password = $password;
+                            $login_dest     = $dest;
+                            // Lanjut render halaman bridge di bawah (tidak exit di sini)
+                        } else {
+                            // Browser biasa: redirect normal
+                            header("Location: $dest");
+                            exit;
+                        }
                     }
                 } else {
                     RateLimiter::fail($ip, $email);
@@ -120,6 +144,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Email dan password wajib diisi.';
     }
 }
+
+// ── Halaman bridge APK ────────────────────────────────────────────────────────
+// Hanya dirender saat login sukses dari APK.
+// Halaman ini tidak terlihat user (blank putih sesaat) — tugasnya hanya:
+// 1. Panggil GudegNative.saveCredentials() → tersimpan ke EncryptedSharedPreferences
+// 2. JS redirect ke dashboard
+if ($login_success) {
+?><!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Masuk...</title>
+<style>
+  body { background: #080a0e; margin: 0; }
+</style>
+</head>
+<body>
+<script>
+(function () {
+  // Simpan credentials ke EncryptedSharedPreferences via JS bridge APK.
+  // Ini dipanggil SEBELUM redirect ke dashboard sehingga:
+  // - Password tidak pernah masuk sessionStorage
+  // - Tidak ada null form saat cari #email/#password di halaman lain
+  try {
+    if (window.GudegNative && window.GudegNative.saveCredentials) {
+      window.GudegNative.saveCredentials(
+        <?= json_encode($login_email) ?>,
+        <?= json_encode($login_password) ?>
+      );
+    }
+  } catch (e) {}
+
+  // Redirect ke dashboard (atau tujuan semula)
+  window.location.replace(<?= json_encode($login_dest) ?>);
+})();
+</script>
+</body>
+</html>
+<?php
+    exit;
+}
+// ─────────────────────────────────────────────────────────────────────────────
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -400,7 +467,8 @@ input:-webkit-autofill:focus {
   </div>
 
   <div class="card">
-    <form method="POST" onsubmit="try{sessionStorage.setItem('__gudeg_pending_email',this.email.value);sessionStorage.setItem('__gudeg_pending_password',this.password.value);}catch(e){}">
+    <!-- Form tanpa onsubmit sessionStorage — credentials tidak disimpan di browser -->
+    <form method="POST">
       <?= csrf_field() ?>
       <input type="hidden" name="redirect" value="<?= htmlspecialchars($redirect) ?>">
 
