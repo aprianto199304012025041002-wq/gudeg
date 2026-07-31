@@ -1,10 +1,10 @@
 <?php
 require_once __DIR__ . '/includes/functions.php';
+require_once __DIR__ . '/includes/LocalCache.php';
 require_once __DIR__ . '/includes/layout.php';
 require_login();
 
 $user = get_current_user_data();
-$sb   = getSupabase();
 
 // Dismiss IP warning banner
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['dismiss_ip_warning'])) {
@@ -14,24 +14,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['dismiss_ip_warning']
     exit;
 }
 
-// Apps user punya akses
-$apps = [];
-if ($user['role'] !== 'guest') {
-    if ($user['role'] === 'admin') {
-        $apps = $sb->select('sso_applications', ['is_active' => true]);
-    } else {
-        // PostgREST tidak punya JOIN langsung kayak SQL, jadi 2 langkah:
-        // 1) ambil daftar application_id yang jadi hak akses user ini
-        $ua_rows = $sb->select('user_applications', ['user_id' => $user['id']], 'application_id');
-        $app_ids = array_column($ua_rows, 'application_id');
-        // 2) ambil detail aplikasinya yang masih aktif, filter id yang cocok pakai operator "in"
-        if ($app_ids) {
-            $apps = $sb->select('sso_applications', [
-                'id'        => 'in.(' . implode(',', $app_ids) . ')',
-                'is_active' => true,
-            ]);
+// Apps user punya akses — dengan graceful degrade saat Supabase down
+$apps          = [];
+$supabase_down = false;
+
+try {
+    $sb = getSupabase();
+
+    if ($user['role'] !== 'guest') {
+        if ($user['role'] === 'admin') {
+            $apps = $sb->select('sso_applications', ['is_active' => true]);
+        } else {
+            // PostgREST tidak punya JOIN langsung kayak SQL, jadi 2 langkah:
+            // 1) ambil daftar application_id yang jadi hak akses user ini
+            $ua_rows = $sb->select('user_applications', ['user_id' => $user['id']], 'application_id');
+            $app_ids = array_column($ua_rows, 'application_id');
+            // 2) ambil detail aplikasinya yang masih aktif, filter id yang cocok pakai operator "in"
+            if ($app_ids) {
+                $apps = $sb->select('sso_applications', [
+                    'id'        => 'in.(' . implode(',', $app_ids) . ')',
+                    'is_active' => true,
+                ]);
+            }
         }
     }
+
+    // Refresh LocalCache setiap kali berhasil ambil data dari Supabase
+    LocalCache::setUser((string)$user['id'], $user);
+
+} catch (\Throwable $e) {
+    // Supabase down — graceful degrade
+    error_log('dashboard.php: Supabase error: ' . $e->getMessage());
+    $supabase_down = true;
+
+    // Coba ambil data user dari LocalCache
+    $cached = LocalCache::getUser((string)$user['id']);
+    if ($cached) {
+        $user = array_merge($user, $cached);
+    }
+
+    // Apps tidak bisa ditampilkan tanpa Supabase — biarkan $apps = []
 }
 
 layout_head('Beranda', 'dashboard');
@@ -258,6 +280,12 @@ layout_head('Beranda', 'dashboard');
   }
 }
 </style>
+
+<?php if ($supabase_down): ?>
+<div style="background:rgba(212,168,0,.1);border:1px solid rgba(212,168,0,.3);border-radius:4px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.82rem;color:#d4a800;font-family:var(--sans);">
+  ⚠ Layanan sedang gangguan. Beberapa fitur mungkin tidak tersedia. Data yang ditampilkan mungkin tidak terkini.
+</div>
+<?php endif; ?>
 
 <div class="page-header greeting">
   <div class="greeting-name">Halo, <?= htmlspecialchars(explode(' ', $user['name'])[0]) ?>!</div>

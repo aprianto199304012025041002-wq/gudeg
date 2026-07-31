@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/includes/functions.php';
+require_once __DIR__ . '/includes/LocalCache.php';
 require_once __DIR__ . '/includes/layout.php';
 require_login();
 
@@ -45,6 +46,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'logou
             'password_changed_at' => date('Y-m-d H:i:s'),
         ]);
         log_activity($user['id'], $user['name'], $user['email'], 'Ubah Password Sendiri');
+
+        // Hapus cache user — paksa fetch ulang dari DB saat login berikutnya
+        LocalCache::clearUser((string)$user['id']);
 
         try {
             $sb->delete('sessions', ['user_id' => $user['id'], 'id' => 'neq.' . session_id()]);

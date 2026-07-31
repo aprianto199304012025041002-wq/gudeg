@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/includes/functions.php';
+require_once __DIR__ . '/includes/LocalCache.php';
 session_start_safe();
 
 // Logout harus diproteksi CSRF agar tidak bisa dipicu dari luar
@@ -15,8 +16,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-if (!empty($_SESSION['user_id'])) {
-    log_activity($_SESSION['user_id'], $_SESSION['name'], $_SESSION['email'], 'Logout');
+$user_id_logout = $_SESSION['user_id'] ?? null;
+
+if ($user_id_logout) {
+    log_activity($user_id_logout, $_SESSION['name'], $_SESSION['email'], 'Logout');
+    // Hapus cache user agar tidak bisa dipakai setelah logout
+    LocalCache::clearUser((string)$user_id_logout);
 }
 
 // Hapus sesi dari DB

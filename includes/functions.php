@@ -18,7 +18,8 @@ if (!headers_sent()) {
     header("X-XSS-Protection: 1; mode=block");
     header("Referrer-Policy: strict-origin-when-cross-origin");
     header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
-    header("Content-Security-Policy: default-src \'self\'; script-src \'self\' \'unsafe-inline\' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src \'self\' \'unsafe-inline\' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src \'self\' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src \'self\' data:; connect-src \'self\' https://*.supabase.co; frame-ancestors \'self\'; form-action \'self\'; base-uri \'self\'");
+    // CSP diperketat: semua aset sudah self-hosted (font Tabler lokal, tidak ada CDN)
+    header("Content-Security-Policy: default-src \'self\'; script-src \'self\' \'unsafe-inline\'; style-src \'self\' \'unsafe-inline\'; font-src \'self\'; img-src \'self\' data:; connect-src \'self\' https://*.supabase.co; frame-ancestors \'self\'; form-action \'self\'; base-uri \'self\'");
     header("Permissions-Policy: geolocation=(), camera=(), microphone=(), payment=(), usb=(), interest-cohort=()");
     header_remove("X-Powered-By");
 }
@@ -163,44 +164,10 @@ function csrf_verify(): void {
     }
 }
 
-// ── Login attempt rate limiting (simpan di session, cocok untuk InfinityFree) ─
-
-/**
- * Catat percobaan login gagal.
- * Kunci berdasarkan IP + email agar tidak mudah di-bypass.
- */
-function login_fail(string $email): void {
-    session_start_safe();
-    $key = 'lf_' . md5(get_ip() . strtolower($email));
-    $_SESSION[$key]['count'] = ($_SESSION[$key]['count'] ?? 0) + 1;
-    $_SESSION[$key]['last']  = time();
-}
-
-/**
- * Cek apakah IP+email sedang di-throttle.
- * Batas: 5 percobaan dalam 10 menit.
- */
-function login_throttled(string $email): bool {
-    session_start_safe();
-    $key    = 'lf_' . md5(get_ip() . strtolower($email));
-    $data   = $_SESSION[$key] ?? null;
-    if (!$data) return false;
-    // Reset setelah 10 menit
-    if (time() - $data['last'] > 600) {
-        unset($_SESSION[$key]);
-        return false;
-    }
-    return $data['count'] >= 5;
-}
-
-/**
- * Reset hitungan gagal login (dipanggil saat login berhasil).
- */
-function login_reset(string $email): void {
-    session_start_safe();
-    $key = 'lf_' . md5(get_ip() . strtolower($email));
-    unset($_SESSION[$key]);
-}
+// ── Login rate limiting ───────────────────────────────────────────────────────
+// Fungsi login_fail(), login_throttled(), login_reset() sudah dihapus.
+// Gunakan RateLimiter::fail(), RateLimiter::throttled(), RateLimiter::reset()
+// dari includes/RateLimiter.php — file-based, tidak bisa di-bypass ganti session.
 
 // ── Session timeout ───────────────────────────────────────────────────────────
 
@@ -354,16 +321,14 @@ function validate_length(string $field, string $value, int $max): ?string {
  * Return false kalau token sudah pernah dipakai (replay attack).
  */
 function token_use(string $jti, int $exp): bool {
+    // Coba Supabase dulu (sumber kebenaran utama)
     try {
         $sb = getSupabase();
 
-        // Hapus token expired dulu supaya tabel tidak membengkak
+        // Hapus token expired supaya tabel tidak membengkak
         try {
             $sb->delete('token_blacklist', ['exp' => 'lt.' . time()]);
-        } catch (\Throwable $e) {
-            // Kalau memang tidak ada baris yang cocok, delete() tetap aman —
-            // ini cuma jaga-jaga kalau ada error jaringan sesaat.
-        }
+        } catch (\Throwable $e) {}
 
         // Cek apakah JTI sudah ada
         $existing = $sb->selectOne('token_blacklist', ['jti' => $jti], 'jti');
@@ -371,16 +336,31 @@ function token_use(string $jti, int $exp): bool {
             return false; // sudah dipakai = replay attack
         }
 
-        // Simpan JTI ke blacklist
+        // Simpan JTI ke blacklist Supabase
         $sb->insert('token_blacklist', [
             'jti'     => $jti,
             'exp'     => $exp,
             'used_at' => date('Y-m-d H:i:s'),
         ]);
+
+        // Sinkron ke LocalCache juga sebagai redundansi
+        if (class_exists('LocalCache')) {
+            LocalCache::tokenUse($jti, $exp);
+        }
+
         return true;
+
     } catch (\Throwable $e) {
-        // Kalau tabel belum ada / Supabase lagi bermasalah, skip blacklist (jangan crash)
-        error_log('token_use gagal: ' . $e->getMessage());
-        return true;
+        // Supabase error — fallback ke LocalCache (fail-closed)
+        error_log('token_use: Supabase error, fallback ke LocalCache: ' . $e->getMessage());
+
+        if (class_exists('LocalCache')) {
+            // LocalCache::tokenUse atomic: return false jika JTI sudah ada
+            return LocalCache::tokenUse($jti, $exp);
+        }
+
+        // Kedua sumber gagal — tolak token (fail-closed, bukan fail-open)
+        error_log('token_use: LocalCache tidak tersedia, token ditolak sebagai precaution.');
+        return false;
     }
 }

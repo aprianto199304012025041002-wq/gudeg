@@ -12,6 +12,7 @@
 @ini_set('display_errors', 0);
 
 require_once __DIR__ . '/includes/functions.php';
+require_once __DIR__ . '/includes/LocalCache.php';
 session_start_safe();
 
 // Hanya izinkan dari APK — kembalikan 200 (bukan 403) agar WebView tidak error
@@ -30,6 +31,8 @@ try {
             $_SESSION['email'] ?? '',
             'Logout (APK Closed)'
         );
+        // Hapus cache user agar tidak bisa dipakai setelah logout APK
+        LocalCache::clearUser((string)$_SESSION['user_id']);
     }
 
     $sess_id = session_id();
