@@ -53,7 +53,8 @@ php_flag log_errors On
     Header set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
 
     # Content Security Policy
-    Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data:; connect-src 'self' https://*.supabase.co; frame-ancestors 'self'; form-action 'self'; base-uri 'self'"
+    # CSP diperketat: semua aset self-hosted, tidak ada CDN eksternal
+    Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self' https://*.supabase.co; frame-ancestors 'self'; form-action 'self'; base-uri 'self'"
 
     # Permissions Policy — nonaktifkan fitur browser yang tidak dipakai
     Header set Permissions-Policy "geolocation=(), camera=(), microphone=(), payment=(), usb=(), interest-cohort=()"
