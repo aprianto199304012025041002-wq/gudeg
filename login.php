@@ -106,6 +106,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             error_log('upsert session gagal (login tetap lanjut): ' . $e->getMessage());
                         }
 
+                        // Cleanup session expired milik user ini
+                        // Session dianggap expired jika last_activity > SESSION_TIMEOUT (30 menit) lalu
+                        // Dijalankan setiap login agar tidak menumpuk
+                        try {
+                            $expired_ts      = time() - SESSION_TIMEOUT;
+                            $expired_cutoff  = date('Y-m-d H:i:s', $expired_ts);
+
+                            // Hapus session expired (format datetime) — kecuali session sekarang
+                            $sb->delete('sessions', [
+                                'user_id'       => (int)$user['id'],
+                                'id'            => 'neq.' . $sess_id,
+                                'last_activity' => 'lt.' . $expired_cutoff,
+                            ]);
+
+                            // Hapus juga session lama dengan format unix timestamp
+                            // (data lama sebelum fix format last_activity)
+                            // Unix timestamp yang expired: angka < $expired_ts sebagai string
+                            $old_sessions = $sb->select('sessions', [
+                                'user_id' => (int)$user['id'],
+                                'id'      => 'neq.' . $sess_id,
+                            ], 'id,last_activity');
+                            foreach ($old_sessions as $s) {
+                                $la = $s['last_activity'] ?? '';
+                                if (is_numeric($la) && (int)$la < $expired_ts) {
+                                    $sb->delete('sessions', ['id' => $s['id']]);
+                                }
+                            }
+                        } catch (\Throwable $e) {
+                            error_log('cleanup session expired gagal: ' . $e->getMessage());
+                        }
+
                         $dest = (parse_url($redirect, PHP_URL_HOST) === null && str_starts_with($redirect, '/'))
                             ? $redirect
                             : '/dashboard.php';
