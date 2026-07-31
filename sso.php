@@ -10,6 +10,9 @@
  *
  * Solusi: pakai client_secret_plain (hex 64-char random) yang disimpan
  * di DB dan hanya bisa diakses via service_role key Supabase.
+ *
+ * Fix: debounce log SSO 60 detik — cegah log spam saat app klien
+ * redirect berulang ke sso.php dalam waktu singkat.
  */
 
 require_once __DIR__ . '/includes/functions.php';
@@ -85,9 +88,40 @@ if ($app['use_signed_token']) {
     $token = "$header.$body.$sig";
 }
 
-// ─── Log aktivitas SSO ────────────────────────────────────────────────────────
-$host = parse_url($app['redirect'], PHP_URL_HOST) ?? $app['redirect'];
-log_activity($user['id'], $user['name'], $user['email'], 'Akses SSO ke ' . $host);
+// ─── Log aktivitas SSO (debounce 60 detik) ───────────────────────────────────
+// Cegah log spam: skip jika user sudah log akses ke app yang sama < 60 detik lalu
+$host         = parse_url($app['redirect'], PHP_URL_HOST) ?? $app['redirect'];
+$activity_str = 'Akses SSO ke ' . $host;
+
+try {
+    // Cek apakah ada log yang sama dalam 60 detik terakhir
+    $recent = $sb->select(
+        'user_logs',
+        [
+            'user_id'  => $user['id'],
+            'activity' => $activity_str,
+        ],
+        'id,created_at',
+        ['limit' => 1, 'order' => 'created_at.desc']
+    );
+
+    // Hanya log jika belum ada aktivitas SSO ke app ini dalam 60 detik
+    $should_log = true;
+    if (!empty($recent)) {
+        $last_time = strtotime($recent[0]['created_at'] ?? 0);
+        if ($last_time && (time() - $last_time) < 60) {
+            $should_log = false;
+        }
+    }
+
+    if ($should_log) {
+        log_activity($user['id'], $user['name'], $user['email'], $activity_str);
+    }
+} catch (\Throwable $e) {
+    // Jika cek debounce gagal, tetap log agar tidak ada aktivitas yang terlewat
+    error_log('SSO debounce check gagal: ' . $e->getMessage());
+    log_activity($user['id'], $user['name'], $user['email'], $activity_str);
+}
 
 // ─── Redirect ke aplikasi client dengan token ─────────────────────────────────
 $separator    = strpos($app['redirect'], '?') !== false ? '&' : '?';
