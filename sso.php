@@ -2,13 +2,13 @@
 /**
  * sso.php — final
  *
- * Improvement #3: Ganti HMAC key dari client_id → client_secret_plain
+ * Semua app aktif menggunakan RSA-signed JWT (use_signed_token = true).
  * ────────────────────────────────────────────────────────────────────
  * client_id bersifat publik (dikirim via query string). Memakai
  * client_id sebagai HMAC key berarti siapapun yang tahu client_id
  * bisa memalsukan token.
  *
- * Solusi: pakai client_secret_plain (hex 64-char random) yang disimpan
+ * HMAC mode tersedia sebagai fallback untuk app yang tidak pakai RSA.
  * di DB dan hanya bisa diakses via service_role key Supabase.
  *
  * Fix: debounce log SSO 60 detik — cegah log spam saat app klien
@@ -35,13 +35,6 @@ if (!$app) {
     die('Aplikasi tidak ditemukan atau tidak aktif.');
 }
 
-// Pastikan app sudah punya client_secret_plain (hasil migration).
-// Kalau belum ada, tolak — jangan fallback ke client_id yang tidak aman.
-if (empty($app['client_secret_plain'])) {
-    http_response_code(503);
-    error_log("SSO: app '{$app['name']}' belum punya client_secret_plain. Jalankan migration SQL.");
-    die('Konfigurasi aplikasi belum lengkap. Hubungi administrator.');
-}
 
 // Check user has access to this app (admin always has access)
 if ($user['role'] !== 'admin') {
@@ -72,7 +65,7 @@ $payload = [
 
 // ─── Generate token ───────────────────────────────────────────────────────────
 if ($app['use_signed_token']) {
-    // RSA-signed JWT — tidak butuh client_secret_plain
+    // RSA-signed JWT
     $token = JWT::generate($payload, 900);
 } else {
     $header = base64url_encode(json_encode(['alg' => 'HS256', 'typ' => 'JWT']));
@@ -82,8 +75,7 @@ if ($app['use_signed_token']) {
         'iss' => 'gudeg-sso',
     ])));
 
-    // HMAC key = client_secret_plain (plaintext hex, hanya ada di DB server-side)
-    // App client menyimpan nilai yang sama di environment mereka untuk verifikasi.
+    // HMAC key = client_secret dari DB (hanya untuk app dengan use_signed_token = false)
     $sig   = base64url_encode(hash_hmac('sha256', "$header.$body", $app['client_secret_plain'], true));
     $token = "$header.$body.$sig";
 }
