@@ -7,6 +7,8 @@
  */
 require_once __DIR__ . '/includes/jwt.php';
 require_once __DIR__ . '/includes/functions.php';
+require_once __DIR__ . '/includes/RateLimiter.php';
+require_once __DIR__ . '/includes/LocalCache.php';
 header('Content-Type: application/json');
 
 // FIX: Jangan pakai Access-Control-Allow-Origin: * untuk endpoint sensitif.
@@ -44,53 +46,18 @@ function fail($msg) {
 
 $sb = getSupabase(); // inisialisasi $sb — dipakai oleh semua query di bawah
 
-// Auto-cleanup token blacklist yang sudah expired.
-// Pisah antara token asli (jti tidak pakai prefix 'rl_') dan rate limit counter (prefix 'rl_'),
-// supaya cleanup token expired tidak ikut menghapus counter rate limit yang masih aktif.
-try { $sb->delete('token_blacklist', ['jti' => 'not.like.rl_%', 'exp' => 'lt.' . time()]); } catch (\Throwable $e) {}
+// Auto-cleanup token blacklist yang sudah expired (token asli saja, bukan rate limit)
+try { $sb->delete('token_blacklist', ['exp' => 'lt.' . time()]); } catch (\Throwable $e) {}
 
-// FIX: Rate limiting verify.php — cegah brute force client_secret
-$verify_ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-$verify_ip = trim(explode(',', $verify_ip)[0]);
-$rl_jti    = 'rl_verify_' . md5($verify_ip);
-$rl_window = 60;   // 1 menit
-$rl_max    = 30;   // max 30 request per menit per IP
-
-try {
-    // Rate limit counter disimpan di token_blacklist dengan prefix jti='rl_verify_*'.
-    // exp = unix timestamp window_end (bukan token expiry), payload = request counter.
-    // Cleanup token asli (baris di atas) sudah dipisah dengan filter 'not.like.rl_%',
-    // jadi cleanup rate limit di sini tidak akan ikut menghapus token asli yang masih valid.
-
-    // Cleanup rate limit record yang window-nya sudah habis
-    $rl_window_end = time() + $rl_window;
-    $sb->delete('token_blacklist', ['jti' => 'like.rl_%', 'exp' => 'lt.' . time()]);
-
-    // Cek record rate limit untuk IP ini
-    $rl_row = $sb->selectOne('token_blacklist', ['jti' => $rl_jti], 'exp,payload');
-
-    if ($rl_row) {
-        // exp = unix timestamp kapan window habis (nilai besar, tidak konflik dengan cleanup)
-        // payload = jumlah request dalam window ini
-        $req_count = (int)$rl_row['payload'];
-        if ($req_count >= $rl_max) {
-            http_response_code(429);
-            fail('Terlalu banyak request. Coba lagi dalam 1 menit.');
-        }
-        $sb->update('token_blacklist', ['jti' => $rl_jti], ['payload' => (string)($req_count + 1)]);
-    } else {
-        // Request pertama dari IP ini dalam window ini
-        // exp = kapan window habis (unix timestamp besar), payload = counter
-        $sb->insert('token_blacklist', [
-            'jti'     => $rl_jti,
-            'exp'     => $rl_window_end,
-            'payload' => '1',
-            'used_at' => date('Y-m-d H:i:s'),
-        ]);
-    }
-} catch (\Throwable $e) {
-    // Kalau rate limit gagal karena DB error, tetap lanjut jangan block request
+// Rate limiting via RateLimiter (file-based /tmp) — pisah dari token_blacklist
+// Limit: 30 request per menit per IP
+$verify_ip = trim(explode(',', ($_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? 'unknown'))[0]);
+if (RateLimiter::throttled($verify_ip, 'verify')) {
+    $secs = RateLimiter::secondsLeft($verify_ip, 'verify');
+    http_response_code(429);
+    fail('Terlalu banyak request. Coba lagi dalam ' . $secs . ' detik.');
 }
+RateLimiter::fail($verify_ip, 'verify');
 
 $token         = $_REQUEST['token'] ?? '';
 $client_id     = $_REQUEST['client_id'] ?? '';
@@ -171,6 +138,9 @@ if ($user['role'] !== 'admin') {
         fail('Akses user ke aplikasi ini telah dicabut.');
     }
 }
+
+// Reset rate limit counter — request valid tidak dihitung sebagai serangan
+RateLimiter::reset($verify_ip, 'verify');
 
 echo json_encode([
     'valid'   => true,
