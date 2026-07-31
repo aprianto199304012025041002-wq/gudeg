@@ -19,22 +19,20 @@ on:
 jobs:
   query:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Query Supabase
         run: |
           mkdir -p query-results
 
-          # List semua tabel
           curl -s \
             "https://nscgcspkotpghgmgbwyb.supabase.co/rest/v1/?apikey=${{ secrets.SUPABASE_KEY }}" \
             -H "Authorization: Bearer ${{ secrets.SUPABASE_KEY }}" \
             > query-results/tables.json
 
-          # Query tabel yang diminta
           curl -s \
             "https://nscgcspkotpghgmgbwyb.supabase.co/rest/v1/${{ github.event.inputs.table }}?select=${{ github.event.inputs.select }}&limit=${{ github.event.inputs.limit }}" \
             -H "apikey: ${{ secrets.SUPABASE_KEY }}" \
@@ -43,16 +41,10 @@ jobs:
 
           echo "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > query-results/timestamp.txt
 
-          echo "=== TABLES ==="
-          cat query-results/tables.json
-          echo ""
-          echo "=== RESULT ==="
-          cat query-results/result.json
-
       - name: Commit result
         run: |
           git config user.email "actions@github.com"
           git config user.name "GitHub Actions"
           git add query-results/
           git diff --staged --quiet && echo "No changes" || git commit -m "query result $(date -u +%Y%m%d-%H%M%S)"
-          git push || true
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/aprianto199304012025041002-wq/gudeg.git HEAD:master
