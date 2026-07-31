@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $sb->delete('user_logs',         ['user_id' => $target_id]);
             $sb->delete('user_applications', ['user_id' => $target_id]);
             log_admin_action($user['id'], $user['name'], 'Hapus User (Soft Delete)', $target['name'] . ' (' . $target['email'] . ')');
-            $msg = "Akun <strong>{$target['name']}</strong> telah dihapus permanen.";
+            $msg = "Akun <strong>{$target['name']}</strong> telah dinonaktifkan dan disembunyikan dari sistem.";
             $msg_type = 'danger';
         } elseif ($action === 'update_apps') {
             $app_ids = array_map('intval', $_POST['app_ids'] ?? []);
@@ -464,11 +464,11 @@ select.sel-sm:hover { border-color: var(--accent); }
       <input type="hidden" name="action" value="delete_user">
       <input type="hidden" name="target_id" value="<?= $u['id'] ?>">
       <button type="button" class="btn-sm delete"
-              onclick="showConfirm('Hapus User Permanen',
-                '<span style=\'color:var(--danger);font-weight:600\'>PERINGATAN:</span> Hapus akun <strong><?= htmlspecialchars(addslashes($u['name'])) ?></strong> secara permanen? Seluruh data user akan dihapus dan tidak bisa dikembalikan.',
-                'Ya, Hapus Permanen', 'danger',
+              onclick="showConfirm('Nonaktifkan User',
+                '<span style=\'color:var(--danger);font-weight:600\'>PERINGATAN:</span> Hapus akun <strong><?= htmlspecialchars(addslashes($u['name'])) ?></strong> Akun akan disembunyikan dari sistem dan tidak bisa login. Data tetap tersimpan di database.',
+                'Ya, Nonaktifkan', 'danger',
                 function(){ document.getElementById('form-delete-<?= $u['id'] ?>').submit(); })">
-        &#128465; Hapus User
+        &#128683; Nonaktifkan User
       </button>
     </form>
 
