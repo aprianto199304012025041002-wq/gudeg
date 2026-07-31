@@ -15,6 +15,14 @@ on:
         description: 'Limit rows'
         required: false
         default: '20'
+      offset:
+        description: 'Offset (skip rows)'
+        required: false
+        default: '0'
+      order:
+        description: 'Order (contoh: id.desc atau created_at.desc)'
+        required: false
+        default: 'id.desc'
 
 jobs:
   query:
@@ -24,21 +32,21 @@ jobs:
         with:
           token: ${{ secrets.PAT_TOKEN }}
 
-      - name: Query semua tabel
+      - name: Query Supabase
         run: |
           mkdir -p query-results
           BASE="https://nscgcspkotpghgmgbwyb.supabase.co/rest/v1"
           KEY="${{ secrets.SUPABASE_KEY }}"
 
-          for tabel in users sessions sso_applications user_applications user_logs admin_logs token_blacklist; do
-            curl -s "${BASE}/${tabel}?select=*&limit=100" \
-              -H "apikey: ${KEY}" \
-              -H "Authorization: Bearer ${KEY}" \
-              > "query-results/${tabel}.json"
-            echo "=== ${tabel} ==="
-            cat "query-results/${tabel}.json" | python3 -c "import json,sys; d=json.load(sys.stdin); print(f'  {len(d)} rows')" 2>/dev/null || echo "  error"
-          done
+          # Query tabel yang diminta dengan order dan offset
+          curl -s \
+            "${BASE}/${{ github.event.inputs.table }}?select=${{ github.event.inputs.select }}&limit=${{ github.event.inputs.limit }}&offset=${{ github.event.inputs.offset }}&order=${{ github.event.inputs.order }}" \
+            -H "apikey: ${KEY}" \
+            -H "Authorization: Bearer ${KEY}" \
+            > "query-results/result.json"
 
+          echo "=== RESULT ==="
+          cat query-results/result.json
           echo "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > query-results/timestamp.txt
 
       - name: Commit result
@@ -46,5 +54,5 @@ jobs:
           git config user.email "actions@github.com"
           git config user.name "GitHub Actions"
           git add query-results/
-          git diff --staged --quiet && echo "No changes" || git commit -m "query all tables $(date -u +%Y%m%d-%H%M%S)"
+          git diff --staged --quiet && echo "No changes" || git commit -m "query result $(date -u +%Y%m%d-%H%M%S)"
           git push https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/aprianto199304012025041002-wq/gudeg.git HEAD:master
