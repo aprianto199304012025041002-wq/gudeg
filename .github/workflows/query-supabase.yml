@@ -3,10 +3,18 @@ name: Query Supabase
 on:
   workflow_dispatch:
     inputs:
-      query:
-        description: 'SQL query to run'
-        required: true
-        default: "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name"
+      table:
+        description: 'Nama tabel (contoh: users, sessions, apps)'
+        required: false
+        default: 'users'
+      select:
+        description: 'Kolom yang dipilih'
+        required: false
+        default: '*'
+      limit:
+        description: 'Limit rows'
+        required: false
+        default: '20'
 
 jobs:
   query:
@@ -14,29 +22,26 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run Supabase query
+      - name: List all tables
         run: |
-          RESULT=$(curl -s \
-            -X POST \
-            "https://nscgcspkotpghgmgbwyb.supabase.co/rest/v1/rpc/query" \
+          mkdir -p query-results
+
+          # List semua tabel public
+          curl -s \
+            "https://nscgcspkotpghgmgbwyb.supabase.co/rest/v1/?apikey=${{ secrets.SUPABASE_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_KEY }}" \
+            > query-results/tables.json
+
+          # Query tabel yang diminta
+          curl -s \
+            "https://nscgcspkotpghgmgbwyb.supabase.co/rest/v1/${{ github.event.inputs.table }}?select=${{ github.event.inputs.select }}&limit=${{ github.event.inputs.limit }}" \
             -H "apikey: ${{ secrets.SUPABASE_KEY }}" \
             -H "Authorization: Bearer ${{ secrets.SUPABASE_KEY }}" \
-            -H "Content-Type: application/json" \
-            -d "{\"query\": \"${{ github.event.inputs.query }}\"}" \
-          )
+            > query-results/result.json
 
-          # Fallback: pakai PostgREST langsung
-          if echo "$RESULT" | grep -q "error\|404\|Could not"; then
-            RESULT=$(curl -s \
-              "https://nscgcspkotpghgmgbwyb.supabase.co/rest/v1/${{ github.event.inputs.query }}" \
-              -H "apikey: ${{ secrets.SUPABASE_KEY }}" \
-              -H "Authorization: Bearer ${{ secrets.SUPABASE_KEY }}" \
-            )
-          fi
-
-          mkdir -p query-results
-          echo "$RESULT" > query-results/result.json
           echo "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > query-results/timestamp.txt
+          cat query-results/tables.json
+          cat query-results/result.json
 
       - name: Commit result
         run: |
