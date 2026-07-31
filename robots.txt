@@ -1,0 +1,25 @@
+User-agent: *
+
+# Halaman publik yang boleh diindex
+Allow: /$
+Allow: /login.php
+Allow: /register.php
+
+# Block semua halaman sensitif & API
+Disallow: /admin/
+Disallow: /api-logout.php
+Disallow: /verify.php
+Disallow: /sso.php
+Disallow: /logout.php
+Disallow: /dashboard.php
+Disallow: /change-password.php
+Disallow: /healthcheck.php
+Disallow: /jwks.json
+Disallow: /.well-known/
+Disallow: /config/
+Disallow: /includes/
+Disallow: /keys/
+Disallow: /assets/
+
+# Sitemap (opsional, bisa ditambah kalau ada)
+# Sitemap: https://gudeg.xo.je/sitemap.xml
