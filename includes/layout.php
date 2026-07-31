@@ -35,6 +35,26 @@ function layout_head(string $title, string $active_nav = '') {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- SEO & Meta -->
+<meta name="description" content="GUDEG — General Unified Database And Employee Gateway. Sistem SSO terpadu Balai Monitor Spektrum Frekuensi Radio Kelas I Yogyakarta.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#080a0e">
+<link rel="canonical" href="https://gudeg.xo.je/">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GUDEG JOGJA">
+<meta property="og:title" content="<?= htmlspecialchars($title) ?> — GUDEG JOGJA">
+<meta property="og:description" content="Sistem SSO terpadu Balai Monitor Spektrum Frekuensi Radio Kelas I Yogyakarta.">
+<meta property="og:url" content="https://gudeg.xo.je/">
+<meta property="og:image" content="https://gudeg.xo.je/assets/og-image.png">
+<meta property="og:locale" content="id_ID">
+
+<!-- Favicon -->
+<link rel="icon" type="image/png" href="/assets/favicon.png">
+<link rel="apple-touch-icon" href="/assets/favicon.png">
+
 <title><?= htmlspecialchars($title) ?> — GUDEG JOGJA</title>
 <link rel="stylesheet" href="/assets/tabler/tabler-icons.min.css">
 <style>
