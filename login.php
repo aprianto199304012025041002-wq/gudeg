@@ -225,6 +225,16 @@ if ($login_success) {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Login — GUDEG JOGJA</title>
+<meta name="description" content="Masuk ke GUDEG — sistem SSO terpadu Balai Monitor Spektrum Frekuensi Radio Yogyakarta.">
+<meta name="robots" content="index, follow">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Login — GUDEG JOGJA">
+<meta property="og:description" content="Masuk ke GUDEG — sistem SSO terpadu Balai Monitor Spektrum Frekuensi Radio Yogyakarta.">
+<meta property="og:url" content="https://gudeg.xo.je/login.php">
+<meta property="og:site_name" content="GUDEG JOGJA">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Login — GUDEG JOGJA">
+<meta name="twitter:description" content="Masuk ke GUDEG — sistem SSO terpadu Balai Monitor Spektrum Frekuensi Radio Yogyakarta.">
 <link rel="stylesheet" href="/assets/tabler/tabler-icons.min.css">
 <script>
 (function(){
