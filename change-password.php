@@ -98,51 +98,55 @@ layout_head('Pengaturan', 'password');
 
 .form-group label {
   display: block;
-  font-size: .72rem;
-  font-weight: 600;
+  font-size: .7rem;
+  font-weight: 700;
   color: var(--text-dim);
   text-transform: uppercase;
-  letter-spacing: .07em;
+  letter-spacing: .1em;
   margin-bottom: .35rem;
-  font-family: var(--sans);
+  font-family: var(--mono);
 }
 
 .form-group input[type="password"] {
   width: 100%;
   background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: 2px;
+  border-radius: 5px;
   padding: .65rem .85rem;
   color: var(--text);
   font-family: var(--sans);
   font-size: .9rem;
   outline: none;
-  transition: border-color .2s;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
   -webkit-appearance: none;
   -webkit-box-shadow: 0 0 0 1000px var(--bg) inset;
   -webkit-text-fill-color: var(--text);
   box-sizing: border-box;
 }
-.form-group input[type="password"]:focus { border-color: var(--accent); }
+.form-group input[type="password"]:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
 
 .btn-save {
   width: 100%;
-  background: rgba(122,162,212,.1);
-  border: 1px solid var(--accent);
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-bdr);
   color: var(--accent);
-  border-radius: 2px;
+  border-radius: 5px;
   padding: .75rem;
-  font-family: var(--sans);
-  font-size: .82rem;
-  font-weight: 600;
+  font-family: var(--mono);
+  font-size: .78rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: .06em;
+  letter-spacing: .08em;
   cursor: pointer;
   margin-top: .5rem;
-  transition: background .2s;
+  transition: background var(--t-fast), border-color var(--t-fast), box-shadow var(--t-fast);
   -webkit-tap-highlight-color: transparent;
 }
-.btn-save:hover { background: rgba(122,162,212,.18); }
+.btn-save:hover { background: rgba(0,229,255,.12); border-color: var(--accent); box-shadow: 0 0 16px var(--accent-glow); }
+[data-theme="light"] .btn-save:hover { background: rgba(2,132,199,.1); box-shadow: 0 0 12px var(--accent-glow); }
 .btn-save:active { opacity: .85; }
 
 .two-col {
@@ -162,15 +166,13 @@ layout_head('Pengaturan', 'password');
   .two-col { grid-template-columns: 1fr; }
 }
 
-/* ── Mobile optimizations ─────────────────────────────── */
 @media (max-width: 767px) {
   .panel-body { padding: .6rem .8rem; }
   .panel-hd   { padding: .5rem .8rem; }
   .btn-save   { padding: .65rem; }
   .btn-logout-all { padding: .55rem; }
-  .log-meta { font-size: .7rem; }
-  .sesi-meta { font-size: .7rem; }
-  /* Stack sesi-row jika layar sempit */
+  .log-meta { font-size: .68rem; }
+  .sesi-meta { font-size: .68rem; }
   .sesi-row { flex-wrap: wrap; }
   .sesi-row > div:first-child { width: 100%; }
 }
@@ -178,22 +180,26 @@ layout_head('Pengaturan', 'password');
   .log-row { flex-direction: column; align-items: flex-start; gap: .25rem; }
   .log-meta { text-align: left; }
 }
+
 .panel {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 4px;
+  background: var(--glass-hi);
+  backdrop-filter: blur(12px) saturate(150%);
+  border: 1px solid var(--border-hi);
+  border-radius: 8px;
   overflow: hidden;
   min-width: 0;
+  box-shadow: 0 4px 20px rgba(0,0,0,.25);
 }
 .panel-hd {
   padding: .6rem 1rem;
   border-bottom: 1px solid var(--border);
   display: flex; align-items: center; gap: 8px;
 }
-.panel-hd i { font-size: 15px; color: var(--accent-dim); }
+.panel-hd i { font-size: 15px; color: var(--accent); }
 .panel-title {
-  font-size: 11px; font-weight: 600; text-transform: uppercase;
-  letter-spacing: .07em; color: var(--text-dim);
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .1em; color: var(--text-dim);
+  font-family: var(--mono);
 }
 .panel-body { padding: .75rem 1rem; }
 
@@ -203,15 +209,13 @@ layout_head('Pengaturan', 'password');
 }
 .log-row:last-child { border-bottom: none; }
 .log-activity {
-  font-size: .82rem; font-weight: 600; font-family: var(--sans);
-  text-transform: uppercase; letter-spacing: .03em; color: var(--text);
-  word-break: break-word;
-  overflow-wrap: anywhere;
-  min-width: 0;
+  font-size: .78rem; font-weight: 700; font-family: var(--mono);
+  text-transform: uppercase; letter-spacing: .04em; color: var(--text);
+  word-break: break-word; overflow-wrap: anywhere; min-width: 0;
 }
 .log-meta {
-  color: var(--text-dim); font-family: var(--sans);
-  font-size: .75rem; text-align: right; flex-shrink: 0; line-height: 1.6;
+  color: var(--text-dim); font-family: var(--mono);
+  font-size: .7rem; text-align: right; flex-shrink: 0; line-height: 1.6;
 }
 
 .sesi-row {
@@ -220,86 +224,73 @@ layout_head('Pengaturan', 'password');
 }
 .sesi-row:last-child { border-bottom: none; }
 .sesi-device {
-  font-size: .82rem; font-weight: 600; font-family: var(--sans);
-  text-transform: uppercase; letter-spacing: .03em; color: var(--text);
+  font-size: .78rem; font-weight: 700; font-family: var(--mono);
+  text-transform: uppercase; letter-spacing: .04em; color: var(--text);
   display: flex; align-items: center; gap: 6px;
-  word-break: break-word;
-  overflow-wrap: anywhere;
-  min-width: 0;
+  word-break: break-word; overflow-wrap: anywhere; min-width: 0;
 }
-.sesi-device i { font-size: 14px; color: var(--accent-dim); flex-shrink: 0; }
+.sesi-device i { font-size: 14px; color: var(--accent); flex-shrink: 0; }
 .sesi-meta {
-  font-size: .75rem; color: var(--text-dim); margin-top: 2px;
-  word-break: break-all;
+  font-size: .7rem; color: var(--text-dim); margin-top: 2px;
+  word-break: break-all; font-family: var(--mono);
 }
-.sesi-row > div:first-child {
-  min-width: 0;
-  flex: 1 1 0;
-}
+.sesi-row > div:first-child { min-width: 0; flex: 1 1 0; }
 .badge-current {
-  display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 3px;
-  background: rgba(58,138,96,.1); color: var(--success);
-  border: 1px solid rgba(58,138,96,.2); text-transform: uppercase;
-  letter-spacing: .04em; margin-left: 4px;
-  white-space: nowrap;
+  display: inline-block; font-size: 9px; padding: 1px 6px; border-radius: 3px;
+  background: rgba(34,197,94,.08); color: var(--success);
+  border: 1px solid rgba(34,197,94,.25); text-transform: uppercase;
+  letter-spacing: .06em; margin-left: 4px; white-space: nowrap;
+  font-family: var(--mono);
 }
 .btn-logout-sess {
-  background: rgba(192,64,64,.08); border: 1px solid rgba(192,64,64,.25);
-  color: var(--danger); border-radius: 2px; padding: .3rem .7rem;
-  font-size: .75rem; font-weight: 600; text-transform: uppercase;
-  letter-spacing: .04em; cursor: pointer; font-family: var(--sans);
+  background: var(--danger-bg); border: 1px solid var(--danger-bdr);
+  color: var(--danger); border-radius: 5px; padding: .3rem .7rem;
+  font-size: .72rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .06em; cursor: pointer; font-family: var(--mono);
   white-space: nowrap; flex-shrink: 0;
+  transition: box-shadow var(--t-fast), border-color var(--t-fast);
 }
-.btn-logout-sess:hover { border-color: var(--danger); }
+.btn-logout-sess:hover { border-color: var(--danger); box-shadow: 0 0 8px rgba(239,68,68,.2); }
 .btn-logout-all {
-  width: 100%; background: rgba(192,64,64,.06); border: 1px solid rgba(192,64,64,.2);
-  color: var(--danger); border-radius: 2px; padding: .65rem;
-  font-size: .8rem; font-weight: 600; text-transform: uppercase;
-  letter-spacing: .05em; cursor: pointer; font-family: var(--sans);
-  margin-top: .75rem;
-  box-sizing: border-box;
+  width: 100%; background: var(--danger-bg); border: 1px solid var(--danger-bdr);
+  color: var(--danger); border-radius: 5px; padding: .65rem;
+  font-size: .78rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .06em; cursor: pointer; font-family: var(--mono);
+  margin-top: .75rem; box-sizing: border-box;
+  transition: background var(--t-fast), box-shadow var(--t-fast);
 }
-.btn-logout-all:hover { background: rgba(192,64,64,.12); }
+.btn-logout-all:hover { background: rgba(239,68,68,.12); box-shadow: 0 0 10px rgba(239,68,68,.2); }
 
 /* ── Floating bubble ─────────────────────────────────────── */
 .bubble-wrap {
   position: fixed;
-  bottom: 16px;
+  bottom: calc(16px + env(safe-area-inset-bottom));
   right: 16px;
-  display: flex;
-  flex-direction: column-reverse;
-  gap: 8px;
-  z-index: 9999;
-  width: 320px;
-  pointer-events: none;
+  display: flex; flex-direction: column-reverse;
+  gap: 8px; z-index: 9999; width: 320px; pointer-events: none;
 }
 @media (max-width: 480px) {
-  .bubble-wrap { bottom: 12px; right: 8px; left: 8px; width: auto; }
+  .bubble-wrap { bottom: calc(12px + env(safe-area-inset-bottom)); right: 8px; left: 8px; width: auto; }
 }
 .bubble {
-  border-radius: 6px;
+  border-radius: 8px;
   padding: 10px 32px 10px 14px;
-  font-size: .8rem;
-  line-height: 1.5;
-  border: 1px solid;
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  pointer-events: all;
-  animation: bubbleIn .25s ease;
-  box-shadow: 0 4px 20px rgba(0,0,0,.4);
-  position: relative;
+  font-size: .8rem; line-height: 1.5; border: 1px solid;
+  display: flex; align-items: flex-start; gap: 8px;
+  pointer-events: all; animation: bubbleIn .25s ease;
+  box-shadow: 0 8px 32px rgba(0,0,0,.5); position: relative;
+  backdrop-filter: blur(16px);
 }
 @keyframes bubbleIn {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-.bubble.success { background: rgba(58,138,96,.12);  border-color: rgba(58,138,96,.35);  color: #60c890; }
-.bubble.danger  { background: rgba(192,64,64,.12);  border-color: rgba(192,64,64,.35);  color: #e08080; }
-.bubble.info    { background: rgba(122,162,212,.12); border-color: rgba(122,162,212,.35); color: #7aa2d4; }
+.bubble.success { background: rgba(34,197,94,.1);  border-color: rgba(34,197,94,.3);  color: #86efac; }
+.bubble.danger  { background: rgba(239,68,68,.1);  border-color: rgba(239,68,68,.3);  color: #fca5a5; }
+.bubble.info    { background: rgba(0,229,255,.08);  border-color: rgba(0,229,255,.25); color: #67e8f9; }
 .bubble i { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
 .bubble-body { flex: 1; min-width: 0; }
-.bubble-title { font-weight: 700; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 2px; font-size: .75rem; }
+.bubble-title { font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; font-size: .72rem; font-family: var(--mono); }
 .bubble-desc  { font-size: .78rem; opacity: .9; }
 .bubble-close {
   position: absolute; top: 6px; right: 8px;
@@ -310,19 +301,11 @@ layout_head('Pengaturan', 'password');
 .bubble-close:hover { opacity: 1; }
 .bubble-progress {
   position: absolute; bottom: 0; left: 0;
-  height: 2px; background: currentColor; opacity: .3;
-  border-radius: 0 0 6px 6px;
+  height: 2px; background: currentColor; opacity: .35;
+  border-radius: 0 0 8px 8px;
   animation: bubbleProgress 6s linear forwards;
 }
 @keyframes bubbleProgress { from { width: 100%; } to { width: 0%; } }
-
-/* ── Safe area Android WebView ───────────────────────── */
-@supports (padding-top: env(safe-area-inset-top)) {
-  .bubble-wrap { bottom: calc(16px + env(safe-area-inset-bottom)); }
-  @media (max-width: 480px) {
-    .bubble-wrap { bottom: calc(12px + env(safe-area-inset-bottom)); right: 8px; left: 8px; width: auto; }
-  }
-}
 </style>
 
 <div class="page-header">
