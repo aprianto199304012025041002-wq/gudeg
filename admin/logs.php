@@ -85,8 +85,8 @@ layout_head('Log Aktivitas', 'admin-logs');
   border-radius: 5px;
   font-size: 11px; font-weight: 700;
   text-transform: uppercase; letter-spacing: .07em;
-  color: var(--text-dim); font-family: var(--mono);
-  transition: border-color var(--t-fast), color var(--t-fast), box-shadow var(--t-fast);
+  color: var(--muted-hi); font-family: var(--mono);
+  transition: border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
   white-space: nowrap; flex-shrink: 0;
 }
 .tab-bar a.active,
@@ -103,7 +103,7 @@ layout_head('Log Aktivitas', 'admin-logs');
   padding: 5px 9px;
   font-size: 11px; color: var(--text);
   font-family: var(--mono); outline: none;
-  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 .filter-bar input[type="text"] { width: 180px; }
 .filter-bar input[type="date"] { width: 140px; }
@@ -127,10 +127,10 @@ layout_head('Log Aktivitas', 'admin-logs');
   border: 1px solid var(--border); border-radius: 5px;
   padding: 5px 12px;
   font-size: 11px; font-weight: 700;
-  color: var(--text-dim); font-family: var(--mono);
+  color: var(--muted-hi); font-family: var(--mono);
   text-transform: uppercase; letter-spacing: .06em;
   cursor: pointer;
-  transition: border-color var(--t-fast), color var(--t-fast), box-shadow var(--t-fast);
+  transition: border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
 }
 .filter-bar button:hover { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
 .filter-bar .btn-reset { color: var(--danger); border-color: var(--danger-bdr); }
@@ -146,7 +146,7 @@ layout_head('Log Aktivitas', 'admin-logs');
   backdrop-filter: blur(10px) saturate(140%);
   border: 1px solid var(--border-hi);
   border-radius: 6px; padding: 9px 12px;
-  transition: border-color var(--t-fast);
+  transition: border-color var(--transition-fast);
 }
 .log-item:hover { border-color: var(--accent-bdr); }
 .log-item-top {
@@ -154,10 +154,10 @@ layout_head('Log Aktivitas', 'admin-logs');
   gap: 6px; margin-bottom: 4px;
 }
 .log-action { font-size: 12px; font-weight: 700; color: var(--text); font-family: var(--mono); text-transform: uppercase; letter-spacing: .04em; }
-.log-time { font-size: 11px; color: var(--text-dim); white-space: nowrap; flex-shrink: 0; font-family: var(--mono); }
-.log-meta { font-size: 11px; color: var(--text-dim); line-height: 1.6; font-family: var(--mono); }
+.log-time { font-size: 11px; color: var(--muted-hi); white-space: nowrap; flex-shrink: 0; font-family: var(--mono); }
+.log-meta { font-size: 11px; color: var(--muted-hi); line-height: 1.6; font-family: var(--mono); }
 .log-meta span { margin-right: 8px; }
-.log-id { font-size: 10px; color: var(--text-muted); font-family: var(--mono); }
+.log-id { font-size: 10px; color: var(--muted); font-family: var(--mono); }
 .log-ip {
   font-family: var(--mono); font-size: 10px;
   background: var(--accent-bg); border: 1px solid var(--accent-bdr);
@@ -165,20 +165,20 @@ layout_head('Log Aktivitas', 'admin-logs');
 }
 .log-empty {
   text-align: center; padding: 2rem;
-  font-size: 12px; color: var(--text-dim);
+  font-size: 12px; color: var(--muted-hi);
   font-family: var(--mono); text-transform: uppercase; letter-spacing: .06em;
 }
 
 .pagination { display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; }
 .pagination a {
   padding: 4px 10px; border: 1px solid var(--border);
-  border-radius: 4px; font-size: 11px; color: var(--text-dim);
+  border-radius: 4px; font-size: 11px; color: var(--muted-hi);
   font-family: var(--mono);
-  transition: border-color var(--t-fast), color var(--t-fast), box-shadow var(--t-fast);
+  transition: border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
 }
 .pagination a.current { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 6px var(--accent-glow); }
 .pagination a:hover   { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 6px var(--accent-glow); }
-.pagination-sep { font-size: 11px; color: var(--text-muted); padding: 4px 2px; font-family: var(--mono); }
+.pagination-sep { font-size: 11px; color: var(--muted); padding: 4px 2px; font-family: var(--mono); }
 </style>
 
 <div class="page-header">

@@ -100,7 +100,7 @@ layout_head('Pengaturan', 'password');
   display: block;
   font-size: .7rem;
   font-weight: 700;
-  color: var(--text-dim);
+  color: var(--muted-hi);
   text-transform: uppercase;
   letter-spacing: .1em;
   margin-bottom: .35rem;
@@ -117,7 +117,7 @@ layout_head('Pengaturan', 'password');
   font-family: var(--sans);
   font-size: .9rem;
   outline: none;
-  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
   -webkit-appearance: none;
   -webkit-box-shadow: 0 0 0 1000px var(--bg) inset;
   -webkit-text-fill-color: var(--text);
@@ -142,11 +142,11 @@ layout_head('Pengaturan', 'password');
   letter-spacing: .08em;
   cursor: pointer;
   margin-top: .5rem;
-  transition: background var(--t-fast), border-color var(--t-fast), box-shadow var(--t-fast);
+  transition: background var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
   -webkit-tap-highlight-color: transparent;
 }
 .btn-save:hover { background: rgba(0,229,255,.12); border-color: var(--accent); box-shadow: 0 0 16px var(--accent-glow); }
-[data-theme="light"] .btn-save:hover { background: rgba(2,132,199,.1); box-shadow: 0 0 12px var(--accent-glow); }
+[data-theme="bright"] .btn-save:hover { background: rgba(2,132,199,.1); box-shadow: 0 0 12px var(--accent-glow); }
 .btn-save:active { opacity: .85; }
 
 .two-col {
@@ -198,7 +198,7 @@ layout_head('Pengaturan', 'password');
 .panel-hd i { font-size: 15px; color: var(--accent); }
 .panel-title {
   font-size: 10px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: .1em; color: var(--text-dim);
+  letter-spacing: .1em; color: var(--muted-hi);
   font-family: var(--mono);
 }
 .panel-body { padding: .75rem 1rem; }
@@ -214,7 +214,7 @@ layout_head('Pengaturan', 'password');
   word-break: break-word; overflow-wrap: anywhere; min-width: 0;
 }
 .log-meta {
-  color: var(--text-dim); font-family: var(--mono);
+  color: var(--muted-hi); font-family: var(--mono);
   font-size: .7rem; text-align: right; flex-shrink: 0; line-height: 1.6;
 }
 
@@ -231,7 +231,7 @@ layout_head('Pengaturan', 'password');
 }
 .sesi-device i { font-size: 14px; color: var(--accent); flex-shrink: 0; }
 .sesi-meta {
-  font-size: .7rem; color: var(--text-dim); margin-top: 2px;
+  font-size: .7rem; color: var(--muted-hi); margin-top: 2px;
   word-break: break-all; font-family: var(--mono);
 }
 .sesi-row > div:first-child { min-width: 0; flex: 1 1 0; }
@@ -248,7 +248,7 @@ layout_head('Pengaturan', 'password');
   font-size: .72rem; font-weight: 700; text-transform: uppercase;
   letter-spacing: .06em; cursor: pointer; font-family: var(--mono);
   white-space: nowrap; flex-shrink: 0;
-  transition: box-shadow var(--t-fast), border-color var(--t-fast);
+  transition: box-shadow var(--transition-fast), border-color var(--transition-fast);
 }
 .btn-logout-sess:hover { border-color: var(--danger); box-shadow: 0 0 8px rgba(239,68,68,.2); }
 .btn-logout-all {
@@ -257,7 +257,7 @@ layout_head('Pengaturan', 'password');
   font-size: .78rem; font-weight: 700; text-transform: uppercase;
   letter-spacing: .06em; cursor: pointer; font-family: var(--mono);
   margin-top: .75rem; box-sizing: border-box;
-  transition: background var(--t-fast), box-shadow var(--t-fast);
+  transition: background var(--transition-fast), box-shadow var(--transition-fast);
 }
 .btn-logout-all:hover { background: rgba(239,68,68,.12); box-shadow: 0 0 10px rgba(239,68,68,.2); }
 
@@ -336,7 +336,7 @@ layout_head('Pengaturan', 'password');
         <input type="password" id="new_password" name="new_password"
                placeholder="Min. 8 karakter" required autocomplete="new-password"
                oninput="checkStrength(this.value)">
-        <div id="pw-hint" style="margin-top:6px;font-size:11px;line-height:1.8;color:var(--text-dim);font-family:var(--sans)">
+        <div id="pw-hint" style="margin-top:6px;font-size:11px;line-height:1.8;color:var(--muted-hi);font-family:var(--sans)">
           <span id="pw-len">○ Min. 8 karakter</span><br>
           <span id="pw-upper">○ Huruf besar (A-Z)</span><br>
           <span id="pw-lower">○ Huruf kecil (a-z)</span><br>
@@ -366,7 +366,7 @@ layout_head('Pengaturan', 'password');
       <button type="submit" class="btn-save">Simpan Password</button>
     </form>
     <?php else: ?>
-      <p style="font-size:.82rem;color:var(--text-dim);padding:.5rem 0">Password berhasil diubah. Semua sesi lain telah diakhiri.</p>
+      <p style="font-size:.82rem;color:var(--muted-hi);padding:.5rem 0">Password berhasil diubah. Semua sesi lain telah diakhiri.</p>
     <?php endif; ?>
   </div>
 </div>
@@ -438,7 +438,7 @@ layout_head('Pengaturan', 'password');
       </form>
       <?php endif; ?>
     <?php else: ?>
-      <p style="font-size:.82rem;color:var(--text-dim);padding:.5rem 0">Tidak ada sesi aktif lain.</p>
+      <p style="font-size:.82rem;color:var(--muted-hi);padding:.5rem 0">Tidak ada sesi aktif lain.</p>
     <?php endif; ?>
   </div>
 </div>
@@ -464,7 +464,7 @@ layout_head('Pengaturan', 'password');
       </div>
       <?php endforeach; ?>
     <?php else: ?>
-      <p style="font-size:.82rem;color:var(--text-dim);padding:.5rem 0">Belum ada aktivitas tercatat.</p>
+      <p style="font-size:.82rem;color:var(--muted-hi);padding:.5rem 0">Belum ada aktivitas tercatat.</p>
     <?php endif; ?>
   </div>
 </div>

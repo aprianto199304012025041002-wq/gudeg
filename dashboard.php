@@ -75,7 +75,7 @@ layout_head('Beranda', 'dashboard');
 
 .greeting-sub {
   font-size: .78rem;
-  color: var(--text-dim);
+  color: var(--muted-hi);
   margin-top: .25rem;
   text-transform: uppercase;
   letter-spacing: .06em;
@@ -90,7 +90,7 @@ layout_head('Beranda', 'dashboard');
   margin-bottom: 1rem;
   font-size: .82rem;
   font-family: var(--mono);
-  color: var(--text-dim);
+  color: var(--muted-hi);
   line-height: 1.7;
 }
 .guest-notice strong { color: var(--accent); }
@@ -115,7 +115,7 @@ layout_head('Beranda', 'dashboard');
   display: block;
   text-decoration: none;
   color: var(--text);
-  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
   -webkit-tap-highlight-color: transparent;
 }
 .app-card:hover,
@@ -153,7 +153,7 @@ layout_head('Beranda', 'dashboard');
 
 .app-desc {
   font-size: .75rem;
-  color: var(--text-dim);
+  color: var(--muted-hi);
   font-family: var(--sans);
   line-height: 1.5;
   display: -webkit-box;
@@ -178,7 +178,7 @@ layout_head('Beranda', 'dashboard');
   border-radius: 8px;
   padding: 1.5rem 1rem;
   text-align: center;
-  color: var(--text-dim);
+  color: var(--muted-hi);
   font-size: .82rem;
   font-family: var(--mono);
   line-height: 1.7;

@@ -261,8 +261,8 @@ if ($login_success) {
   --accent-bg:    rgba(0,229,255,.06);
   --accent-bdr:   rgba(0,229,255,.2);
   --text:         #f1f5f9;
-  --text-dim:     #6b8099;
-  --text-muted:   #3a5070;
+  --muted-hi:     #6b8099;
+  --muted:   #3a5070;
   --danger:       #ef4444;
   --danger-glow:  rgba(239,68,68,.18);
   --sans:         'DM Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -273,13 +273,13 @@ if ($login_success) {
   --radius:       8px;
   --radius-sm:    5px;
   --radius-lg:    12px;
-  --t-fast:       .12s cubic-bezier(.4,0,.2,1);
-  --t-med:        .22s cubic-bezier(.4,0,.2,1);
+  --transition-fast:       .12s cubic-bezier(.4,0,.2,1);
+  --transition-med:        .22s cubic-bezier(.4,0,.2,1);
   --autofill-bg:  #080b10;
   --autofill-txt: #f1f5f9;
 }
 
-[data-theme="light"] {
+[data-theme="bright"] {
   --bg:           #f0f4f8;
   --surface:      #ffffff;
   --surface2:     #edf2f7;
@@ -291,8 +291,8 @@ if ($login_success) {
   --accent-bg:    rgba(2,132,199,.07);
   --accent-bdr:   rgba(2,132,199,.25);
   --text:         #0f172a;
-  --text-dim:     #475569;
-  --text-muted:   #94a3b8;
+  --muted-hi:     #475569;
+  --muted:   #94a3b8;
   --danger:       #dc2626;
   --danger-glow:  rgba(220,38,38,.12);
   --sans:         'DM Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -316,7 +316,7 @@ body {
   align-items: center;
   justify-content: center;
   padding: 1.25rem 1rem;
-  transition: background var(--t-med), color var(--t-med);
+  transition: background var(--transition-med), color var(--transition-med);
 }
 .container { width: 100%; max-width: 400px; }
 
@@ -332,9 +332,9 @@ body {
   border: 1px solid var(--border-hi);
   border-radius: var(--radius);
   cursor: pointer;
-  color: var(--text-dim);
+  color: var(--muted-hi);
   box-shadow: var(--shadow-float);
-  transition: border-color var(--t-fast), color var(--t-fast), box-shadow var(--t-fast);
+  transition: border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
   -webkit-tap-highlight-color: transparent;
 }
 .theme-fab:hover {
@@ -354,7 +354,7 @@ body {
   display: inline-flex; align-items: center; justify-content: center;
   margin-bottom: 14px;
   box-shadow: 0 0 24px var(--accent-glow);
-  transition: box-shadow var(--t-med);
+  transition: box-shadow var(--transition-med);
 }
 .logo-shield:hover { box-shadow: 0 0 36px var(--accent-glow); }
 .logo-shield i { font-size: 28px; color: var(--accent); }
@@ -371,13 +371,13 @@ body {
 }
 .logo-title .jogja { color: #eab308; -webkit-text-fill-color: #eab308; }
 .logo-acronym {
-  font-size: 10px; color: var(--text-muted);
+  font-size: 10px; color: var(--muted);
   text-transform: uppercase; letter-spacing: .08em;
   margin-top: 8px; line-height: 1.7;
   font-family: var(--mono);
 }
 .logo-acronym strong {
-  display: block; color: var(--text-dim);
+  display: block; color: var(--muted-hi);
   font-size: 10px; letter-spacing: .05em;
   margin-top: 3px;
 }
@@ -390,7 +390,7 @@ body {
   border-radius: var(--radius-lg);
   padding: 24px 22px;
   box-shadow: var(--shadow-float);
-  transition: border-color var(--t-med);
+  transition: border-color var(--transition-med);
 }
 .card:focus-within { border-color: var(--border-hi); }
 
@@ -399,7 +399,7 @@ body {
 label {
   display: block;
   font-size: 10px; font-weight: 600;
-  color: var(--text-dim);
+  color: var(--muted-hi);
   text-transform: uppercase; letter-spacing: .1em;
   margin-bottom: 6px;
   font-family: var(--mono);
@@ -415,7 +415,7 @@ input[type="password"] {
   font-family: var(--sans);
   font-size: 14px;
   outline: none;
-  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
   -webkit-appearance: none;
 }
 input[type="email"]:focus,
@@ -443,7 +443,7 @@ input:-webkit-autofill:focus {
   cursor: pointer; flex-shrink: 0;
 }
 .remember-row label {
-  font-size: 11px; color: var(--text-dim); cursor: pointer;
+  font-size: 11px; color: var(--muted-hi); cursor: pointer;
   text-transform: uppercase; letter-spacing: .08em;
   margin-bottom: 0;
 }
@@ -461,7 +461,7 @@ input:-webkit-autofill:focus {
   text-transform: uppercase; letter-spacing: .1em;
   cursor: pointer;
   margin-top: 6px;
-  transition: background var(--t-fast), border-color var(--t-fast), box-shadow var(--t-fast), transform var(--t-fast);
+  transition: background var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
   -webkit-tap-highlight-color: transparent;
 }
 .btn-submit:hover {
@@ -469,7 +469,7 @@ input:-webkit-autofill:focus {
   border-color: var(--accent);
   box-shadow: 0 0 16px var(--accent-glow);
 }
-[data-theme="light"] .btn-submit:hover {
+[data-theme="bright"] .btn-submit:hover {
   background: rgba(2,132,199,.1);
   box-shadow: 0 0 12px var(--accent-glow);
 }
@@ -479,15 +479,15 @@ input:-webkit-autofill:focus {
 .divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 .link-row {
   text-align: center; font-size: 12px;
-  color: var(--text-muted);
+  color: var(--muted);
   font-family: var(--mono);
   letter-spacing: .03em;
 }
-.link-row a { color: var(--accent); transition: color var(--t-fast); }
+.link-row a { color: var(--accent); transition: color var(--transition-fast); }
 .link-row a:hover { color: var(--text); }
 .footer-note {
   text-align: center; margin-top: 18px;
-  font-size: 10px; color: var(--text-muted);
+  font-size: 10px; color: var(--muted);
   letter-spacing: .08em;
   text-transform: uppercase;
   font-family: var(--mono);
@@ -615,13 +615,13 @@ input:-webkit-autofill:focus {
     document.documentElement.setAttribute('data-theme', theme);
     try { localStorage.setItem(THEME_KEY, theme); } catch(e) {}
     document.querySelectorAll('.theme-toggle-icon').forEach(function(ic) {
-      ic.className = 'ti ' + (theme === 'light' ? 'ti-moon' : 'ti-sun') + ' theme-toggle-icon';
+      ic.className = 'ti ' + (theme === 'bright' ? 'ti-moon' : 'ti-sun') + ' theme-toggle-icon';
     });
   }
   function getTheme() {
     try { return localStorage.getItem(THEME_KEY) || 'dark'; } catch(e) { return 'dark'; }
   }
-  window.toggleTheme = function() { applyTheme(getTheme() === 'dark' ? 'light' : 'dark'); };
+  window.toggleTheme = function() { applyTheme(getTheme() === 'dark' ? 'bright' : 'dark'); };
   applyTheme(getTheme());
 })();
 

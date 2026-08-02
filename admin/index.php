@@ -95,7 +95,7 @@ layout_head('Kelola User', 'admin-users');
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 12px rgba(0,0,0,.2);
-  transition: border-color var(--t-fast);
+  transition: border-color var(--transition-fast);
 }
 .user-card:hover { border-color: var(--accent-bdr); }
 
@@ -114,7 +114,7 @@ layout_head('Kelola User', 'admin-users');
 }
 
 .user-email {
-  font-size: .75rem; color: var(--text-dim);
+  font-size: .75rem; color: var(--muted-hi);
   margin-top: .2rem; word-break: break-all; line-height: 1.4;
   font-family: var(--mono);
 }
@@ -133,14 +133,14 @@ layout_head('Kelola User', 'admin-users');
 .btn-sm {
   background: var(--surface2);
   border: 1px solid var(--border-hi);
-  color: var(--text-dim);
+  color: var(--muted-hi);
   border-radius: 5px;
   padding: .35rem .7rem;
   font-size: .72rem; font-weight: 700;
   cursor: pointer; font-family: var(--mono);
   text-transform: uppercase; letter-spacing: .06em;
   white-space: nowrap;
-  transition: border-color var(--t-fast), color var(--t-fast), box-shadow var(--t-fast);
+  transition: border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
   line-height: 1.2;
 }
 .btn-sm:hover { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
@@ -159,13 +159,13 @@ select.sel-sm {
   font-size: .72rem; font-weight: 700;
   cursor: pointer; font-family: var(--mono);
   flex: 1; text-transform: uppercase; letter-spacing: .04em;
-  transition: border-color var(--t-fast);
+  transition: border-color var(--transition-fast);
 }
 select.sel-sm:hover { border-color: var(--accent); }
 select.sel-sm:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow); }
 
 .user-last-login {
-  font-size: .7rem; color: var(--text-muted);
+  font-size: .7rem; color: var(--muted);
   width: 100%; margin-top: .15rem;
   letter-spacing: .04em; font-family: var(--mono);
 }
@@ -176,13 +176,13 @@ select.sel-sm:focus { outline: none; border-color: var(--accent); box-shadow: 0 
   width: 100%; background: none; border: none;
   padding: .6rem .9rem;
   display: flex; align-items: center; justify-content: space-between;
-  color: var(--text-dim);
+  color: var(--muted-hi);
   font-size: .72rem; font-weight: 700; font-family: var(--mono);
   text-transform: uppercase; letter-spacing: .06em;
-  cursor: pointer; transition: color var(--t-fast);
+  cursor: pointer; transition: color var(--transition-fast);
 }
 .app-access-toggle:hover { color: var(--accent); }
-.app-access-toggle .chevron { transition: transform var(--t-med); font-size: .7rem; }
+.app-access-toggle .chevron { transition: transform var(--transition-med); font-size: .7rem; }
 .app-access-toggle.open .chevron { transform: rotate(180deg); }
 
 .app-access-body {
@@ -196,15 +196,15 @@ select.sel-sm:focus { outline: none; border-color: var(--accent); box-shadow: 0 
   display: flex; align-items: center; gap: .35rem;
   font-size: .72rem; font-weight: 700; font-family: var(--mono);
   text-transform: uppercase; letter-spacing: .05em;
-  color: var(--text-dim); cursor: pointer;
+  color: var(--muted-hi); cursor: pointer;
   padding: .32rem .6rem;
   border: 1px solid var(--border); border-radius: 5px;
-  transition: border-color var(--t-fast), color var(--t-fast);
+  transition: border-color var(--transition-fast), color var(--transition-fast);
 }
 .apps-check label:hover { border-color: var(--accent); color: var(--text); }
 .apps-check input[type=checkbox] { accent-color: var(--accent); }
 
-.self-note { font-size: .78rem; color: var(--text-dim); font-style: italic; font-family: var(--mono); }
+.self-note { font-size: .78rem; color: var(--muted-hi); font-style: italic; font-family: var(--mono); }
 
 @media (max-width: 600px) {
   .role-form { flex-wrap: nowrap; }
@@ -244,7 +244,7 @@ select.sel-sm:focus { outline: none; border-color: var(--accent); box-shadow: 0 
   font-family: var(--mono);
 }
 .confirm-msg {
-  font-size: .82rem; color: var(--text-dim); line-height: 1.6; margin-bottom: 16px;
+  font-size: .82rem; color: var(--muted-hi); line-height: 1.6; margin-bottom: 16px;
 }
 .confirm-msg strong { color: var(--text); }
 .confirm-btns { display: flex; gap: 8px; justify-content: flex-end; }
@@ -403,7 +403,7 @@ select.sel-sm:focus { outline: none; border-color: var(--accent); box-shadow: 0 
           <?php endforeach; ?>
         </div>
         <?php else: ?>
-        <p style="font-size:.72rem;color:var(--text-dim);margin-bottom:.6rem">Belum ada aplikasi SSO terdaftar.</p>
+        <p style="font-size:.72rem;color:var(--muted-hi);margin-bottom:.6rem">Belum ada aplikasi SSO terdaftar.</p>
         <?php endif; ?>
         <button type="submit" class="btn-sm">Simpan Akses</button>
       </form>

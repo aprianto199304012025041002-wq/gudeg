@@ -122,7 +122,7 @@ layout_head('Kelola Aplikasi', 'admin-apps');
 
 .fg label {
   display: block; font-size: .7rem; font-weight: 700;
-  color: var(--text-dim); text-transform: uppercase;
+  color: var(--muted-hi); text-transform: uppercase;
   letter-spacing: .1em; margin-bottom: .35rem; font-family: var(--mono);
 }
 
@@ -131,7 +131,7 @@ layout_head('Kelola Aplikasi', 'admin-apps');
   border: 1px solid var(--border); border-radius: 5px;
   padding: .6rem .75rem; color: var(--text);
   font-family: var(--sans); font-size: .9rem; outline: none;
-  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
   -webkit-appearance: none;
   -webkit-box-shadow: 0 0 0 1000px var(--bg) inset;
   -webkit-text-fill-color: var(--text);
@@ -141,7 +141,7 @@ layout_head('Kelola Aplikasi', 'admin-apps');
 .check-label {
   display: flex; align-items: flex-start; gap: .5rem;
   font-size: .72rem; font-weight: 700; font-family: var(--mono);
-  color: var(--text-dim); text-transform: uppercase;
+  color: var(--muted-hi); text-transform: uppercase;
   letter-spacing: .06em; cursor: pointer; margin-top: .3rem; line-height: 1.5;
 }
 .check-label input { accent-color: var(--accent); flex-shrink: 0; margin-top: .2rem; }
@@ -152,10 +152,10 @@ layout_head('Kelola Aplikasi', 'admin-apps');
   padding: .6rem 1rem; font-size: .78rem; font-weight: 700;
   cursor: pointer; font-family: var(--mono); text-transform: uppercase;
   letter-spacing: .08em; margin-top: .75rem; width: 100%;
-  transition: background var(--t-fast), border-color var(--t-fast), box-shadow var(--t-fast);
+  transition: background var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 .btn-add:hover { background: rgba(0,229,255,.12); border-color: var(--accent); box-shadow: 0 0 16px var(--accent-glow); }
-[data-theme="light"] .btn-add:hover { background: rgba(2,132,199,.1); box-shadow: 0 0 12px var(--accent-glow); }
+[data-theme="bright"] .btn-add:hover { background: rgba(2,132,199,.1); box-shadow: 0 0 12px var(--accent-glow); }
 
 .app-list { display: flex; flex-direction: column; gap: .6rem; }
 
@@ -165,7 +165,7 @@ layout_head('Kelola Aplikasi', 'admin-apps');
   border: 1px solid var(--border-hi);
   border-radius: 8px; overflow: hidden;
   box-shadow: 0 2px 12px rgba(0,0,0,.2);
-  transition: border-color var(--t-fast);
+  transition: border-color var(--transition-fast);
 }
 .app-card:hover { border-color: var(--accent-bdr); }
 
@@ -178,7 +178,7 @@ layout_head('Kelola Aplikasi', 'admin-apps');
 }
 
 .app-desc {
-  font-size: .78rem; color: var(--text-dim);
+  font-size: .78rem; color: var(--muted-hi);
   font-family: var(--sans); margin-bottom: .5rem; line-height: 1.4;
 }
 
@@ -186,15 +186,15 @@ layout_head('Kelola Aplikasi', 'admin-apps');
 
 .mono-block {
   font-family: var(--mono); font-size: .75rem;
-  color: var(--text-dim); word-break: break-all; line-height: 1.7; margin-top: .5rem;
+  color: var(--muted-hi); word-break: break-all; line-height: 1.7; margin-top: .5rem;
 }
 
-.secret-blur { filter: blur(4px); transition: filter var(--t-med); cursor: pointer; display: inline; }
+.secret-blur { filter: blur(4px); transition: filter var(--transition-med); cursor: pointer; display: inline; }
 .secret-blur:hover, .secret-blur.revealed { filter: none; }
 
 .reveal-hint { font-size: .7rem; color: var(--accent); margin-left: .3rem; cursor: pointer; font-family: var(--mono); }
 
-.redirect-url { font-size: .72rem; color: var(--text-muted); margin-top: .2rem; font-family: var(--mono); }
+.redirect-url { font-size: .72rem; color: var(--muted); margin-top: .2rem; font-family: var(--mono); }
 
 .app-actions {
   border-top: 1px solid var(--border); padding: .6rem .9rem;
@@ -203,11 +203,11 @@ layout_head('Kelola Aplikasi', 'admin-apps');
 
 .btn-sm {
   background: var(--surface2); border: 1px solid var(--border-hi);
-  color: var(--text-dim); border-radius: 5px;
+  color: var(--muted-hi); border-radius: 5px;
   padding: .35rem .7rem; font-size: .72rem; font-weight: 700;
   cursor: pointer; font-family: var(--mono); text-transform: uppercase;
   letter-spacing: .06em; white-space: nowrap;
-  transition: border-color var(--t-fast), color var(--t-fast), box-shadow var(--t-fast);
+  transition: border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
   line-height: 1.2;
 }
 .btn-sm:hover { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
@@ -234,7 +234,7 @@ layout_head('Kelola Aplikasi', 'admin-apps');
   text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px;
   font-family: var(--mono);
 }
-.confirm-msg { font-size: .82rem; color: var(--text-dim); line-height: 1.6; margin-bottom: 16px; }
+.confirm-msg { font-size: .82rem; color: var(--muted-hi); line-height: 1.6; margin-bottom: 16px; }
 .confirm-msg strong { color: var(--text); }
 .confirm-btns { display: flex; gap: 8px; justify-content: flex-end; }
 
