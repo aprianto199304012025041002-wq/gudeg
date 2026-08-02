@@ -10,5 +10,5 @@
   "scopes_supported": ["openid", "profile", "email"],
   "claims_supported": ["sub", "name", "email", "role", "app", "iat", "exp", "iss", "jti"],
   "grant_types_supported": ["implicit"],
-  "service_documentation": "https://gudeg.xo.je/dashboard.php"
+  "service_documentation": "https://github.com/aprianto199304012025041002-wq/gudeg"
 }
