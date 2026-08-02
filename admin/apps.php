@@ -104,227 +104,146 @@ layout_head('Kelola Aplikasi', 'admin-apps');
 ?>
 <style>
 .add-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: .9rem;
-  margin-bottom: 1.2rem;
+  background: var(--glass-hi);
+  backdrop-filter: blur(12px) saturate(150%);
+  border: 1px solid var(--border-hi);
+  border-radius: 8px;
+  padding: .9rem; margin-bottom: 1.2rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,.2);
 }
 
 .add-card-title {
-  font-size: .85rem;
-  font-weight: 600;
-  font-family: var(--sans);
-  color: var(--accent);
-  text-transform: uppercase;
-  letter-spacing: .06em;
-  margin-bottom: .8rem;
+  font-size: .78rem; font-weight: 700; font-family: var(--mono);
+  color: var(--accent); text-transform: uppercase;
+  letter-spacing: .1em; margin-bottom: .8rem;
 }
 
 .fg { margin-bottom: .7rem; }
 
 .fg label {
-  display: block;
-  font-size: .72rem;
-  font-weight: 600;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  letter-spacing: .07em;
-  margin-bottom: .35rem;
-  font-family: var(--sans);
+  display: block; font-size: .7rem; font-weight: 700;
+  color: var(--text-dim); text-transform: uppercase;
+  letter-spacing: .1em; margin-bottom: .35rem; font-family: var(--mono);
 }
 
 .fg input[type=text] {
-  width: 100%;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 2px;
-  padding: .6rem .75rem;
-  color: var(--text);
-  font-family: var(--sans);
-  font-size: .9rem;
-  outline: none;
-  transition: border-color .2s;
+  width: 100%; background: var(--bg);
+  border: 1px solid var(--border); border-radius: 5px;
+  padding: .6rem .75rem; color: var(--text);
+  font-family: var(--sans); font-size: .9rem; outline: none;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
   -webkit-appearance: none;
   -webkit-box-shadow: 0 0 0 1000px var(--bg) inset;
   -webkit-text-fill-color: var(--text);
 }
-.fg input[type=text]:focus { border-color: var(--accent); }
+.fg input[type=text]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
 
 .check-label {
-  display: flex;
-  align-items: flex-start;
-  gap: .5rem;
-  font-size: .8rem;
-  font-weight: 500;
-  font-family: var(--sans);
-  color: var(--text-dim);
-  text-transform: uppercase;
-  letter-spacing: .03em;
-  cursor: pointer;
-  margin-top: .3rem;
-  line-height: 1.5;
+  display: flex; align-items: flex-start; gap: .5rem;
+  font-size: .72rem; font-weight: 700; font-family: var(--mono);
+  color: var(--text-dim); text-transform: uppercase;
+  letter-spacing: .06em; cursor: pointer; margin-top: .3rem; line-height: 1.5;
 }
 .check-label input { accent-color: var(--accent); flex-shrink: 0; margin-top: .2rem; }
 
 .btn-add {
-  background: rgba(122,162,212,.1);
-  border: 1px solid var(--accent);
-  color: var(--accent);
-  border-radius: 2px;
-  padding: .6rem 1rem;
-  font-size: .82rem;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: var(--sans);
-  text-transform: uppercase;
-  letter-spacing: .05em;
-  margin-top: .75rem;
-  width: 100%;
-  transition: background .2s;
+  background: var(--accent-bg); border: 1px solid var(--accent-bdr);
+  color: var(--accent); border-radius: 5px;
+  padding: .6rem 1rem; font-size: .78rem; font-weight: 700;
+  cursor: pointer; font-family: var(--mono); text-transform: uppercase;
+  letter-spacing: .08em; margin-top: .75rem; width: 100%;
+  transition: background var(--t-fast), border-color var(--t-fast), box-shadow var(--t-fast);
 }
-.btn-add:hover { background: rgba(122,162,212,.18); }
+.btn-add:hover { background: rgba(0,229,255,.12); border-color: var(--accent); box-shadow: 0 0 16px var(--accent-glow); }
+[data-theme="light"] .btn-add:hover { background: rgba(2,132,199,.1); box-shadow: 0 0 12px var(--accent-glow); }
 
 .app-list { display: flex; flex-direction: column; gap: .6rem; }
 
 .app-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  overflow: hidden;
+  background: var(--glass-hi);
+  backdrop-filter: blur(12px) saturate(150%);
+  border: 1px solid var(--border-hi);
+  border-radius: 8px; overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,.2);
+  transition: border-color var(--t-fast);
 }
+.app-card:hover { border-color: var(--accent-bdr); }
 
 .app-card-head { padding: .85rem 1rem; }
 
 .app-name {
-  font-weight: 600;
-  font-size: .9rem;
-  font-family: var(--sans);
-  text-transform: uppercase;
-  letter-spacing: .03em;
-  margin-bottom: .2rem;
-  line-height: 1.4;
+  font-weight: 700; font-size: .85rem; font-family: var(--mono);
+  text-transform: uppercase; letter-spacing: .06em;
+  margin-bottom: .2rem; line-height: 1.4;
 }
 
 .app-desc {
-  font-size: .8rem;
-  color: var(--text-dim);
-  font-family: var(--sans);
-  margin-bottom: .5rem;
-  line-height: 1.4;
+  font-size: .78rem; color: var(--text-dim);
+  font-family: var(--sans); margin-bottom: .5rem; line-height: 1.4;
 }
 
 .app-badges { display: flex; gap: .35rem; flex-wrap: wrap; }
 
 .mono-block {
-  font-family: var(--mono);
-  font-size: .78rem;
-  color: var(--text-dim);
-  word-break: break-all;
-  line-height: 1.7;
-  margin-top: .5rem;
+  font-family: var(--mono); font-size: .75rem;
+  color: var(--text-dim); word-break: break-all; line-height: 1.7; margin-top: .5rem;
 }
 
-.secret-blur {
-  filter: blur(4px);
-  transition: filter .2s;
-  cursor: pointer;
-  display: inline;
-}
-.secret-blur:hover,
-.secret-blur.revealed { filter: none; }
+.secret-blur { filter: blur(4px); transition: filter var(--t-med); cursor: pointer; display: inline; }
+.secret-blur:hover, .secret-blur.revealed { filter: none; }
 
-.reveal-hint {
-  font-size: .72rem;
-  color: var(--accent);
-  margin-left: .3rem;
-  cursor: pointer;
-}
+.reveal-hint { font-size: .7rem; color: var(--accent); margin-left: .3rem; cursor: pointer; font-family: var(--mono); }
 
-.redirect-url {
-  font-size: .75rem;
-  color: var(--text-dim);
-  opacity: .6;
-  margin-top: .2rem;
-}
+.redirect-url { font-size: .72rem; color: var(--text-muted); margin-top: .2rem; font-family: var(--mono); }
 
 .app-actions {
-  border-top: 1px solid var(--border);
-  padding: .6rem .9rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: .4rem;
+  border-top: 1px solid var(--border); padding: .6rem .9rem;
+  display: flex; flex-wrap: wrap; gap: .4rem;
 }
 
 .btn-sm {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  color: var(--text);
-  border-radius: 2px;
-  padding: .38rem .75rem;
-  font-size: .8rem;
-  font-weight: 500;
-  cursor: pointer;
-  font-family: var(--sans);
-  text-transform: uppercase;
-  letter-spacing: .04em;
-  white-space: nowrap;
-  transition: border-color .15s, color .15s;
+  background: var(--surface2); border: 1px solid var(--border-hi);
+  color: var(--text-dim); border-radius: 5px;
+  padding: .35rem .7rem; font-size: .72rem; font-weight: 700;
+  cursor: pointer; font-family: var(--mono); text-transform: uppercase;
+  letter-spacing: .06em; white-space: nowrap;
+  transition: border-color var(--t-fast), color var(--t-fast), box-shadow var(--t-fast);
   line-height: 1.2;
 }
-.btn-sm:hover { border-color: var(--accent); color: var(--accent); }
-.btn-sm.danger { border-color: rgba(229,115,115,.2); color: var(--danger); }
-.btn-sm.danger:hover { border-color: var(--danger); }
-.btn-sm.warn { border-color: rgba(212,168,0,.25); color: #d4a800; }
-.btn-sm.warn:hover { border-color: #d4a800; }
+.btn-sm:hover { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
+.btn-sm.danger { border-color: var(--danger-bdr); color: var(--danger); }
+.btn-sm.danger:hover { border-color: var(--danger); box-shadow: 0 0 8px rgba(239,68,68,.2); }
+.btn-sm.warn { border-color: rgba(234,179,8,.25); color: #eab308; }
+.btn-sm.warn:hover { border-color: #eab308; box-shadow: 0 0 8px rgba(234,179,8,.2); }
 
 /* ── Confirm dialog ─────────────────────────────────────── */
 .confirm-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.6);
-  z-index: 200;
-  align-items: center;
-  justify-content: center;
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.7); backdrop-filter: blur(4px);
+  z-index: 200; align-items: center; justify-content: center;
 }
 .confirm-overlay.show { display: flex; }
 .confirm-box {
-  background: var(--surface);
-  border: 1px solid var(--accent-bdr);
-  border-radius: 6px;
-  padding: 20px 22px;
-  width: 320px;
-  max-width: 90vw;
+  background: var(--glass-hi); backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid var(--border-hi); border-radius: 10px;
+  padding: 20px 22px; width: 320px; max-width: 90vw;
+  box-shadow: 0 8px 32px rgba(0,0,0,.6);
 }
 .confirm-title {
-  font-size: .9rem;
-  font-weight: 600;
-  color: var(--text);
-  text-transform: uppercase;
-  letter-spacing: .03em;
-  margin-bottom: 8px;
+  font-size: .85rem; font-weight: 700; color: var(--text);
+  text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px;
+  font-family: var(--mono);
 }
-.confirm-msg {
-  font-size: .85rem;
-  color: var(--text-dim);
-  line-height: 1.6;
-  margin-bottom: 16px;
-}
+.confirm-msg { font-size: .82rem; color: var(--text-dim); line-height: 1.6; margin-bottom: 16px; }
 .confirm-msg strong { color: var(--text); }
-.confirm-btns {
-  display: flex;
-  gap: 8px;
-  justify-content: flex-end;
-}
+.confirm-btns { display: flex; gap: 8px; justify-content: flex-end; }
 
-/* ── Mobile optimizations ─────────────────────────────── */
 @media (max-width: 600px) {
   .add-card { padding: .75rem; }
   .fg input[type=text] { font-size: .85rem; }
-  .mono-block { font-size: .72rem; word-break: break-all; }
+  .mono-block { font-size: .68rem; word-break: break-all; }
   .app-actions { gap: .3rem; padding: .5rem .75rem; }
-  .btn-sm { padding: .35rem .6rem; font-size: .75rem; }
+  .btn-sm { padding: .28rem .5rem; font-size: .65rem; }
   .app-card-head { padding: .75rem; }
   .secret-blur { display: block; }
   .confirm-box { width: calc(100vw - 32px); padding: 16px; }
@@ -333,69 +252,43 @@ layout_head('Kelola Aplikasi', 'admin-apps');
 /* ── Floating bubble ─────────────────────────────────────── */
 .bubble-wrap {
   position: fixed;
-  bottom: 16px;
-  right: 16px;
-  display: flex;
-  flex-direction: column-reverse;
-  gap: 8px;
-  z-index: 9999;
-  width: 320px;
-  pointer-events: none;
+  bottom: calc(16px + env(safe-area-inset-bottom)); right: 16px;
+  display: flex; flex-direction: column-reverse;
+  gap: 8px; z-index: 9999; width: 320px; pointer-events: none;
 }
 @media (max-width: 480px) {
-  .bubble-wrap { bottom: 12px; right: 8px; left: 8px; width: auto; }
+  .bubble-wrap { bottom: calc(12px + env(safe-area-inset-bottom)); right: 8px; left: 8px; width: auto; }
 }
 .bubble {
-  border-radius: 6px;
-  padding: 10px 32px 10px 14px;
-  font-size: .8rem;
-  line-height: 1.5;
-  border: 1px solid;
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  pointer-events: all;
-  animation: bubbleIn .25s ease;
-  box-shadow: 0 4px 20px rgba(0,0,0,.4);
-  position: relative;
+  border-radius: 8px; padding: 10px 32px 10px 14px;
+  font-size: .8rem; line-height: 1.5; border: 1px solid;
+  display: flex; align-items: flex-start; gap: 8px;
+  pointer-events: all; animation: bubbleIn .25s ease;
+  box-shadow: 0 8px 32px rgba(0,0,0,.5); position: relative;
+  backdrop-filter: blur(16px);
 }
 @keyframes bubbleIn {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-.bubble.success { background: rgba(58,138,96,.12);  border-color: rgba(58,138,96,.35);  color: #60c890; }
-.bubble.danger  { background: rgba(192,64,64,.12);  border-color: rgba(192,64,64,.35);  color: #e08080; }
-.bubble.info    { background: rgba(122,162,212,.12); border-color: rgba(122,162,212,.35); color: #7aa2d4; }
+.bubble.success { background: rgba(34,197,94,.1);  border-color: rgba(34,197,94,.3);  color: #86efac; }
+.bubble.danger  { background: rgba(239,68,68,.1);  border-color: rgba(239,68,68,.3);  color: #fca5a5; }
+.bubble.info    { background: rgba(0,229,255,.08);  border-color: rgba(0,229,255,.25); color: #67e8f9; }
 .bubble i { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
 .bubble-body { flex: 1; min-width: 0; }
-.bubble-title { font-weight: 700; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 2px; font-size: .75rem; }
+.bubble-title { font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; font-size: .72rem; font-family: var(--mono); }
 .bubble-desc  { font-size: .78rem; opacity: .9; line-height: 1.5; }
 .bubble-desc code {
-  font-family: var(--mono);
-  background: rgba(0,0,0,.25);
-  padding: 1px 5px;
-  border-radius: 3px;
-  font-size: .72rem;
-  word-break: break-all;
+  font-family: var(--mono); background: rgba(0,0,0,.3);
+  padding: 1px 5px; border-radius: 3px; font-size: .7rem; word-break: break-all;
 }
 .bubble-code {
-  font-family: var(--mono);
-  font-size: .78rem;
-  background: rgba(0,0,0,.3);
-  padding: 3px 8px;
-  border-radius: 3px;
-  display: block;
-  margin-top: 5px;
-  word-break: break-all;
-  letter-spacing: .04em;
-  color: inherit;
+  font-family: var(--mono); font-size: .75rem;
+  background: rgba(0,0,0,.3); padding: 3px 8px; border-radius: 3px;
+  display: block; margin-top: 5px; word-break: break-all;
+  letter-spacing: .04em; color: inherit;
 }
-.bubble-warn {
-  font-size: .72rem;
-  margin-top: 4px;
-  opacity: .8;
-  font-weight: 600;
-}
+.bubble-warn { font-size: .7rem; margin-top: 4px; opacity: .8; font-weight: 700; font-family: var(--mono); }
 .bubble-close {
   position: absolute; top: 6px; right: 8px;
   cursor: pointer; opacity: .5; font-size: 16px;
@@ -405,19 +298,11 @@ layout_head('Kelola Aplikasi', 'admin-apps');
 .bubble-close:hover { opacity: 1; }
 .bubble-progress {
   position: absolute; bottom: 0; left: 0;
-  height: 2px; background: currentColor; opacity: .3;
-  border-radius: 0 0 6px 6px;
+  height: 2px; background: currentColor; opacity: .35;
+  border-radius: 0 0 8px 8px;
   animation: bubbleProgress 10s linear forwards;
 }
 @keyframes bubbleProgress { from { width: 100%; } to { width: 0%; } }
-
-/* ── Safe area Android WebView ───────────────────────── */
-@supports (padding-top: env(safe-area-inset-top)) {
-  .bubble-wrap { bottom: calc(16px + env(safe-area-inset-bottom)); }
-  @media (max-width: 480px) {
-    .bubble-wrap { bottom: calc(12px + env(safe-area-inset-bottom)); right: 8px; left: 8px; width: auto; }
-  }
-}
 </style>
 
 <div class="page-header">

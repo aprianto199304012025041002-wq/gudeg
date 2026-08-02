@@ -82,110 +82,103 @@ layout_head('Log Aktivitas', 'admin-logs');
 .tab-bar a {
   padding: 5px 12px;
   border: 1px solid var(--border);
-  border-radius: 3px;
-  font-size: 12px; font-weight: 500;
-  text-transform: uppercase; letter-spacing: .05em;
-  color: var(--text-dim);
-  transition: border-color .12s, color .12s;
+  border-radius: 5px;
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .07em;
+  color: var(--text-dim); font-family: var(--mono);
+  transition: border-color var(--t-fast), color var(--t-fast), box-shadow var(--t-fast);
   white-space: nowrap; flex-shrink: 0;
 }
 .tab-bar a.active,
-.tab-bar a:hover { border-color: var(--accent-dim); color: var(--accent); }
+.tab-bar a:hover { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
 
 .filter-bar {
   display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; align-items: center;
 }
 .filter-bar input[type="text"],
 .filter-bar input[type="date"] {
-  background: var(--surface);
+  background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: 3px;
+  border-radius: 5px;
   padding: 5px 9px;
-  font-size: 12px;
-  color: var(--text);
-  font-family: var(--sans);
-  outline: none;
-  transition: border-color .12s;
+  font-size: 11px; color: var(--text);
+  font-family: var(--mono); outline: none;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
 }
 .filter-bar input[type="text"] { width: 180px; }
 .filter-bar input[type="date"] { width: 140px; }
-.filter-bar input:focus { border-color: var(--accent-dim); }
+.filter-bar input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow); }
 
-/* ── Mobile: filter inputs full-width ─────────────────── */
 @media (max-width: 600px) {
   .filter-bar { flex-direction: column; align-items: stretch; }
   .filter-bar input[type="text"],
   .filter-bar input[type="date"] { width: 100%; }
   .filter-bar button { width: 100%; text-align: center; }
   .log-item-top { flex-direction: column; gap: 2px; }
-  .log-time { font-size: 11px; }
-  .log-action { font-size: 12px; }
+  .log-time { font-size: 10px; }
+  .log-action { font-size: 11px; }
   .log-meta span { display: block; margin-right: 0; }
   .pagination { gap: 3px; }
-  .pagination a { padding: 4px 8px; font-size: 11px; }
+  .pagination a { padding: 4px 8px; font-size: 10px; }
 }
+
 .filter-bar button {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 3px;
+  background: var(--bg);
+  border: 1px solid var(--border); border-radius: 5px;
   padding: 5px 12px;
-  font-size: 12px; font-weight: 500;
-  color: var(--text-dim);
-  font-family: var(--sans);
-  text-transform: uppercase; letter-spacing: .04em;
-  cursor: pointer; transition: border-color .12s, color .12s;
+  font-size: 11px; font-weight: 700;
+  color: var(--text-dim); font-family: var(--mono);
+  text-transform: uppercase; letter-spacing: .06em;
+  cursor: pointer;
+  transition: border-color var(--t-fast), color var(--t-fast), box-shadow var(--t-fast);
 }
-.filter-bar button:hover { border-color: var(--accent-dim); color: var(--accent); }
-.filter-bar .btn-reset {
-  color: var(--danger); border-color: rgba(192,64,64,.2);
-}
-.filter-bar .btn-reset:hover { border-color: var(--danger); }
+.filter-bar button:hover { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
+.filter-bar .btn-reset { color: var(--danger); border-color: var(--danger-bdr); }
+.filter-bar .btn-reset:hover { border-color: var(--danger); box-shadow: 0 0 8px rgba(239,68,68,.2); }
 .filter-active {
-  font-size: 11px; color: var(--accent-dim);
-  font-family: var(--sans); letter-spacing: .04em;
-  text-transform: uppercase; padding: 5px 0;
+  font-size: 10px; color: var(--accent); font-family: var(--mono);
+  letter-spacing: .06em; text-transform: uppercase; padding: 5px 0;
 }
 
 .log-list { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
 .log-item {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 9px 12px;
+  background: var(--glass-hi);
+  backdrop-filter: blur(10px) saturate(140%);
+  border: 1px solid var(--border-hi);
+  border-radius: 6px; padding: 9px 12px;
+  transition: border-color var(--t-fast);
 }
+.log-item:hover { border-color: var(--accent-bdr); }
 .log-item-top {
   display: flex; justify-content: space-between; align-items: flex-start;
   gap: 6px; margin-bottom: 4px;
 }
-.log-action { font-size: 13px; font-weight: 600; color: var(--text); }
-.log-time { font-size: 12px; color: var(--text-dim); white-space: nowrap; flex-shrink: 0; }
-.log-meta { font-size: 12px; color: var(--text-dim); line-height: 1.6; }
+.log-action { font-size: 12px; font-weight: 700; color: var(--text); font-family: var(--mono); text-transform: uppercase; letter-spacing: .04em; }
+.log-time { font-size: 11px; color: var(--text-dim); white-space: nowrap; flex-shrink: 0; font-family: var(--mono); }
+.log-meta { font-size: 11px; color: var(--text-dim); line-height: 1.6; font-family: var(--mono); }
 .log-meta span { margin-right: 8px; }
-.log-id { font-size: 11px; color: var(--text-muted); }
+.log-id { font-size: 10px; color: var(--text-muted); font-family: var(--mono); }
 .log-ip {
-  font-family: var(--mono); font-size: 11px;
-  background: rgba(122,162,212,.06);
-  border: 1px solid rgba(122,162,212,.12);
-  border-radius: 3px; padding: 0 5px;
-  color: var(--accent-dim);
+  font-family: var(--mono); font-size: 10px;
+  background: var(--accent-bg); border: 1px solid var(--accent-bdr);
+  border-radius: 3px; padding: 0 5px; color: var(--accent);
 }
 .log-empty {
   text-align: center; padding: 2rem;
-  font-size: 13px; color: var(--text-dim);
-  font-family: var(--sans);
+  font-size: 12px; color: var(--text-dim);
+  font-family: var(--mono); text-transform: uppercase; letter-spacing: .06em;
 }
 
 .pagination { display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; }
 .pagination a {
-  padding: 4px 10px;
-  border: 1px solid var(--border);
-  border-radius: 3px; font-size: 12px;
-  color: var(--text-dim);
-  transition: border-color .12s, color .12s;
+  padding: 4px 10px; border: 1px solid var(--border);
+  border-radius: 4px; font-size: 11px; color: var(--text-dim);
+  font-family: var(--mono);
+  transition: border-color var(--t-fast), color var(--t-fast), box-shadow var(--t-fast);
 }
-.pagination a.current { border-color: var(--accent-dim); color: var(--accent); }
-.pagination a:hover   { border-color: var(--accent-dim); color: var(--accent); }
-.pagination-sep { font-size: 12px; color: var(--text-muted); padding: 4px 2px; }
+.pagination a.current { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 6px var(--accent-glow); }
+.pagination a:hover   { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 6px var(--accent-glow); }
+.pagination-sep { font-size: 11px; color: var(--text-muted); padding: 4px 2px; font-family: var(--mono); }
 </style>
 
 <div class="page-header">
