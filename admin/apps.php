@@ -103,6 +103,8 @@ $apps = $sb->select('sso_applications', [], '*', ['order' => 'id.desc']);
 layout_head('Kelola Aplikasi', 'admin-apps');
 ?>
 <style>
+.form-inline { display: inline; }
+
 .add-card {
   background: var(--glass-hi);
   backdrop-filter: blur(12px) saturate(150%);
@@ -365,7 +367,7 @@ layout_head('Kelola Aplikasi', 'admin-apps');
     </div>
   </div>
   <div class="app-actions">
-    <form method="POST" style="display:inline">
+    <form method="POST" class="form-inline">
       <?= csrf_field() ?>
       <input type="hidden" name="action" value="toggle_status">
       <input type="hidden" name="app_id" value="<?= $app['id'] ?>">
@@ -373,13 +375,13 @@ layout_head('Kelola Aplikasi', 'admin-apps');
         <?= $app['is_active'] ? 'Nonaktifkan' : 'Aktifkan' ?>
       </button>
     </form>
-    <form method="POST" style="display:inline">
+    <form method="POST" class="form-inline">
       <?= csrf_field() ?>
       <input type="hidden" name="action" value="toggle_signed">
       <input type="hidden" name="app_id" value="<?= $app['id'] ?>">
       <button type="submit" class="btn-sm">Toggle RSA</button>
     </form>
-    <form method="POST" style="display:inline" id="form-regen-<?= $app['id'] ?>">
+    <form method="POST" class="form-inline" id="form-regen-<?= $app['id'] ?>">
       <?= csrf_field() ?>
       <input type="hidden" name="action" value="regenerate_secret">
       <input type="hidden" name="app_id" value="<?= $app['id'] ?>">
@@ -393,7 +395,7 @@ layout_head('Kelola Aplikasi', 'admin-apps');
         🔑 Regenerate Secret
       </button>
     </form>
-    <form method="POST" style="display:inline"
+    <form method="POST" class="form-inline"
           onsubmit="return confirm('Hapus aplikasi <?= htmlspecialchars(addslashes($app['name'])) ?>?')">
       <?= csrf_field() ?>
       <input type="hidden" name="action" value="delete_app">

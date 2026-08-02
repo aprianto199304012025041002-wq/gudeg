@@ -241,12 +241,13 @@ a { color: inherit; text-decoration: none; }
 
 /* ── Nav ────────────────────────────────────────────────── */
 .sb-nav { flex: 1; padding: 4px 0; overflow-y: auto; overflow-x: hidden; }
-.sb-section-label {
+.sb-section-label { 
   font-size: 9px; text-transform: uppercase; letter-spacing: .1em;
   color: var(--muted); padding: 8px 10px 3px;
   white-space: nowrap; overflow: hidden;
   font-family: var(--mono);
 }
+.sb-section-label--mt { margin-top: 4px; }
 .sb-link {
   display: flex; align-items: center; gap: 8px;
   padding: 7px 10px;
@@ -544,7 +545,7 @@ button, .btn { font-family: var(--sans); cursor: pointer; }
     </a>
 
     <?php if ($is_admin): ?>
-    <div class="sb-section-label" style="margin-top:4px">Admin</div>
+    <div class="sb-section-label sb-section-label--mt">Admin</div>
     <a href="/admin/" class="sb-link <?= $active_nav === 'admin-users' ? 'active' : '' ?>">
       <i class="ti ti-users" aria-hidden="true"></i><span>Kelola User</span>
     </a>

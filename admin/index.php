@@ -85,6 +85,8 @@ layout_head('Kelola User', 'admin-users');
 ?>
 <style>
 .page-header { margin-bottom: 1rem; }
+.form-inline { display: inline; }
+.text-muted-sm { font-size: .72rem; color: var(--muted-hi); margin-bottom: .6rem; }
 
 .user-list { display: flex; flex-direction: column; gap: .6rem; }
 
@@ -329,7 +331,7 @@ select.sel-sm:focus { outline: none; border-color: var(--accent); box-shadow: 0 
 
   <?php if ($u['id'] !== (int)$user['id']): ?>
   <div class="user-actions">
-    <form method="POST" style="display:inline">
+    <form method="POST" class="form-inline">
       <?= csrf_field() ?>
       <input type="hidden" name="action" value="toggle_active">
       <input type="hidden" name="target_id" value="<?= $u['id'] ?>">
@@ -349,7 +351,7 @@ select.sel-sm:focus { outline: none; border-color: var(--accent); box-shadow: 0 
       <button type="submit" class="btn-sm">Ubah Role</button>
     </form>
 
-    <form method="POST" style="display:inline" id="form-reset-<?= $u['id'] ?>">
+    <form method="POST" class="form-inline" id="form-reset-<?= $u['id'] ?>">
       <?= csrf_field() ?>
       <input type="hidden" name="action" value="reset_password">
       <input type="hidden" name="target_id" value="<?= $u['id'] ?>">
@@ -362,7 +364,7 @@ select.sel-sm:focus { outline: none; border-color: var(--accent); box-shadow: 0 
       </button>
     </form>
 
-    <form method="POST" style="display:inline" id="form-delete-<?= $u['id'] ?>">
+    <form method="POST" class="form-inline" id="form-delete-<?= $u['id'] ?>">
       <?= csrf_field() ?>
       <input type="hidden" name="action" value="delete_user">
       <input type="hidden" name="target_id" value="<?= $u['id'] ?>">
@@ -403,7 +405,7 @@ select.sel-sm:focus { outline: none; border-color: var(--accent); box-shadow: 0 
           <?php endforeach; ?>
         </div>
         <?php else: ?>
-        <p style="font-size:.72rem;color:var(--muted-hi);margin-bottom:.6rem">Belum ada aplikasi SSO terdaftar.</p>
+        <p class="text-muted-sm">Belum ada aplikasi SSO terdaftar.</p>
         <?php endif; ?>
         <button type="submit" class="btn-sm">Simpan Akses</button>
       </form>

@@ -95,6 +95,9 @@ layout_head('Pengaturan', 'password');
 ?>
 <style>
 .form-group { margin-bottom: 1rem; }
+.text-note { font-size: .8rem; color: var(--muted-hi); padding: .5rem 0; font-family: var(--sans); }
+.form-reset { margin: 0; }
+#pw-hint { margin-top: 6px; font-size: 10px; line-height: 1.8; color: var(--muted); font-family: var(--mono); }
 
 .form-group label {
   display: block;
@@ -336,7 +339,7 @@ layout_head('Pengaturan', 'password');
         <input type="password" id="new_password" name="new_password"
                placeholder="Min. 8 karakter" required autocomplete="new-password"
                oninput="checkStrength(this.value)">
-        <div id="pw-hint" style="margin-top:6px;font-size:11px;line-height:1.8;color:var(--muted-hi);font-family:var(--sans)">
+        <div id="pw-hint">
           <span id="pw-len">○ Min. 8 karakter</span><br>
           <span id="pw-upper">○ Huruf besar (A-Z)</span><br>
           <span id="pw-lower">○ Huruf kecil (a-z)</span><br>
@@ -349,7 +352,7 @@ layout_head('Pengaturan', 'password');
         function set(id, ok, label) {
           var el = document.getElementById(id);
           el.textContent = (ok ? "● " : "○ ") + label;
-          el.style.color = ok ? "#3a8a60" : "";
+          el.style.color = ok ? "var(--success)" : "var(--muted)";
         }
         set("pw-len",   v.length >= 8,           "Min. 8 karakter");
         set("pw-upper", /[A-Z]/.test(v),         "Huruf besar (A-Z)");
@@ -366,7 +369,7 @@ layout_head('Pengaturan', 'password');
       <button type="submit" class="btn-save">Simpan Password</button>
     </form>
     <?php else: ?>
-      <p style="font-size:.82rem;color:var(--muted-hi);padding:.5rem 0">Password berhasil diubah. Semua sesi lain telah diakhiri.</p>
+      <p class="text-note">Password berhasil diubah. Semua sesi lain telah diakhiri.</p>
     <?php endif; ?>
   </div>
 </div>
@@ -417,7 +420,7 @@ layout_head('Pengaturan', 'password');
           <div class="sesi-meta"><?= htmlspecialchars($sess['ip_address'] ?? '—') ?> · <?= $last_act ?></div>
         </div>
         <?php if (!$is_current): ?>
-        <form method="POST" style="margin:0">
+        <form method="POST" class="form-reset">
           <?= csrf_field() ?>
           <input type="hidden" name="action" value="logout_session">
           <input type="hidden" name="session_id" value="<?= htmlspecialchars($sess['id']) ?>">
@@ -431,14 +434,14 @@ layout_head('Pengaturan', 'password');
         $other_sessions = array_filter($active_sessions, fn($s) => $s['id'] !== $current_sess_id);
       ?>
       <?php if (count($other_sessions) > 0): ?>
-      <form method="POST" style="margin:0">
+      <form method="POST" class="form-reset">
         <?= csrf_field() ?>
         <input type="hidden" name="action" value="logout_all_sessions">
         <button type="submit" class="btn-logout-all">Logout Semua Perangkat Lain</button>
       </form>
       <?php endif; ?>
     <?php else: ?>
-      <p style="font-size:.82rem;color:var(--muted-hi);padding:.5rem 0">Tidak ada sesi aktif lain.</p>
+      <p class="text-note">Tidak ada sesi aktif lain.</p>
     <?php endif; ?>
   </div>
 </div>
@@ -464,7 +467,7 @@ layout_head('Pengaturan', 'password');
       </div>
       <?php endforeach; ?>
     <?php else: ?>
-      <p style="font-size:.82rem;color:var(--muted-hi);padding:.5rem 0">Belum ada aktivitas tercatat.</p>
+      <p class="text-note">Belum ada aktivitas tercatat.</p>
     <?php endif; ?>
   </div>
 </div>
