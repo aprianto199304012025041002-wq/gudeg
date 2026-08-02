@@ -74,6 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 (function(){
   try {
     var t = localStorage.getItem('gudeg_theme') || 'dark';
+    if (t === 'light') { t = 'bright'; localStorage.setItem('gudeg_theme', 'bright'); }
     document.documentElement.setAttribute('data-theme', t);
   } catch(e) {}
 })();
