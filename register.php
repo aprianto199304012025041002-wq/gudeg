@@ -386,7 +386,7 @@ input:-webkit-autofill:focus {
   .logo-shield i { font-size: 24px; }
   .logo-title { font-size: 16px; }
   .logo-acronym { font-size: 9px; }
-  #pw-hint { font-size: 10px; line-height: 1.7; }
+  #pw-hint { font-size: 10px; line-height: 1.8; color: var(--muted); font-family: var(--mono); margin-top: 6px; }
 }
 </style>
 </head>
@@ -441,7 +441,7 @@ input:-webkit-autofill:focus {
                  placeholder="Min. 8 karakter"
                  required autocomplete="new-password"
                  oninput="checkStrength(this.value)">
-          <div id="pw-hint" style="margin-top:6px;font-size:11px;line-height:1.8;color:var(--muted);font-family:var(--sans)">
+          <div id="pw-hint">
             <span id="pw-len">○ Min. 8 karakter</span><br>
             <span id="pw-upper">○ Huruf besar (A-Z)</span><br>
             <span id="pw-lower">○ Huruf kecil (a-z)</span><br>
@@ -492,7 +492,7 @@ function checkStrength(v) {
   function set(id, ok, label) {
     var el = document.getElementById(id);
     el.textContent = (ok ? '● ' : '○ ') + label;
-    el.style.color = ok ? 'var(--success, #3a8a60)' : '';
+    el.style.color = ok ? 'var(--success)' : 'var(--muted)';
   }
   set('pw-len',   v.length >= 8,           'Min. 8 karakter');
   set('pw-upper', /[A-Z]/.test(v),         'Huruf besar (A-Z)');

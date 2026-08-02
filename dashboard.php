@@ -59,6 +59,23 @@ try {
 layout_head('Beranda', 'dashboard');
 ?>
 <style>
+.banner-warn {
+  background: rgba(234,179,8,.08);
+  border: 1px solid rgba(234,179,8,.25);
+  border-radius: 8px;
+  padding: .75rem 1rem;
+  margin-bottom: 1rem;
+  font-size: .78rem;
+  color: #eab308;
+  font-family: var(--mono);
+  letter-spacing: .03em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 0 12px rgba(234,179,8,.08);
+}
+.banner-warn i { font-size: 15px; flex-shrink: 0; }
+
 .greeting { margin-bottom: 1rem; }
 
 .greeting-name {
@@ -271,8 +288,9 @@ layout_head('Beranda', 'dashboard');
 </style>
 
 <?php if ($supabase_down): ?>
-<div style="background:rgba(212,168,0,.1);border:1px solid rgba(212,168,0,.3);border-radius:4px;padding:.75rem 1rem;margin-bottom:1rem;font-size:.82rem;color:#d4a800;font-family:var(--sans);">
-  ⚠ Layanan sedang gangguan. Beberapa fitur mungkin tidak tersedia. Data yang ditampilkan mungkin tidak terkini.
+<div class="banner-warn">
+  <i class="ti ti-alert-triangle"></i>
+  Layanan sedang gangguan. Beberapa fitur mungkin tidak tersedia. Data yang ditampilkan mungkin tidak terkini.
 </div>
 <?php endif; ?>
 
