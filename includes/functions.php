@@ -1,14 +1,24 @@
 <?php
 date_default_timezone_set('Asia/Jakarta');
 
-// db.php tetap di-require karena dia yang parsing config/.env (termasuk
-// SUPABASE_URL & SUPABASE_SERVICE_KEY). getDB()/MySQL di dalamnya sudah
-// tidak dipakai lagi di file ini, tapi biarkan sampai semua file lain
-// selesai direfactor juga.
-$db_config = __DIR__ . '/../config/db.php';
-if (file_exists($db_config)) {
-    require_once $db_config;
-}
+// ── Load config/.env ──────────────────────────────────────────────────────────
+// db.php dulu yang handle ini, tapi MySQL sudah tidak dipakai.
+// Sekarang parsing .env langsung di sini supaya tidak ada dead dependency.
+(function () {
+    $env_file = __DIR__ . '/../config/.env';
+    if (!file_exists($env_file)) return;
+    foreach (file($env_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
+        $line = trim($line);
+        if ($line === '' || str_starts_with($line, '#')) continue;
+        if (str_contains($line, '=')) {
+            [$k, $v] = explode('=', $line, 2);
+            $k = trim($k);
+            $v = trim($v);
+            if ($k !== '' && !defined($k)) define($k, $v);
+        }
+    }
+})();
+
 require_once __DIR__ . '/SupabaseClient.php';
 
 // ── Security Headers ─────────────────────────────────────────────────────────

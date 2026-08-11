@@ -1,4 +1,7 @@
 <?php
+// CATATAN: file ini sudah tidak di-require dari functions.php.
+// Parsing .env sekarang dilakukan langsung di includes/functions.php.
+// File ini dibiarkan ada untuk referensi, tapi tidak dipanggil di mana pun.
 date_default_timezone_set('Asia/Jakarta');
 
 $env_file = __DIR__ . '/.env';

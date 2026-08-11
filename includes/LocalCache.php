@@ -16,13 +16,25 @@ class LocalCache
     private static ?PDO $pdo = null;
     private static string $db_path = '/tmp/gudeg_cache.sqlite';
 
+    /**
+     * Resolve path SQLite — dari CACHE_PATH di .env kalau ada,
+     * fallback ke /tmp/gudeg_cache.sqlite.
+     */
+    private static function resolvePath(): string
+    {
+        if (defined('CACHE_PATH') && CACHE_PATH !== '') {
+            return CACHE_PATH;
+        }
+        return self::$db_path;
+    }
+
     // ── Init ─────────────────────────────────────────────────────────────────
 
     private static function pdo(): PDO
     {
         if (self::$pdo !== null) return self::$pdo;
 
-        self::$pdo = new PDO('sqlite:' . self::$db_path);
+        self::$pdo = new PDO('sqlite:' . self::resolvePath());
         self::$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         self::$pdo->exec('PRAGMA journal_mode=WAL');  // lebih tahan concurrent write
         self::$pdo->exec('PRAGMA synchronous=NORMAL');
