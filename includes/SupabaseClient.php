@@ -93,9 +93,9 @@ class SupabaseClient
      *
      * @param array $data Data yang mau diinsert, mis. ['name' => 'Budi', 'email' => 'budi@mail.com']
      */
-    public function insert(string $table, array $data): array
+    public function insert(string $table, array $data, int $timeout = 10): array
     {
-        $result = $this->request('POST', $table, [], $data);
+        $result = $this->request('POST', $table, [], $data, $timeout);
         return $result[0] ?? [];
     }
 
@@ -234,7 +234,7 @@ class SupabaseClient
     }
 
     // ── Inti pengiriman request ─────────────────────────────────────────────
-    private function request(string $method, string $path, array $query = [], ?array $body = null): array
+    private function request(string $method, string $path, array $query = [], ?array $body = null, int $timeout = 10): array
     {
         $url = $this->baseUrl . '/' . $path;
         if (!empty($query)) {
@@ -253,7 +253,7 @@ class SupabaseClient
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_CUSTOMREQUEST  => $method,
             CURLOPT_HTTPHEADER     => $headers,
-            CURLOPT_TIMEOUT        => 10,
+            CURLOPT_TIMEOUT        => $timeout,
         ]);
 
         if ($body !== null) {

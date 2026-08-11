@@ -144,7 +144,7 @@ function log_activity($user_id, $name, $email, $activity) {
     if (class_exists('LocalCache')) {
         try {
             LocalCache::flushLogs(function (string $tbl, array $p) {
-                getSupabase()->insert($tbl, $p);
+                getSupabase()->insert($tbl, $p, 3); // non-kritis, timeout pendek
             });
         } catch (\Throwable $e) {
             // flush gagal — tidak apa-apa, akan dicoba lagi nanti
@@ -152,7 +152,7 @@ function log_activity($user_id, $name, $email, $activity) {
     }
 
     try {
-        getSupabase()->insert('user_logs', $payload);
+        getSupabase()->insert('user_logs', $payload, 3); // non-kritis, timeout pendek
     } catch (\Throwable $e) {
         error_log('log_activity gagal, antri ke SQLite: ' . $e->getMessage());
         // Supabase gagal — antri ke LocalCache, kirim ulang di request berikutnya
@@ -176,7 +176,7 @@ function log_admin_action($admin_id, $admin_name, $action, $target = '-') {
     ];
 
     try {
-        getSupabase()->insert('admin_logs', $payload);
+        getSupabase()->insert('admin_logs', $payload, 3); // non-kritis, timeout pendek
     } catch (\Throwable $e) {
         error_log('log_admin_action gagal, antri ke SQLite: ' . $e->getMessage());
         // Supabase gagal — antri ke LocalCache, kirim ulang di request berikutnya
