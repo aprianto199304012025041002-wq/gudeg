@@ -73,6 +73,28 @@ try {
     // Ini warning, bukan critical — app masih bisa jalan tanpa cache
 }
 
+// ── 6. Cek pending logs — kalau ada log tertunda > 1 jam, Supabase mungkin down lama ──
+try {
+    require_once __DIR__ . '/includes/LocalCache.php';
+    $pdo = (new ReflectionClass('LocalCache'))->getMethod('pdo');
+    $pdo->setAccessible(true);
+    $db  = $pdo->invoke(null);
+    $stmt = $db->query("SELECT COUNT(*) as cnt, MIN(queued_at) as oldest FROM pending_logs");
+    $row  = $stmt->fetch(PDO::FETCH_ASSOC);
+    $cnt  = (int)($row['cnt'] ?? 0);
+    $oldest = (int)($row['oldest'] ?? 0);
+    $age  = $oldest > 0 ? (time() - $oldest) : 0;
+    $checks['pending_logs'] = [
+        'ok'  => $cnt === 0 || $age < 3600,
+        'msg' => $cnt === 0
+            ? 'Tidak ada log tertunda'
+            : "$cnt log tertunda, terlama " . round($age / 60) . " menit lalu",
+    ];
+    if (!$checks['pending_logs']['ok']) $all_ok = false;
+} catch (\Throwable $e) {
+    $checks['pending_logs'] = ['ok' => true, 'msg' => 'Tabel belum ada (normal jika belum ada log gagal)'];
+}
+
 // ── Response ─────────────────────────────────────────────────────────────────
 http_response_code($all_ok ? 200 : 503);
 echo json_encode([

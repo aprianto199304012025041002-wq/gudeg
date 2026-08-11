@@ -21,5 +21,10 @@ Disallow: /includes/
 Disallow: /keys/
 Disallow: /assets/
 
+# File dokumen & misc yang tidak perlu diindex
+Disallow: /ROTATE_KEY_GUDEG.md
+Disallow: /version.json
+Disallow: /jwks.json
+
 # Sitemap (opsional, bisa ditambah kalau ada)
 # Sitemap: https://gudeg.xo.je/sitemap.xml

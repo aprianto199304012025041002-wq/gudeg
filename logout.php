@@ -28,7 +28,9 @@ if ($user_id_logout) {
 $sess_id = session_id();
 try {
     getSupabase()->delete('sessions', ['id' => $sess_id]);
-} catch (Exception $e) {}
+} catch (\Throwable $e) {
+    function_exists('gudeg_log') ? gudeg_log('WARNING', 'logout.php', 'gagal hapus session dari DB: ' . $e->getMessage()) : error_log('logout gagal hapus session: ' . $e->getMessage());
+}
 
 session_destroy();
 

@@ -25,14 +25,16 @@ $sb   = getSupabase();
 $client_id = $_GET['client_id'] ?? '';
 
 if (!$client_id) {
-    die('client_id diperlukan.');
+    http_response_code(400);
+    die(json_encode(['error' => 'client_id diperlukan.']));
 }
 
 // Fetch the SSO application
 $app = $sb->selectOne('sso_applications', ['client_id' => $client_id, 'is_active' => true]);
 
 if (!$app) {
-    die('Aplikasi tidak ditemukan atau tidak aktif.');
+    http_response_code(404);
+    die(json_encode(['error' => 'Aplikasi tidak ditemukan atau tidak aktif.']));
 }
 
 

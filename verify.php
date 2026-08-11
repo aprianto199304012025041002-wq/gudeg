@@ -57,7 +57,6 @@ if (RateLimiter::throttled($verify_ip, 'verify')) {
     http_response_code(429);
     fail('Terlalu banyak request. Coba lagi dalam ' . $secs . ' detik.');
 }
-RateLimiter::fail($verify_ip, 'verify');
 
 $token         = $_REQUEST['token'] ?? '';
 $client_id     = $_REQUEST['client_id'] ?? '';
@@ -67,14 +66,12 @@ if (!$token || !$client_id || !$client_secret) {
     fail('token, client_id, dan client_secret wajib diisi.');
 }
 
-// 1. Cek aplikasi aktif
-// FIX: Cari berdasarkan client_id saja, verifikasi secret pakai password_verify
-// (secret di DB sekarang tersimpan sebagai bcrypt hash)
-// Sertakan is_active=true di query awal agar app nonaktif langsung tidak ketemu (null),
-// tanpa bocorkan alasan spesifik ke caller.
+// 1. Cek aplikasi aktif — counter naik hanya kalau credential salah (bukan token expired)
 $app = $sb->selectOne('sso_applications', ['client_id' => $client_id, 'is_active' => true]);
 
 if (!$app || !verify_client_secret($client_secret, $app['client_secret'])) {
+    // Credential salah — ini yang dihitung sebagai percobaan mencurigakan
+    RateLimiter::fail($verify_ip, 'verify');
     fail('Aplikasi tidak ditemukan atau kredensial salah.');
 }
 

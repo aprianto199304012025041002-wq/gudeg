@@ -13,10 +13,17 @@ class JWT {
     public static function generate(array $payload, int $expiry_seconds = 3600) {
         $private_key_path = __DIR__ . '/../keys/private.pem';
         if (!file_exists($private_key_path)) {
+            function_exists('gudeg_log') && gudeg_log('CRITICAL', 'JWT::generate', 'private.pem tidak ditemukan di ' . $private_key_path);
             throw new Exception('Private key not found');
         }
-        $private_key = openssl_pkey_get_private(file_get_contents($private_key_path));
+        $raw_key = file_get_contents($private_key_path);
+        if ($raw_key === false) {
+            function_exists('gudeg_log') && gudeg_log('CRITICAL', 'JWT::generate', 'gagal baca private.pem — cek permission file');
+            throw new Exception('Cannot read private key');
+        }
+        $private_key = openssl_pkey_get_private($raw_key);
         if (!$private_key) {
+            function_exists('gudeg_log') && gudeg_log('CRITICAL', 'JWT::generate', 'private.pem ada tapi tidak valid atau corrupt');
             throw new Exception('Invalid private key');
         }
 
@@ -37,10 +44,17 @@ class JWT {
     public static function verify(string $token) {
         $public_key_path = __DIR__ . '/../keys/public.pem';
         if (!file_exists($public_key_path)) {
+            function_exists('gudeg_log') && gudeg_log('CRITICAL', 'JWT::verify', 'public.pem tidak ditemukan di ' . $public_key_path);
             throw new Exception('Public key not found');
         }
-        $public_key = openssl_pkey_get_public(file_get_contents($public_key_path));
+        $raw_key = file_get_contents($public_key_path);
+        if ($raw_key === false) {
+            function_exists('gudeg_log') && gudeg_log('CRITICAL', 'JWT::verify', 'gagal baca public.pem — cek permission file');
+            throw new Exception('Cannot read public key');
+        }
+        $public_key = openssl_pkey_get_public($raw_key);
         if (!$public_key) {
+            function_exists('gudeg_log') && gudeg_log('CRITICAL', 'JWT::verify', 'public.pem ada tapi tidak valid atau corrupt');
             throw new Exception('Invalid public key');
         }
 
