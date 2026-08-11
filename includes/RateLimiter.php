@@ -1,12 +1,15 @@
 <?php
 /**
- * RateLimiter.php — File-based rate limiter untuk login.
+ * RateLimiter.php — SQLite-based rate limiter untuk login.
  *
- * Menggantikan session-based throttle di functions.php yang bisa di-bypass
- * dengan ganti session ID. File-based persist lintas session dan lintas tab.
+ * Sebelumnya file-based (/tmp/rl_*.json) yang volatile di InfinityFree —
+ * bisa dihapus OS kapan saja, counter reset sendiri, celah brute force terbuka.
  *
- * File counter disimpan di /tmp/rl_{hash}.json.
- * InfinityFree mengizinkan tulis ke /tmp.
+ * Sekarang pakai LocalCache SQLite (gudeg_cache.sqlite) yang lebih persist.
+ * Fallback ke file /tmp kalau SQLite error — supaya rate limiter tetap jalan.
+ *
+ * Public API tidak berubah: throttled(), fail(), reset(), secondsLeft()
+ * sehingga login.php dan verify.php tidak perlu disentuh.
  *
  * Batas: 5 percobaan gagal dalam 10 menit per kombinasi IP+email.
  */
@@ -16,38 +19,99 @@ class RateLimiter
     private const WINDOW       = 600; // 10 menit dalam detik
     private const TMP_DIR      = '/tmp';
 
-    // ── Private helpers ───────────────────────────────────────────────────────
+    // ── Key helper ────────────────────────────────────────────────────────────
 
-    private static function filePath(string $ip, string $email): string
+    private static function keyHash(string $ip, string $email): string
     {
-        $hash = md5(strtolower(trim($ip)) . strtolower(trim($email)));
+        return md5(strtolower(trim($ip)) . strtolower(trim($email)));
+    }
+
+    // ── SQLite via LocalCache ─────────────────────────────────────────────────
+
+    private static function sqliteGet(string $hash): array
+    {
+        if (!class_exists('LocalCache')) return ['count' => 0, 'last_at' => 0];
+        $row = LocalCache::rlGet($hash);
+        return ['count' => (int)$row['count'], 'last_at' => (int)$row['last_at']];
+    }
+
+    private static function sqliteSet(string $hash, int $count, int $last_at): bool
+    {
+        if (!class_exists('LocalCache')) return false;
+        try {
+            LocalCache::rlSet($hash, $count, $last_at);
+            return true;
+        } catch (\Throwable $e) {
+            error_log('RateLimiter: SQLite set error: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    private static function sqliteDelete(string $hash): bool
+    {
+        if (!class_exists('LocalCache')) return false;
+        try {
+            LocalCache::rlDelete($hash);
+            return true;
+        } catch (\Throwable $e) {
+            error_log('RateLimiter: SQLite delete error: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    // ── File fallback (sama seperti implementasi lama) ────────────────────────
+
+    private static function filePath(string $hash): string
+    {
         return self::TMP_DIR . '/rl_' . $hash . '.json';
     }
 
-    private static function load(string $path): array
+    private static function fileGet(string $hash): array
     {
-        if (!file_exists($path)) {
-            return ['count' => 0, 'last' => 0];
-        }
+        $path = self::filePath($hash);
+        if (!file_exists($path)) return ['count' => 0, 'last_at' => 0];
         try {
             $raw  = file_get_contents($path);
             $data = $raw !== false ? json_decode($raw, true) : null;
-            return is_array($data) ? $data : ['count' => 0, 'last' => 0];
+            if (!is_array($data)) return ['count' => 0, 'last_at' => 0];
+            // support format lama (key 'last') maupun baru (key 'last_at')
+            return [
+                'count'   => (int)($data['count'] ?? 0),
+                'last_at' => (int)($data['last_at'] ?? $data['last'] ?? 0),
+            ];
         } catch (\Throwable $e) {
-            return ['count' => 0, 'last' => 0];
+            return ['count' => 0, 'last_at' => 0];
         }
     }
 
-    private static function save(string $path, array $data): void
+    private static function fileSet(string $hash, int $count, int $last_at): void
+    {
+        $path = self::filePath($hash);
+        try {
+            file_put_contents($path, json_encode(['count' => $count, 'last_at' => $last_at]), LOCK_EX);
+        } catch (\Throwable $e) {
+            error_log('RateLimiter: file fallback set error: ' . $e->getMessage());
+        }
+    }
+
+    private static function fileDelete(string $hash): void
+    {
+        $path = self::filePath($hash);
+        if (file_exists($path)) @unlink($path);
+    }
+
+    // ── Baca data dari SQLite, fallback ke file kalau SQLite gagal ────────────
+
+    private static function getData(string $hash): array
     {
         try {
-            $result = file_put_contents($path, json_encode($data), LOCK_EX);
-            if ($result === false) {
-                error_log('RateLimiter::save gagal tulis file: ' . $path);
+            if (class_exists('LocalCache')) {
+                return self::sqliteGet($hash);
             }
         } catch (\Throwable $e) {
-            error_log('RateLimiter::save error: ' . $e->getMessage());
+            error_log('RateLimiter: SQLite read gagal, fallback file: ' . $e->getMessage());
         }
+        return self::fileGet($hash);
     }
 
     // ── Public API ────────────────────────────────────────────────────────────
@@ -58,12 +122,12 @@ class RateLimiter
     public static function throttled(string $ip, string $email): bool
     {
         try {
-            $path = self::filePath($ip, $email);
-            $data = self::load($path);
+            $hash = self::keyHash($ip, $email);
+            $data = self::getData($hash);
 
-            // Window sudah habis → reset otomatis
-            if (time() - $data['last'] > self::WINDOW) {
-                @unlink($path);
+            // Window sudah habis → anggap bersih
+            if ($data['last_at'] > 0 && (time() - $data['last_at']) > self::WINDOW) {
+                self::reset($ip, $email);
                 return false;
             }
 
@@ -80,17 +144,21 @@ class RateLimiter
     public static function fail(string $ip, string $email): void
     {
         try {
-            $path = self::filePath($ip, $email);
-            $data = self::load($path);
+            $hash = self::keyHash($ip, $email);
+            $data = self::getData($hash);
 
             // Reset counter kalau window sudah habis
-            if (time() - $data['last'] > self::WINDOW) {
-                $data = ['count' => 0, 'last' => 0];
+            if ($data['last_at'] > 0 && (time() - $data['last_at']) > self::WINDOW) {
+                $data = ['count' => 0, 'last_at' => 0];
             }
 
-            $data['count'] += 1;
-            $data['last']   = time();
-            self::save($path, $data);
+            $count   = $data['count'] + 1;
+            $last_at = time();
+
+            // Coba SQLite dulu, fallback ke file
+            if (!self::sqliteSet($hash, $count, $last_at)) {
+                self::fileSet($hash, $count, $last_at);
+            }
         } catch (\Throwable $e) {
             error_log('RateLimiter::fail error: ' . $e->getMessage());
         }
@@ -102,10 +170,10 @@ class RateLimiter
     public static function reset(string $ip, string $email): void
     {
         try {
-            $path = self::filePath($ip, $email);
-            if (file_exists($path)) {
-                @unlink($path);
-            }
+            $hash = self::keyHash($ip, $email);
+            // Hapus dari keduanya — bersihkan sisa data lama di file juga
+            self::sqliteDelete($hash);
+            self::fileDelete($hash);
         } catch (\Throwable $e) {
             error_log('RateLimiter::reset error: ' . $e->getMessage());
         }
@@ -117,9 +185,9 @@ class RateLimiter
     public static function secondsLeft(string $ip, string $email): int
     {
         try {
-            $path = self::filePath($ip, $email);
-            $data = self::load($path);
-            $elapsed = time() - $data['last'];
+            $hash    = self::keyHash($ip, $email);
+            $data    = self::getData($hash);
+            $elapsed = time() - $data['last_at'];
             return max(0, self::WINDOW - $elapsed);
         } catch (\Throwable $e) {
             return 0;

@@ -42,6 +42,14 @@ class LocalCache
             )
         ");
 
+        self::$pdo->exec("
+            CREATE TABLE IF NOT EXISTS rate_limit (
+                key_hash  TEXT PRIMARY KEY,
+                count     INTEGER NOT NULL DEFAULT 0,
+                last_at   INTEGER NOT NULL DEFAULT 0
+            )
+        ");
+
         // Cleanup expired token blacklist
         self::$pdo->exec('DELETE FROM token_blacklist WHERE exp < ' . time());
 
@@ -146,6 +154,55 @@ class LocalCache
             $db->exec('DELETE FROM user_cache WHERE cached_at < ' . time());
         } catch (\Throwable $e) {
             error_log('LocalCache::cleanup error: ' . $e->getMessage());
+        }
+    }
+
+    // ── Rate Limit ────────────────────────────────────────────────────────────
+
+    /**
+     * Ambil data rate limit untuk key tertentu (IP+email hash).
+     * Return ['count' => int, 'last_at' => int].
+     */
+    public static function rlGet(string $key_hash): array
+    {
+        try {
+            $stmt = self::pdo()->prepare(
+                'SELECT count, last_at FROM rate_limit WHERE key_hash = ?'
+            );
+            $stmt->execute([$key_hash]);
+            $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+            return $row ?: ['count' => 0, 'last_at' => 0];
+        } catch (\Throwable $e) {
+            error_log('LocalCache::rlGet error: ' . $e->getMessage());
+            return ['count' => 0, 'last_at' => 0];
+        }
+    }
+
+    /**
+     * Simpan data rate limit. Pakai INSERT OR REPLACE agar atomic.
+     */
+    public static function rlSet(string $key_hash, int $count, int $last_at): void
+    {
+        try {
+            $stmt = self::pdo()->prepare(
+                'INSERT OR REPLACE INTO rate_limit (key_hash, count, last_at) VALUES (?, ?, ?)'
+            );
+            $stmt->execute([$key_hash, $count, $last_at]);
+        } catch (\Throwable $e) {
+            error_log('LocalCache::rlSet error: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Hapus entry rate limit (dipanggil saat login berhasil atau window habis).
+     */
+    public static function rlDelete(string $key_hash): void
+    {
+        try {
+            $stmt = self::pdo()->prepare('DELETE FROM rate_limit WHERE key_hash = ?');
+            $stmt->execute([$key_hash]);
+        } catch (\Throwable $e) {
+            error_log('LocalCache::rlDelete error: ' . $e->getMessage());
         }
     }
 }
