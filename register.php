@@ -29,26 +29,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($password !== $confirm) {
         $error = 'Konfirmasi password tidak cocok.';
     } else {
-        $sb    = getSupabase();
-        $check = $sb->selectOne('users', ['email' => $email], 'id');
-        if ($check) {
-            $error = 'Email sudah terdaftar.';
+        // Proteksi double-submit: tolak kalau request register lain sedang diproses
+        // dalam session yang sama (klik dua kali, submit ganda).
+        if (!empty($_SESSION['register_lock'])) {
+            $error = 'Permintaan sedang diproses, mohon tunggu.';
         } else {
-            $hash = password_hash($password, PASSWORD_BCRYPT);
-            $now  = date('Y-m-d H:i:s');
-            $inserted = $sb->insert('users', [
-                'name'                 => $name,
-                'email'                => $email,
-                'password'             => $hash,
-                'role'                 => 'guest',
-                'is_active'            => false,
-                'password_changed_at'  => $now,
-                'created_at'           => $now,
-                'updated_at'           => $now,
-            ]);
-            $new_id = $inserted['id'] ?? null;
-            log_activity($new_id, $name, $email, 'Register Akun Baru (Guest)');
-            $success = true;
+            $_SESSION['register_lock'] = true;
+            try {
+                $sb    = getSupabase();
+                $check = $sb->selectOne('users', ['email' => $email], 'id');
+                if ($check) {
+                    $error = 'Email sudah terdaftar.';
+                } else {
+                    $hash = password_hash($password, PASSWORD_BCRYPT);
+                    $now  = date('Y-m-d H:i:s');
+                    $inserted = $sb->insert('users', [
+                        'name'                 => $name,
+                        'email'                => $email,
+                        'password'             => $hash,
+                        'role'                 => 'guest',
+                        'is_active'            => false,
+                        'password_changed_at'  => $now,
+                        'created_at'           => $now,
+                        'updated_at'           => $now,
+                    ]);
+                    $new_id = $inserted['id'] ?? null;
+                    log_activity($new_id, $name, $email, 'Register Akun Baru (Guest)');
+                    $success = true;
+                }
+            } catch (\Throwable $e) {
+                $error = 'Terjadi kesalahan, silakan coba lagi.';
+                function_exists('gudeg_log') ? gudeg_log('ERROR', 'register.php', $e->getMessage()) : error_log('register.php: ' . $e->getMessage());
+            } finally {
+                // Selalu clear lock setelah selesai — sukses maupun gagal
+                unset($_SESSION['register_lock']);
+            }
         }
     }
 }
