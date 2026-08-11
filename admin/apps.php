@@ -100,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $apps = $sb->select('sso_applications', [], '*', ['order' => 'id.desc']);
 
-layout_head('Kelola Aplikasi', 'admin-apps');
+layout_head('Admin · Aplikasi', 'admin-apps');
 ?>
 <style>
 .form-inline { display: inline; }

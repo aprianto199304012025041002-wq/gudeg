@@ -58,17 +58,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Daftar — GUDEG JOGJA</title>
+<title>GUDEG - Register</title>
 <meta name="description" content="Daftar akun GUDEG — sistem SSO terpadu Balai Monitor Spektrum Frekuensi Radio Yogyakarta.">
 <meta name="robots" content="index, follow">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Daftar — GUDEG JOGJA">
+<meta property="og:title" content="GUDEG - Register">
 <meta property="og:description" content="Daftar akun GUDEG — sistem SSO terpadu Balai Monitor Spektrum Frekuensi Radio Yogyakarta.">
 <meta property="og:url" content="https://gudeg.xo.je/register.php">
 <meta property="og:site_name" content="GUDEG JOGJA">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Daftar — GUDEG JOGJA">
+<meta name="twitter:title" content="GUDEG - Register">
 <meta name="twitter:description" content="Daftar akun GUDEG — sistem SSO terpadu Balai Monitor Spektrum Frekuensi Radio Yogyakarta.">
+<link rel="icon" type="image/png" href="/assets/favicon.png">
+<link rel="apple-touch-icon" href="/assets/favicon.png">
 <link rel="stylesheet" href="/assets/tabler/tabler-icons.min.css">
 <script>
 (function(){

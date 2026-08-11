@@ -56,7 +56,7 @@ try {
     // Apps tidak bisa ditampilkan tanpa Supabase — biarkan $apps = []
 }
 
-layout_head('Beranda', 'dashboard');
+layout_head('Dashboard', 'dashboard');
 ?>
 <style>
 .banner-warn {

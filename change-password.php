@@ -91,7 +91,7 @@ $active_sessions = $sb->select('sessions', ['user_id' => $user['id']], 'id,ip_ad
     'order' => 'last_activity.desc',
 ]);
 
-layout_head('Pengaturan', 'password');
+layout_head('Setting', 'password');
 ?>
 <style>
 .form-group { margin-bottom: 1rem; }

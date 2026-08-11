@@ -45,7 +45,7 @@ function layout_head(string $title, string $active_nav = '') {
 <!-- Open Graph -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="GUDEG JOGJA">
-<meta property="og:title" content="<?= htmlspecialchars($title) ?> — GUDEG JOGJA">
+<meta property="og:title" content="GUDEG - <?= htmlspecialchars($title) ?>">
 <meta property="og:description" content="Sistem SSO terpadu Balai Monitor Spektrum Frekuensi Radio Kelas I Yogyakarta.">
 <meta property="og:url" content="https://gudeg.xo.je/">
 <meta property="og:image" content="https://gudeg.xo.je/assets/og-image.png">
@@ -55,7 +55,7 @@ function layout_head(string $title, string $active_nav = '') {
 <link rel="icon" type="image/png" href="/assets/favicon.png">
 <link rel="apple-touch-icon" href="/assets/favicon.png">
 
-<title><?= htmlspecialchars($title) ?> — GUDEG JOGJA</title>
+<title>GUDEG - <?= htmlspecialchars($title) ?></title>
 <link rel="stylesheet" href="/assets/tabler/tabler-icons.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:opsz,wght@9..40,300;400;500;600&display=swap" rel="stylesheet">
 <style>

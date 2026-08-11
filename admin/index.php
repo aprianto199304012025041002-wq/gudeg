@@ -81,7 +81,7 @@ foreach ($sb->select('user_applications') as $r) {
     $ua_map[$r['user_id']][] = $r['application_id'];
 }
 
-layout_head('Kelola User', 'admin-users');
+layout_head('Admin · User', 'admin-users');
 ?>
 <style>
 .page-header { margin-bottom: 1rem; }

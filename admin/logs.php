@@ -73,7 +73,7 @@ $filter_qs = http_build_query(array_filter([
     'date'   => $filter_date,
 ]));
 
-layout_head('Log Aktivitas', 'admin-logs');
+layout_head('Admin · Log', 'admin-logs');
 ?>
 <style>
 *, *::before, *::after { font-weight: inherit; }
