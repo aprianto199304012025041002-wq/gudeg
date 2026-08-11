@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             setcookie('gudeg_remember_email', '', time() - 3600, '/', '', false, true);
                         }
 
-                        try { $sb->update('users', ['id' => $user['id']], ['last_login_at' => date('Y-m-d H:i:s')]); } catch (\Throwable $e) { error_log('update last_login_at gagal: ' . $e->getMessage()); }
+                        try { $sb->update('users', ['id' => $user['id']], ['last_login_at' => date('Y-m-d H:i:s')]); } catch (\Throwable $e) { function_exists('gudeg_log') ? gudeg_log('WARNING', 'login.php::update_last_login', $e->getMessage()) : error_log('update last_login_at gagal: ' . $e->getMessage()); }
 
                         $current_ip = get_ip();
                         $is_new = is_new_ip($user['id'], $current_ip);
@@ -103,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 $sb->insert('sessions', $session_data);
                             }
                         } catch (\Throwable $e) {
-                            error_log('upsert session gagal (login tetap lanjut): ' . $e->getMessage());
+                            function_exists('gudeg_log') ? gudeg_log('WARNING', 'login.php::upsert_session', 'login tetap lanjut: ' . $e->getMessage()) : error_log('upsert session gagal: ' . $e->getMessage());
                         }
 
                         // Cleanup session expired milik user ini
@@ -134,7 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 }
                             }
                         } catch (\Throwable $e) {
-                            error_log('cleanup session expired gagal: ' . $e->getMessage());
+                            function_exists('gudeg_log') ? gudeg_log('WARNING', 'login.php::cleanup_session', $e->getMessage()) : error_log('cleanup session expired gagal: ' . $e->getMessage());
                         }
 
                         $dest = (parse_url($redirect, PHP_URL_HOST) === null && str_starts_with($redirect, '/'))
@@ -167,7 +167,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $error = 'Email atau password salah.';
                 }
             } catch (\Throwable $e) {
-                error_log('login.php: Supabase error: ' . $e->getMessage());
+                function_exists('gudeg_log') ? gudeg_log('ERROR', 'login.php', 'Supabase error: ' . $e->getMessage()) : error_log('login.php Supabase error: ' . $e->getMessage());
                 $error = 'Layanan sedang gangguan, coba beberapa saat lagi.';
             }
         }

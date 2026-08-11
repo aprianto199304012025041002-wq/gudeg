@@ -44,7 +44,7 @@ try {
 
 } catch (\Throwable $e) {
     // Supabase down — graceful degrade
-    error_log('dashboard.php: Supabase error: ' . $e->getMessage());
+    function_exists('gudeg_log') ? gudeg_log('ERROR', 'dashboard.php', 'Supabase error: ' . $e->getMessage()) : error_log('dashboard.php Supabase error: ' . $e->getMessage());
     $supabase_down = true;
 
     // Coba ambil data user dari LocalCache

@@ -83,7 +83,7 @@ class LocalCache
             $stmt->execute([$jti, $exp]);
             return $stmt->rowCount() === 1; // 1 = baru diinsert, 0 = sudah ada
         } catch (\Throwable $e) {
-            error_log('LocalCache::tokenUse error: ' . $e->getMessage());
+            function_exists('gudeg_log') ? gudeg_log('ERROR', 'LocalCache::tokenUse', $e->getMessage()) : error_log('LocalCache::tokenUse: ' . $e->getMessage());
             // Gagal insert = tolak token (fail-closed)
             return false;
         }
@@ -99,7 +99,7 @@ class LocalCache
             $stmt->execute([$jti, time()]);
             return $stmt->fetchColumn() !== false;
         } catch (\Throwable $e) {
-            error_log('LocalCache::tokenUsed error: ' . $e->getMessage());
+            function_exists('gudeg_log') ? gudeg_log('ERROR', 'LocalCache::tokenUsed', $e->getMessage()) : error_log('LocalCache::tokenUsed: ' . $e->getMessage());
             return false;
         }
     }
@@ -119,7 +119,7 @@ class LocalCache
             ');
             $stmt->execute([$user_id, json_encode($data), time() + $ttl]);
         } catch (\Throwable $e) {
-            error_log('LocalCache::setUser error: ' . $e->getMessage());
+            function_exists('gudeg_log') ? gudeg_log('ERROR', 'LocalCache::setUser', $e->getMessage()) : error_log('LocalCache::setUser: ' . $e->getMessage());
         }
     }
 
@@ -137,7 +137,7 @@ class LocalCache
             if ($row === false) return null;
             return json_decode($row, true) ?: null;
         } catch (\Throwable $e) {
-            error_log('LocalCache::getUser error: ' . $e->getMessage());
+            function_exists('gudeg_log') ? gudeg_log('ERROR', 'LocalCache::getUser', $e->getMessage()) : error_log('LocalCache::getUser: ' . $e->getMessage());
             return null;
         }
     }
@@ -151,7 +151,7 @@ class LocalCache
             $stmt = self::pdo()->prepare('DELETE FROM user_cache WHERE user_id = ?');
             $stmt->execute([$user_id]);
         } catch (\Throwable $e) {
-            error_log('LocalCache::clearUser error: ' . $e->getMessage());
+            function_exists('gudeg_log') ? gudeg_log('ERROR', 'LocalCache::clearUser', $e->getMessage()) : error_log('LocalCache::clearUser: ' . $e->getMessage());
         }
     }
 
@@ -165,7 +165,7 @@ class LocalCache
             $db->exec('DELETE FROM token_blacklist WHERE exp < ' . time());
             $db->exec('DELETE FROM user_cache WHERE cached_at < ' . time());
         } catch (\Throwable $e) {
-            error_log('LocalCache::cleanup error: ' . $e->getMessage());
+            function_exists('gudeg_log') ? gudeg_log('ERROR', 'LocalCache::cleanup', $e->getMessage()) : error_log('LocalCache::cleanup: ' . $e->getMessage());
         }
     }
 
@@ -203,7 +203,7 @@ class LocalCache
             );
             $stmt->execute([$tbl, json_encode($payload), time()]);
         } catch (\Throwable $e) {
-            error_log('LocalCache::logQueue error: ' . $e->getMessage());
+            function_exists('gudeg_log') ? gudeg_log('ERROR', 'LocalCache::logQueue', $e->getMessage()) : error_log('LocalCache::logQueue: ' . $e->getMessage());
         }
     }
 
@@ -244,7 +244,7 @@ class LocalCache
                     $db->prepare('DELETE FROM pending_logs WHERE id = ?')->execute([$row['id']]);
                 } catch (\Throwable $e) {
                     // Masih gagal — biarkan di antrian, coba di request berikutnya
-                    error_log('LocalCache::flushLogs masih gagal kirim log id=' . $row['id'] . ': ' . $e->getMessage());
+                    function_exists('gudeg_log') ? gudeg_log('WARNING', 'LocalCache::flushLogs', 'masih gagal kirim log id=' . $row['id'] . ': ' . $e->getMessage()) : error_log('LocalCache::flushLogs retry gagal id=' . $row['id'] . ': ' . $e->getMessage());
                     break; // Supabase masih down, hentikan flush — jangan loop sia-sia
                 }
             }
@@ -253,7 +253,7 @@ class LocalCache
             $db->exec('DELETE FROM pending_logs WHERE queued_at < ' . (time() - 86400));
 
         } catch (\Throwable $e) {
-            error_log('LocalCache::flushLogs error: ' . $e->getMessage());
+            function_exists('gudeg_log') ? gudeg_log('ERROR', 'LocalCache::flushLogs', $e->getMessage()) : error_log('LocalCache::flushLogs: ' . $e->getMessage());
         }
     }
 
@@ -273,7 +273,7 @@ class LocalCache
             $row = $stmt->fetch(\PDO::FETCH_ASSOC);
             return $row ?: ['count' => 0, 'last_at' => 0];
         } catch (\Throwable $e) {
-            error_log('LocalCache::rlGet error: ' . $e->getMessage());
+            function_exists('gudeg_log') ? gudeg_log('ERROR', 'LocalCache::rlGet', $e->getMessage()) : error_log('LocalCache::rlGet: ' . $e->getMessage());
             return ['count' => 0, 'last_at' => 0];
         }
     }
@@ -289,7 +289,7 @@ class LocalCache
             );
             $stmt->execute([$key_hash, $count, $last_at]);
         } catch (\Throwable $e) {
-            error_log('LocalCache::rlSet error: ' . $e->getMessage());
+            function_exists('gudeg_log') ? gudeg_log('ERROR', 'LocalCache::rlSet', $e->getMessage()) : error_log('LocalCache::rlSet: ' . $e->getMessage());
         }
     }
 
@@ -302,7 +302,7 @@ class LocalCache
             $stmt = self::pdo()->prepare('DELETE FROM rate_limit WHERE key_hash = ?');
             $stmt->execute([$key_hash]);
         } catch (\Throwable $e) {
-            error_log('LocalCache::rlDelete error: ' . $e->getMessage());
+            function_exists('gudeg_log') ? gudeg_log('ERROR', 'LocalCache::rlDelete', $e->getMessage()) : error_log('LocalCache::rlDelete: ' . $e->getMessage());
         }
     }
 }

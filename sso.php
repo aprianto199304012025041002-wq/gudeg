@@ -111,7 +111,7 @@ try {
     }
 } catch (\Throwable $e) {
     // Jika cek debounce gagal, tetap log agar tidak ada aktivitas yang terlewat
-    error_log('SSO debounce check gagal: ' . $e->getMessage());
+    function_exists('gudeg_log') ? gudeg_log('WARNING', 'sso.php::debounce', $e->getMessage()) : error_log('SSO debounce check gagal: ' . $e->getMessage());
     log_activity($user['id'], $user['name'], $user['email'], $activity_str);
 }
 

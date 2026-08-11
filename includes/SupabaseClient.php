@@ -212,11 +212,11 @@ class SupabaseClient
         curl_close($ch);
 
         if ($body === false) {
-            error_log("Supabase cURL error (selectRaw $table): $curlError");
+            function_exists('gudeg_log') ? gudeg_log('ERROR', "SupabaseClient::selectRaw", "cURL error ($table): $curlError") : error_log("Supabase cURL error (selectRaw $table): $curlError");
             throw new SupabaseException("Gagal menghubungi Supabase: $curlError");
         }
         if ($httpCode >= 400) {
-            error_log("Supabase error $httpCode (selectRaw $table): $body");
+            function_exists('gudeg_log') ? gudeg_log('ERROR', "SupabaseClient::selectRaw", "HTTP $httpCode ($table): $body") : error_log("Supabase error $httpCode (selectRaw $table): $body");
             throw new SupabaseException("Supabase menolak request ($httpCode): $body");
         }
 
@@ -266,12 +266,12 @@ class SupabaseClient
         curl_close($ch);
 
         if ($response === false) {
-            error_log("Supabase cURL error ($method $path): $curlError");
+            function_exists('gudeg_log') ? gudeg_log('ERROR', "SupabaseClient::request", "cURL error ($method $path): $curlError") : error_log("Supabase cURL error ($method $path): $curlError");
             throw new SupabaseException("Gagal menghubungi Supabase: $curlError");
         }
 
         if ($httpCode >= 400) {
-            error_log("Supabase error $httpCode ($method $path): $response");
+            function_exists('gudeg_log') ? gudeg_log('ERROR', "SupabaseClient::request", "HTTP $httpCode ($method $path): $response") : error_log("Supabase error $httpCode ($method $path): $response");
             throw new SupabaseException("Supabase menolak request ($httpCode): $response");
         }
 
@@ -281,7 +281,7 @@ class SupabaseClient
 
         $decoded = json_decode($response, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
-            error_log("Supabase JSON decode error ($method $path): " . json_last_error_msg());
+            function_exists('gudeg_log') ? gudeg_log('ERROR', "SupabaseClient::request", "JSON decode error ($method $path): " . json_last_error_msg()) : error_log("Supabase JSON decode error ($method $path): " . json_last_error_msg());
             throw new SupabaseException('Gagal membaca respons Supabase.');
         }
 
@@ -299,7 +299,7 @@ function getSupabase(): SupabaseClient
     static $client = null;
     if ($client === null) {
         if (!defined('SUPABASE_URL') || !defined('SUPABASE_SERVICE_KEY') || !SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
-            error_log('Supabase config missing — cek SUPABASE_URL & SUPABASE_SERVICE_KEY di config/.env');
+            function_exists('gudeg_log') ? gudeg_log('CRITICAL', 'getSupabase', 'config missing — cek SUPABASE_URL & SUPABASE_SERVICE_KEY di config/.env') : error_log('Supabase config missing');
             // Lempar exception agar caller bisa catch dan tetap render halaman HTML.
             // JANGAN die() atau http_response_code(500) di sini — kalau dipanggil dari
             // login.php, WebView akan mendapat ERR_HTTP_RESPONSE_CODE_FAILURE.

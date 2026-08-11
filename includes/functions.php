@@ -21,6 +21,25 @@ date_default_timezone_set('Asia/Jakarta');
 
 require_once __DIR__ . '/SupabaseClient.php';
 
+// ── Structured Logger ────────────────────────────────────────────────────────
+/**
+ * Tulis log terstruktur (JSON) ke PHP error log.
+ * Format: {"ts":"...","level":"...","ctx":"...","msg":"..."}
+ *
+ * @param string $level  ERROR | WARNING | CRITICAL | INFO
+ * @param string $ctx    Konteks: nama fungsi/file (misal 'log_activity', 'RateLimiter::fail')
+ * @param string $msg    Pesan error/info
+ */
+function gudeg_log(string $level, string $ctx, string $msg): void
+{
+    error_log(json_encode([
+        'ts'    => date('Y-m-d H:i:s'),
+        'level' => $level,
+        'ctx'   => $ctx,
+        'msg'   => $msg,
+    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+}
+
 // ── Security Headers ─────────────────────────────────────────────────────────
 if (!headers_sent()) {
     header("X-Content-Type-Options: nosniff");
@@ -116,7 +135,7 @@ function require_admin() {
 
     } catch (\Throwable $e) {
         // Supabase error — fail-safe: percayai session, jangan block user
-        error_log('require_admin: gagal re-validasi role dari DB: ' . $e->getMessage());
+        gudeg_log('WARNING', 'require_admin', 'gagal re-validasi role dari DB: ' . $e->getMessage());
     }
 
     if ($_SESSION['role'] !== 'admin') {
@@ -164,7 +183,7 @@ function log_activity($user_id, $name, $email, $activity) {
     try {
         getSupabase()->insert('user_logs', $payload, 3); // non-kritis, timeout pendek
     } catch (\Throwable $e) {
-        error_log('log_activity gagal, antri ke SQLite: ' . $e->getMessage());
+        gudeg_log('WARNING', 'log_activity', 'Supabase gagal, antri ke SQLite: ' . $e->getMessage());
         // Supabase gagal — antri ke LocalCache, kirim ulang di request berikutnya
         if (class_exists('LocalCache')) {
             LocalCache::logQueue('user_logs', $payload);
@@ -188,7 +207,7 @@ function log_admin_action($admin_id, $admin_name, $action, $target = '-') {
     try {
         getSupabase()->insert('admin_logs', $payload, 3); // non-kritis, timeout pendek
     } catch (\Throwable $e) {
-        error_log('log_admin_action gagal, antri ke SQLite: ' . $e->getMessage());
+        gudeg_log('WARNING', 'log_admin_action', 'Supabase gagal, antri ke SQLite: ' . $e->getMessage());
         // Supabase gagal — antri ke LocalCache, kirim ulang di request berikutnya
         if (class_exists('LocalCache')) {
             LocalCache::logQueue('admin_logs', $payload);
@@ -435,7 +454,7 @@ function token_use(string $jti, int $exp): bool {
 
     } catch (\Throwable $e) {
         // Supabase error — fallback ke LocalCache (fail-closed)
-        error_log('token_use: Supabase error, fallback ke LocalCache: ' . $e->getMessage());
+        gudeg_log('WARNING', 'token_use', 'Supabase error, fallback ke LocalCache: ' . $e->getMessage());
 
         if (class_exists('LocalCache')) {
             // LocalCache::tokenUse atomic: return false jika JTI sudah ada
@@ -443,7 +462,7 @@ function token_use(string $jti, int $exp): bool {
         }
 
         // Kedua sumber gagal — tolak token (fail-closed, bukan fail-open)
-        error_log('token_use: LocalCache tidak tersedia, token ditolak sebagai precaution.');
+        gudeg_log('WARNING', 'token_use', 'LocalCache tidak tersedia, token ditolak sebagai precaution.');
         return false;
     }
 }

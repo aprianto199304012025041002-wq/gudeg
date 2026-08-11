@@ -42,7 +42,7 @@ class RateLimiter
             LocalCache::rlSet($hash, $count, $last_at);
             return true;
         } catch (\Throwable $e) {
-            error_log('RateLimiter: SQLite set error: ' . $e->getMessage());
+            function_exists('gudeg_log') ? gudeg_log('ERROR', 'RateLimiter::sqliteSet', $e->getMessage()) : error_log('RateLimiter SQLite set: ' . $e->getMessage());
             return false;
         }
     }
@@ -54,7 +54,7 @@ class RateLimiter
             LocalCache::rlDelete($hash);
             return true;
         } catch (\Throwable $e) {
-            error_log('RateLimiter: SQLite delete error: ' . $e->getMessage());
+            function_exists('gudeg_log') ? gudeg_log('ERROR', 'RateLimiter::sqliteDelete', $e->getMessage()) : error_log('RateLimiter SQLite delete: ' . $e->getMessage());
             return false;
         }
     }
@@ -90,7 +90,7 @@ class RateLimiter
         try {
             file_put_contents($path, json_encode(['count' => $count, 'last_at' => $last_at]), LOCK_EX);
         } catch (\Throwable $e) {
-            error_log('RateLimiter: file fallback set error: ' . $e->getMessage());
+            function_exists('gudeg_log') ? gudeg_log('WARNING', 'RateLimiter::fileSet', 'file fallback set error: ' . $e->getMessage()) : error_log('RateLimiter file fallback set: ' . $e->getMessage());
         }
     }
 
@@ -109,7 +109,7 @@ class RateLimiter
                 return self::sqliteGet($hash);
             }
         } catch (\Throwable $e) {
-            error_log('RateLimiter: SQLite read gagal, fallback file: ' . $e->getMessage());
+            function_exists('gudeg_log') ? gudeg_log('WARNING', 'RateLimiter::getData', 'SQLite read gagal, fallback file: ' . $e->getMessage()) : error_log('RateLimiter SQLite read gagal: ' . $e->getMessage());
         }
         return self::fileGet($hash);
     }
@@ -133,7 +133,7 @@ class RateLimiter
 
             return $data['count'] >= self::MAX_ATTEMPTS;
         } catch (\Throwable $e) {
-            error_log('RateLimiter::throttled error: ' . $e->getMessage());
+            function_exists('gudeg_log') ? gudeg_log('ERROR', 'RateLimiter::throttled', $e->getMessage()) : error_log('RateLimiter::throttled: ' . $e->getMessage());
             return false; // jangan block kalau error
         }
     }
@@ -160,7 +160,7 @@ class RateLimiter
                 self::fileSet($hash, $count, $last_at);
             }
         } catch (\Throwable $e) {
-            error_log('RateLimiter::fail error: ' . $e->getMessage());
+            function_exists('gudeg_log') ? gudeg_log('ERROR', 'RateLimiter::fail', $e->getMessage()) : error_log('RateLimiter::fail: ' . $e->getMessage());
         }
     }
 
@@ -175,7 +175,7 @@ class RateLimiter
             self::sqliteDelete($hash);
             self::fileDelete($hash);
         } catch (\Throwable $e) {
-            error_log('RateLimiter::reset error: ' . $e->getMessage());
+            function_exists('gudeg_log') ? gudeg_log('ERROR', 'RateLimiter::reset', $e->getMessage()) : error_log('RateLimiter::reset: ' . $e->getMessage());
         }
     }
 

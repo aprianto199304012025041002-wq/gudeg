@@ -39,14 +39,14 @@ try {
     try {
         getSupabase()->delete('sessions', ['id' => $sess_id]);
     } catch (\Throwable $e) {
-        error_log('api-logout: gagal hapus session dari DB: ' . $e->getMessage());
+        function_exists('gudeg_log') ? gudeg_log('WARNING', 'api-logout.php', 'gagal hapus session dari DB: ' . $e->getMessage()) : error_log('api-logout gagal hapus session: ' . $e->getMessage());
         // Lanjutkan destroy lokal meski DB gagal
     }
 
     session_unset();
     session_destroy();
 } catch (\Throwable $e) {
-    error_log('api-logout: unexpected error: ' . $e->getMessage());
+    function_exists('gudeg_log') ? gudeg_log('ERROR', 'api-logout.php', 'unexpected error: ' . $e->getMessage()) : error_log('api-logout unexpected error: ' . $e->getMessage());
 }
 
 http_response_code(200);
