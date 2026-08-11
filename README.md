@@ -10,11 +10,13 @@
 - **Manajemen User** — Registrasi, login, ganti password, session timeout otomatis, dan deteksi login dari IP baru.
 - **Role-Based Access** — Tiga role: `admin`, `user`, dan `guest`, masing-masing dengan hak akses berbeda.
 - **Panel Admin** — Kelola user (aktifkan/nonaktifkan, ubah role, reset password) dan kelola aplikasi SSO.
-- **Audit Log** — Setiap aktivitas login, SSO, dan aksi admin dicatat lengkap beserta IP. Auto-cleanup log > 90 hari.
-- **Keamanan** — CSRF protection, rate limiting login & verify, session regeneration, CORS dinamis, sanitasi input, token replay blacklist.
-- **Fallback Offline** — LocalCache SQLite di `/tmp` dipakai saat Supabase down: token blacklist tetap aktif (fail-closed), user yang sudah login tetap bisa jalan.
+- **Audit Log** — Setiap aktivitas login, SSO, dan aksi admin dicatat lengkap beserta IP. Auto-cleanup log > 90 hari. Log yang gagal dikirim ke Supabase di-queue ke SQLite dan dikirim ulang otomatis di request berikutnya.
+- **Keamanan** — CSRF protection, rate limiting login & verify, session regeneration, CORS dinamis, sanitasi input, token replay blacklist, re-validasi role dari DB di setiap request admin.
+- **Fallback Offline** — LocalCache SQLite di `/tmp` dipakai saat Supabase down: token blacklist tetap aktif (fail-closed), user yang sudah login tetap bisa jalan, rate limit tetap berjalan.
+- **Rate Limiter SQLite** — RateLimiter disimpan di SQLite (lebih persist dari file `/tmp`), dengan fallback ke file kalau SQLite error.
+- **Structured Logging** — Semua error dicatat via `gudeg_log()` dalam format JSON `{ts, level, ctx, msg}` untuk kemudahan trace.
 - **OpenID Connect** — Discovery endpoint (`/.well-known/openid-configuration`) dan JWKS endpoint (`/jwks.json`).
-- **Health Check** — Endpoint `/healthcheck.php` dipanggil otomatis setelah deploy.
+- **Health Check** — Endpoint `/healthcheck.php` dipanggil otomatis setelah deploy. Mencakup cek Supabase, RSA keys, SQLite, dan pending log queue.
 - **Custom Error Pages** — Halaman error 403, 404, dan 500 yang proper.
 - **APK Support** — Deteksi `GudegJogjaApp` user-agent untuk sesi 30 hari di aplikasi mobile.
 
@@ -36,13 +38,13 @@ gudeg/
 │   └── logs.php                    # Panel admin — audit log (user & admin)
 ├── assets/                         # CSS, JS, font lokal (self-hosted, tidak ada CDN)
 ├── config/
-│   └── .gitkeep                    # db.php & .env taruh di sini (JANGAN di-commit)
+│   └── .gitkeep                    # .env taruh di sini (JANGAN di-commit)
 ├── includes/
-│   ├── LocalCache.php              # SQLite fallback — token blacklist & user cache saat Supabase down
-│   ├── RateLimiter.php             # File-based rate limiter — 5 gagal / 10 menit per IP+email
-│   ├── SupabaseClient.php          # Client REST API ke Supabase (PostgREST)
-│   ├── functions.php               # Helper: session, auth, log, sanitasi, CSRF, token blacklist
-│   ├── jwt.php                     # Generate & verify JWT RSA (RS256)
+│   ├── LocalCache.php              # SQLite fallback — token blacklist, user cache, rate limit, pending log queue
+│   ├── RateLimiter.php             # Rate limiter — 5 gagal / 10 menit per IP+email (SQLite, fallback file)
+│   ├── SupabaseClient.php          # Client REST API ke Supabase (PostgREST), timeout per jenis operasi
+│   ├── functions.php               # Helper: env loader, session, auth, log, sanitasi, CSRF, token blacklist, gudeg_log()
+│   ├── jwt.php                     # Generate & verify JWT RSA (RS256), dengan error handling & CRITICAL log
 │   └── layout.php                  # Template HTML (head, nav, footer)
 ├── keys/
 │   └── .gitkeep                    # private.pem & public.pem taruh di sini (JANGAN di-commit)
@@ -52,15 +54,15 @@ gudeg/
 ├── 500.php                         # Error page 500 Internal Server Error
 ├── ROTATE_KEY_GUDEG.md             # Panduan rotate RSA key
 ├── api-logout.php                  # Endpoint logout via API (untuk APK Android)
-├── change-password.php             # Halaman ganti password
+├── change-password.php             # Halaman ganti password & kelola sesi aktif
 ├── dashboard.php                   # Halaman utama setelah login (daftar aplikasi)
-├── healthcheck.php                 # Cek status Supabase & konfigurasi setelah deploy
+├── healthcheck.php                 # Cek status Supabase, RSA keys, SQLite, dan pending logs
 ├── index.php                       # Entry point — redirect ke login/dashboard
-├── jwks.json                       # JWKS endpoint — expose RSA public key (dieksekusi sebagai PHP)
+├── jwks.json                       # JWKS endpoint — expose RSA public key
 ├── login.php                       # Halaman login
 ├── logout.php                      # Proses logout & hapus session
-├── register.php                    # Halaman registrasi akun baru
-├── robots.txt                      # Instruksi crawler (block semua halaman sensitif)
+├── register.php                    # Halaman registrasi akun baru (proteksi double-submit)
+├── robots.txt                      # Instruksi crawler (block semua halaman & file sensitif)
 ├── sso.php                         # Endpoint SSO — generate JWT & redirect ke aplikasi klien
 ├── verify.php                      # Endpoint verifikasi token untuk aplikasi klien
 └── version.json                    # Info versi APK (nama, URL download, catatan)
@@ -92,9 +94,10 @@ Buat `config/.env` (file ini **JANGAN** di-commit):
 SUPABASE_URL=https://xxxx.supabase.co
 SUPABASE_SERVICE_KEY=eyJ...
 HEALTH_KEY=random_string_panjang_untuk_proteksi_healthcheck
+CACHE_PATH=/tmp/gudeg_cache.sqlite   # opsional, default /tmp/gudeg_cache.sqlite
 ```
 
-> `config/db.php` akan membaca `.env` ini secara otomatis.
+> Parsing `.env` dilakukan langsung di `includes/functions.php` — tidak ada dependency ke file lain.
 
 ### 4. Generate RSA Key
 
@@ -125,9 +128,13 @@ CREATE TABLE users (
 
 -- Tabel sesi aktif
 CREATE TABLE sessions (
-  id         TEXT PRIMARY KEY,  -- session_id PHP
-  user_id    BIGINT REFERENCES users(id),
-  created_at TIMESTAMP
+  id            TEXT PRIMARY KEY,  -- session_id PHP
+  user_id       BIGINT REFERENCES users(id),
+  ip_address    TEXT,
+  user_agent    TEXT,
+  payload       TEXT,
+  last_activity TEXT,
+  created_at    TIMESTAMP
 );
 CREATE INDEX idx_sessions_user_id ON sessions(user_id);
 
@@ -273,7 +280,7 @@ Response gagal:
 }
 ```
 
-> **Rate limit:** verify.php dibatasi 30 request/menit per IP. Counter di-reset setelah request valid.
+> **Rate limit:** `verify.php` dibatasi per IP. Counter hanya naik kalau `client_secret` salah — bukan kalau token expired biasa.
 
 ---
 
@@ -282,8 +289,9 @@ Response gagal:
 | Fitur | Detail |
 |---|---|
 | CSRF Protection | Token CSRF di setiap form POST |
-| Rate Limiting Login | 5 gagal dalam 10 menit per IP+email → lockout (file-based, tidak bisa di-bypass ganti session) |
-| Rate Limiting Verify | 30 request/menit per IP → cegah brute force `client_secret` |
+| Rate Limiting Login | 5 gagal dalam 10 menit per IP+email → lockout (SQLite, fallback file) |
+| Rate Limiting Verify | Counter naik hanya saat credential salah, bukan token expired |
+| Role Re-validasi | `require_admin()` re-query DB setiap request — session stale tidak bisa akses admin |
 | Session Hardening | `httponly`, `strict_mode`, `SameSite=Lax`, regenerasi setelah login |
 | Session Timeout | 30 menit tidak aktif → auto logout (kecuali APK) |
 | CORS Dinamis | Hanya origin yang terdaftar di DB yang diizinkan |
@@ -291,10 +299,12 @@ Response gagal:
 | JWT RS256 | Semua token ditandatangani RSA — tidak bisa dipalsukan tanpa private key |
 | Token Replay Protection | JTI di-blacklist di Supabase + LocalCache SQLite setelah satu kali verify |
 | Fallback Fail-Closed | Kalau Supabase & SQLite dua-duanya error saat cek JTI → token **ditolak** |
-| File Protection | `.htaccess` blokir akses ke `.pem`, `.key`, `db.php`, `.env`, dotfiles |
+| Double-Submit Protection | Register dilindungi session lock — cegah race condition klik dua kali |
+| File Protection | `.htaccess` blokir akses ke `.pem`, `.key`, `.env`, dotfiles |
 | Error Hiding | `display_errors Off` di production |
 | Input Sanitization | Semua input di-trim + batas panjang sebelum masuk DB |
 | Log Auto-Cleanup | Log > 90 hari dihapus otomatis (max sekali per 24 jam) |
+| Structured Logging | `gudeg_log(level, ctx, msg)` output JSON — mudah di-filter dan di-trace |
 
 ---
 
@@ -325,7 +335,7 @@ Setelah deploy, workflow otomatis memanggil:
 GET https://gudeg.xo.je/healthcheck.php?key=<HEALTH_KEY>
 ```
 
-Jika InfinityFree memblokir IP GitHub Actions, status dilaporkan sebagai informasi saja (`continue-on-error: true`) — tidak menggagalkan deploy.
+Response mencakup: status Supabase, env config, RSA keys, `/tmp` writable, SQLite LocalCache, dan pending log queue.
 
 ---
 
