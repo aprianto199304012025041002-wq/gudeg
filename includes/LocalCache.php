@@ -157,6 +157,94 @@ class LocalCache
         }
     }
 
+    // ── Pending Log Queue ─────────────────────────────────────────────────────
+
+    /**
+     * Pastikan tabel pending_logs ada.
+     * Dipanggil lazy dari logQueue() — tidak perlu diubah di pdo() supaya
+     * tidak tambah overhead di setiap request yang tidak butuh antrian log.
+     */
+    private static function ensureLogTable(): void
+    {
+        self::pdo()->exec("
+            CREATE TABLE IF NOT EXISTS pending_logs (
+                id        INTEGER PRIMARY KEY AUTOINCREMENT,
+                tbl       TEXT NOT NULL,
+                payload   TEXT NOT NULL,
+                queued_at INTEGER NOT NULL
+            )
+        ");
+    }
+
+    /**
+     * Antri satu log yang gagal dikirim ke Supabase.
+     *
+     * @param string $tbl     Nama tabel: 'user_logs' atau 'admin_logs'
+     * @param array  $payload Data yang akan diinsert (kolom => nilai)
+     */
+    public static function logQueue(string $tbl, array $payload): void
+    {
+        try {
+            self::ensureLogTable();
+            $stmt = self::pdo()->prepare(
+                'INSERT INTO pending_logs (tbl, payload, queued_at) VALUES (?, ?, ?)'
+            );
+            $stmt->execute([$tbl, json_encode($payload), time()]);
+        } catch (\Throwable $e) {
+            error_log('LocalCache::logQueue error: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Kirim ulang log yang tertunda ke Supabase.
+     * Dipanggil dari log_activity() di request berikutnya — tidak butuh cron.
+     * Hanya kirim maksimal 10 log per request agar tidak memperlambat response.
+     *
+     * @param  callable $inserter  fn(string $tbl, array $payload): void
+     *                             Caller inject Supabase insert supaya LocalCache
+     *                             tidak tergantung langsung ke getSupabase().
+     */
+    public static function flushLogs(callable $inserter): void
+    {
+        try {
+            self::ensureLogTable();
+            $db = self::pdo();
+
+            $stmt = $db->prepare(
+                'SELECT id, tbl, payload FROM pending_logs ORDER BY queued_at ASC LIMIT 10'
+            );
+            $stmt->execute();
+            $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            if (empty($rows)) return;
+
+            foreach ($rows as $row) {
+                $payload = json_decode($row['payload'], true);
+                if (!is_array($payload)) {
+                    // Payload corrupt — buang saja
+                    $db->prepare('DELETE FROM pending_logs WHERE id = ?')->execute([$row['id']]);
+                    continue;
+                }
+
+                try {
+                    $inserter($row['tbl'], $payload);
+                    // Berhasil terkirim — hapus dari antrian
+                    $db->prepare('DELETE FROM pending_logs WHERE id = ?')->execute([$row['id']]);
+                } catch (\Throwable $e) {
+                    // Masih gagal — biarkan di antrian, coba di request berikutnya
+                    error_log('LocalCache::flushLogs masih gagal kirim log id=' . $row['id'] . ': ' . $e->getMessage());
+                    break; // Supabase masih down, hentikan flush — jangan loop sia-sia
+                }
+            }
+
+            // Buang log yang terlalu lama (> 24 jam) agar SQLite tidak membengkak
+            $db->exec('DELETE FROM pending_logs WHERE queued_at < ' . (time() - 86400));
+
+        } catch (\Throwable $e) {
+            error_log('LocalCache::flushLogs error: ' . $e->getMessage());
+        }
+    }
+
     // ── Rate Limit ────────────────────────────────────────────────────────────
 
     /**

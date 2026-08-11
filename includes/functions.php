@@ -130,34 +130,59 @@ function log_activity($user_id, $name, $email, $activity) {
     $ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? 'unknown';
     $ip = explode(',', $ip)[0];
     $now = date('Y-m-d H:i:s');
+
+    $payload = [
+        'user_id'    => $user_id,
+        'user_name'  => $name,
+        'user_email' => $email,
+        'activity'   => $activity,
+        'ip_address' => $ip,
+        'created_at' => $now,
+    ];
+
+    // Flush log yang tertunda dari request sebelumnya (tanpa cron)
+    if (class_exists('LocalCache')) {
+        try {
+            LocalCache::flushLogs(function (string $tbl, array $p) {
+                getSupabase()->insert($tbl, $p);
+            });
+        } catch (\Throwable $e) {
+            // flush gagal — tidak apa-apa, akan dicoba lagi nanti
+        }
+    }
+
     try {
-        getSupabase()->insert('user_logs', [
-            'user_id'    => $user_id,
-            'user_name'  => $name,
-            'user_email' => $email,
-            'activity'   => $activity,
-            'ip_address' => $ip,
-            'created_at' => $now,
-        ]);
+        getSupabase()->insert('user_logs', $payload);
     } catch (\Throwable $e) {
-        error_log('log_activity gagal: ' . $e->getMessage());
+        error_log('log_activity gagal, antri ke SQLite: ' . $e->getMessage());
+        // Supabase gagal — antri ke LocalCache, kirim ulang di request berikutnya
+        if (class_exists('LocalCache')) {
+            LocalCache::logQueue('user_logs', $payload);
+        }
     }
 }
 
 function log_admin_action($admin_id, $admin_name, $action, $target = '-') {
     $now = date('Y-m-d H:i:s');
-    $ip  = get_ip(); // FIX: catat IP admin yang melakukan aksi
+    $ip  = get_ip();
+
+    $payload = [
+        'admin_id'    => $admin_id,
+        'admin_name'  => $admin_name,
+        'action'      => $action,
+        'target_user' => $target,
+        'ip_address'  => $ip,
+        'created_at'  => $now,
+    ];
+
     try {
-        getSupabase()->insert('admin_logs', [
-            'admin_id'    => $admin_id,
-            'admin_name'  => $admin_name,
-            'action'      => $action,
-            'target_user' => $target,
-            'ip_address'  => $ip,
-            'created_at'  => $now,
-        ]);
+        getSupabase()->insert('admin_logs', $payload);
     } catch (\Throwable $e) {
-        error_log('log_admin_action gagal: ' . $e->getMessage());
+        error_log('log_admin_action gagal, antri ke SQLite: ' . $e->getMessage());
+        // Supabase gagal — antri ke LocalCache, kirim ulang di request berikutnya
+        if (class_exists('LocalCache')) {
+            LocalCache::logQueue('admin_logs', $payload);
+        }
     }
 }
 
