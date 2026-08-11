@@ -75,6 +75,40 @@ function require_login() {
 
 function require_admin() {
     require_login();
+
+    // Re-validasi role dari DB setiap request — cegah session stale
+    // (misal: admin di-demote oleh admin lain, tapi session lama masih aktif)
+    try {
+        $db_user = getSupabase()->selectOne(
+            'users',
+            ['id' => $_SESSION['user_id'], 'deleted_at' => 'is.null'],
+            'role,is_active'
+        );
+
+        if (!$db_user) {
+            // User tidak ditemukan atau sudah dihapus — paksa logout
+            session_unset();
+            session_destroy();
+            header("Location: /login.php");
+            exit;
+        }
+
+        if (!$db_user['is_active']) {
+            // Akun dinonaktifkan — paksa logout
+            session_unset();
+            session_destroy();
+            header("Location: /login.php?reason=inactive");
+            exit;
+        }
+
+        // Sinkron role session dengan DB
+        $_SESSION['role'] = $db_user['role'];
+
+    } catch (\Throwable $e) {
+        // Supabase error — fail-safe: percayai session, jangan block user
+        error_log('require_admin: gagal re-validasi role dari DB: ' . $e->getMessage());
+    }
+
     if ($_SESSION['role'] !== 'admin') {
         header("Location: /dashboard.php");
         exit;
