@@ -84,7 +84,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="GUDEG - Register">
 <meta name="twitter:description" content="Daftar akun GUDEG — sistem SSO terpadu Balai Monitor Spektrum Frekuensi Radio Yogyakarta.">
-<link rel="icon" type="image/png" href="/assets/favicon.png">
+<link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
 <link rel="apple-touch-icon" href="/assets/favicon.png">
 <link rel="stylesheet" href="/assets/tabler/tabler-icons.min.css">
 <script>

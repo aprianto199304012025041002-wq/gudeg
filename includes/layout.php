@@ -52,7 +52,8 @@ function layout_head(string $title, string $active_nav = '') {
 <meta property="og:locale" content="id_ID">
 
 <!-- Favicon -->
-<link rel="icon" type="image/png" href="/assets/favicon.png">
+<link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
 <link rel="apple-touch-icon" href="/assets/favicon.png">
 
 <title>GUDEG - <?= htmlspecialchars($title) ?></title>
