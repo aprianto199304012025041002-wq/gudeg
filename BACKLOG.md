@@ -27,60 +27,85 @@
 
 ## 🔲 Backlog — Diurutkan dari Paling Mudah ke Paling Berisiko
 
-### 🟢 Kecil / Aman (bisa dikerjain kapan saja, risiko sangat rendah)
+### 🟢 Kecil / Aman
 
-1. **`config/db.php` — hapus dari repo**
-   File sudah tidak dipanggil di mana pun (ada catatan di dalamnya). Bisa dihapus bersih dari repo. Risiko: nol, karena sudah tidak ada yang `require` dia.
+1. **`verify.php` — update komentar rate limiter**
+   Komentar masih bilang "file-based /tmp" padahal sudah SQLite. Satu baris, tidak ada risiko.
 
-2. **`ROTATE_KEY_GUDEG.md` — pindah ke dalam `.github/` atau hapus**
-   File ini bisa dibuka publik via browser meski sudah di-Disallow di `robots.txt`. Lebih aman dipindah ke folder yang diblokir `.htaccess`, atau hapus saja karena sudah ada langkah-langkahnya di sini.
+2. **`403.php` — email admin hardcode**
+   `mailto:admin@balmon-jogja.go.id` hardcode di halaman 403. Bukan credential, tapi kalau email berubah harus ingat update di sini. Idealnya jadi konstanta di `.env`.
 
-3. **`healthcheck.php` — tambah cek `CACHE_PATH` valid**
-   Kalau `CACHE_PATH` diset di `.env` tapi path-nya tidak writable, SQLite akan gagal diam-diam. Healthcheck bisa verifikasi path ini bisa ditulis.
+3. **`config/db.php` — hapus dari repo**
+   File sudah tidak dipanggil di mana pun. Risiko: nol.
 
-4. **`sso.php` — response `die()` masih plaintext di beberapa cabang**
-   Ada `die()` di blok access denied (403) yang tidak pakai `json_encode` — tidak konsisten dengan yang sudah difix. Cek seluruh `die()` di file ini.
+4. **`ROTATE_KEY_GUDEG.md` — pindah ke `.github/` atau hapus**
+   Bisa dibuka publik via browser meski sudah di-Disallow di `robots.txt`. Lebih aman dipindah ke folder yang diblokir `.htaccess`.
 
-5. **`README.md` — tambah seksi troubleshooting**
-   Kasus umum: SQLite tidak writable di `/tmp`, Supabase timeout, key tidak ketemu saat deploy. Dokumentasi langkah debug-nya.
+5. **`healthcheck.php` — tambah cek `CACHE_PATH` valid**
+   Kalau `CACHE_PATH` diset di `.env` tapi path tidak writable, SQLite gagal diam-diam.
+
+6. **`sso.php` — satu `die()` access denied masih plaintext**
+   Blok 403 access denied tidak pakai `json_encode` — tidak konsisten dengan yang sudah difix.
+
+7. **`README.md` — tambah seksi troubleshooting**
+   Kasus umum: SQLite tidak writable, Supabase timeout, key tidak ketemu saat deploy.
 
 ---
 
 ### 🟡 Sedang / Perlu Hati-hati
 
-6. **Forgot password**
-   Belum ada fitur sama sekali. User yang lupa password harus minta reset ke admin. Butuh: email sending (pilihan: Supabase Auth email, atau SMTP sendiri), token reset, halaman baru `reset-password.php`. Di InfinityFree, `mail()` PHP tidak tersedia — harus via Supabase Edge Function atau API email eksternal (Resend, Mailgun, dll).
+8. **Google Fonts CDN bertentangan dengan CSP `font-src 'self'`**
+   Semua halaman (`login.php`, `register.php`, `403.php`, `404.php`, `500.php`, `layout.php`) load Google Fonts dari CDN eksternal, tapi CSP di `functions.php` dan `.htaccess` set `font-src 'self'`. Font tidak akan load di browser yang patuh CSP. Pilihan: hapus Google Fonts dan pakai system font, atau update CSP allow `fonts.googleapis.com` dan `fonts.gstatic.com`.
 
-7. **Email verification saat register**
-   Akun baru langsung masuk DB tapi butuh aktivasi manual admin. Idealnya ada email verifikasi dulu sebelum admin perlu aktivasi. Terhubung dengan infrastruktur email yang sama seperti forgot password.
+9. **`query-supabase.yml` — nama secret tidak konsisten**
+   Workflow ini pakai `secrets.SUPABASE_KEY`, tapi `deploy.yml` pakai `secrets.SUPABASE_SERVICE_KEY`. Kemungkinan dua secret berbeda atau salah satu tidak ter-set. Perlu diseragamkan.
 
-8. **OG Tags (Open Graph)**
-   `login.php` dan `register.php` sudah punya OG tags tapi gambar (`og:image`) belum diset — hanya teks. Butuh buat satu gambar preview (1200×630px) dan upload ke server, lalu tambah `<meta property="og:image">`. Kecil tapi butuh aset visual dulu.
+10. **Forgot password**
+    Belum ada fitur sama sekali. Butuh infrastruktur email (di InfinityFree `mail()` tidak tersedia — harus via Resend, Mailgun, atau Supabase Edge Function), token reset, dan halaman `reset-password.php`.
 
-9. **`functions.php` — pecah jadi file terpisah**
-   File ini terlalu besar: campur security headers, CSRF, session, password validation, IP detection, log, token blacklist. Idealnya dipecah jadi `Auth.php`, `Security.php`, `Logger.php`. Risiko refactor sedang — semua file lain depend ke `functions.php`, perlu pastikan semua `require_once` diupdate.
+11. **Email verification saat register**
+    Akun baru butuh aktivasi manual admin. Idealnya ada email verifikasi dulu. Terhubung dengan infrastruktur email yang sama seperti forgot password.
 
-10. **CSRF token rotate setelah submit**
-    Saat ini token CSRF tidak di-rotate setelah form submit berhasil — token yang sama bisa dipakai ulang selama session hidup. Fix-nya butuh semua halaman yang punya form POST diubah ke PRG pattern (redirect setelah sukses), baru token bisa di-rotate di redirect. Saat ini `register.php`, `change-password.php`, dan `admin/*.php` tidak PRG.
+12. **OG Tags — `og:image` belum diset**
+    `login.php` dan `register.php` sudah punya OG tags tapi belum ada gambar preview. Butuh buat aset visual (1200×630px) dulu.
 
-11. **`change-password.php` — proteksi double-submit**
-    Sama seperti `register.php` yang sudah difix — form ganti password juga bisa di-submit dua kali cepat. Tambah session lock yang sama.
+13. **`functions.php` — pecah jadi file terpisah**
+    Terlalu besar: campur security headers, CSRF, session, password, log, token blacklist. Risiko refactor sedang — semua file lain depend ke sini.
+
+14. **CSRF token rotate setelah submit**
+    Token tidak di-rotate setelah form berhasil. Fix butuh semua halaman dengan form POST diubah ke PRG pattern dulu (`register.php`, `change-password.php`, `admin/*.php`).
+
+15. **`change-password.php` — proteksi double-submit**
+    Sama seperti `register.php` yang sudah difix — form ganti password belum punya session lock.
 
 ---
 
-### 🔴 Besar / Berisiko / Butuh Perencanaan
+### 🔴 Besar / Kritis / Butuh Segera atau Perencanaan
 
-12. **CSP (Content Security Policy)**
-    Belum ada header `Content-Security-Policy` sama sekali. Ini salah satu header keamanan paling penting untuk cegah XSS. Menambahkannya butuh audit semua inline `<script>`, `<style>`, dan external resource yang dipakai — kalau terlalu ketat bisa membreak UI. Butuh testing menyeluruh.
+16. **🔴 `query-results/` tidak di-gitignore — DATA NYATA SUDAH DI GIT HISTORY**
+    Enam file berisi data sensitif sudah masuk git history dan bisa dilihat siapapun yang punya akses repo:
+    - `sso_applications.json` — `client_secret_plain` plaintext untuk KOMENK, KASPER, PASAR
+    - `users.json` — email + bcrypt hash + `remember_token` user nyata
+    - `sessions.json` — session ID aktif + IP address user
+    - `admin_logs.json` — email pegawai internal (`@komdigi.go.id`)
+    - `user_logs.json` — histori aktivitas login/SSO user nyata
+    - `user_applications.json` — mapping akses user ke aplikasi
 
-13. **Supabase session index**
-    Tabel `sessions` di Supabase sudah ada `idx_sessions_user_id` tapi tidak ada index di `last_activity`. Query di `change-password.php` yang fetch semua sesi aktif user bisa lambat kalau data banyak. Butuh akses Supabase SQL Editor untuk tambah index — `CREATE INDEX idx_sessions_last_activity ON sessions(last_activity DESC)`.
+    **Yang harus dilakukan:**
+    1. Tambah `query-results/` ke `.gitignore` sekarang
+    2. Hapus `query-results/` dari git tracking (`git rm -r --cached query-results/`)
+    3. Bersihkan dari git history (`git filter-repo --path query-results/ --invert-paths`)
+    4. Regenerate semua `client_secret` di panel admin GUDEG (KOMENK, KASPER, PASAR) karena plaintext sudah terpublik
+    5. Update GitHub Secrets di repo PASAR, KOMENK dengan secret baru
 
-14. **Private key di git history**
-    Sudah dicek — **tidak terbukti ada** konten key di history. Commit `e6a61a7` label "rotate RSA key" tapi empty. Tapi kalau suatu saat key pernah ter-commit di history yang lebih awal (sebelum repo ini), perlu `git filter-repo` untuk bersihkan. Lihat `ROTATE_KEY_GUDEG.md` untuk langkah lengkapnya. **PERINGATAN: force push ke master — koordinasi dulu kalau ada collaborator.**
+17. **🔴 `query-supabase.yml` — Supabase project URL hardcode di repo**
+    `BASE="https://nscgcspkotpghgmgbwyb.supabase.co/rest/v1"` hardcode langsung di workflow file. Siapapun yang baca repo tahu project ID Supabase. Harus dipindah ke secret `SUPABASE_URL` yang sudah ada, konsisten dengan `deploy.yml`.
 
-15. **Session storage terpusat**
-    Saat ini session PHP file-based di server InfinityFree — kalau server restart, semua user ter-logout. Tabel `sessions` di Supabase sudah ada dan diisi saat login, tapi tidak dipakai sebagai sumber kebenaran. Fix ideal: custom session handler PHP yang baca/tulis ke Supabase atau SQLite. Kompleks, butuh testing menyeluruh, dan ada trade-off latency.
+18. **Supabase session index**
+    Tabel `sessions` belum ada index di `last_activity`. Query di `change-password.php` bisa lambat kalau data banyak. Butuh akses Supabase SQL Editor: `CREATE INDEX idx_sessions_last_activity ON sessions(last_activity DESC)`.
+
+19. **Session storage terpusat**
+    Session PHP file-based di InfinityFree — kalau server restart semua user ter-logout. Tabel `sessions` di Supabase sudah ada tapi hanya sebagai log, bukan sumber kebenaran. Fix ideal: custom session handler PHP. Kompleks, ada trade-off latency.
 
 ---
 
@@ -93,4 +118,5 @@
 - **Live:** `gudeg.xo.je`
 - **`functions.php`** adalah file sentral — semua halaman depend ke sini via `require_once`
 - **LocalCache SQLite** (`/tmp/gudeg_cache.sqlite`) punya tabel: `token_blacklist`, `user_cache`, `rate_limit`, `pending_logs`
+- **Supabase project ID:** `nscgcspkotpghgmgbwyb` (terekspos di `query-supabase.yml`)
 - **PAT GitHub** yang dipakai di sesi ini: sudah dipakai untuk clone, jangan commit ke repo
