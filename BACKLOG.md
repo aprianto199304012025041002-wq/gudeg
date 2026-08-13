@@ -54,7 +54,7 @@
 9. ~~**`config/db.php` — hapus dari repo**~~ ✅
    File sudah tidak dipanggil di mana pun, sudah ada komentar deprecated. Risiko nol.
 
-10. **`version.json` — `deployed_at` otomatis dari deploy.yml**
+10. ~~**`version.json` — `deployed_at` otomatis dari deploy.yml**~~ ✅
     Saat ini diisi manual, rawan lupa update. Bisa di-generate otomatis di workflow.
 
 11. **`500.php` — teks "Tim teknis telah diberitahu" menyesatkan**

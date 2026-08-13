@@ -30,6 +30,15 @@ jobs:
         run: |
           printf '%s' '${{ secrets.RSA_PUBLIC_KEY }}' > keys/public.pem
 
+      - name: Update deployed_at di version.json
+        run: |
+          node -e "
+            const fs = require('fs');
+            const v = JSON.parse(fs.readFileSync('version.json', 'utf8'));
+            v.deployed_at = new Date().toISOString();
+            fs.writeFileSync('version.json', JSON.stringify(v, null, 2));
+          "
+
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
