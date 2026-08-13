@@ -51,7 +51,7 @@
 8. ~~**`git-filter-repo` — hapus dari repo**~~ ✅
    File binary tool pihak ketiga ada di root repo. Tidak seharusnya ada, tidak didokumentasikan, bisa diakses publik. Hapus dan tambah ke `.gitignore`.
 
-9. **`config/db.php` — hapus dari repo**
+9. ~~**`config/db.php` — hapus dari repo**~~ ✅
    File sudah tidak dipanggil di mana pun, sudah ada komentar deprecated. Risiko nol.
 
 10. **`version.json` — `deployed_at` otomatis dari deploy.yml**
