@@ -29,11 +29,9 @@
 
 ### 🟢 Kecil / Aman (satu per satu, risiko sangat rendah)
 
-1. **`verify.php` — update komentar rate limiter**
-   Baris `// Rate limiting via RateLimiter (file-based /tmp)` sudah tidak akurat, sekarang SQLite. Satu baris.
+1. ~~**`verify.php` — update komentar rate limiter**~~ ✅ sudah benar sejak sebelumnya
 
-2. **`verify.php` — silent catch cleanup token blacklist**
-   `catch (\Throwable $e) {}` kosong setelah delete token blacklist expired. Tambah `gudeg_log('WARNING', ...)`.
+2. ~~**`verify.php` — silent catch cleanup token blacklist**~~ ✅ `0eba9f4`
 
 3. **`admin/logs.php` — silent catch cleanup token blacklist**
    Sama persis — `catch (\Throwable $e) {}` kosong. Tambah `gudeg_log('WARNING', ...)`.
