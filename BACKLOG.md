@@ -42,10 +42,10 @@
 5. ~~**`jwks.json` — duplikasi fungsi `base64url_encode_raw()`**~~ ✅
    Fungsi ini sudah ada di `functions.php` (sebagai `base64url_encode()`) dan `jwt.php` (private static). Ini versi ketiga. Bisa replace pakai `base64url_encode()` dari `functions.php`.
 
-6. **`robots.txt` — `/jwks.json` di-Disallow dua kali**
+6. ~~**`robots.txt` — `/jwks.json` di-Disallow dua kali**~~ ✅
    Duplikasi entry. Hapus salah satu.
 
-7. **`robots.txt` — tambah entry yang kurang**
+7. ~~**`robots.txt` — tambah entry yang kurang**~~ ✅
    Belum ada: `/query-results/`, `/git-filter-repo`, `/BACKLOG.md`, `/README.md`.
 
 8. **`git-filter-repo` — hapus dari repo**
