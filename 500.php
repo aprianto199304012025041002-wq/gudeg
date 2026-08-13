@@ -119,12 +119,12 @@ body{
   <div class="err-title">Terjadi Gangguan</div>
   <div class="divider"></div>
   <div class="err-desc">
-    Terjadi kesalahan pada server. Tim teknis telah diberitahu.
-    Silakan coba beberapa saat lagi.
+    Terjadi kesalahan pada server.
+    Silakan coba beberapa saat lagi atau hubungi administrator.
   </div>
   <div class="btn-col">
-    <a class="btn-primary" href="javascript:location.reload()">Coba Lagi</a>
-    <a class="btn-secondary" href="/dashboard.php">Kembali ke Dashboard</a>
+    <button class="btn-primary" onclick="location.reload()">Coba Lagi</button>
+    <a class="btn-secondary" href="/login.php">Kembali ke Login</a>
   </div>
   <div class="err-meta">GUDEG JOGJA &middot; Balmon Yogyakarta</div>
 

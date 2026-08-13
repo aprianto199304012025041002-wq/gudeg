@@ -57,13 +57,13 @@
 10. ~~**`version.json` — `deployed_at` otomatis dari deploy.yml**~~ ✅
     Saat ini diisi manual, rawan lupa update. Bisa di-generate otomatis di workflow.
 
-11. **`500.php` — teks "Tim teknis telah diberitahu" menyesatkan**
+11. ~~**`500.php` — teks "Tim teknis telah diberitahu" menyesatkan**~~ ✅
     Tidak ada mekanisme alerting di GUDEG. Ubah jadi "Silakan coba beberapa saat lagi atau hubungi administrator."
 
-12. **`500.php` — `href="javascript:location.reload()"` pada tombol Coba Lagi**
+12. ~~**`500.php` — `href="javascript:location.reload()"` pada tombol Coba Lagi**~~ ✅
     Pakai `javascript:` pseudo-protocol yang bisa diblokir CSP lebih ketat ke depan. Ganti ke `onclick="location.reload()"` di `<button>`.
 
-13. **`404.php` & `500.php` — tombol "Kembali ke Dashboard" harusnya ke `/login.php`**
+13. ~~**`404.php` & `500.php` — tombol "Kembali ke Dashboard" harusnya ke `/login.php`**~~ ✅
     User yang belum login kena 404/500 akan diarahkan ke `/dashboard.php` yang redirect ke login lagi. Lebih langsung ke `/login.php`.
 
 14. **`403.php`, `404.php`, `500.php` — emoji `🛡` lebih konsisten pakai Tabler icon**

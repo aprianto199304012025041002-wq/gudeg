@@ -114,7 +114,7 @@ body{
     Halaman yang Anda cari tidak ada atau telah dipindahkan.
     Periksa kembali alamat yang Anda masukkan.
   </div>
-  <a class="btn-primary" href="/dashboard.php">Kembali ke Dashboard</a>
+  <a class="btn-primary" href="/login.php">Kembali ke Login</a>
   <div class="err-meta">GUDEG JOGJA &middot; Balmon Yogyakarta</div>
 
 <script>
