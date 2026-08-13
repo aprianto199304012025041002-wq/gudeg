@@ -62,6 +62,22 @@ $checks['tmp_writable'] = [
 ];
 if (!$tmp_ok) $all_ok = false;
 
+// ── 4b. Cek CACHE_PATH writable (kalau di-set di .env) ──────────────────────
+$cache_path = defined('CACHE_PATH') ? CACHE_PATH : null;
+if ($cache_path) {
+    $cache_dir    = dirname($cache_path);
+    $cache_dir_ok = is_dir($cache_dir) && is_writable($cache_dir);
+    $checks['cache_path'] = [
+        'ok'  => $cache_dir_ok,
+        'msg' => $cache_dir_ok
+            ? "CACHE_PATH dir writable: $cache_dir"
+            : "CACHE_PATH dir NOT writable atau tidak ada: $cache_dir",
+    ];
+    if (!$cache_dir_ok) $all_ok = false;
+} else {
+    $checks['cache_path'] = ['ok' => true, 'msg' => 'CACHE_PATH tidak di-set, pakai default /tmp'];
+}
+
 // ── 5. Cek LocalCache SQLite ─────────────────────────────────────────────────
 try {
     require_once __DIR__ . '/includes/LocalCache.php';
@@ -94,6 +110,31 @@ try {
 } catch (\Throwable $e) {
     $checks['pending_logs'] = ['ok' => true, 'msg' => 'Tabel belum ada (normal jika belum ada log gagal)'];
 }
+
+// ── 7. Report versi PHP ──────────────────────────────────────────────────────
+$checks['php_version'] = [
+    'ok'  => true,
+    'msg' => 'PHP ' . PHP_VERSION,
+];
+
+// ── 8. Cek RSA key bisa di-load OpenSSL (bukan hanya file_exists) ───────────
+$private_path = __DIR__ . '/keys/private.pem';
+$public_path  = __DIR__ . '/keys/public.pem';
+$priv_valid   = false;
+$pub_valid    = false;
+if (file_exists($private_path)) {
+    $priv_valid = (bool) @openssl_pkey_get_private(file_get_contents($private_path));
+}
+if (file_exists($public_path)) {
+    $pub_valid = (bool) @openssl_pkey_get_public(file_get_contents($public_path));
+}
+$checks['rsa_openssl'] = [
+    'ok'  => $priv_valid && $pub_valid,
+    'msg' => $priv_valid && $pub_valid
+        ? 'private.pem & public.pem valid di OpenSSL'
+        : 'OpenSSL gagal load: ' . (!$priv_valid ? 'private.pem ' : '') . (!$pub_valid ? 'public.pem' : ''),
+];
+if (!$checks['rsa_openssl']['ok']) $all_ok = false;
 
 // ── Response ─────────────────────────────────────────────────────────────────
 http_response_code($all_ok ? 200 : 503);

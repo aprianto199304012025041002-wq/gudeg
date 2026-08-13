@@ -84,13 +84,13 @@
 19. ~~**`logout.php` — tidak hapus session cookie di client**~~ ✅
     `session_destroy()` hapus data di server tapi tidak hapus cookie `PHPSESSID` di browser. Tambah `setcookie(session_name(), '', time() - 3600, '/')` sebelum destroy.
 
-20. **`healthcheck.php` — tambah cek `CACHE_PATH` writable**
+20. ~~**`healthcheck.php` — tambah cek `CACHE_PATH` writable**~~ ✅
     Kalau `CACHE_PATH` diset di `.env` tapi path tidak writable, SQLite gagal diam-diam tanpa error di healthcheck.
 
-21. **`healthcheck.php` — tambah report versi PHP**
+21. ~~**`healthcheck.php` — tambah report versi PHP**~~ ✅
     Versi PHP di InfinityFree bisa berubah. Berguna kalau healthcheck juga report `PHP_VERSION`.
 
-22. **`healthcheck.php` — cek RSA key validasi OpenSSL, bukan hanya `file_exists()`**
+22. ~~**`healthcheck.php` — cek RSA key validasi OpenSSL, bukan hanya `file_exists()`**~~ ✅
     `file_exists()` tidak jamin key bisa di-load OpenSSL. Tambah `openssl_pkey_get_private()` check.
 
 23. **`healthcheck.php` — `require_once LocalCache.php` dipanggil dua kali**
