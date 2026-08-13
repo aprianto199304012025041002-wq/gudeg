@@ -75,7 +75,7 @@
 16. ~~**`admin/logs.php` — `$filter_qs` tidak di-`htmlspecialchars()` di pagination**~~ ✅
     `href="?<?= $filter_qs ?>&page=..."` bisa merusak HTML kalau ada karakter `<` atau `&` di query string. Tambah `htmlspecialchars($filter_qs)`.
 
-17. **`admin/logs.php` — Reset button HTML tidak valid**
+17. ~~**`admin/logs.php` — Reset button HTML tidak valid**~~ ✅
     `<a href="..."><button>Reset</button></a>` — nested `<a>` dan `<button>` tidak valid HTML. Ganti ke `<a>` saja dengan styling button.
 
 18. **`sso.php` — `die()` access denied masih plaintext**

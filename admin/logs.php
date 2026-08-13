@@ -136,7 +136,7 @@ layout_head('Admin · Log', 'admin-logs');
   transition: border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
 }
 .filter-bar button:hover { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
-.filter-bar .btn-reset { color: var(--danger); border-color: var(--danger-bdr); }
+.filter-bar .btn-reset { color: var(--danger); border-color: var(--danger-bdr); text-decoration: none; padding: 5px 12px; border: 1px solid var(--danger-bdr); border-radius: 5px; font-size: 11px; font-weight: 700; font-family: var(--mono); text-transform: uppercase; letter-spacing: .06em; cursor: pointer; transition: border-color var(--transition-fast), box-shadow var(--transition-fast); }
 .filter-bar .btn-reset:hover { border-color: var(--danger); box-shadow: 0 0 8px rgba(239,68,68,.2); }
 .filter-active {
   font-size: 10px; color: var(--accent); font-family: var(--mono);
@@ -205,7 +205,7 @@ layout_head('Admin · Log', 'admin-logs');
     <input type="date" name="date" value="<?= htmlspecialchars($filter_date) ?>">
     <button type="submit">Filter</button>
     <?php if ($search || $filter_ip || $filter_date): ?>
-      <a href="?tab=<?= $tab ?>" class="filter-bar"><button type="button" class="btn-reset">Reset</button></a>
+      <a href="?tab=<?= htmlspecialchars($tab) ?>" class="btn-reset">Reset</a>
     <?php endif; ?>
   </div>
 </form>
