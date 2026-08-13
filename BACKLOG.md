@@ -33,7 +33,7 @@
 
 2. ~~**`verify.php` — silent catch cleanup token blacklist**~~ ✅ `0eba9f4`
 
-3. **`admin/logs.php` — silent catch cleanup token blacklist**
+3. ~~**`admin/logs.php` — silent catch cleanup token blacklist**~~ ✅
    Sama persis — `catch (\Throwable $e) {}` kosong. Tambah `gudeg_log('WARNING', ...)`.
 
 4. **`jwks.json` — tambah `gudeg_log()` saat key invalid**

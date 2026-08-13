@@ -10,7 +10,9 @@ $sb   = getSupabase();
 // Cleanup token blacklist expired
 try {
     $sb->delete('token_blacklist', ['exp' => 'lt.' . time()]);
-} catch (\Throwable $e) {}
+} catch (\Throwable $e) {
+    gudeg_log('WARNING', 'admin/logs.php', 'Gagal cleanup token_blacklist: ' . $e->getMessage());
+}
 
 // Cleanup log lama > 90 hari (probabilistik 5%, tidak perlu cron)
 cleanup_old_logs();
