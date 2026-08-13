@@ -69,7 +69,7 @@
 14. ~~**`403.php`, `404.php`, `500.php` — emoji `🛡` lebih konsisten pakai Tabler icon**~~ ✅
     Emoji render berbeda antar platform. Tabler icon (`ti ti-shield`) sudah di-load di halaman ini.
 
-15. **`403.php` — email admin hardcode**
+15. ~~**`403.php` — email admin hardcode**~~ ✅
     `mailto:admin@balmon-jogja.go.id` di halaman 403. Kalau email berubah harus ingat update manual.
 
 16. **`admin/logs.php` — `$filter_qs` tidak di-`htmlspecialchars()` di pagination**

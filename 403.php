@@ -1,4 +1,18 @@
-<?php http_response_code(403); ?>
+<?php
+http_response_code(403);
+// Baca ADMIN_EMAIL dari .env kalau ada
+(function () {
+    $env = __DIR__ . '/config/.env';
+    if (!file_exists($env)) return;
+    foreach (file($env, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
+        $line = trim($line);
+        if ($line === '' || str_starts_with($line, '#') || !str_contains($line, '=')) continue;
+        [$k, $v] = explode('=', $line, 2);
+        if (trim($k) === 'ADMIN_EMAIL' && !defined('ADMIN_EMAIL')) define('ADMIN_EMAIL', trim($v));
+    }
+})();
+if (!defined('ADMIN_EMAIL')) define('ADMIN_EMAIL', 'admin@balmon-jogja.go.id');
+?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -126,7 +140,7 @@ body{
   </div>
   <div class="btn-col">
     <a class="btn-primary" href="/dashboard.php">Kembali ke Dashboard</a>
-    <a class="btn-secondary" href="mailto:admin@balmon-jogja.go.id">Hubungi Administrator</a>
+    <a class="btn-secondary" href="mailto:<?= htmlspecialchars(ADMIN_EMAIL) ?>">Hubungi Administrator</a>
   </div>
   <div class="err-meta">GUDEG JOGJA &middot; Balmon Yogyakarta</div>
 
