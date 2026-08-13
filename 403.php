@@ -11,7 +11,7 @@ http_response_code(403);
         if (trim($k) === 'ADMIN_EMAIL' && !defined('ADMIN_EMAIL')) define('ADMIN_EMAIL', trim($v));
     }
 })();
-if (!defined('ADMIN_EMAIL')) define('ADMIN_EMAIL', 'admin@balmon-jogja.go.id');
+if (!defined('ADMIN_EMAIL')) define('ADMIN_EMAIL', 'admin@dummy.com');
 ?>
 <!DOCTYPE html>
 <html lang="id">
