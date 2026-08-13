@@ -12,6 +12,8 @@
  * shared key langsung di verify.php, bukan lewat kunci publik.
  */
 
+require_once __DIR__ . '/includes/functions.php';
+
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: public, max-age=3600');
 
@@ -32,6 +34,7 @@ $pem = file_get_contents($public_key_path);
 $pub = openssl_pkey_get_public($pem);
 
 if (!$pub) {
+    gudeg_log('CRITICAL', 'jwks.json', 'openssl_pkey_get_public() gagal — public key corrupt atau format tidak valid');
     http_response_code(500);
     echo json_encode(['error' => 'invalid_public_key']);
     exit;
@@ -40,6 +43,7 @@ if (!$pub) {
 $details = openssl_pkey_get_details($pub);
 
 if (!$details || !isset($details['rsa']['n'], $details['rsa']['e'])) {
+    gudeg_log('CRITICAL', 'jwks.json', 'Key bukan RSA atau detail tidak lengkap — JWKS tidak bisa di-generate');
     http_response_code(500);
     echo json_encode(['error' => 'not_an_rsa_key']);
     exit;

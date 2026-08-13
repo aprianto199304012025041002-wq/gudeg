@@ -36,7 +36,7 @@
 3. ~~**`admin/logs.php` — silent catch cleanup token blacklist**~~ ✅
    Sama persis — `catch (\Throwable $e) {}` kosong. Tambah `gudeg_log('WARNING', ...)`.
 
-4. **`jwks.json` — tambah `gudeg_log()` saat key invalid**
+4. ~~**`jwks.json` — tambah `gudeg_log()` saat key invalid**~~ ✅
    Kalau `openssl_pkey_get_public()` gagal, hanya return JSON error tanpa log. Tambah `gudeg_log('CRITICAL', ...)`.
 
 5. **`jwks.json` — duplikasi fungsi `base64url_encode_raw()`**
