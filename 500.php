@@ -113,7 +113,7 @@ body{
   <i class="ti ti-sun theme-toggle-icon" aria-hidden="true"></i>
 </button>
 
-  <div class="shield">🛡</div>
+  <div class="shield"><i class="ti ti-server-off"></i></div>
   <div class="err-code">500</div>
   <div class="err-label">Kesalahan Server</div>
   <div class="err-title">Terjadi Gangguan</div>

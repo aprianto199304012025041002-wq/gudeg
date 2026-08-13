@@ -105,7 +105,7 @@ body{
   <i class="ti ti-sun theme-toggle-icon" aria-hidden="true"></i>
 </button>
 
-  <div class="shield">🛡</div>
+  <div class="shield"><i class="ti ti-map-search"></i></div>
   <div class="err-code">404</div>
   <div class="err-label">Halaman Tidak Ditemukan</div>
   <div class="err-title">Alamat Tidak Valid</div>

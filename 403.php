@@ -115,7 +115,7 @@ body{
   <i class="ti ti-sun theme-toggle-icon" aria-hidden="true"></i>
 </button>
 
-  <div class="shield">🛡</div>
+  <div class="shield"><i class="ti ti-shield-lock"></i></div>
   <div class="err-code">403</div>
   <div class="err-label">Akses Ditolak</div>
   <div class="err-title">Tidak Ada Izin</div>

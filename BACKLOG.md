@@ -66,7 +66,7 @@
 13. ~~**`404.php` & `500.php` — tombol "Kembali ke Dashboard" harusnya ke `/login.php`**~~ ✅
     User yang belum login kena 404/500 akan diarahkan ke `/dashboard.php` yang redirect ke login lagi. Lebih langsung ke `/login.php`.
 
-14. **`403.php`, `404.php`, `500.php` — emoji `🛡` lebih konsisten pakai Tabler icon**
+14. ~~**`403.php`, `404.php`, `500.php` — emoji `🛡` lebih konsisten pakai Tabler icon**~~ ✅
     Emoji render berbeda antar platform. Tabler icon (`ti ti-shield`) sudah di-load di halaman ini.
 
 15. **`403.php` — email admin hardcode**
