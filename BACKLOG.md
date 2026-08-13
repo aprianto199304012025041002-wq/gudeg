@@ -39,7 +39,7 @@
 4. ~~**`jwks.json` — tambah `gudeg_log()` saat key invalid**~~ ✅
    Kalau `openssl_pkey_get_public()` gagal, hanya return JSON error tanpa log. Tambah `gudeg_log('CRITICAL', ...)`.
 
-5. **`jwks.json` — duplikasi fungsi `base64url_encode_raw()`**
+5. ~~**`jwks.json` — duplikasi fungsi `base64url_encode_raw()`**~~ ✅
    Fungsi ini sudah ada di `functions.php` (sebagai `base64url_encode()`) dan `jwt.php` (private static). Ini versi ketiga. Bisa replace pakai `base64url_encode()` dari `functions.php`.
 
 6. **`robots.txt` — `/jwks.json` di-Disallow dua kali**
