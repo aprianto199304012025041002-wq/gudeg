@@ -32,6 +32,19 @@ try {
     function_exists('gudeg_log') ? gudeg_log('WARNING', 'logout.php', 'gagal hapus session dari DB: ' . $e->getMessage()) : error_log('logout gagal hapus session: ' . $e->getMessage());
 }
 
+// Hapus cookie PHPSESSID di browser
+if (ini_get('session.use_cookies')) {
+    $params = session_get_cookie_params();
+    setcookie(
+        session_name(), '',
+        time() - 3600,
+        $params['path'],
+        $params['domain'],
+        $params['secure'],
+        $params['httponly']
+    );
+}
+
 session_destroy();
 
 // JANGAN kirim ?clear_biometric=1 saat logout biasa.

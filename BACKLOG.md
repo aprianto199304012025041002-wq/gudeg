@@ -81,7 +81,7 @@
 18. ~~**`sso.php` — `die()` access denied masih plaintext**~~ ✅
     Blok 403 access denied tidak pakai `json_encode`. Satu-satunya `die()` yang belum konsisten.
 
-19. **`logout.php` — tidak hapus session cookie di client**
+19. ~~**`logout.php` — tidak hapus session cookie di client**~~ ✅
     `session_destroy()` hapus data di server tapi tidak hapus cookie `PHPSESSID` di browser. Tambah `setcookie(session_name(), '', time() - 3600, '/')` sebelum destroy.
 
 20. **`healthcheck.php` — tambah cek `CACHE_PATH` writable**
