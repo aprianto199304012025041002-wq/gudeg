@@ -78,7 +78,7 @@
 17. ~~**`admin/logs.php` — Reset button HTML tidak valid**~~ ✅
     `<a href="..."><button>Reset</button></a>` — nested `<a>` dan `<button>` tidak valid HTML. Ganti ke `<a>` saja dengan styling button.
 
-18. **`sso.php` — `die()` access denied masih plaintext**
+18. ~~**`sso.php` — `die()` access denied masih plaintext**~~ ✅
     Blok 403 access denied tidak pakai `json_encode`. Satu-satunya `die()` yang belum konsisten.
 
 19. **`logout.php` — tidak hapus session cookie di client**

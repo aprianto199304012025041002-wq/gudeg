@@ -49,7 +49,8 @@ if ($user['role'] !== 'admin') {
             'Akses DITOLAK (Tidak ada izin) ke ' . parse_url($app['redirect'], PHP_URL_HOST)
         );
         http_response_code(403);
-        die('Anda tidak memiliki izin untuk mengakses aplikasi ini.');
+        header('Content-Type: application/json; charset=utf-8');
+        die(json_encode(['error' => 'Anda tidak memiliki izin untuk mengakses aplikasi ini.']));
     }
 }
 
