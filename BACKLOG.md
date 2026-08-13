@@ -48,7 +48,7 @@
 7. ~~**`robots.txt` — tambah entry yang kurang**~~ ✅
    Belum ada: `/query-results/`, `/git-filter-repo`, `/BACKLOG.md`, `/README.md`.
 
-8. **`git-filter-repo` — hapus dari repo**
+8. ~~**`git-filter-repo` — hapus dari repo**~~ ✅
    File binary tool pihak ketiga ada di root repo. Tidak seharusnya ada, tidak didokumentasikan, bisa diakses publik. Hapus dan tambah ke `.gitignore`.
 
 9. **`config/db.php` — hapus dari repo**

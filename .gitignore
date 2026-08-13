@@ -12,6 +12,9 @@ keys/public.pem
 # ── FTP deploy state (tidak perlu di-commit) ──────────────────────────────────
 .ftp-deploy-sync-state.json
 
+# ── Tool pihak ketiga (jangan di-commit) ─────────────────────────────────────
+git-filter-repo
+
 # ── OS & editor junk ─────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
