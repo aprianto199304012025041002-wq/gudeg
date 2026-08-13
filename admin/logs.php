@@ -74,6 +74,7 @@ $filter_qs = http_build_query(array_filter([
     'ip'     => $filter_ip,
     'date'   => $filter_date,
 ]));
+$safe_qs = htmlspecialchars($filter_qs);
 
 layout_head('Admin · Log', 'admin-logs');
 ?>
@@ -247,21 +248,21 @@ layout_head('Admin · Log', 'admin-logs');
 <?php if ($pages > 1): ?>
 <div class="pagination">
   <?php if ($page > 1): ?>
-    <a href="?<?= $filter_qs ?>&page=<?= $page - 1 ?>">‹</a>
+    <a href="?<?= $safe_qs ?>&page=<?= $page - 1 ?>">‹</a>
   <?php endif; ?>
   <?php
   $start = max(1, $page - 2);
   $end   = min($pages, $page + 2);
-  if ($start > 1) echo '<a href="?' . $filter_qs . '&page=1">1</a>';
+  if ($start > 1) echo '<a href="?' . $safe_qs . '&page=1">1</a>';
   if ($start > 2) echo '<span class="pagination-sep">…</span>';
   for ($i = $start; $i <= $end; $i++):
   ?>
-    <a href="?<?= $filter_qs ?>&page=<?= $i ?>" class="<?= $i === $page ? 'current' : '' ?>"><?= $i ?></a>
+    <a href="?<?= $safe_qs ?>&page=<?= $i ?>" class="<?= $i === $page ? 'current' : '' ?>"><?= $i ?></a>
   <?php endfor; ?>
   <?php if ($end < $pages - 1) echo '<span class="pagination-sep">…</span>'; ?>
-  <?php if ($end < $pages) echo '<a href="?' . $filter_qs . '&page=' . $pages . '">' . $pages . '</a>'; ?>
+  <?php if ($end < $pages) echo '<a href="?' . $safe_qs . '&page=' . $pages . '">' . $pages . '</a>'; ?>
   <?php if ($page < $pages): ?>
-    <a href="?<?= $filter_qs ?>&page=<?= $page + 1 ?>">›</a>
+    <a href="?<?= $safe_qs ?>&page=<?= $page + 1 ?>">›</a>
   <?php endif; ?>
 </div>
 <?php endif; ?>

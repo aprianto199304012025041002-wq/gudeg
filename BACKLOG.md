@@ -72,7 +72,7 @@
 15. ~~**`403.php` — email admin hardcode**~~ ✅
     `mailto:admin@balmon-jogja.go.id` di halaman 403. Kalau email berubah harus ingat update manual.
 
-16. **`admin/logs.php` — `$filter_qs` tidak di-`htmlspecialchars()` di pagination**
+16. ~~**`admin/logs.php` — `$filter_qs` tidak di-`htmlspecialchars()` di pagination**~~ ✅
     `href="?<?= $filter_qs ?>&page=..."` bisa merusak HTML kalau ada karakter `<` atau `&` di query string. Tambah `htmlspecialchars($filter_qs)`.
 
 17. **`admin/logs.php` — Reset button HTML tidak valid**
