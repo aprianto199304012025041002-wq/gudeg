@@ -10,7 +10,7 @@ if (!empty($_SESSION['user_id'])) {
 }
 
 $error    = '';
-$redirect = $_GET['redirect'] ?? '/dashboard.php';
+$redirect = $_POST['redirect'] ?? $_GET['redirect'] ?? '/dashboard.php';
 $timeout  = ($_GET['reason'] ?? '') === 'timeout';
 
 if (parse_url($redirect, PHP_URL_HOST) !== null) {

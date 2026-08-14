@@ -165,7 +165,7 @@
 46. ~~**`login.php` — `gudeg_remember_email` cookie `secure` flag `false`**~~ ✅
     Cookie bisa dikirim via HTTP bukan hanya HTTPS. Di production yang sudah full HTTPS, flag ini harusnya `true`.
 
-47. **`login.php` — hidden input `redirect` tidak dibaca saat POST**
+47. ~~**`login.php` — hidden input `redirect` tidak dibaca saat POST**~~ ✅
     `$redirect` hanya dibaca dari `$_GET` di awal, tidak dari `$_POST['redirect']`. Artinya hidden input `redirect` di form tidak pernah dipakai saat POST — mubazir.
 
 48. **`login.php` — cleanup session lama ada N+1 query**
