@@ -53,7 +53,12 @@ jobs:
             **/.vs/**
             **/node_modules/**
             README.md
+            BACKLOG.md
+            ROTATE_KEY_GUDEG.md
             .ftp-deploy-sync-state.json
+            query-results/
+            assets/favicon-16.png
+            assets/favicon-32.png
 
       - name: Health check setelah deploy (informasi saja)
         run: |

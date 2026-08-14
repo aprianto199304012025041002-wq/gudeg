@@ -210,10 +210,10 @@
 61. ~~**`.ftp-deploy-sync-state.json` — ada di repo padahal sudah di-gitignore**~~ ✅
     File sudah di `.gitignore` tapi sudah masuk git history. Perlu `git rm --cached .ftp-deploy-sync-state.json`.
 
-62. **`.gitignore` — banyak entry yang kurang**
+62. ~~**`.gitignore` — banyak entry yang kurang**~~ ✅
     Belum ada: `query-results/`, `git-filter-repo`, `assets/favicon-16.png`, `assets/favicon-32.png`, `BACKLOG.md` (opsional).
 
-63. **`deploy.yml` — `exclude` tidak sertakan beberapa file**
+63. ~~**`deploy.yml` — `exclude` tidak sertakan beberapa file**~~ ✅
     Belum exclude: `query-results/`, `BACKLOG.md`, `ROTATE_KEY_GUDEG.md`, `git-filter-repo`, `config/db.php`, `assets/favicon-16.png`, `assets/favicon-32.png`.
 
 64. **`deploy.yml` — inject RSA key via `printf '%s'` berisiko newline**

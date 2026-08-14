@@ -15,6 +15,13 @@ keys/public.pem
 # ── Tool pihak ketiga (jangan di-commit) ─────────────────────────────────────
 git-filter-repo
 
+# ── Query results (data sensitif, jangan di-commit) ──────────────────────────
+query-results/
+
+# ── Generated favicon kecil (tidak perlu di-repo) ────────────────────────────
+assets/favicon-16.png
+assets/favicon-32.png
+
 # ── OS & editor junk ─────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
