@@ -145,7 +145,6 @@ function require_admin() {
 }
 
 function get_current_user_data() {
-    session_start_safe();
     if (empty($_SESSION['user_id'])) return null;
     return [
         'id'    => $_SESSION['user_id'],

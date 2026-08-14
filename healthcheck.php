@@ -91,14 +91,9 @@ try {
 
 // ── 6. Cek pending logs — kalau ada log tertunda > 1 jam, Supabase mungkin down lama ──
 try {
-    $pdo = (new ReflectionClass('LocalCache'))->getMethod('pdo');
-    $pdo->setAccessible(true);
-    $db  = $pdo->invoke(null);
-    $stmt = $db->query("SELECT COUNT(*) as cnt, MIN(queued_at) as oldest FROM pending_logs");
-    $row  = $stmt->fetch(PDO::FETCH_ASSOC);
-    $cnt  = (int)($row['cnt'] ?? 0);
-    $oldest = (int)($row['oldest'] ?? 0);
-    $age  = $oldest > 0 ? (time() - $oldest) : 0;
+    $stats = LocalCache::getPendingLogStats();
+    $cnt   = $stats['count'];
+    $age   = $stats['oldest_age_seconds'];
     $checks['pending_logs'] = [
         'ok'  => $cnt === 0 || $age < 3600,
         'msg' => $cnt === 0

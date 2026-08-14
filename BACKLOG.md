@@ -96,7 +96,7 @@
 23. ~~**`healthcheck.php` — `require_once LocalCache.php` dipanggil dua kali**~~ ✅
     Di check #5 dan #6 keduanya ada `require_once`. Yang kedua mubazir, hapus.
 
-24. **`healthcheck.php` — akses `pdo()` via `ReflectionClass`**
+24. ~~**`healthcheck.php` — akses `pdo()` via `ReflectionClass`**~~ ✅
     Cara tidak rapi untuk akses method private. Tambah method public `LocalCache::getPendingLogStats()` dan update healthcheck pakai itu.
 
 25. **`LocalCache.php` — `logQueue()` tidak validasi `$tbl`**

@@ -305,4 +305,21 @@ class LocalCache
             function_exists('gudeg_log') ? gudeg_log('ERROR', 'LocalCache::rlDelete', $e->getMessage()) : error_log('LocalCache::rlDelete: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Dipakai oleh healthcheck.php — mengembalikan statistik pending_logs
+     * tanpa harus expose method private pdo() via ReflectionClass.
+     *
+     * @return array{count: int, oldest_age_seconds: int}
+     */
+    public static function getPendingLogStats(): array
+    {
+        $stmt = self::pdo()->query(
+            'SELECT COUNT(*) as cnt, MIN(queued_at) as oldest FROM pending_logs'
+        );
+        $row  = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $cnt  = (int)($row['cnt'] ?? 0);
+        $age  = ($row['oldest'] ?? 0) > 0 ? (time() - (int)$row['oldest']) : 0;
+        return ['count' => $cnt, 'oldest_age_seconds' => $age];
+    }
 }
