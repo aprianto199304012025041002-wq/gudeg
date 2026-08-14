@@ -19,11 +19,19 @@ class LocalCache
     /**
      * Resolve path SQLite — dari CACHE_PATH di .env kalau ada,
      * fallback ke /tmp/gudeg_cache.sqlite.
+     * Kalau CACHE_PATH tidak writable, fallback ke /tmp dengan log WARNING.
      */
     private static function resolvePath(): string
     {
         if (defined('CACHE_PATH') && CACHE_PATH !== '') {
-            return CACHE_PATH;
+            $dir = dirname(CACHE_PATH);
+            if (is_dir($dir) && is_writable($dir)) {
+                return CACHE_PATH;
+            }
+            // Dir tidak writable — fallback ke /tmp
+            function_exists('gudeg_log')
+                ? gudeg_log('WARNING', 'LocalCache::resolvePath', 'CACHE_PATH dir tidak writable (' . $dir . '), fallback ke /tmp')
+                : error_log('LocalCache::resolvePath: CACHE_PATH dir tidak writable, fallback ke /tmp');
         }
         return self::$db_path;
     }

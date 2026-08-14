@@ -23,7 +23,7 @@ class RateLimiter
 
     private static function keyHash(string $ip, string $email): string
     {
-        return md5(strtolower(trim($ip)) . strtolower(trim($email)));
+        return hash('sha256', strtolower(trim($ip)) . strtolower(trim($email)));
     }
 
     // ── SQLite via LocalCache ─────────────────────────────────────────────────

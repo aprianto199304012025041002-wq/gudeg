@@ -111,7 +111,7 @@
 28. ~~**`LocalCache.php` — cleanup token blacklist setiap inisialisasi PDO**~~ ✅
     `DELETE FROM token_blacklist WHERE exp < time()` dijalankan setiap request pertama buka SQLite, termasuk request yang tidak butuh token blacklist. Pindah ke `cleanup()` saja.
 
-29. **`RateLimiter.php` — `md5()` untuk key hash**
+29. ~~**`RateLimiter.php` — `md5()` untuk key hash**~~ ✅
     MD5 sudah deprecated untuk keamanan. Ganti ke `hash('sha256', ...)`. Tidak ada risiko langsung karena hanya dipakai sebagai lookup key, bukan password.
 
 30. **`RateLimiter.php` — `@unlink()` pakai error suppressor**
