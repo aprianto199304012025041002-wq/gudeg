@@ -16,13 +16,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'logou
     csrf_verify();
     $target_sess = $_POST['session_id'] ?? '';
     if ($target_sess && $target_sess !== session_id()) {
-        $sb->delete('sessions', ['id' => $target_sess, 'user_id' => $user['id']]);
-        $sess_msg = 'Sesi berhasil diakhiri.';
+        try {
+            $sb->delete('sessions', ['id' => $target_sess, 'user_id' => $user['id']]);
+            $sess_msg = 'Sesi berhasil diakhiri.';
+        } catch (\Throwable $e) {
+            gudeg_log('WARNING', 'change-password::logout_session', 'Gagal hapus session: ' . $e->getMessage());
+            $sess_msg = 'Gagal mengakhiri sesi. Coba lagi.';
+        }
     }
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'logout_all_sessions') {
     csrf_verify();
-    $sb->delete('sessions', ['user_id' => $user['id'], 'id' => 'neq.' . session_id()]);
-    $sess_msg = 'Semua sesi lain berhasil diakhiri.';
+    try {
+        $sb->delete('sessions', ['user_id' => $user['id'], 'id' => 'neq.' . session_id()]);
+        $sess_msg = 'Semua sesi lain berhasil diakhiri.';
+    } catch (\Throwable $e) {
+        gudeg_log('WARNING', 'change-password::logout_all_sessions', 'Gagal hapus semua sessions: ' . $e->getMessage());
+        $sess_msg = 'Gagal mengakhiri sesi lain. Coba lagi.';
+    }
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify();
 
@@ -52,7 +62,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'logou
 
         try {
             $sb->delete('sessions', ['user_id' => $user['id'], 'id' => 'neq.' . session_id()]);
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+            gudeg_log('WARNING', 'change-password::change_pass', 'Gagal hapus sessions lain setelah ganti password: ' . $e->getMessage());
+        }
 
         $ok = true;
     }

@@ -189,7 +189,7 @@
 54. ~~**`admin/index.php` — `select('user_applications')` tanpa filter**~~ ✅
     Fetch semua baris tanpa filter apapun. Seharusnya filter by user_id dari daftar user yang di-render.
 
-55. **`change-password.php` — `logout_session` & `logout_all_sessions` tanpa try/catch**
+55. ~~**`change-password.php` — `logout_session` & `logout_all_sessions` tanpa try/catch**~~ ✅
     `$sb->delete('sessions', ...)` dipanggil tanpa error handling. Tambah try/catch dan `gudeg_log()`.
 
 56. **`change-password.php` — silent catch saat hapus sessions lain setelah ganti password**
