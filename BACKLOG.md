@@ -198,10 +198,10 @@
 57. ~~**`verify.php` — tidak ada `OPTIONS` preflight handler**~~ ✅
     Browser kirim `OPTIONS` sebelum `POST` cross-origin. Sekarang `OPTIONS` diproses seperti request biasa dan return error karena tidak ada token. Tambah handler di awal: `if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }`.
 
-58. **`verify.php` — CORS query ke Supabase setiap request**
+58. ~~**`verify.php` — CORS query ke Supabase setiap request**~~ ✅
     Fetch semua redirect URL dari DB untuk validasi CORS setiap ada `Origin` header. Bisa di-cache ke `LocalCache` dengan TTL pendek (5 menit).
 
-59. **`verify.php` — `$_REQUEST` lebih baik `$_POST`**
+59. ~~**`verify.php` — `$_REQUEST` lebih baik `$_POST`**~~ ✅
     `$_REQUEST` ambil dari GET, POST, dan Cookie. Credential tidak seharusnya dikirim via GET (muncul di server log). Ganti ke `$_POST`.
 
 60. **`sso.php` — `$state` tidak divalidasi panjang**

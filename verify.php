@@ -22,9 +22,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 // Kalau tidak ada Origin header (curl/server-to-server), tetap lanjut tanpa CORS header.
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 if ($origin) {
-    $sb_cors = getSupabase();
-    $rows    = $sb_cors->select('sso_applications', ['is_active' => true], 'redirect');
-    $origins = array_column($rows, 'redirect');
+    // Cache allowed origins 5 menit, hemat query Supabase per request
+    $cached_origins = LocalCache::metaGet('cors_origins');
+    if ($cached_origins !== null) {
+        $origins_data = json_decode($cached_origins, true);
+        if (!is_array($origins_data) || ($origins_data['expires'] ?? 0) < time()) {
+            $cached_origins = null; // expired
+        }
+    }
+    if ($cached_origins === null) {
+        $rows    = getSupabase()->select('sso_applications', ['is_active' => true], 'redirect');
+        $origins = array_column($rows, 'redirect');
+        LocalCache::metaSet('cors_origins', json_encode(['origins' => $origins, 'expires' => time() + 300]));
+    } else {
+        $origins = $origins_data['origins'] ?? [];
+    }
     $allowed = false;
     foreach ($origins as $redir) {
         $parsed = parse_url($redir);
@@ -64,9 +76,9 @@ if (RateLimiter::throttled($verify_ip, 'verify')) {
     fail('Terlalu banyak request. Coba lagi dalam ' . $secs . ' detik.');
 }
 
-$token         = $_REQUEST['token'] ?? '';
-$client_id     = $_REQUEST['client_id'] ?? '';
-$client_secret = $_REQUEST['client_secret'] ?? '';
+$token         = $_POST['token'] ?? '';
+$client_id     = $_POST['client_id'] ?? '';
+$client_secret = $_POST['client_secret'] ?? '';
 
 if (!$token || !$client_id || !$client_secret) {
     fail('token, client_id, dan client_secret wajib diisi.');
