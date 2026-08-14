@@ -162,7 +162,7 @@
 45. ~~**`layout.php` — `og:image` mengarah ke file yang tidak ada**~~ ✅
     `/assets/og-image.png` tidak ada di repo maupun server.
 
-46. **`login.php` — `gudeg_remember_email` cookie `secure` flag `false`**
+46. ~~**`login.php` — `gudeg_remember_email` cookie `secure` flag `false`**~~ ✅
     Cookie bisa dikirim via HTTP bukan hanya HTTPS. Di production yang sudah full HTTPS, flag ini harusnya `true`.
 
 47. **`login.php` — hidden input `redirect` tidak dibaca saat POST**

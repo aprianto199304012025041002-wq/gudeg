@@ -65,9 +65,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ]);
 
                         if ($remember) {
-                            setcookie('gudeg_remember_email', $email, time() + (30 * 24 * 3600), '/', '', false, true);
+                            setcookie('gudeg_remember_email', $email, time() + (30 * 24 * 3600), '/', '', true, true);
                         } else {
-                            setcookie('gudeg_remember_email', '', time() - 3600, '/', '', false, true);
+                            setcookie('gudeg_remember_email', '', time() - 3600, '/', '', true, true);
                         }
 
                         try { $sb->update('users', ['id' => $user['id']], ['last_login_at' => date('Y-m-d H:i:s')]); } catch (\Throwable $e) { function_exists('gudeg_log') ? gudeg_log('WARNING', 'login.php::update_last_login', $e->getMessage()) : error_log('update last_login_at gagal: ' . $e->getMessage()); }
