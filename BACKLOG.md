@@ -135,7 +135,7 @@
 36. ~~**`functions.php` — `cleanup_old_logs()` silent catch**~~ ✅
     Dua catch kosong setelah delete user_logs dan admin_logs. Tambah `gudeg_log('WARNING', ...)`.
 
-37. **`functions.php` — duplikasi parsing IP antara `log_activity()` dan `get_ip()`**
+37. ~~**`functions.php` — duplikasi parsing IP antara `log_activity()` dan `get_ip()`**~~ ✅
     `log_activity()` parse IP sendiri inline, `log_admin_action()` pakai `get_ip()`. Seragamkan: `log_activity()` juga pakai `get_ip()`.
 
 38. **`functions.php` — `cleanup_old_logs()` pakai `user_cache` untuk menyimpan metadata cleanup**

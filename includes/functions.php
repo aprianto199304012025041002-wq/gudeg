@@ -155,8 +155,7 @@ function get_current_user_data() {
 }
 
 function log_activity($user_id, $name, $email, $activity) {
-    $ip = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-    $ip = explode(',', $ip)[0];
+    $ip  = get_ip();
     $now = date('Y-m-d H:i:s');
 
     $payload = [
@@ -246,7 +245,7 @@ function csrf_verify(): void {
     session_start_safe();
     $token = $_POST['csrf_token'] ?? '';
     if (empty($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $token)) {
-        gudeg_log('WARNING', 'csrf_verify', 'CSRF token tidak valid — IP: ' . ($_SERVER['REMOTE_ADDR'] ?? 'unknown'));
+        gudeg_log('WARNING', 'csrf_verify', 'CSRF token tidak valid — IP: ' . get_ip());
         http_response_code(403);
         header('Content-Type: application/json; charset=utf-8');
         die(json_encode(['error' => 'Invalid CSRF token.']));
@@ -288,7 +287,7 @@ function check_session_timeout(): void {
 
     $last = $_SESSION['last_activity'] ?? null;
     if ($last !== null && (time() - $last) > SESSION_TIMEOUT) {
-        $ip      = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? 'unknown')[0];
+        $ip      = get_ip();
         $user_id = $_SESSION['user_id'] ?? 'unknown';
         gudeg_log('INFO', 'check_session_timeout', "Session timeout — user_id=$user_id IP=$ip");
 
