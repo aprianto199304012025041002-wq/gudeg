@@ -49,8 +49,8 @@ function layout_head(string $title, string $active_nav = '', ?array $user = null
 <meta property="og:site_name" content="GUDEG JOGJA">
 <meta property="og:title" content="GUDEG - <?= htmlspecialchars($title) ?>">
 <meta property="og:description" content="Sistem SSO terpadu Balai Monitor Spektrum Frekuensi Radio Kelas I Yogyakarta.">
-<meta property="og:url" content="https://gudeg.xo.je/">
-<meta property="og:image" content="https://gudeg.xo.je/assets/og-image.png">
+<meta property="og:url" content="https://gudeg.xo.je<?= htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/') ?>">
+<meta property="og:image" content="https://gudeg.xo.je/assets/favicon/favicon.png">
 <meta property="og:locale" content="id_ID">
 
 <!-- Favicon -->

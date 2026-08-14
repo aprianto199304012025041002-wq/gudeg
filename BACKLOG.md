@@ -156,10 +156,10 @@
 43. ~~**`layout.php` — `global $user` anti-pattern**~~ ✅
     `layout_head()` depend ke global variable `$user`. Kalau halaman lupa set `$user`, error tidak jelas. Lebih bersih pass sebagai parameter.
 
-44. **`layout.php` — `og:url` hardcode ke root**
+44. ~~**`layout.php` — `og:url` hardcode ke root**~~ ✅
     `<meta property="og:url" content="https://gudeg.xo.je/">` selalu root, tidak peduli halaman yang dibuka.
 
-45. **`layout.php` — `og:image` mengarah ke file yang tidak ada**
+45. ~~**`layout.php` — `og:image` mengarah ke file yang tidak ada**~~ ✅
     `/assets/og-image.png` tidak ada di repo maupun server.
 
 46. **`login.php` — `gudeg_remember_email` cookie `secure` flag `false`**
