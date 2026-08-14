@@ -403,6 +403,7 @@ function cleanup_old_logs(): void {
     } catch (\Throwable $e) {
         gudeg_log('WARNING', 'cleanup_old_logs', 'Gagal hapus log lama dari Supabase: ' . $e->getMessage());
     }
+}
 
 // ── Input sanitization ───────────────────────────────────────────────────────
 

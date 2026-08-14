@@ -369,7 +369,9 @@ class LocalCache
             function_exists('gudeg_log') ? gudeg_log('ERROR', 'LocalCache::metaSet', $e->getMessage()) : error_log('LocalCache::metaSet: ' . $e->getMessage());
         }
     }
-} — mengembalikan statistik pending_logs
+
+    /**
+     * Dipakai oleh healthcheck.php — mengembalikan statistik pending_logs
      * tanpa harus expose method private pdo() via ReflectionClass.
      *
      * @return array{count: int, oldest_age_seconds: int}
