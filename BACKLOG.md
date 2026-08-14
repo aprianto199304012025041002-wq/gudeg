@@ -240,7 +240,7 @@
 71. ~~**`README.md` — `query-results/` tidak ada peringatan data sensitif**~~ ✅
     Tidak ada catatan bahwa folder ini berisi data nyata dan tidak boleh di-commit.
 
-72. **`README.md` — `query-supabase.yml` tidak terdokumentasikan**
+72. ~~**`README.md` — `query-supabase.yml` tidak terdokumentasikan**~~ ✅
     Hanya `deploy.yml` yang disebut di struktur proyek.
 
 73. **`README.md` — `PAT_TOKEN` secret tidak terdokumentasikan**

@@ -28,7 +28,8 @@
 gudeg/
 ├── .github/
 │   └── workflows/
-│       └── deploy.yml              # CI/CD — deploy ke InfinityFree via FTP
+│       ├── deploy.yml              # CI/CD — deploy ke InfinityFree via FTP
+│       └── query-supabase.yml      # ⚠️  Workflow query Supabase manual (diagnosa) — output ke query-results/ yang TIDAK boleh di-commit
 ├── .htaccess                       # Konfigurasi Apache (security headers, error pages, session)
 ├── .well-known/
 │   └── openid-configuration        # OIDC discovery endpoint (JSON statis)
