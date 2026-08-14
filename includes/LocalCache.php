@@ -71,9 +71,6 @@ class LocalCache
             )
         ");
 
-        // Cleanup expired token blacklist
-        self::$pdo->exec('DELETE FROM token_blacklist WHERE exp < ' . time());
-
         return self::$pdo;
     }
 

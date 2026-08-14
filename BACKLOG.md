@@ -108,7 +108,7 @@
 27. ~~**`LocalCache.php` — nama field `cached_at` menyesatkan**~~ ✅
     Isinya bukan waktu cache dibuat, tapi waktu expiry. Lebih akurat `expires_at`. Perlu migration data kalau diubah.
 
-28. **`LocalCache.php` — cleanup token blacklist setiap inisialisasi PDO**
+28. ~~**`LocalCache.php` — cleanup token blacklist setiap inisialisasi PDO**~~ ✅
     `DELETE FROM token_blacklist WHERE exp < time()` dijalankan setiap request pertama buka SQLite, termasuk request yang tidak butuh token blacklist. Pindah ke `cleanup()` saja.
 
 29. **`RateLimiter.php` — `md5()` untuk key hash**
