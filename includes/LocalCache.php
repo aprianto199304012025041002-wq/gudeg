@@ -196,6 +196,12 @@ class LocalCache
      */
     public static function logQueue(string $tbl, array $payload): void
     {
+        if (!in_array($tbl, ['user_logs', 'admin_logs'], true)) {
+            function_exists('gudeg_log')
+                ? gudeg_log('WARNING', 'LocalCache::logQueue', "Tabel tidak diizinkan: $tbl")
+                : error_log("LocalCache::logQueue: tabel tidak diizinkan: $tbl");
+            return;
+        }
         try {
             self::ensureLogTable();
             $stmt = self::pdo()->prepare(

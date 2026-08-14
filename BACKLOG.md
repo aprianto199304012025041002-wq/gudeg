@@ -99,7 +99,7 @@
 24. ~~**`healthcheck.php` — akses `pdo()` via `ReflectionClass`**~~ ✅
     Cara tidak rapi untuk akses method private. Tambah method public `LocalCache::getPendingLogStats()` dan update healthcheck pakai itu.
 
-25. **`LocalCache.php` — `logQueue()` tidak validasi `$tbl`**
+25. ~~**`LocalCache.php` — `logQueue()` tidak validasi `$tbl`**~~ ✅
     Parameter `$tbl` diterima tanpa whitelist. Tambah `if (!in_array($tbl, ['user_logs', 'admin_logs'])) return;`.
 
 26. **`LocalCache.php` — `flushLogs()` tidak validasi `$tbl` dari DB**
