@@ -117,7 +117,7 @@
 30. ~~**`RateLimiter.php` — `@unlink()` pakai error suppressor**~~ ✅
     Ganti ke cek return value atau try/catch tanpa `@`.
 
-31. **`SupabaseClient.php` — tidak ada `CURLOPT_CONNECTTIMEOUT`**
+31. ~~**`SupabaseClient.php` — tidak ada `CURLOPT_CONNECTTIMEOUT`**~~ ✅
     Tanpa ini, kalau server Supabase tidak bisa dikoneksi (bukan lambat), PHP nunggu sampai OS timeout. Tambah `CURLOPT_CONNECTTIMEOUT => 5` di `selectRaw()` dan `request()`.
 
 32. **`SupabaseClient.php` — `selectRaw()` tidak punya parameter `$timeout`**

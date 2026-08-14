@@ -201,6 +201,7 @@ class SupabaseClient
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_HTTPHEADER     => $headers,
             CURLOPT_TIMEOUT        => 10,
+            CURLOPT_CONNECTTIMEOUT => 5,
             CURLOPT_HEADERFUNCTION => function ($curl, $header) use (&$responseHeaders) {
                 $responseHeaders .= $header;
                 return strlen($header);
@@ -254,6 +255,7 @@ class SupabaseClient
             CURLOPT_CUSTOMREQUEST  => $method,
             CURLOPT_HTTPHEADER     => $headers,
             CURLOPT_TIMEOUT        => $timeout,
+            CURLOPT_CONNECTTIMEOUT => 5,
         ]);
 
         if ($body !== null) {

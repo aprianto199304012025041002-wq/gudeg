@@ -17,7 +17,6 @@ class RateLimiter
 {
     private const MAX_ATTEMPTS = 5;
     private const WINDOW       = 600; // 10 menit dalam detik
-    private const TMP_DIR      = '/tmp';
 
     // ── Key helper ────────────────────────────────────────────────────────────
 
@@ -63,7 +62,7 @@ class RateLimiter
 
     private static function filePath(string $hash): string
     {
-        return self::TMP_DIR . '/rl_' . $hash . '.json';
+        return rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . '/rl_' . $hash . '.json';
     }
 
     private static function fileGet(string $hash): array
