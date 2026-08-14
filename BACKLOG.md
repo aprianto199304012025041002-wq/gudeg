@@ -222,7 +222,7 @@
 65. ~~**`deploy.yml` — `sleep 15` terlalu pendek untuk InfinityFree**~~ ✅
     InfinityFree butuh lebih lama propagate file. Sering menyebabkan healthcheck gagal padahal deploy berhasil. Naikkan ke 30-45 detik.
 
-66. **`ROTATE_KEY_GUDEG.md` — klaim "private key pernah ter-commit" tidak terbukti**
+66. ~~**`ROTATE_KEY_GUDEG.md` — klaim "private key pernah ter-commit" tidak terbukti**~~ ✅
     Commit `e6a61a7` label "rotate RSA key" tapi empty, tidak ada konten key di history. Dokumen menyesatkan — perlu diklarifikasi.
 
 67. **`ROTATE_KEY_GUDEG.md` — disebut "via FTP (Hostinger)" padahal InfinityFree**

@@ -1,8 +1,9 @@
 # Panduan Rotate RSA Key GUDEG
 
-Private key (`keys/private.pem`) pernah ter-commit ke git history meskipun
-sudah ada di `.gitignore` sekarang. Key yang sudah masuk history dianggap
-bocor — perlu di-rotate dan history-nya dibersihkan.
+> **Catatan:** Berdasarkan pemeriksaan git history, `keys/private.pem` **tidak terbukti**
+> pernah ter-commit ke repository ini. Commit `e6a61a7` berlabel "rotate RSA key" ternyata
+> kosong (tidak ada file yang berubah). Dokumen ini tetap dipertahankan sebagai panduan
+> prosedur rotate key bila diperlukan di masa mendatang.
 
 ## Langkah-langkah
 
