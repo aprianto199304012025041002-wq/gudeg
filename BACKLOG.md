@@ -192,10 +192,10 @@
 55. ~~**`change-password.php` — `logout_session` & `logout_all_sessions` tanpa try/catch**~~ ✅
     `$sb->delete('sessions', ...)` dipanggil tanpa error handling. Tambah try/catch dan `gudeg_log()`.
 
-56. **`change-password.php` — silent catch saat hapus sessions lain setelah ganti password**
+56. ~~**`change-password.php` — silent catch saat hapus sessions lain setelah ganti password**~~ ✅
     `catch (\Throwable $e) {}` kosong. Tambah `gudeg_log('WARNING', ...)`.
 
-57. **`verify.php` — tidak ada `OPTIONS` preflight handler**
+57. ~~**`verify.php` — tidak ada `OPTIONS` preflight handler**~~ ✅
     Browser kirim `OPTIONS` sebelum `POST` cross-origin. Sekarang `OPTIONS` diproses seperti request biasa dan return error karena tidak ada token. Tambah handler di awal: `if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }`.
 
 58. **`verify.php` — CORS query ke Supabase setiap request**

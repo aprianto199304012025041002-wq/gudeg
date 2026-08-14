@@ -11,6 +11,12 @@ require_once __DIR__ . '/includes/RateLimiter.php';
 require_once __DIR__ . '/includes/LocalCache.php';
 header('Content-Type: application/json');
 
+// Handle OPTIONS preflight — browser kirim ini sebelum POST cross-origin
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(204);
+    exit;
+}
+
 // FIX: Jangan pakai Access-Control-Allow-Origin: * untuk endpoint sensitif.
 // Cek Origin request dan izinkan hanya jika cocok dengan domain aplikasi yang terdaftar.
 // Kalau tidak ada Origin header (curl/server-to-server), tetap lanjut tanpa CORS header.
