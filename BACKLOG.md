@@ -114,7 +114,7 @@
 29. ~~**`RateLimiter.php` — `md5()` untuk key hash**~~ ✅
     MD5 sudah deprecated untuk keamanan. Ganti ke `hash('sha256', ...)`. Tidak ada risiko langsung karena hanya dipakai sebagai lookup key, bukan password.
 
-30. **`RateLimiter.php` — `@unlink()` pakai error suppressor**
+30. ~~**`RateLimiter.php` — `@unlink()` pakai error suppressor**~~ ✅
     Ganti ke cek return value atau try/catch tanpa `@`.
 
 31. **`SupabaseClient.php` — tidak ada `CURLOPT_CONNECTTIMEOUT`**

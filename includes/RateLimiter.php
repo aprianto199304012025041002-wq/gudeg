@@ -97,7 +97,11 @@ class RateLimiter
     private static function fileDelete(string $hash): void
     {
         $path = self::filePath($hash);
-        if (file_exists($path)) @unlink($path);
+        if (file_exists($path) && !unlink($path)) {
+            function_exists('gudeg_log')
+                ? gudeg_log('WARNING', 'RateLimiter::fileDelete', "Gagal hapus file rate limit: $path")
+                : error_log("RateLimiter::fileDelete: gagal hapus $path");
+        }
     }
 
     // ── Baca data dari SQLite, fallback ke file kalau SQLite gagal ────────────
