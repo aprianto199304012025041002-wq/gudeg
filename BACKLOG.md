@@ -150,7 +150,7 @@
 41. ~~**`jwt.php` — tidak validasi `alg` di header saat `verify()`**~~ ✅
     Header JWT tidak dicek bahwa `alg === 'RS256'`. Tambah validasi ini sebagai defense in depth.
 
-42. **`jwt.php` — duplikasi `base64url_encode/decode` dari `functions.php`**
+42. ~~**`jwt.php` — duplikasi `base64url_encode/decode` dari `functions.php`**~~ ✅
     Implementasi private static yang berbeda dari versi global di `functions.php`. Bisa pakai yang global.
 
 43. **`layout.php` — `global $user` anti-pattern**

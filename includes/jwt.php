@@ -1,16 +1,10 @@
 <?php
 
+require_once __DIR__ . '/functions.php';
+
 class JWT {
     private static ?string $cachedPrivateKey = null;
     private static ?string $cachedPublicKey  = null;
-
-    private static function base64url_encode($data) {
-        return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
-    }
-
-    private static function base64url_decode($data) {
-        return base64_decode(strtr($data, '-_', '+/') . str_repeat('=', 3 - (3 + strlen($data)) % 4));
-    }
 
     private static function loadPrivateKey(): \OpenSSLAsymmetricKey {
         if (self::$cachedPrivateKey !== null) {
@@ -64,18 +58,18 @@ class JWT {
     public static function generate(array $payload, int $expiry_seconds = 3600) {
         $private_key = self::loadPrivateKey();
 
-        $header = self::base64url_encode(json_encode(['alg' => 'RS256', 'typ' => 'JWT']));
+        $header = base64url_encode(json_encode(['alg' => 'RS256', 'typ' => 'JWT']));
         $payload['iat'] = time();
         $payload['exp'] = time() + $expiry_seconds;
         $payload['iss'] = 'gudeg-sso';
-        $body = self::base64url_encode(json_encode($payload));
+        $body = base64url_encode(json_encode($payload));
 
         $signing_input = "$header.$body";
         if (!openssl_sign($signing_input, $signature, $private_key, OPENSSL_ALGO_SHA256)) {
             function_exists('gudeg_log') && gudeg_log('CRITICAL', 'JWT::generate', 'openssl_sign() gagal: ' . openssl_error_string());
             throw new \Exception('JWT signing failed');
         }
-        $sig = self::base64url_encode($signature);
+        $sig = base64url_encode($signature);
 
         return "$header.$body.$sig";
     }
@@ -90,19 +84,19 @@ class JWT {
         [$header, $body, $sig] = $parts;
 
         // Validasi header — tolak token dengan alg selain RS256 (algorithm confusion attack)
-        $header_data = json_decode(self::base64url_decode($header), true);
+        $header_data = json_decode(base64url_decode($header), true);
         if (!is_array($header_data) || ($header_data['alg'] ?? '') !== 'RS256') {
             function_exists('gudeg_log') && gudeg_log('WARNING', 'JWT::verify', 'Token ditolak: alg tidak valid atau bukan RS256');
             return false;
         }
 
         $signing_input = "$header.$body";
-        $signature = self::base64url_decode($sig);
+        $signature = base64url_decode($sig);
 
         $valid = openssl_verify($signing_input, $signature, $public_key, OPENSSL_ALGO_SHA256);
         if ($valid !== 1) return false;
 
-        $payload = json_decode(self::base64url_decode($body), true);
+        $payload = json_decode(base64url_decode($body), true);
         if (!$payload) return false;
         if ($payload['exp'] < time()) return false;
 
