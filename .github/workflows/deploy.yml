@@ -22,13 +22,21 @@ jobs:
             '${{ secrets.HEALTH_KEY }}' > config/.env
 
       - name: Buat keys/private.pem dari secret
+        env:
+          RSA_PRIVATE_KEY: ${{ secrets.RSA_PRIVATE_KEY }}
         run: |
           mkdir -p keys
-          printf '%s' '${{ secrets.RSA_PRIVATE_KEY }}' > keys/private.pem
+          echo "$RSA_PRIVATE_KEY" > keys/private.pem
+          # Validasi: pastikan key bisa di-parse OpenSSL
+          openssl rsa -in keys/private.pem -check -noout 2>&1 || { echo "ERROR: private.pem tidak valid!"; exit 1; }
 
       - name: Buat keys/public.pem dari secret
+        env:
+          RSA_PUBLIC_KEY: ${{ secrets.RSA_PUBLIC_KEY }}
         run: |
-          printf '%s' '${{ secrets.RSA_PUBLIC_KEY }}' > keys/public.pem
+          echo "$RSA_PUBLIC_KEY" > keys/public.pem
+          # Validasi: pastikan key bisa di-parse OpenSSL
+          openssl rsa -in keys/public.pem -pubin -noout 2>&1 || { echo "ERROR: public.pem tidak valid!"; exit 1; }
 
       - name: Update deployed_at di version.json
         run: |

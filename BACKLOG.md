@@ -216,7 +216,7 @@
 63. ~~**`deploy.yml` — `exclude` tidak sertakan beberapa file**~~ ✅
     Belum exclude: `query-results/`, `BACKLOG.md`, `ROTATE_KEY_GUDEG.md`, `git-filter-repo`, `config/db.php`, `assets/favicon-16.png`, `assets/favicon-32.png`.
 
-64. **`deploy.yml` — inject RSA key via `printf '%s'` berisiko newline**
+64. ~~**`deploy.yml` — inject RSA key via `printf '%s'` berisiko newline**~~ ✅
     Kalau key punya newline yang tidak terbaca `printf`, key corrupt tapi tidak langsung ketahuan sampai user coba SSO.
 
 65. **`deploy.yml` — `sleep 15` terlalu pendek untuk InfinityFree**
