@@ -22,6 +22,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $desc      = trim($_POST['description'] ?? '');
         $signed    = isset($_POST['use_signed_token']) ? 1 : 0;
         if ($name && $redirect) {
+            // Validasi format URL redirect — harus https:// atau http://localhost
+            $parsed = parse_url($redirect);
+            $scheme = strtolower($parsed['scheme'] ?? '');
+            $host   = strtolower($parsed['host'] ?? '');
+            $valid_redirect = ($scheme === 'https') ||
+                              ($scheme === 'http' && in_array($host, ['localhost', '127.0.0.1'], true));
+            if (!$valid_redirect) {
+                $bubble_type  = 'error';
+                $bubble_title = 'URL Redirect Tidak Valid';
+                $bubble_desc  = 'URL redirect harus HTTPS (atau HTTP localhost untuk development).';
+            } else {
             $cid       = bin2hex(random_bytes(8));
             $sec_plain = bin2hex(random_bytes(32));
             $sec_hash  = hash_client_secret($sec_plain);
@@ -44,6 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $bubble_desc  = htmlspecialchars($name) . ' berhasil didaftarkan. Client ID: <code>' . htmlspecialchars($cid) . '</code>';
             $bubble_code  = $sec_plain;
             $bubble_warn  = 'Simpan secret ini sekarang — tidak akan ditampilkan lagi!';
+            } // end if ($valid_redirect)
         }
     } elseif ($action === 'regenerate_secret') {
         $id  = (int)$_POST['app_id'];

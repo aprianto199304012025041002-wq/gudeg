@@ -171,7 +171,7 @@
 48. ~~**`login.php` — cleanup session lama ada N+1 query**~~ ✅
     `foreach ($old_sessions as $s) { $sb->delete(...) }` — satu delete per session format lama. Kalau banyak, banyak request ke Supabase.
 
-49. **`admin/apps.php` — `redirect` URL tidak divalidasi format**
+49. ~~**`admin/apps.php` — `redirect` URL tidak divalidasi format**~~ ✅
     Bisa diisi string sembarang, bukan harus URL valid `https://`. Kalau diisi URL berbahaya, JWT dikirim ke sana. Tambah `filter_var($redirect, FILTER_VALIDATE_URL)`.
 
 50. **`admin/apps.php` — tidak ada proteksi double-submit**
