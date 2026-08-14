@@ -234,10 +234,10 @@
 69. ~~**`ROTATE_KEY_GUDEG.md` — tidak ada langkah invalidate session aktif setelah rotate**~~ ✅
     Setelah key di-rotate, JWT yang sedang beredar jadi invalid. Perlu langkah eksplisit untuk handle ini.
 
-70. **`README.md` — assets dideskripsikan "tidak ada CDN" tapi faktanya ada Google Fonts**
+70. ~~**`README.md` — assets dideskripsikan "tidak ada CDN" tapi faktanya ada Google Fonts**~~ ✅
     Inkonsistensi dokumentasi.
 
-71. **`README.md` — `query-results/` tidak ada peringatan data sensitif**
+71. ~~**`README.md` — `query-results/` tidak ada peringatan data sensitif**~~ ✅
     Tidak ada catatan bahwa folder ini berisi data nyata dan tidak boleh di-commit.
 
 72. **`README.md` — `query-supabase.yml` tidak terdokumentasikan**

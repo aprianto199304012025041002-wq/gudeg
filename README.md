@@ -36,7 +36,7 @@ gudeg/
 │   ├── index.php                   # Panel admin — manajemen user
 │   ├── apps.php                    # Panel admin — manajemen aplikasi SSO
 │   └── logs.php                    # Panel admin — audit log (user & admin)
-├── assets/                         # CSS, JS, font lokal (self-hosted, tidak ada CDN)
+├── assets/                         # CSS, JS, font lokal (Tabler self-hosted; Google Fonts masih dimuat dari CDN — lihat BACKLOG #75)
 ├── config/
 │   └── .gitkeep                    # .env taruh di sini (JANGAN di-commit)
 ├── includes/
@@ -48,7 +48,7 @@ gudeg/
 │   └── layout.php                  # Template HTML (head, nav, footer)
 ├── keys/
 │   └── .gitkeep                    # private.pem & public.pem taruh di sini (JANGAN di-commit)
-├── query-results/                  # Output workflow query Supabase (untuk diagnosa)
+├── query-results/                  # ⚠️  Output workflow query Supabase — JANGAN di-commit! Berisi data sensitif (session IDs, email, hash). Sudah di .gitignore.
 ├── 403.php                         # Error page 403 Forbidden
 ├── 404.php                         # Error page 404 Not Found
 ├── 500.php                         # Error page 500 Internal Server Error
