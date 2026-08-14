@@ -502,6 +502,16 @@ showBubble(
   <?= $duration ?>
 );
 <?php endif; ?>
+// Proteksi double-submit: disable semua submit button setelah form di-submit
+document.querySelectorAll('form').forEach(function(form) {
+  form.addEventListener('submit', function() {
+    form.querySelectorAll('button[type="submit"]').forEach(function(btn) {
+      btn.disabled = true;
+      btn.style.opacity = '0.6';
+      btn.style.cursor  = 'not-allowed';
+    });
+  });
+});
 </script>
 
 <?php layout_foot(); ?>

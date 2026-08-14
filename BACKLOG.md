@@ -174,7 +174,7 @@
 49. ~~**`admin/apps.php` — `redirect` URL tidak divalidasi format**~~ ✅
     Bisa diisi string sembarang, bukan harus URL valid `https://`. Kalau diisi URL berbahaya, JWT dikirim ke sana. Tambah `filter_var($redirect, FILTER_VALIDATE_URL)`.
 
-50. **`admin/apps.php` — tidak ada proteksi double-submit**
+50. ~~**`admin/apps.php` — tidak ada proteksi double-submit**~~ ✅
     Admin bisa klik "Daftarkan Aplikasi" dua kali dan bikin dua app identik. Tambah session lock seperti `register.php`.
 
 51. **`admin/index.php` — `reset_password` tidak ada try/catch untuk delete sessions**
