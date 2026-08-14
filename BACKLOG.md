@@ -219,7 +219,7 @@
 64. ~~**`deploy.yml` — inject RSA key via `printf '%s'` berisiko newline**~~ ✅
     Kalau key punya newline yang tidak terbaca `printf`, key corrupt tapi tidak langsung ketahuan sampai user coba SSO.
 
-65. **`deploy.yml` — `sleep 15` terlalu pendek untuk InfinityFree**
+65. ~~**`deploy.yml` — `sleep 15` terlalu pendek untuk InfinityFree**~~ ✅
     InfinityFree butuh lebih lama propagate file. Sering menyebabkan healthcheck gagal padahal deploy berhasil. Naikkan ke 30-45 detik.
 
 66. **`ROTATE_KEY_GUDEG.md` — klaim "private key pernah ter-commit" tidak terbukti**

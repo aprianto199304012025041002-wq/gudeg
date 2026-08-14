@@ -70,7 +70,7 @@ jobs:
 
       - name: Health check setelah deploy (informasi saja)
         run: |
-          sleep 15
+          sleep 40
           URL="https://gudeg.xo.je/healthcheck.php?key=${{ secrets.HEALTH_KEY }}"
           STATUS=$(curl -s -o /tmp/hc_body.json -w "%{http_code}" --max-time 30 "$URL" || echo "000")
           echo "HTTP Status: $STATUS"
