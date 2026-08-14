@@ -141,7 +141,7 @@
 38. ~~**`functions.php` — `cleanup_old_logs()` pakai `user_cache` untuk menyimpan metadata cleanup**~~ ✅
     Key `__cleanup_last__` disimpan di tabel `user_cache` yang seharusnya hanya untuk data user. Pisah ke tabel `meta` atau pakai tabel `rate_limit` dengan key khusus.
 
-39. **`jwt.php` — key file dibaca ulang setiap `generate()`/`verify()`**
+39. ~~**`jwt.php` — key file dibaca ulang setiap `generate()`/`verify()`**~~ ✅
     Tidak ada caching key ke static variable. Setiap request baca file dari disk. Cache ke static variable untuk hemat I/O.
 
 40. **`jwt.php` — `openssl_sign()` return value tidak dicek**

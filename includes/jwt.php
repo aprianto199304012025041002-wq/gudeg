@@ -1,6 +1,9 @@
 <?php
 
 class JWT {
+    private static ?string $cachedPrivateKey = null;
+    private static ?string $cachedPublicKey  = null;
+
     private static function base64url_encode($data) {
         return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
     }
@@ -9,23 +12,57 @@ class JWT {
         return base64_decode(strtr($data, '-_', '+/') . str_repeat('=', 3 - (3 + strlen($data)) % 4));
     }
 
-    // Generate JWT signed with RSA private key
-    public static function generate(array $payload, int $expiry_seconds = 3600) {
-        $private_key_path = __DIR__ . '/../keys/private.pem';
-        if (!file_exists($private_key_path)) {
-            function_exists('gudeg_log') && gudeg_log('CRITICAL', 'JWT::generate', 'private.pem tidak ditemukan di ' . $private_key_path);
+    private static function loadPrivateKey(): \OpenSSLAsymmetricKey {
+        if (self::$cachedPrivateKey !== null) {
+            $key = openssl_pkey_get_private(self::$cachedPrivateKey);
+            if ($key) return $key;
+        }
+        $path = __DIR__ . '/../keys/private.pem';
+        if (!file_exists($path)) {
+            function_exists('gudeg_log') && gudeg_log('CRITICAL', 'JWT::loadPrivateKey', 'private.pem tidak ditemukan di ' . $path);
             throw new Exception('Private key not found');
         }
-        $raw_key = file_get_contents($private_key_path);
-        if ($raw_key === false) {
-            function_exists('gudeg_log') && gudeg_log('CRITICAL', 'JWT::generate', 'gagal baca private.pem — cek permission file');
+        $raw = file_get_contents($path);
+        if ($raw === false) {
+            function_exists('gudeg_log') && gudeg_log('CRITICAL', 'JWT::loadPrivateKey', 'gagal baca private.pem — cek permission file');
             throw new Exception('Cannot read private key');
         }
-        $private_key = openssl_pkey_get_private($raw_key);
-        if (!$private_key) {
-            function_exists('gudeg_log') && gudeg_log('CRITICAL', 'JWT::generate', 'private.pem ada tapi tidak valid atau corrupt');
+        $key = openssl_pkey_get_private($raw);
+        if (!$key) {
+            function_exists('gudeg_log') && gudeg_log('CRITICAL', 'JWT::loadPrivateKey', 'private.pem ada tapi tidak valid atau corrupt');
             throw new Exception('Invalid private key');
         }
+        self::$cachedPrivateKey = $raw;
+        return $key;
+    }
+
+    private static function loadPublicKey(): \OpenSSLAsymmetricKey {
+        if (self::$cachedPublicKey !== null) {
+            $key = openssl_pkey_get_public(self::$cachedPublicKey);
+            if ($key) return $key;
+        }
+        $path = __DIR__ . '/../keys/public.pem';
+        if (!file_exists($path)) {
+            function_exists('gudeg_log') && gudeg_log('CRITICAL', 'JWT::loadPublicKey', 'public.pem tidak ditemukan di ' . $path);
+            throw new Exception('Public key not found');
+        }
+        $raw = file_get_contents($path);
+        if ($raw === false) {
+            function_exists('gudeg_log') && gudeg_log('CRITICAL', 'JWT::loadPublicKey', 'gagal baca public.pem — cek permission file');
+            throw new Exception('Cannot read public key');
+        }
+        $key = openssl_pkey_get_public($raw);
+        if (!$key) {
+            function_exists('gudeg_log') && gudeg_log('CRITICAL', 'JWT::loadPublicKey', 'public.pem ada tapi tidak valid atau corrupt');
+            throw new Exception('Invalid public key');
+        }
+        self::$cachedPublicKey = $raw;
+        return $key;
+    }
+
+    // Generate JWT signed with RSA private key
+    public static function generate(array $payload, int $expiry_seconds = 3600) {
+        $private_key = self::loadPrivateKey();
 
         $header = self::base64url_encode(json_encode(['alg' => 'RS256', 'typ' => 'JWT']));
         $payload['iat'] = time();
@@ -42,21 +79,7 @@ class JWT {
 
     // Verify JWT using RSA public key
     public static function verify(string $token) {
-        $public_key_path = __DIR__ . '/../keys/public.pem';
-        if (!file_exists($public_key_path)) {
-            function_exists('gudeg_log') && gudeg_log('CRITICAL', 'JWT::verify', 'public.pem tidak ditemukan di ' . $public_key_path);
-            throw new Exception('Public key not found');
-        }
-        $raw_key = file_get_contents($public_key_path);
-        if ($raw_key === false) {
-            function_exists('gudeg_log') && gudeg_log('CRITICAL', 'JWT::verify', 'gagal baca public.pem — cek permission file');
-            throw new Exception('Cannot read public key');
-        }
-        $public_key = openssl_pkey_get_public($raw_key);
-        if (!$public_key) {
-            function_exists('gudeg_log') && gudeg_log('CRITICAL', 'JWT::verify', 'public.pem ada tapi tidak valid atau corrupt');
-            throw new Exception('Invalid public key');
-        }
+        $public_key = self::loadPublicKey();
 
         $parts = explode('.', $token);
         if (count($parts) !== 3) return false;
