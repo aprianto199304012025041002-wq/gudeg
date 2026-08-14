@@ -168,7 +168,7 @@
 47. ~~**`login.php` — hidden input `redirect` tidak dibaca saat POST**~~ ✅
     `$redirect` hanya dibaca dari `$_GET` di awal, tidak dari `$_POST['redirect']`. Artinya hidden input `redirect` di form tidak pernah dipakai saat POST — mubazir.
 
-48. **`login.php` — cleanup session lama ada N+1 query**
+48. ~~**`login.php` — cleanup session lama ada N+1 query**~~ ✅
     `foreach ($old_sessions as $s) { $sb->delete(...) }` — satu delete per session format lama. Kalau banyak, banyak request ke Supabase.
 
 49. **`admin/apps.php` — `redirect` URL tidak divalidasi format**

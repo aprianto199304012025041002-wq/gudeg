@@ -122,16 +122,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                             // Hapus juga session lama dengan format unix timestamp
                             // (data lama sebelum fix format last_activity)
-                            // Unix timestamp yang expired: angka < $expired_ts sebagai string
                             $old_sessions = $sb->select('sessions', [
                                 'user_id' => (int)$user['id'],
                                 'id'      => 'neq.' . $sess_id,
                             ], 'id,last_activity');
+                            $expired_ids = [];
                             foreach ($old_sessions as $s) {
                                 $la = $s['last_activity'] ?? '';
                                 if (is_numeric($la) && (int)$la < $expired_ts) {
-                                    $sb->delete('sessions', ['id' => $s['id']]);
+                                    $expired_ids[] = $s['id'];
                                 }
+                            }
+                            if (!empty($expired_ids)) {
+                                $sb->delete('sessions', ['id' => 'in.(' . implode(',', $expired_ids) . ')']);
                             }
                         } catch (\Throwable $e) {
                             function_exists('gudeg_log') ? gudeg_log('WARNING', 'login.php::cleanup_session', $e->getMessage()) : error_log('cleanup session expired gagal: ' . $e->getMessage());
