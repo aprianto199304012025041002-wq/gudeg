@@ -225,13 +225,13 @@
 66. ~~**`ROTATE_KEY_GUDEG.md` — klaim "private key pernah ter-commit" tidak terbukti**~~ ✅
     Commit `e6a61a7` label "rotate RSA key" tapi empty, tidak ada konten key di history. Dokumen menyesatkan — perlu diklarifikasi.
 
-67. **`ROTATE_KEY_GUDEG.md` — disebut "via FTP (Hostinger)" padahal InfinityFree**
+67. ~~**`ROTATE_KEY_GUDEG.md` — disebut "via FTP (Hostinger)" padahal InfinityFree**~~ ✅
     Inkonsistensi hosting. Langkah 6 salah nama hosting.
 
-68. **`ROTATE_KEY_GUDEG.md` — tidak ada langkah update KOMENK dan KASPER**
+68. ~~**`ROTATE_KEY_GUDEG.md` — tidak ada langkah update KOMENK dan KASPER**~~ ✅
     Hanya ada langkah update PASAR, padahal KOMENK dan KASPER juga pakai public key yang sama untuk verify JWT.
 
-69. **`ROTATE_KEY_GUDEG.md` — tidak ada langkah invalidate session aktif setelah rotate**
+69. ~~**`ROTATE_KEY_GUDEG.md` — tidak ada langkah invalidate session aktif setelah rotate**~~ ✅
     Setelah key di-rotate, JWT yang sedang beredar jadi invalid. Perlu langkah eksplisit untuk handle ini.
 
 70. **`README.md` — assets dideskripsikan "tidak ada CDN" tapi faktanya ada Google Fonts**

@@ -52,19 +52,42 @@ cat .gitignore | grep keys
 git push origin master --force
 ```
 
-### 5. Update public key di PASAR (config.local.php di Hostinger)
-Di server PASAR, buka `config.local.php` dan update konstanta `SSO_PUBLIC_KEY`:
+### 5. Verifikasi key baru di lokal sebelum deploy
+```bash
+openssl rsa -in keys/private.pem -check -noout   # RSA key ok
+openssl rsa -in keys/public.pem -pubin -noout     # OK
+```
+
+### 6. Deploy key baru ke server GUDEG
+Upload `keys/private.pem` dan `keys/public.pem` yang baru ke server GUDEG
+via FTP (InfinityFree file manager atau FTP client), ke folder `keys/`.
+
+### 7. Update public key di semua aplikasi klien SSO
+Setiap aplikasi yang memverifikasi JWT GUDEG perlu di-update dengan public key baru:
+
+**PASAR** (Hostinger) — buka `config.local.php` dan update `SSO_PUBLIC_KEY`:
 ```php
 define('SSO_PUBLIC_KEY', '-----BEGIN PUBLIC KEY-----
 <isi dengan output keys/public.pem yang baru>
 -----END PUBLIC KEY-----');
 ```
 
-### 6. Deploy key baru ke server GUDEG
-Upload `keys/private.pem` dan `keys/public.pem` yang baru ke server GUDEG
-via FTP (Hostinger file manager atau FTP client), ke folder `keys/`.
+**KASPER** dan **KOMENK** — update konstanta atau env var yang menyimpan public key
+di masing-masing aplikasi. Pastikan semua sudah di-deploy sebelum key lama dinonaktifkan.
 
-### 7. Test SSO flow
+### 8. Invalidate semua session aktif
+Setelah key di-rotate, JWT lama yang beredar akan invalid karena signed dengan key lama.
+Untuk memaksa semua user re-login sekaligus:
+```sql
+-- Jalankan di Supabase SQL Editor
+DELETE FROM sessions;
+```
+Atau via healthcheck/admin panel kalau tersedia endpoint flush sessions.
+
+> **Catatan:** User yang sedang aktif akan di-logout otomatis saat request berikutnya
+> karena JWT mereka tidak bisa diverifikasi dengan key baru. Lakukan rotate di luar jam kerja.
+
+### 9. Test SSO flow
 - Buka PASAR → klik login → redirect ke GUDEG → login → callback
 - Pastikan token baru (signed dengan key baru) diterima dengan benar
 
