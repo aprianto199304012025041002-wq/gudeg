@@ -323,7 +323,9 @@ Masuk ke **Settings → Secrets and variables → Actions**, tambahkan:
 | `FTP_USERNAME` | Username FTP |
 | `FTP_PASSWORD` | Password FTP |
 | `SUPABASE_URL` | URL project Supabase (`https://xxxx.supabase.co`) |
-| `SUPABASE_SERVICE_KEY` | Service role key Supabase (bukan anon key) |
+| `SUPABASE_SERVICE_KEY` | Service role key Supabase untuk `deploy.yml` (bukan anon key) |
+| `SUPABASE_KEY` | Service role key Supabase untuk `query-supabase.yml` (sama nilainya dengan `SUPABASE_SERVICE_KEY`) |
+| `PAT_TOKEN` | GitHub Personal Access Token — dipakai `query-supabase.yml` untuk commit hasil query |
 | `HEALTH_KEY` | String acak untuk proteksi endpoint `/healthcheck.php` |
 | `RSA_PRIVATE_KEY` | Isi `keys/private.pem` (termasuk header `-----BEGIN...-----`) |
 | `RSA_PUBLIC_KEY` | Isi `keys/public.pem` |

@@ -243,10 +243,10 @@
 72. ~~**`README.md` — `query-supabase.yml` tidak terdokumentasikan**~~ ✅
     Hanya `deploy.yml` yang disebut di struktur proyek.
 
-73. **`README.md` — `PAT_TOKEN` secret tidak terdokumentasikan**
+73. ~~**`README.md` — `PAT_TOKEN` secret tidak terdokumentasikan**~~ ✅
     `query-supabase.yml` pakai `secrets.PAT_TOKEN` tapi tidak ada di tabel secrets README.
 
-74. **`README.md` — inkonsistensi nama secret `SUPABASE_KEY` vs `SUPABASE_SERVICE_KEY`**
+74. ~~**`README.md` — inkonsistensi nama secret `SUPABASE_KEY` vs `SUPABASE_SERVICE_KEY`**~~ ✅
     README dokumentasikan `SUPABASE_SERVICE_KEY` tapi `query-supabase.yml` pakai `SUPABASE_KEY`.
 
 ---
