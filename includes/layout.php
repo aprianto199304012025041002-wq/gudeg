@@ -4,8 +4,10 @@
  * Shared sidebar layout helpers.
  */
 
-function layout_head(string $title, string $active_nav = '') {
-    global $user;
+function layout_head(string $title, string $active_nav = '', ?array $user = null) {
+    if ($user === null) {
+        $user = $GLOBALS['user'] ?? [];
+    }
     $role     = htmlspecialchars($user['role'] ?? 'user');
     $name     = htmlspecialchars($user['name'] ?? '');
     $email    = htmlspecialchars($user['email'] ?? '');

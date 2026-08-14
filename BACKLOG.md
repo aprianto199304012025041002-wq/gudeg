@@ -153,7 +153,7 @@
 42. ~~**`jwt.php` — duplikasi `base64url_encode/decode` dari `functions.php`**~~ ✅
     Implementasi private static yang berbeda dari versi global di `functions.php`. Bisa pakai yang global.
 
-43. **`layout.php` — `global $user` anti-pattern**
+43. ~~**`layout.php` — `global $user` anti-pattern**~~ ✅
     `layout_head()` depend ke global variable `$user`. Kalau halaman lupa set `$user`, error tidak jelas. Lebih bersih pass sebagai parameter.
 
 44. **`layout.php` — `og:url` hardcode ke root**
