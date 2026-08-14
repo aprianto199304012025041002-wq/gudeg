@@ -79,6 +79,13 @@ class LocalCache
             )
         ");
 
+        self::$pdo->exec("
+            CREATE TABLE IF NOT EXISTS meta (
+                key   TEXT PRIMARY KEY,
+                value TEXT NOT NULL
+            )
+        ");
+
         return self::$pdo;
     }
 
@@ -338,8 +345,31 @@ class LocalCache
         }
     }
 
-    /**
-     * Dipakai oleh healthcheck.php — mengembalikan statistik pending_logs
+    // ── Meta (internal key-value) ─────────────────────────────────────────────
+
+    public static function metaGet(string $key): ?string
+    {
+        try {
+            $stmt = self::pdo()->prepare('SELECT value FROM meta WHERE key = ?');
+            $stmt->execute([$key]);
+            $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+            return $row ? $row['value'] : null;
+        } catch (\Throwable $e) {
+            function_exists('gudeg_log') ? gudeg_log('ERROR', 'LocalCache::metaGet', $e->getMessage()) : error_log('LocalCache::metaGet: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    public static function metaSet(string $key, string $value): void
+    {
+        try {
+            $stmt = self::pdo()->prepare('INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)');
+            $stmt->execute([$key, $value]);
+        } catch (\Throwable $e) {
+            function_exists('gudeg_log') ? gudeg_log('ERROR', 'LocalCache::metaSet', $e->getMessage()) : error_log('LocalCache::metaSet: ' . $e->getMessage());
+        }
+    }
+} — mengembalikan statistik pending_logs
      * tanpa harus expose method private pdo() via ReflectionClass.
      *
      * @return array{count: int, oldest_age_seconds: int}

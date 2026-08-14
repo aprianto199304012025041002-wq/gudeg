@@ -382,10 +382,9 @@ function cleanup_old_logs(): void {
     // Lebih reliable dari rand() yang bisa tidak jalan berhari-hari kalau traffic rendah.
     if (class_exists('LocalCache')) {
         try {
-            $last = LocalCache::getUser('__cleanup_last__');
-            $last_ts = $last['ts'] ?? 0;
+            $last_ts = (int) LocalCache::metaGet('cleanup_last_ts');
             if ((time() - $last_ts) < 86400) return; // belum 24 jam
-            LocalCache::setUser('__cleanup_last__', ['ts' => time()], 90000); // TTL 25 jam
+            LocalCache::metaSet('cleanup_last_ts', (string) time());
         } catch (\Throwable $e) {
             // LocalCache error — fallback ke rand() supaya cleanup tetap sesekali jalan
             gudeg_log('WARNING', 'cleanup_old_logs', 'LocalCache error, fallback ke rand(): ' . $e->getMessage());

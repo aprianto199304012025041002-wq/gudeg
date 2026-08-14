@@ -138,7 +138,7 @@
 37. ~~**`functions.php` — duplikasi parsing IP antara `log_activity()` dan `get_ip()`**~~ ✅
     `log_activity()` parse IP sendiri inline, `log_admin_action()` pakai `get_ip()`. Seragamkan: `log_activity()` juga pakai `get_ip()`.
 
-38. **`functions.php` — `cleanup_old_logs()` pakai `user_cache` untuk menyimpan metadata cleanup**
+38. ~~**`functions.php` — `cleanup_old_logs()` pakai `user_cache` untuk menyimpan metadata cleanup**~~ ✅
     Key `__cleanup_last__` disimpan di tabel `user_cache` yang seharusnya hanya untuk data user. Pisah ke tabel `meta` atau pakai tabel `rate_limit` dengan key khusus.
 
 39. **`jwt.php` — key file dibaca ulang setiap `generate()`/`verify()`**
