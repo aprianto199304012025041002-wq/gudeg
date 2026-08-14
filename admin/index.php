@@ -43,7 +43,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             log_admin_action($user['id'], $user['name'], 'Reset Password', $target['email']);
             try {
                 $sb->delete('sessions', ['user_id' => $target_id]);
-            } catch (\Throwable $e) {}
+            } catch (\Throwable $e) {
+                gudeg_log('WARNING', 'admin/index::reset_password', 'Gagal hapus sessions user ' . $target_id . ': ' . $e->getMessage());
+            }
             $msg = "Password <strong>{$target['name']}</strong> direset ke: <code>$new_pass</code>";
             $msg_type = 'info';
         } elseif ($action === 'delete_user') {
@@ -54,9 +56,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'deleted_at' => date('Y-m-d H:i:s'),
                 'is_active'  => false,
             ]);
-            $sb->delete('sessions',          ['user_id' => $target_id]);
-            $sb->delete('user_logs',         ['user_id' => $target_id]);
-            $sb->delete('user_applications', ['user_id' => $target_id]);
+            try {
+                $sb->delete('sessions',          ['user_id' => $target_id]);
+                $sb->delete('user_logs',         ['user_id' => $target_id]);
+                $sb->delete('user_applications', ['user_id' => $target_id]);
+            } catch (\Throwable $e) {
+                gudeg_log('WARNING', 'admin/index::delete_user', 'Gagal hapus data relasi user ' . $target_id . ': ' . $e->getMessage());
+            }
             log_admin_action($user['id'], $user['name'], 'Hapus User (Soft Delete)', $target['name'] . ' (' . $target['email'] . ')');
             $msg = "Akun <strong>{$target['name']}</strong> telah dinonaktifkan dan disembunyikan dari sistem.";
             $msg_type = 'danger';

@@ -177,10 +177,10 @@
 50. ~~**`admin/apps.php` — tidak ada proteksi double-submit**~~ ✅
     Admin bisa klik "Daftarkan Aplikasi" dua kali dan bikin dua app identik. Tambah session lock seperti `register.php`.
 
-51. **`admin/index.php` — `reset_password` tidak ada try/catch untuk delete sessions**
+51. ~~**`admin/index.php` — `reset_password` tidak ada try/catch untuk delete sessions**~~ ✅
     `$sb->delete('sessions', ['user_id' => $target_id])` dipanggil tanpa try/catch. Kalau gagal, session target tidak terhapus tapi tidak ada log.
 
-52. **`admin/index.php` — `delete_user` 4 operasi Supabase tanpa try/catch**
+52. ~~**`admin/index.php` — `delete_user` 4 operasi Supabase tanpa try/catch**~~ ✅
     Kalau satu operasi gagal di tengah, data setengah terhapus tanpa log dan tanpa rollback.
 
 53. **`admin/index.php` — `update_apps` N+1 insert**
