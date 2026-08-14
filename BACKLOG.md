@@ -123,7 +123,7 @@
 32. ~~**`SupabaseClient.php` — `selectRaw()` tidak punya parameter `$timeout`**~~ ✅
     Berbeda dengan `request()` yang sudah punya `$timeout` parameter, `selectRaw()` masih hardcode 10 detik.
 
-33. **`functions.php` — komentar CSP tidak akurat**
+33. ~~**`functions.php` — komentar CSP tidak akurat**~~ ✅
     Komentar bilang "semua aset sudah self-hosted, tidak ada CDN" padahal `login.php` dan `layout.php` masih load Google Fonts dari CDN.
 
 34. **`functions.php` — `csrf_verify()` die dengan plaintext**

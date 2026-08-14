@@ -47,7 +47,7 @@ if (!headers_sent()) {
     header("X-XSS-Protection: 1; mode=block");
     header("Referrer-Policy: strict-origin-when-cross-origin");
     header("Strict-Transport-Security: max-age=31536000; includeSubDomains; preload");
-    // CSP diperketat: semua aset sudah self-hosted (font Tabler lokal, tidak ada CDN)
+    // CSP: font-src 'self' — Google Fonts di login.php & layout.php perlu dimigrasi ke self-hosted agar sesuai (lihat BACKLOG #75)
     header("Content-Security-Policy: default-src \'self\'; script-src \'self\' \'unsafe-inline\'; style-src \'self\' \'unsafe-inline\'; font-src \'self\'; img-src \'self\' data:; connect-src \'self\' https://*.supabase.co; frame-ancestors \'self\'; form-action \'self\'; base-uri \'self\'");
     header("Permissions-Policy: geolocation=(), camera=(), microphone=(), payment=(), usb=(), interest-cohort=()");
     header_remove("X-Powered-By");

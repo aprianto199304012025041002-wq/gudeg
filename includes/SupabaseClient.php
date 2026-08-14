@@ -223,6 +223,12 @@ class SupabaseClient
         }
 
         $data = $body === '' ? [] : json_decode($body, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            function_exists('gudeg_log')
+                ? gudeg_log('ERROR', "SupabaseClient::selectRaw", "JSON decode error ($table): " . json_last_error_msg() . " — body: " . substr($body, 0, 200))
+                : error_log("Supabase JSON decode error (selectRaw $table): " . json_last_error_msg());
+            $data = [];
+        }
         if (!is_array($data)) {
             $data = [];
         }
