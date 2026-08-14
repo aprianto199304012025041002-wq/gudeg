@@ -93,7 +93,7 @@
 22. ~~**`healthcheck.php` — cek RSA key validasi OpenSSL, bukan hanya `file_exists()`**~~ ✅
     `file_exists()` tidak jamin key bisa di-load OpenSSL. Tambah `openssl_pkey_get_private()` check.
 
-23. **`healthcheck.php` — `require_once LocalCache.php` dipanggil dua kali**
+23. ~~**`healthcheck.php` — `require_once LocalCache.php` dipanggil dua kali**~~ ✅
     Di check #5 dan #6 keduanya ada `require_once`. Yang kedua mubazir, hapus.
 
 24. **`healthcheck.php` — akses `pdo()` via `ReflectionClass`**

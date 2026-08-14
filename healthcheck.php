@@ -91,7 +91,6 @@ try {
 
 // ── 6. Cek pending logs — kalau ada log tertunda > 1 jam, Supabase mungkin down lama ──
 try {
-    require_once __DIR__ . '/includes/LocalCache.php';
     $pdo = (new ReflectionClass('LocalCache'))->getMethod('pdo');
     $pdo->setAccessible(true);
     $db  = $pdo->invoke(null);
