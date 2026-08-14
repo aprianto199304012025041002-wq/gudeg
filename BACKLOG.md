@@ -132,7 +132,7 @@
 35. ~~**`functions.php` — `check_session_timeout()` silent catch**~~ ✅
     `catch (\Throwable $e) {}` kosong saat delete session dari Supabase. Tambah `gudeg_log('WARNING', ...)`.
 
-36. **`functions.php` — `cleanup_old_logs()` silent catch**
+36. ~~**`functions.php` — `cleanup_old_logs()` silent catch**~~ ✅
     Dua catch kosong setelah delete user_logs dan admin_logs. Tambah `gudeg_log('WARNING', ...)`.
 
 37. **`functions.php` — duplikasi parsing IP antara `log_activity()` dan `get_ip()`**

@@ -389,6 +389,7 @@ function cleanup_old_logs(): void {
             LocalCache::setUser('__cleanup_last__', ['ts' => time()], 90000); // TTL 25 jam
         } catch (\Throwable $e) {
             // LocalCache error — fallback ke rand() supaya cleanup tetap sesekali jalan
+            gudeg_log('WARNING', 'cleanup_old_logs', 'LocalCache error, fallback ke rand(): ' . $e->getMessage());
             if (rand(1, 100) > 5) return;
         }
     } else {
@@ -400,8 +401,10 @@ function cleanup_old_logs(): void {
     try {
         getSupabase()->delete('user_logs',  ['created_at' => 'lt.' . $cutoff]);
         getSupabase()->delete('admin_logs', ['created_at' => 'lt.' . $cutoff]);
-    } catch (\Throwable $e) {}
-}
+        gudeg_log('INFO', 'cleanup_old_logs', "Log lama sebelum $cutoff berhasil dibersihkan");
+    } catch (\Throwable $e) {
+        gudeg_log('WARNING', 'cleanup_old_logs', 'Gagal hapus log lama dari Supabase: ' . $e->getMessage());
+    }
 
 // ── Input sanitization ───────────────────────────────────────────────────────
 
