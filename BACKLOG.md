@@ -105,7 +105,7 @@
 26. ~~**`LocalCache.php` — `flushLogs()` tidak validasi `$tbl` dari DB**~~ ✅
     Saat flush, `$row['tbl']` dari SQLite langsung dipass ke `$inserter` tanpa whitelist. Sama solusinya dengan poin di atas.
 
-27. **`LocalCache.php` — nama field `cached_at` menyesatkan**
+27. ~~**`LocalCache.php` — nama field `cached_at` menyesatkan**~~ ✅
     Isinya bukan waktu cache dibuat, tapi waktu expiry. Lebih akurat `expires_at`. Perlu migration data kalau diubah.
 
 28. **`LocalCache.php` — cleanup token blacklist setiap inisialisasi PDO**

@@ -50,9 +50,18 @@ class LocalCache
             CREATE TABLE IF NOT EXISTS user_cache (
                 user_id   TEXT PRIMARY KEY,
                 data      TEXT NOT NULL,
-                cached_at INTEGER NOT NULL
+                expires_at INTEGER NOT NULL
             )
         ");
+
+        // Migrasi: rename cached_at → expires_at kalau kolom lama masih ada
+        try {
+            $cols = self::$pdo->query("PRAGMA table_info(user_cache)")->fetchAll(\PDO::FETCH_ASSOC);
+            $names = array_column($cols, 'name');
+            if (in_array('cached_at', $names, true) && !in_array('expires_at', $names, true)) {
+                self::$pdo->exec('ALTER TABLE user_cache RENAME COLUMN cached_at TO expires_at');
+            }
+        } catch (\Throwable) { /* SQLite lama, abaikan */ }
 
         self::$pdo->exec("
             CREATE TABLE IF NOT EXISTS rate_limit (
@@ -114,7 +123,7 @@ class LocalCache
     {
         try {
             $stmt = self::pdo()->prepare('
-                INSERT OR REPLACE INTO user_cache (user_id, data, cached_at)
+                INSERT OR REPLACE INTO user_cache (user_id, data, expires_at)
                 VALUES (?, ?, ?)
             ');
             $stmt->execute([$user_id, json_encode($data), time() + $ttl]);
@@ -130,7 +139,7 @@ class LocalCache
     {
         try {
             $stmt = self::pdo()->prepare('
-                SELECT data FROM user_cache WHERE user_id = ? AND cached_at > ?
+                SELECT data FROM user_cache WHERE user_id = ? AND expires_at > ?
             ');
             $stmt->execute([$user_id, time()]);
             $row = $stmt->fetchColumn();
@@ -163,7 +172,7 @@ class LocalCache
         try {
             $db = self::pdo();
             $db->exec('DELETE FROM token_blacklist WHERE exp < ' . time());
-            $db->exec('DELETE FROM user_cache WHERE cached_at < ' . time());
+            $db->exec('DELETE FROM user_cache WHERE expires_at < ' . time());
         } catch (\Throwable $e) {
             function_exists('gudeg_log') ? gudeg_log('ERROR', 'LocalCache::cleanup', $e->getMessage()) : error_log('LocalCache::cleanup: ' . $e->getMessage());
         }
