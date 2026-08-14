@@ -204,10 +204,10 @@
 59. ~~**`verify.php` — `$_REQUEST` lebih baik `$_POST`**~~ ✅
     `$_REQUEST` ambil dari GET, POST, dan Cookie. Credential tidak seharusnya dikirim via GET (muncul di server log). Ganti ke `$_POST`.
 
-60. **`sso.php` — `$state` tidak divalidasi panjang**
+60. ~~**`sso.php` — `$state` tidak divalidasi panjang**~~ ✅
     `$_GET['state']` langsung di-`urlencode` tanpa batas panjang. URL bisa terlalu panjang. Tambah `substr($state, 0, 128)`.
 
-61. **`.ftp-deploy-sync-state.json` — ada di repo padahal sudah di-gitignore**
+61. ~~**`.ftp-deploy-sync-state.json` — ada di repo padahal sudah di-gitignore**~~ ✅
     File sudah di `.gitignore` tapi sudah masuk git history. Perlu `git rm --cached .ftp-deploy-sync-state.json`.
 
 62. **`.gitignore` — banyak entry yang kurang**

@@ -122,7 +122,7 @@ try {
 $separator    = strpos($app['redirect'], '?') !== false ? '&' : '?';
 $redirect_url = $app['redirect'] . $separator . 'token=' . urlencode($token);
 
-$state = $_GET['state'] ?? '';
+$state = substr($_GET['state'] ?? '', 0, 128);
 if ($state) {
     $redirect_url .= '&state=' . urlencode($state);
 }
