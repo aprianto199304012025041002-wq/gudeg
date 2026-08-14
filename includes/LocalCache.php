@@ -240,6 +240,18 @@ class LocalCache
                 $payload = json_decode($row['payload'], true);
                 if (!is_array($payload)) {
                     // Payload corrupt — buang saja
+                    function_exists('gudeg_log')
+                        ? gudeg_log('WARNING', 'LocalCache::flushLogs', 'payload corrupt di-discard, id=' . $row['id'] . ' tbl=' . $row['tbl'])
+                        : error_log('LocalCache::flushLogs: payload corrupt id=' . $row['id']);
+                    $db->prepare('DELETE FROM pending_logs WHERE id = ?')->execute([$row['id']]);
+                    continue;
+                }
+
+                // Whitelist tbl — cegah data aneh dari SQLite dipass ke Supabase
+                if (!in_array($row['tbl'], ['user_logs', 'admin_logs'], true)) {
+                    function_exists('gudeg_log')
+                        ? gudeg_log('WARNING', 'LocalCache::flushLogs', 'tbl tidak diizinkan, di-discard id=' . $row['id'] . ' tbl=' . $row['tbl'])
+                        : error_log('LocalCache::flushLogs: tbl tidak diizinkan id=' . $row['id']);
                     $db->prepare('DELETE FROM pending_logs WHERE id = ?')->execute([$row['id']]);
                     continue;
                 }
