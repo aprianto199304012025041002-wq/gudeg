@@ -147,7 +147,7 @@
 40. ~~**`jwt.php` — `openssl_sign()` return value tidak dicek**~~ ✅
     Kalau gagal, `$signature` kosong dan token invalid tapi tidak ada exception. Tambah `if (!$signature) throw new Exception(...)`.
 
-41. **`jwt.php` — tidak validasi `alg` di header saat `verify()`**
+41. ~~**`jwt.php` — tidak validasi `alg` di header saat `verify()`**~~ ✅
     Header JWT tidak dicek bahwa `alg === 'RS256'`. Tambah validasi ini sebagai defense in depth.
 
 42. **`jwt.php` — duplikasi `base64url_encode/decode` dari `functions.php`**

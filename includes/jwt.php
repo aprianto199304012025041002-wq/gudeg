@@ -88,6 +88,14 @@ class JWT {
         if (count($parts) !== 3) return false;
 
         [$header, $body, $sig] = $parts;
+
+        // Validasi header — tolak token dengan alg selain RS256 (algorithm confusion attack)
+        $header_data = json_decode(self::base64url_decode($header), true);
+        if (!is_array($header_data) || ($header_data['alg'] ?? '') !== 'RS256') {
+            function_exists('gudeg_log') && gudeg_log('WARNING', 'JWT::verify', 'Token ditolak: alg tidak valid atau bukan RS256');
+            return false;
+        }
+
         $signing_input = "$header.$body";
         $signature = self::base64url_decode($sig);
 
