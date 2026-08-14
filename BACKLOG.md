@@ -186,7 +186,7 @@
 53. ~~**`admin/index.php` — `update_apps` N+1 insert**~~ ✅
     `foreach ($app_ids as $aid) { $sb->insert(...) }` — satu request per aplikasi. Belum ada bulk insert di Supabase PostgREST, tapi bisa dipertimbangkan batching.
 
-54. **`admin/index.php` — `select('user_applications')` tanpa filter**
+54. ~~**`admin/index.php` — `select('user_applications')` tanpa filter**~~ ✅
     Fetch semua baris tanpa filter apapun. Seharusnya filter by user_id dari daftar user yang di-render.
 
 55. **`change-password.php` — `logout_session` & `logout_all_sessions` tanpa try/catch**

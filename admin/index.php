@@ -88,8 +88,11 @@ $users    = $sb->select('users', ['deleted_at' => 'is.null'], '*', ['order' => '
 $all_apps = $sb->select('sso_applications', [], '*', ['order' => 'id.asc']);
 
 $ua_map = [];
-foreach ($sb->select('user_applications') as $r) {
-    $ua_map[$r['user_id']][] = $r['application_id'];
+$user_ids = array_column($users, 'id');
+if (!empty($user_ids)) {
+    foreach ($sb->select('user_applications', ['user_id' => 'in.(' . implode(',', $user_ids) . ')']) as $r) {
+        $ua_map[$r['user_id']][] = $r['application_id'];
+    }
 }
 
 layout_head('Admin · User', 'admin-users');
