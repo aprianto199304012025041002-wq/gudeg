@@ -371,6 +371,45 @@ APK terdeteksi via `User-Agent: GudegJogjaApp` — session otomatis diperpanjang
 
 ---
 
+## 🔑 Panduan Rotate RSA Key
+
+> Berdasarkan pemeriksaan git history, `keys/private.pem` tidak terbukti pernah ter-commit. Panduan ini disimpan untuk prosedur bila diperlukan di masa mendatang.
+
+### 1. Generate key baru
+```bash
+openssl genrsa -out keys/private.pem 2048
+openssl rsa -in keys/private.pem -pubout -out keys/public.pem
+openssl rsa -in keys/private.pem -check -noout  # RSA key ok
+```
+
+### 2. Bersihkan git history (kalau key sempat ter-commit)
+```bash
+pip install git-filter-repo
+git filter-repo --path keys/ --invert-paths --force
+git remote add origin https://github.com/aprianto199304012025041002-wq/gudeg.git
+git push origin master --force
+```
+
+### 3. Deploy key baru ke server GUDEG
+Upload `keys/private.pem` dan `keys/public.pem` via FTP InfinityFree ke folder `keys/`.
+
+### 4. Update public key di semua aplikasi klien SSO
+- **PASAR** (Hostinger) — update `SSO_PUBLIC_KEY` di `config.local.php`
+- **KASPER** dan **KOMENK** — update konstanta/env var yang menyimpan public key
+
+### 5. Invalidate semua session aktif
+```sql
+-- Jalankan di Supabase SQL Editor
+DELETE FROM sessions;
+```
+
+### 6. Test SSO flow
+Buka PASAR → login → redirect ke GUDEG → callback → pastikan token baru diterima.
+
+> User yang sedang aktif akan di-logout otomatis. Lakukan rotate di luar jam kerja.
+
+---
+
 ## 📄 Lisensi
 
 Proyek ini bersifat privat. Hak cipta sepenuhnya milik pengembang.
