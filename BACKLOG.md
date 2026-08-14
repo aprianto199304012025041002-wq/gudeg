@@ -144,7 +144,7 @@
 39. ~~**`jwt.php` — key file dibaca ulang setiap `generate()`/`verify()`**~~ ✅
     Tidak ada caching key ke static variable. Setiap request baca file dari disk. Cache ke static variable untuk hemat I/O.
 
-40. **`jwt.php` — `openssl_sign()` return value tidak dicek**
+40. ~~**`jwt.php` — `openssl_sign()` return value tidak dicek**~~ ✅
     Kalau gagal, `$signature` kosong dan token invalid tapi tidak ada exception. Tambah `if (!$signature) throw new Exception(...)`.
 
 41. **`jwt.php` — tidak validasi `alg` di header saat `verify()`**

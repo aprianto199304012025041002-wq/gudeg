@@ -71,7 +71,10 @@ class JWT {
         $body = self::base64url_encode(json_encode($payload));
 
         $signing_input = "$header.$body";
-        openssl_sign($signing_input, $signature, $private_key, OPENSSL_ALGO_SHA256);
+        if (!openssl_sign($signing_input, $signature, $private_key, OPENSSL_ALGO_SHA256)) {
+            function_exists('gudeg_log') && gudeg_log('CRITICAL', 'JWT::generate', 'openssl_sign() gagal: ' . openssl_error_string());
+            throw new \Exception('JWT signing failed');
+        }
         $sig = self::base64url_encode($signature);
 
         return "$header.$body.$sig";
