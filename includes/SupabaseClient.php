@@ -174,7 +174,8 @@ class SupabaseClient
         ?int $limit = null,
         ?int $offset = null,
         ?string $order = null,
-        bool $withCount = false
+        bool $withCount = false,
+        int $timeout = 10
     ): array {
         $parts = ['select=' . rawurlencode($columns)];
         foreach ($rawFilters as $f) {
@@ -200,7 +201,7 @@ class SupabaseClient
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_HTTPHEADER     => $headers,
-            CURLOPT_TIMEOUT        => 10,
+            CURLOPT_TIMEOUT        => $timeout,
             CURLOPT_CONNECTTIMEOUT => 5,
             CURLOPT_HEADERFUNCTION => function ($curl, $header) use (&$responseHeaders) {
                 $responseHeaders .= $header;

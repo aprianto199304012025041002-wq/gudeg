@@ -120,7 +120,7 @@
 31. ~~**`SupabaseClient.php` — tidak ada `CURLOPT_CONNECTTIMEOUT`**~~ ✅
     Tanpa ini, kalau server Supabase tidak bisa dikoneksi (bukan lambat), PHP nunggu sampai OS timeout. Tambah `CURLOPT_CONNECTTIMEOUT => 5` di `selectRaw()` dan `request()`.
 
-32. **`SupabaseClient.php` — `selectRaw()` tidak punya parameter `$timeout`**
+32. ~~**`SupabaseClient.php` — `selectRaw()` tidak punya parameter `$timeout`**~~ ✅
     Berbeda dengan `request()` yang sudah punya `$timeout` parameter, `selectRaw()` masih hardcode 10 detik.
 
 33. **`functions.php` — komentar CSP tidak akurat**
