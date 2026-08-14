@@ -68,9 +68,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $msg_type = 'danger';
         } elseif ($action === 'update_apps') {
             $app_ids = array_map('intval', $_POST['app_ids'] ?? []);
-            $sb->delete('user_applications', ['user_id' => $target_id]);
-            foreach ($app_ids as $aid) {
-                $sb->insert('user_applications', ['user_id' => $target_id, 'application_id' => $aid]);
+            try {
+                $sb->delete('user_applications', ['user_id' => $target_id]);
+                if (!empty($app_ids)) {
+                    $rows = array_map(fn($aid) => ['user_id' => $target_id, 'application_id' => $aid], $app_ids);
+                    $sb->insert('user_applications', $rows);
+                }
+            } catch (\Throwable $e) {
+                gudeg_log('WARNING', 'admin/index::update_apps', 'Gagal update akses aplikasi user ' . $target_id . ': ' . $e->getMessage());
             }
             log_admin_action($user['id'], $user['name'], 'Update Akses Aplikasi SSO', $target['name']);
             $msg = "Akses aplikasi <strong>{$target['name']}</strong> diperbarui.";

@@ -183,7 +183,7 @@
 52. ~~**`admin/index.php` — `delete_user` 4 operasi Supabase tanpa try/catch**~~ ✅
     Kalau satu operasi gagal di tengah, data setengah terhapus tanpa log dan tanpa rollback.
 
-53. **`admin/index.php` — `update_apps` N+1 insert**
+53. ~~**`admin/index.php` — `update_apps` N+1 insert**~~ ✅
     `foreach ($app_ids as $aid) { $sb->insert(...) }` — satu request per aplikasi. Belum ada bulk insert di Supabase PostgREST, tapi bisa dipertimbangkan batching.
 
 54. **`admin/index.php` — `select('user_applications')` tanpa filter**
