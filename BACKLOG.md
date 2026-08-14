@@ -129,7 +129,7 @@
 34. ~~**`functions.php` — `csrf_verify()` die dengan plaintext**~~ ✅
     `die('Invalid CSRF token.')` tidak set HTTP code dulu dan return plaintext. Tambah `http_response_code(403)` dan return JSON atau redirect.
 
-35. **`functions.php` — `check_session_timeout()` silent catch**
+35. ~~**`functions.php` — `check_session_timeout()` silent catch**~~ ✅
     `catch (\Throwable $e) {}` kosong saat delete session dari Supabase. Tambah `gudeg_log('WARNING', ...)`.
 
 36. **`functions.php` — `cleanup_old_logs()` silent catch**

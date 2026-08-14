@@ -288,9 +288,15 @@ function check_session_timeout(): void {
 
     $last = $_SESSION['last_activity'] ?? null;
     if ($last !== null && (time() - $last) > SESSION_TIMEOUT) {
+        $ip      = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? 'unknown')[0];
+        $user_id = $_SESSION['user_id'] ?? 'unknown';
+        gudeg_log('INFO', 'check_session_timeout', "Session timeout — user_id=$user_id IP=$ip");
+
         try {
             getSupabase()->delete('sessions', ['id' => session_id()]);
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+            gudeg_log('WARNING', 'check_session_timeout', 'Gagal hapus session dari Supabase: ' . $e->getMessage());
+        }
 
         session_unset();
         session_destroy();
