@@ -246,8 +246,10 @@ function csrf_verify(): void {
     session_start_safe();
     $token = $_POST['csrf_token'] ?? '';
     if (empty($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $token)) {
+        gudeg_log('WARNING', 'csrf_verify', 'CSRF token tidak valid — IP: ' . ($_SERVER['REMOTE_ADDR'] ?? 'unknown'));
         http_response_code(403);
-        die('Invalid CSRF token.');
+        header('Content-Type: application/json; charset=utf-8');
+        die(json_encode(['error' => 'Invalid CSRF token.']));
     }
 }
 

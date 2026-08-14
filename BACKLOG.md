@@ -126,7 +126,7 @@
 33. ~~**`functions.php` — komentar CSP tidak akurat**~~ ✅
     Komentar bilang "semua aset sudah self-hosted, tidak ada CDN" padahal `login.php` dan `layout.php` masih load Google Fonts dari CDN.
 
-34. **`functions.php` — `csrf_verify()` die dengan plaintext**
+34. ~~**`functions.php` — `csrf_verify()` die dengan plaintext**~~ ✅
     `die('Invalid CSRF token.')` tidak set HTTP code dulu dan return plaintext. Tambah `http_response_code(403)` dan return JSON atau redirect.
 
 35. **`functions.php` — `check_session_timeout()` silent catch**
