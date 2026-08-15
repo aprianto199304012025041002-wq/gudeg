@@ -388,11 +388,11 @@ select.sel-sm:focus { outline: none; border-color: var(--accent); box-shadow: 0 
       <input type="hidden" name="action" value="delete_user">
       <input type="hidden" name="target_id" value="<?= $u['id'] ?>">
       <button type="button" class="btn-sm delete"
-              onclick="showConfirm('Nonaktifkan User',
-                '<span style=\'color:var(--danger);font-weight:600\'>PERINGATAN:</span> Hapus akun <strong><?= htmlspecialchars(addslashes($u['name'])) ?></strong> Akun akan disembunyikan dari sistem dan tidak bisa login. Data tetap tersimpan di database.',
-                'Ya, Nonaktifkan', 'danger',
+              onclick="showConfirm('Hapus User',
+                '<span style=\'color:var(--danger);font-weight:600\'>PERINGATAN:</span> Hapus akun <strong><?= htmlspecialchars(addslashes($u['name'])) ?></strong>? Akun akan disembunyikan permanen dari sistem dan tidak bisa login. Data tetap tersimpan di database (soft delete).',
+                'Ya, Hapus', 'danger',
                 function(){ document.getElementById('form-delete-<?= $u['id'] ?>').submit(); })">
-        &#128683; Nonaktifkan User
+        &#128683; Hapus User
       </button>
     </form>
 
