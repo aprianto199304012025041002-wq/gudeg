@@ -36,7 +36,7 @@ jobs:
         run: |
           mkdir -p query-results
           BASE="https://nscgcspkotpghgmgbwyb.supabase.co/rest/v1"
-          KEY="${{ secrets.SUPABASE_KEY }}"
+          KEY="${{ secrets.SUPABASE_SERVICE_KEY }}"
 
           # Query tabel yang diminta
           curl -s \

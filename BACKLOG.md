@@ -48,10 +48,10 @@ cat /home/claude/gudeg/BACKLOG.md
     **Solusi pilihan A (lebih bersih):** Hapus Google Fonts, ganti ke system font stack di CSS. Tidak perlu ubah CSP.
     **Solusi pilihan B:** Update CSP di kedua tempat tambah `fonts.googleapis.com fonts.gstatic.com` di `font-src`, dan tambah `fonts.googleapis.com` di `style-src`.~~ ✅
 
-76. **`query-supabase.yml` — nama secret tidak konsisten dengan `deploy.yml`**
+~~76. **`query-supabase.yml` — nama secret tidak konsisten dengan `deploy.yml`**
     **File:** `.github/workflows/query-supabase.yml`
     **Masalah:** `query-supabase.yml` pakai `secrets.SUPABASE_KEY` (baris `KEY="${{ secrets.SUPABASE_KEY }}"`), sedangkan `deploy.yml` pakai `secrets.SUPABASE_SERVICE_KEY`. Keduanya adalah service role key Supabase yang sama nilainya, tapi nama secret berbeda — jadi ada dua secret dengan nilai sama di GitHub. Seragamkan ke satu nama.
-    **Solusi:** Ganti `secrets.SUPABASE_KEY` di `query-supabase.yml` jadi `secrets.SUPABASE_SERVICE_KEY`, lalu hapus secret `SUPABASE_KEY` dari GitHub Settings.
+    **Solusi:** Ganti `secrets.SUPABASE_KEY` di `query-supabase.yml` jadi `secrets.SUPABASE_SERVICE_KEY`, lalu hapus secret `SUPABASE_KEY` dari GitHub Settings.~~ ✅ (Hapus secret `SUPABASE_KEY` dari GitHub Settings → Secrets secara manual)
 
 77. **`.htaccess` — `query-results/` tidak diblokir akses publik**
     **File:** `.htaccess`
