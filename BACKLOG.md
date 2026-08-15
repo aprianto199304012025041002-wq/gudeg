@@ -53,7 +53,7 @@ cat /home/claude/gudeg/BACKLOG.md
     **Masalah:** `query-supabase.yml` pakai `secrets.SUPABASE_KEY` (baris `KEY="${{ secrets.SUPABASE_KEY }}"`), sedangkan `deploy.yml` pakai `secrets.SUPABASE_SERVICE_KEY`. Keduanya adalah service role key Supabase yang sama nilainya, tapi nama secret berbeda — jadi ada dua secret dengan nilai sama di GitHub. Seragamkan ke satu nama.
     **Solusi:** Ganti `secrets.SUPABASE_KEY` di `query-supabase.yml` jadi `secrets.SUPABASE_SERVICE_KEY`, lalu hapus secret `SUPABASE_KEY` dari GitHub Settings.~~ ✅ (Hapus secret `SUPABASE_KEY` dari GitHub Settings → Secrets secara manual)
 
-77. **`.htaccess` — `query-results/` tidak diblokir akses publik**
+~~77. **`.htaccess` — `query-results/` tidak diblokir akses publik**
     **File:** `.htaccess`
     **Masalah:** Folder `query-results/` yang berisi output query Supabase bisa diakses langsung via browser: `https://gudeg.xo.je/query-results/result.json`. Walaupun folder sudah di `.gitignore` dan harusnya tidak ter-deploy, tidak ada jaminan — perlu diblokir di level server juga.
     **Solusi:** Tambah di `.htaccess`:
@@ -64,12 +64,12 @@ cat /home/claude/gudeg/BACKLOG.md
         </Directory>
     </IfModule>
     ```
-    Atau pakai `<Files>` pattern yang match `query-results/`.
+    Atau pakai `<Files>` pattern yang match `query-results/`.~~ ✅ (via mod_rewrite RewriteRule ^query-results → 403)
 
-78. **`.htaccess` — beberapa file sensitif belum diblokir akses langsung**
+~~78. **`.htaccess` — beberapa file sensitif belum diblokir akses langsung**
     **File:** `.htaccess`
     **Masalah:** `BACKLOG.md`, `README.md`, `robots.txt` (sudah ok), `version.json` bisa diakses publik. `BACKLOG.md` berisi PAT GitHub dan detail teknis internal. `README.md` berisi info arsitektur detail.
-    **Solusi:** Tambah `FilesMatch` untuk block akses ke `BACKLOG.md` dan `README.md` dari browser.
+    **Solusi:** Tambah `FilesMatch` untuk block akses ke `BACKLOG.md` dan `README.md` dari browser.~~ ✅
 
 79. **`.htaccess` — CSP `script-src 'unsafe-inline'`**
     **File:** `.htaccess` (baris `Header set Content-Security-Policy`) dan `includes/functions.php` (baris `header("Content-Security-Policy: ...")`)
