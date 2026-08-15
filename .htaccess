@@ -83,10 +83,17 @@ php_flag log_errors On
 # ── Blokir akses ke folder sensitif ──────────────────────────────────────────
 # query-results/ berisi output query Supabase — tidak boleh diakses publik
 # Folder ini di .gitignore, tapi diblokir juga di level server sebagai defense-in-depth
-<IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteRule ^query-results(/|$) - [F,L]
-</IfModule>
+# CATATAN: RewriteEngine On tanpa RewriteBase menyebabkan 403 di InfinityFree.
+# Diblokir via FilesMatch saja sebagai fallback — query-results/ sudah di .gitignore.
+<FilesMatch "^query-results">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
 # Blokir BACKLOG.md dan README.md — berisi detail teknis internal (#78)
 <FilesMatch "^(BACKLOG|README)\.md$">
     <IfModule mod_authz_core.c>
