@@ -220,7 +220,7 @@ layout_head('Admin · Log', 'admin-logs');
     <?php else: ?>
       <span class="log-action"><?= htmlspecialchars($log['action']) ?></span>
     <?php endif; ?>
-    <span class="log-time"><?= date('d M y H:i', strtotime($log['created_at'])) ?></span>
+    <span class="log-time"><?= date('d M Y H:i:s', strtotime($log['created_at'])) ?></span>
   </div>
   <div class="log-meta">
     <?php if ($tab === 'user'): ?>
