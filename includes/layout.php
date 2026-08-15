@@ -50,7 +50,11 @@ function layout_head(string $title, string $active_nav = '', ?array $user = null
 <meta property="og:title" content="GUDEG - <?= htmlspecialchars($title) ?>">
 <meta property="og:description" content="Sistem SSO terpadu Balai Monitor Spektrum Frekuensi Radio Kelas I Yogyakarta.">
 <meta property="og:url" content="https://gudeg.xo.je<?= htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/') ?>">
-<meta property="og:image" content="https://gudeg.xo.je/assets/favicon/favicon.png">
+<meta property="og:image" content="https://gudeg.xo.je/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://gudeg.xo.je/assets/og-image.png">
 <meta property="og:locale" content="id_ID">
 
 <!-- Favicon -->

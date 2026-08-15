@@ -111,10 +111,10 @@ cat /home/claude/gudeg/BACKLOG.md
     **Masalah:** User yang register langsung masuk DB dengan status `is_active = false` tanpa verifikasi email. Admin harus aktivasi manual. Tidak ada konfirmasi bahwa email yang dimasukkan valid.
     **Catatan:** Sama seperti #85, butuh infrastruktur email. Bisa dikerjakan bersamaan dengan #85.
 
-87. **OG Tags — tidak ada file `og:image` yang proper**
+~~87. **OG Tags — tidak ada file `og:image` yang proper**
     **File:** `includes/layout.php`
     **Masalah:** `og:image` sekarang mengarah ke `favicon.png` (fix dari #45) tapi ukurannya kecil. OG image yang proper untuk preview di WhatsApp/Telegram/Twitter harusnya 1200×630px.
-    **Solusi:** Buat file `assets/og-image.png` ukuran 1200×630px berisi logo/nama GUDEG, lalu update `layout.php` mengarah ke file tersebut.
+    **Solusi:** Buat file `assets/og-image.png` ukuran 1200×630px berisi logo/nama GUDEG, lalu update `layout.php` mengarah ke file tersebut.~~ ✅
 
 88. **`functions.php` — terlalu besar, perlu dipecah**
     **File:** `includes/functions.php` (~477 baris)

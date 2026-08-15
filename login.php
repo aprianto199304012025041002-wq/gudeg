@@ -235,9 +235,13 @@ if ($login_success) {
 <meta property="og:description" content="Masuk ke GUDEG — sistem SSO terpadu Balai Monitor Spektrum Frekuensi Radio Yogyakarta.">
 <meta property="og:url" content="https://gudeg.xo.je/login.php">
 <meta property="og:site_name" content="GUDEG JOGJA">
-<meta name="twitter:card" content="summary">
+<meta property="og:image" content="https://gudeg.xo.je/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="GUDEG - Login">
 <meta name="twitter:description" content="Masuk ke GUDEG — sistem SSO terpadu Balai Monitor Spektrum Frekuensi Radio Yogyakarta.">
+<meta name="twitter:image" content="https://gudeg.xo.je/assets/og-image.png">
 <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
 <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
 <link rel="apple-touch-icon" href="/assets/favicon.png">
