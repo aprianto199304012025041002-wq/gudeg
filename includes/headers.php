@@ -30,7 +30,16 @@ if (!headers_sent()) {
     // #79 #80: unsafe-inline dihapus — diganti nonce per request.
     // Script/style yang mengandung PHP data wajib pakai atribut nonce="<?= csp_nonce() ?>".
     // Script/style yang sudah dipindah ke file eksternal tidak perlu nonce.
-    header("Content-Security-Policy: default-src 'self'; script-src 'self' 'nonce-{$nonce}'; style-src 'self' 'nonce-{$nonce}'; font-src 'self'; img-src 'self' data:; connect-src 'self' https://*.supabase.co; frame-ancestors 'self'; form-action 'self'; base-uri 'self'");
+    $csp = "default-src 'self'; "
+           . "script-src 'self' 'nonce-" . $nonce . "'; "
+           . "style-src 'self' 'nonce-" . $nonce . "'; "
+           . "font-src 'self'; "
+           . "img-src 'self' data:; "
+           . "connect-src 'self' https://*.supabase.co; "
+           . "frame-ancestors 'self'; "
+           . "form-action 'self'; "
+           . "base-uri 'self'";
+    header('Content-Security-Policy: ' . $csp);
     header("Permissions-Policy: geolocation=(), camera=(), microphone=(), payment=(), usb=(), interest-cohort=()");
     header_remove("X-Powered-By");
 }
