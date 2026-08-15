@@ -1,6 +1,6 @@
 <?php
 /**
- * SqliteSessionHandler — Custom PHP session handler berbasis SQLite.
+ * SqliteSessionHandler - Custom PHP session handler berbasis SQLite.
  *
  * Menggantikan default file-based session (/tmp) yang volatile di InfinityFree.
  * SQLite disimpan di path yang dikonfigurasi via SESSION_DB_PATH di .env,

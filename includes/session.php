@@ -1,6 +1,6 @@
 <?php
 /**
- * session.php — Session management, auth guards, timeout.
+ * session.php - Session management, auth guards, timeout.
  *
  * Fungsi:
  *  - session_start_safe()      : start session dengan SqliteSessionHandler dan cookie params
@@ -11,18 +11,18 @@
  *  - is_from_apk()             : deteksi request dari APK Android
  */
 
-// ── Konstanta session ─────────────────────────────────────────────────────────
-define('SESSION_TIMEOUT', 30 * 60); // 30 menit tidak aktif → auto logout
+// -- Konstanta session ---------------------------------------------------------
+define('SESSION_TIMEOUT', 30 * 60); // 30 menit tidak aktif -> auto logout
 
-// ── Activity constants ────────────────────────────────────────────────────────
-// Definisikan di sini — pakai di semua log_activity() dan is_new_ip().
-// Jangan tulis string literal 'Login' langsung di kode — rentan typo dan inkonsistensi.
+// -- Activity constants --------------------------------------------------------
+// Definisikan di sini - pakai di semua log_activity() dan is_new_ip().
+// Jangan tulis string literal 'Login' langsung di kode - rentan typo dan inkonsistensi.
 define('ACTIVITY_LOGIN', 'Login');
 
 function session_start_safe(): void
 {
     if (session_status() === PHP_SESSION_NONE) {
-        // Daftarkan SQLite session handler (#95) — cegah session hilang saat /tmp di-clear.
+        // Daftarkan SQLite session handler (#95) - cegah session hilang saat /tmp di-clear.
         // Handler dibuat hanya sekali; kalau gagal (misal SQLite tidak tersedia),
         // PHP akan fallback ke default file handler secara otomatis.
         static $handler_registered = false;
@@ -138,7 +138,7 @@ function check_session_timeout(): void
     if ($last !== null && (time() - $last) > SESSION_TIMEOUT) {
         $ip      = get_ip();
         $user_id = $_SESSION['user_id'] ?? 'unknown';
-        gudeg_log('INFO', 'check_session_timeout', "Session timeout — user_id=$user_id IP=$ip");
+        gudeg_log('INFO', 'check_session_timeout', "Session timeout - user_id=$user_id IP=$ip");
 
         try {
             getSupabase()->delete('sessions', ['id' => session_id()]);

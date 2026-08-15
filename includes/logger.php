@@ -1,6 +1,6 @@
 <?php
 /**
- * logger.php — Structured JSON logger.
+ * logger.php - Structured JSON logger.
  */
 
 /**

@@ -1,6 +1,6 @@
 <?php
 /**
- * activity.php — Activity logging, admin action logging, IP helper, cleanup.
+ * activity.php - Activity logging, admin action logging, IP helper, cleanup.
  *
  * Fungsi:
  *  - get_ip()            : ambil IP asli dari header (support proxy)
@@ -36,7 +36,7 @@ function log_activity($user_id, $name, $email, $activity): void
                 getSupabase()->insert($tbl, $p, 3); // non-kritis, timeout pendek
             });
         } catch (\Throwable $e) {
-            // flush gagal — tidak apa-apa, akan dicoba lagi nanti
+            // flush gagal - tidak apa-apa, akan dicoba lagi nanti
         }
     }
 
@@ -44,7 +44,7 @@ function log_activity($user_id, $name, $email, $activity): void
         getSupabase()->insert('user_logs', $payload, 3); // non-kritis, timeout pendek
     } catch (\Throwable $e) {
         gudeg_log('WARNING', 'log_activity', 'Supabase gagal, antri ke SQLite: ' . $e->getMessage());
-        // Supabase gagal — antri ke LocalCache, kirim ulang di request berikutnya
+        // Supabase gagal - antri ke LocalCache, kirim ulang di request berikutnya
         if (class_exists('LocalCache')) {
             LocalCache::logQueue('user_logs', $payload);
         }
@@ -69,7 +69,7 @@ function log_admin_action($admin_id, $admin_name, $action, $target = '-'): void
         getSupabase()->insert('admin_logs', $payload, 3); // non-kritis, timeout pendek
     } catch (\Throwable $e) {
         gudeg_log('WARNING', 'log_admin_action', 'Supabase gagal, antri ke SQLite: ' . $e->getMessage());
-        // Supabase gagal — antri ke LocalCache, kirim ulang di request berikutnya
+        // Supabase gagal - antri ke LocalCache, kirim ulang di request berikutnya
         if (class_exists('LocalCache')) {
             LocalCache::logQueue('admin_logs', $payload);
         }
@@ -78,7 +78,7 @@ function log_admin_action($admin_id, $admin_name, $action, $target = '-'): void
 
 /**
  * Hapus log lebih dari 90 hari secara otomatis.
- * Dipanggil dari halaman log admin — tidak perlu cron job.
+ * Dipanggil dari halaman log admin - tidak perlu cron job.
  * Jalankan maksimal sekali per 24 jam via LocalCache timestamp.
  */
 function cleanup_old_logs(): void

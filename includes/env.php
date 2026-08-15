@@ -1,11 +1,11 @@
 <?php
 /**
- * env.php — Load config/.env dan inisialisasi SupabaseClient.
+ * env.php - Load config/.env dan inisialisasi SupabaseClient.
  * Dipanggil pertama kali oleh functions.php.
  */
 date_default_timezone_set('Asia/Jakarta');
 
-// ── Load config/.env ──────────────────────────────────────────────────────────
+// -- Load config/.env ----------------------------------------------------------
 // db.php dulu yang handle ini, tapi MySQL sudah tidak dipakai.
 // Sekarang parsing .env langsung di sini supaya tidak ada dead dependency.
 (function () {

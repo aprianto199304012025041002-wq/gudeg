@@ -1,6 +1,6 @@
 <?php
 /**
- * token.php — JWT helpers dan token replay blacklist.
+ * token.php - JWT helpers dan token replay blacklist.
  *
  * Fungsi:
  *  - base64url_encode()  : encode base64 URL-safe (RFC 7519)
@@ -8,8 +8,8 @@
  *  - token_use()         : cek dan tandai token sebagai sudah dipakai (anti-replay)
  */
 
-// ── Helper: base64url encoding/decoding (RFC 7519) ───────────────────────────
-// Didefinisikan di sini sekali — dipakai oleh sso.php dan verify.php.
+// -- Helper: base64url encoding/decoding (RFC 7519) ---------------------------
+// Didefinisikan di sini sekali - dipakai oleh sso.php dan verify.php.
 
 function base64url_encode(string $data): string
 {
@@ -21,7 +21,7 @@ function base64url_decode(string $data): string
     return base64_decode(strtr($data, '-_', '+/') . str_repeat('=', (4 - strlen($data) % 4) % 4));
 }
 
-// ── Token replay blacklist ────────────────────────────────────────────────────
+// -- Token replay blacklist ----------------------------------------------------
 
 /**
  * Tandai token sebagai sudah dipakai (blacklist berdasarkan JTI).
@@ -59,7 +59,7 @@ function token_use(string $jti, int $exp): bool
         return true;
 
     } catch (\Throwable $e) {
-        // Supabase error — fallback ke LocalCache (fail-closed)
+        // Supabase error - fallback ke LocalCache (fail-closed)
         gudeg_log('WARNING', 'token_use', 'Supabase error, fallback ke LocalCache: ' . $e->getMessage());
 
         if (class_exists('LocalCache')) {
@@ -67,7 +67,7 @@ function token_use(string $jti, int $exp): bool
             return LocalCache::tokenUse($jti, $exp);
         }
 
-        // Kedua sumber gagal — tolak token (fail-closed, bukan fail-open)
+        // Kedua sumber gagal - tolak token (fail-closed, bukan fail-open)
         gudeg_log('WARNING', 'token_use', 'LocalCache tidak tersedia, token ditolak sebagai precaution.');
         return false;
     }

@@ -1,6 +1,6 @@
 <?php
 /**
- * validation.php — Input validation, sanitasi, password strength, IP detection.
+ * validation.php - Input validation, sanitasi, password strength, IP detection.
  *
  * Fungsi:
  *  - validate_password_strength()  : cek kekuatan password, return pesan error atau null
@@ -72,7 +72,7 @@ function verify_client_secret(string $plain, string $hash): bool
 }
 
 /**
- * Potong dan bersihkan string input — cegah spam DB dan buffer overflow.
+ * Potong dan bersihkan string input - cegah spam DB dan buffer overflow.
  * Gunakan di semua form input sebelum simpan ke DB.
  */
 function sanitize_input(string $value, int $max_len = 255): string
