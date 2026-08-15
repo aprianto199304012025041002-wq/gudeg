@@ -92,10 +92,10 @@ cat /home/claude/gudeg/BACKLOG.md
     **Masalah:** Fungsi query `user_logs` dengan filter `'activity' => 'Login'`. Kalau nilai string activity pernah berubah (misalnya jadi `'login'` lowercase atau `'Login berhasil'`), fungsi ini selalu return `true` (selalu anggap IP baru) dan kirim notifikasi palsu terus.
     **Solusi:** Definisikan konstanta `ACTIVITY_LOGIN = 'Login'` di `functions.php` dan pakai konstanta itu di semua tempat yang log aktivitas login, termasuk di `is_new_ip()`.~~ ✅
 
-83. **`admin/index.php` — role `admin` tidak bisa di-set dari panel, tidak terdokumentasi**
+~~83. **`admin/index.php` — role `admin` tidak bisa di-set dari panel, tidak terdokumentasi**
     **File:** `admin/index.php`, sekitar baris 27-31 dan 359-363
     **Masalah:** Action `change_role` hanya izinkan nilai `user` dan `guest` (`in_array($new_role, ['user', 'guest'])`). Dropdown di HTML juga hanya punya dua pilihan itu. Tidak ada komentar kenapa `admin` tidak bisa di-set dari panel.
-    **Solusi:** Tambah komentar PHP di atas blok `change_role` yang menjelaskan bahwa role `admin` harus di-set manual via Supabase SQL Editor — by design untuk cegah privilege escalation.
+    **Solusi:** Tambah komentar PHP di atas blok `change_role` yang menjelaskan bahwa role `admin` harus di-set manual via Supabase SQL Editor — by design untuk cegah privilege escalation.~~ ✅
 
 84. **`change-password.php` — form ganti password tidak ada proteksi double-submit**
     **File:** `change-password.php`

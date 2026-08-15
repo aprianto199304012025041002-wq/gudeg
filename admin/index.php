@@ -26,6 +26,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $msg_type = 'success';
         } elseif ($action === 'change_role') {
             $new_role = $_POST['new_role'] ?? '';
+            // Whitelist hanya 'user' dan 'guest' — sengaja tidak termasuk 'admin'.
+            // Promosi ke admin harus dilakukan langsung di DB (Supabase dashboard)
+            // oleh superadmin, bukan via panel ini, untuk mencegah privilege escalation
+            // tidak sengaja oleh admin biasa.
             if (in_array($new_role, ['user', 'guest'])) {
                 $sb->update('users', ['id' => $target_id], ['role' => $new_role]);
                 log_admin_action($user['id'], $user['name'], "Ubah Role menjadi " . strtoupper($new_role), $target['name']);
@@ -361,6 +365,7 @@ select.sel-sm:focus { outline: none; border-color: var(--accent); box-shadow: 0 
       <select name="new_role" class="sel-sm">
         <option value="user"  <?= $u['role']==='user' ?'selected':'' ?>>User</option>
         <option value="guest" <?= $u['role']==='guest'?'selected':'' ?>>Guest</option>
+        <!-- 'admin' tidak ada di sini: promosi admin harus via Supabase dashboard langsung -->
       </select>
       <button type="submit" class="btn-sm">Ubah Role</button>
     </form>
