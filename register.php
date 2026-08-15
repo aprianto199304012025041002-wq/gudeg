@@ -410,7 +410,7 @@ input:-webkit-autofill:focus {
 </head>
 <body>
 
-<button class="theme-fab" onclick="toggleTheme()" aria-label="Ganti tema">
+<button class="theme-fab" id="theme-fab-btn" aria-label="Ganti tema">
   <i class="ti ti-sun theme-toggle-icon" aria-hidden="true"></i>
 </button>
 
@@ -544,6 +544,12 @@ function closeBubble(b) {
 <?php if ($error): ?>
 showBubble('danger', 'alert-circle', 'Gagal Mendaftar', <?= json_encode(htmlspecialchars($error)) ?>);
 <?php endif; ?>
+
+// Bind event listeners - pengganti onclick= yang diblokir CSP nonce
+(function() {
+  var fab = document.getElementById('theme-fab-btn');
+  if (fab) fab.addEventListener('click', function() { if (window.toggleTheme) toggleTheme(); });
+})();
 </script>
 </body>
 </html>

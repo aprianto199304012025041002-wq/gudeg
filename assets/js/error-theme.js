@@ -24,3 +24,18 @@
   window.toggleTheme = function() { applyTheme(getTheme() === 'dark' ? 'bright' : 'dark'); };
   applyTheme(getTheme());
 })();
+
+// Bind event listeners - pengganti onclick= yang diblokir CSP nonce
+(function() {
+  function bindEvents() {
+    var fab = document.getElementById('theme-fab-btn');
+    if (fab) fab.addEventListener('click', function() { if (window.toggleTheme) toggleTheme(); });
+    var reload = document.getElementById('reload-btn');
+    if (reload) reload.addEventListener('click', function() { location.reload(); });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bindEvents);
+  } else {
+    bindEvents();
+  }
+})();

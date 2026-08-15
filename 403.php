@@ -30,7 +30,7 @@ if (!defined('ADMIN_EMAIL')) define('ADMIN_EMAIL', 'admin@dummy.com');
 </head>
 <body>
 
-<button class="theme-fab" onclick="toggleTheme()" aria-label="Ganti tema">
+<button class="theme-fab" id="theme-fab-btn" aria-label="Ganti tema">
   <i class="ti ti-sun theme-toggle-icon" aria-hidden="true"></i>
 </button>
 

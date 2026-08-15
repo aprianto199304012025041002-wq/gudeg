@@ -504,18 +504,18 @@ button, .btn { font-family: var(--sans); cursor: pointer; }
 <body>
 
 <!-- Overlay (mobile) -->
-<div id="sidebar-overlay" onclick="closeSidebar()"></div>
+<div id="sidebar-overlay"></div>
 
 <!-- Topbar (mobile only) -->
 <div id="topbar">
-  <button id="hamburger" onclick="toggleSidebar()" aria-label="Buka menu">
+  <button id="hamburger" aria-label="Buka menu">
     <span></span><span></span><span></span>
   </button>
   <span class="topbar-title">
     <span class="gudeg">GUDEG</span> <span class="jogja">JOGJA</span>
   </span>
   <!-- Theme toggle di topbar (mobile) -->
-  <button class="topbar-theme-btn" onclick="toggleTheme()" aria-label="Ganti tema">
+  <button class="topbar-theme-btn" aria-label="Ganti tema">
     <i class="ti ti-sun theme-toggle-icon" aria-hidden="true"></i>
   </button>
 </div>
@@ -573,7 +573,7 @@ button, .btn { font-family: var(--sans); cursor: pointer; }
     <hr class="sb-divider">
     <!-- Theme toggle di sidebar -->
     <div class="sb-theme-wrap">
-      <button class="sb-theme-btn" onclick="toggleTheme()" aria-label="Ganti tema">
+      <button class="sb-theme-btn" aria-label="Ganti tema">
         <i class="ti ti-sun theme-toggle-icon" aria-hidden="true"></i>
         <span class="theme-toggle-label">Terang</span>
       </button>
@@ -587,7 +587,7 @@ button, .btn { font-family: var(--sans); cursor: pointer; }
       </form>
     </div>
     <div class="sb-collapse-wrap">
-      <button class="sb-collapse-btn" onclick="toggleCollapse()" id="collapse-btn" aria-label="Ciutkan sidebar">
+      <button class="sb-collapse-btn" id="collapse-btn" aria-label="Ciutkan sidebar">
         <i class="ti ti-chevron-left" id="collapse-icon"></i>
       </button>
     </div>
@@ -699,6 +699,29 @@ function layout_foot() {
     sessionStorage.removeItem('__gudeg_pending_email');
     sessionStorage.removeItem('__gudeg_pending_password');
   } catch (e) {}
+})();
+
+// Bind event listeners - pengganti onclick= yang diblokir CSP (#79 #80)
+(function() {
+  function bindEvents() {
+    var overlay = document.getElementById('sidebar-overlay');
+    if (overlay) overlay.addEventListener('click', function() { if (window.closeSidebar) closeSidebar(); });
+
+    var hamburger = document.getElementById('hamburger');
+    if (hamburger) hamburger.addEventListener('click', function() { if (window.toggleSidebar) toggleSidebar(); });
+
+    document.querySelectorAll('.topbar-theme-btn, .sb-theme-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() { if (window.toggleTheme) toggleTheme(); });
+    });
+
+    var collapseBtn = document.getElementById('collapse-btn');
+    if (collapseBtn) collapseBtn.addEventListener('click', function() { if (window.toggleCollapse) toggleCollapse(); });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bindEvents);
+  } else {
+    bindEvents();
+  }
 })();
 </script>
 </body>

@@ -16,7 +16,7 @@
 </head>
 <body>
 
-<button class="theme-fab" onclick="toggleTheme()" aria-label="Ganti tema">
+<button class="theme-fab" id="theme-fab-btn" aria-label="Ganti tema">
   <i class="ti ti-sun theme-toggle-icon" aria-hidden="true"></i>
 </button>
 
@@ -30,7 +30,7 @@
     Silakan coba beberapa saat lagi atau hubungi administrator.
   </div>
   <div class="btn-col">
-    <button class="btn-primary" onclick="location.reload()">Coba Lagi</button>
+    <button class="btn-primary" id="reload-btn">Coba Lagi</button>
     <a class="btn-secondary" href="/login.php">Kembali ke Login</a>
   </div>
   <div class="err-meta">GUDEG JOGJA &middot; Balmon Yogyakarta</div>
