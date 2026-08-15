@@ -81,11 +81,11 @@ cat /home/claude/gudeg/BACKLOG.md
     **Masalah:** Sama seperti #79 tapi untuk inline `<style>` dan `style=` attribute. Banyak halaman pakai inline style untuk komponen kecil.
     **Solusi:** Sama seperti #79 — audit dulu, lalu pindahkan ke file `.css` eksternal atau pakai nonce.
 
-81. **`.htaccess` — `Order allow,deny` / `Deny from all` adalah syntax Apache 2.2**
+~~81. **`.htaccess` — `Order allow,deny` / `Deny from all` adalah syntax Apache 2.2**
     **File:** `.htaccess`
     **Masalah:** InfinityFree pakai Apache 2.4. Di 2.4, syntax yang benar adalah `Require all denied`. Syntax 2.2 masih diterima karena ada modul `mod_access_compat`, tapi lebih baik konsisten dengan versi yang dipakai.
     **Lokasi di file:** Ada di blok `<FilesMatch "\.( pem|key)$">`, `<Files "db.php">`, dan `<FilesMatch "^\\.">`.
-    **Solusi:** Ganti semua `Order allow,deny` + `Deny from all` menjadi `Require all denied`. Wrap dengan `<IfModule mod_authz_core.c>` untuk keamanan.
+    **Solusi:** Ganti semua `Order allow,deny` + `Deny from all` menjadi `Require all denied`. Wrap dengan `<IfModule mod_authz_core.c>` untuk keamanan.~~ ✅
 
 82. **`is_new_ip()` — query `user_logs` pakai exact match string `'Login'`**
     **File:** `includes/functions.php`, fungsi `is_new_ip()` di sekitar baris 343
