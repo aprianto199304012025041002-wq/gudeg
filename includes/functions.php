@@ -261,6 +261,11 @@ function csrf_verify(): void {
 
 define('SESSION_TIMEOUT', 30 * 60); // 30 menit tidak aktif → auto logout
 
+// ── Activity constants ────────────────────────────────────────────────────────
+// Definisikan di sini — pakai di semua log_activity() dan is_new_ip().
+// Jangan tulis string literal 'Login' langsung di kode — rentan typo dan inkonsistensi.
+define('ACTIVITY_LOGIN', 'Login');
+
 /**
  * Deteksi apakah request berasal dari APK Android (WebView GUDEG JOGJA).
  * Dicek dari User-Agent yang di-set khusus di MainActivity.java.
@@ -345,7 +350,7 @@ function is_new_ip(int $user_id, string $ip): bool {
         $rows = getSupabase()->select('user_logs', [
             'user_id'    => $user_id,
             'ip_address' => $ip,
-            'activity'   => 'Login',
+            'activity'   => ACTIVITY_LOGIN,
         ], 'id', ['limit' => 1]);
         return empty($rows);
     } catch (\Throwable $e) {

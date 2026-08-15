@@ -75,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $current_ip = get_ip();
                         $is_new = is_new_ip($user['id'], $current_ip);
 
-                        log_activity($user['id'], $user['name'], $user['email'], 'Login');
+                        log_activity($user['id'], $user['name'], $user['email'], ACTIVITY_LOGIN);
 
                         if ($is_new) {
                             $_SESSION['new_ip_warning'] = $current_ip;

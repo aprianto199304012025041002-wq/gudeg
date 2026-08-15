@@ -87,10 +87,10 @@ cat /home/claude/gudeg/BACKLOG.md
     **Lokasi di file:** Ada di blok `<FilesMatch "\.( pem|key)$">`, `<Files "db.php">`, dan `<FilesMatch "^\\.">`.
     **Solusi:** Ganti semua `Order allow,deny` + `Deny from all` menjadi `Require all denied`. Wrap dengan `<IfModule mod_authz_core.c>` untuk keamanan.~~ ✅
 
-82. **`is_new_ip()` — query `user_logs` pakai exact match string `'Login'`**
+~~82. **`is_new_ip()` — query `user_logs` pakai exact match string `'Login'`**
     **File:** `includes/functions.php`, fungsi `is_new_ip()` di sekitar baris 343
     **Masalah:** Fungsi query `user_logs` dengan filter `'activity' => 'Login'`. Kalau nilai string activity pernah berubah (misalnya jadi `'login'` lowercase atau `'Login berhasil'`), fungsi ini selalu return `true` (selalu anggap IP baru) dan kirim notifikasi palsu terus.
-    **Solusi:** Definisikan konstanta `ACTIVITY_LOGIN = 'Login'` di `functions.php` dan pakai konstanta itu di semua tempat yang log aktivitas login, termasuk di `is_new_ip()`.
+    **Solusi:** Definisikan konstanta `ACTIVITY_LOGIN = 'Login'` di `functions.php` dan pakai konstanta itu di semua tempat yang log aktivitas login, termasuk di `is_new_ip()`.~~ ✅
 
 83. **`admin/index.php` — role `admin` tidak bisa di-set dari panel, tidak terdokumentasi**
     **File:** `admin/index.php`, sekitar baris 27-31 dan 359-363
