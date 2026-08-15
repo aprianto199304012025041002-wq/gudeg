@@ -41,10 +41,22 @@ jobs:
           BASE="${SUPABASE_URL}/rest/v1"
           KEY="${SUPABASE_SERVICE_KEY}"
 
+          # Whitelist tabel yang boleh di-query (#92) — cegah injeksi path
+          TABLE="${{ github.event.inputs.table }}"
+          ALLOWED="users sessions apps user_logs admin_logs token_blacklist"
+          VALID=false
+          for t in $ALLOWED; do
+            [ "$TABLE" = "$t" ] && VALID=true && break
+          done
+          if [ "$VALID" = "false" ]; then
+            echo "ERROR: tabel '$TABLE' tidak ada di whitelist. Pilih salah satu: $ALLOWED"
+            exit 1
+          fi
+
           # Query tabel yang diminta — output ke stdout saja, tidak di-commit (#93)
           echo "=== Query result ==="
           curl -sf \
-            "${BASE}/${{ github.event.inputs.table }}?select=${{ github.event.inputs.select }}&limit=${{ github.event.inputs.limit }}&offset=${{ github.event.inputs.offset }}&order=${{ github.event.inputs.order }}" \
+            "${BASE}/${TABLE}?select=${{ github.event.inputs.select }}&limit=${{ github.event.inputs.limit }}&offset=${{ github.event.inputs.offset }}&order=${{ github.event.inputs.order }}" \
             -H "apikey: ${KEY}" \
             -H "Authorization: Bearer ${KEY}" | python3 -m json.tool || echo "(kosong atau error)"
 

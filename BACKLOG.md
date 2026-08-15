@@ -156,10 +156,10 @@ cat /home/claude/gudeg/BACKLOG.md
     **Masalah:** Project ID Supabase (`nscgcspkotpghgmgbwyb`) terekspos di repo. Siapapun yang akses repo bisa tahu project ID dan mencoba serangan langsung ke Supabase API.
     **Solusi:** Ganti hardcode URL dengan `${{ secrets.SUPABASE_URL }}` — secret ini sudah ada di GitHub (`deploy.yml` sudah pakai). Ubah baris `BASE=` menjadi `BASE="${{ secrets.SUPABASE_URL }}/rest/v1"` (atau sesuaikan format URL-nya). ✅~~
 
-92. **`query-supabase.yml` — input `table` tidak ada whitelist, bisa query tabel sembarang**
+~~92. **`query-supabase.yml` — input `table` tidak ada whitelist, bisa query tabel sembarang**
     **File:** `.github/workflows/query-supabase.yml`
     **Masalah:** Input `table` dari `workflow_dispatch` langsung dipakai di URL tanpa validasi: `"${BASE}/${{ github.event.inputs.table }}?..."`. Siapapun yang bisa trigger workflow ini bisa query tabel `users` (password hash), `sso_applications` (client secrets), atau tabel lain yang sensitif.
-    **Solusi:** Tambah step validasi sebelum query — whitelist tabel yang boleh: misalnya hanya `sessions`, `user_logs`, `admin_logs`. Kalau tabel tidak ada di whitelist, exit dengan error.
+    **Solusi:** Tambah step validasi sebelum query — whitelist tabel yang boleh: misalnya hanya `sessions`, `user_logs`, `admin_logs`. Kalau tabel tidak ada di whitelist, exit dengan error. ✅~~
 
 ~~93. **`query-supabase.yml` — auto-commit hasil query langsung ke master**
     **File:** `.github/workflows/query-supabase.yml`, step `Commit result`
