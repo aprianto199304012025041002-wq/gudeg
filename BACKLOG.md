@@ -116,10 +116,11 @@ cat /home/claude/gudeg/BACKLOG.md
     **Masalah:** `og:image` sekarang mengarah ke `favicon.png` (fix dari #45) tapi ukurannya kecil. OG image yang proper untuk preview di WhatsApp/Telegram/Twitter harusnya 1200×630px.
     **Solusi:** Buat file `assets/og-image.png` ukuran 1200×630px berisi logo/nama GUDEG, lalu update `layout.php` mengarah ke file tersebut.~~ ✅
 
-88. **`functions.php` — terlalu besar, perlu dipecah**
+~~88. **`functions.php` — terlalu besar, perlu dipecah**
     **File:** `includes/functions.php` (~477 baris)
     **Masalah:** File ini campur banyak tanggung jawab: env loader, session management, auth, logging, sanitasi, CSRF, CORS, token blacklist, rate limit helpers, cleanup. Semua halaman depend ke sini.
     **Solusi:** Pecah ke beberapa file, misalnya `includes/auth.php`, `includes/session.php`, `includes/sanitize.php`. Tapi ini **risiko tinggi** — semua file harus di-update `require_once`-nya. Kerjakan terakhir setelah semua item lain selesai.
+    Semua file lain tidak perlu diubah — functions.php tetap jadi entry point tunggal. ✅~~
 
 ~~89. **CSRF token tidak di-rotate setelah setiap submit form**
     **File:** `includes/functions.php`, fungsi `csrf_token()` dan semua halaman dengan form POST
