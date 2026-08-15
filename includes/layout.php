@@ -65,7 +65,7 @@ function layout_head(string $title, string $active_nav = '', ?array $user = null
 <title>GUDEG - <?= htmlspecialchars($title) ?></title>
 <link rel="stylesheet" href="/assets/tabler/tabler-icons.min.css">
 <!-- Google Fonts dihapus: font-src 'self' di CSP tidak mengizinkan CDN eksternal. System font stack di --sans dan --mono sudah menjadi fallback. -->
-<style>
+<style nonce="<?= csp_nonce() ?>">
 /* ── Reset & tokens ─────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -491,7 +491,7 @@ button, .btn { font-family: var(--sans); cursor: pointer; }
 </style>
 
 <!-- Apply theme BEFORE paint to prevent flash -->
-<script>
+<script nonce="<?= csp_nonce() ?>">
 (function() {
   try {
     var t = localStorage.getItem('gudeg_theme') || 'dark';
@@ -606,7 +606,7 @@ function layout_foot() {
   </main>
 </div>
 
-<script>
+<script nonce="<?= csp_nonce() ?>">
 (function() {
   /* ── Theme ── */
   var THEME_KEY = 'gudeg_theme';

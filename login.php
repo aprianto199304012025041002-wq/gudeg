@@ -191,12 +191,12 @@ if ($login_success) {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Masuk...</title>
-<style>
+<style nonce="<?= csp_nonce() ?>">
   body { background: #080a0e; margin: 0; }
 </style>
 </head>
 <body>
-<script>
+<script nonce="<?= csp_nonce() ?>">
 (function () {
   // Simpan credentials ke EncryptedSharedPreferences via JS bridge APK.
   // Ini dipanggil SEBELUM redirect ke dashboard sehingga:
@@ -246,7 +246,7 @@ if ($login_success) {
 <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
 <link rel="apple-touch-icon" href="/assets/favicon.png">
 <link rel="stylesheet" href="/assets/tabler/tabler-icons.min.css">
-<script>
+<script nonce="<?= csp_nonce() ?>">
 (function(){
   try {
     var t = localStorage.getItem('gudeg_theme') || 'dark';
@@ -256,7 +256,7 @@ if ($login_success) {
 })();
 </script>
 <!-- Google Fonts dihapus: font-src 'self' di CSP tidak mengizinkan CDN eksternal. System font stack di --sans dan --mono sudah menjadi fallback. -->
-<style>
+<style nonce="<?= csp_nonce() ?>">
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root,
@@ -619,7 +619,7 @@ input:-webkit-autofill:focus {
 
 <div class="bubble-wrap" id="bubbleWrap"></div>
 
-<script>
+<script nonce="<?= csp_nonce() ?>">
 (function() {
   var THEME_KEY = 'gudeg_theme';
   function applyTheme(theme) {

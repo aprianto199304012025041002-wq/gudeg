@@ -101,7 +101,7 @@ if (!empty($user_ids)) {
 
 layout_head('Admin · User', 'admin-users');
 ?>
-<style>
+<style nonce="<?= csp_nonce() ?>">
 .page-header { margin-bottom: 1rem; }
 .form-inline { display: inline; }
 .text-muted-sm { font-size: .72rem; color: var(--muted-hi); margin-bottom: .6rem; }
@@ -455,7 +455,7 @@ select.sel-sm:focus { outline: none; border-color: var(--accent); box-shadow: 0 
 <!-- Floating bubble container -->
 <div class="bubble-wrap" id="bubbleWrap"></div>
 
-<script>
+<script nonce="<?= csp_nonce() ?>">
 function toggleAppAccess(btn) {
   btn.classList.toggle('open');
   var uid = btn.dataset.uid;

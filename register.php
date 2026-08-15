@@ -88,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
 <link rel="apple-touch-icon" href="/assets/favicon.png">
 <link rel="stylesheet" href="/assets/tabler/tabler-icons.min.css">
-<script>
+<script nonce="<?= csp_nonce() ?>">
 (function(){
   try {
     var t = localStorage.getItem('gudeg_theme') || 'dark';
@@ -97,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   } catch(e) {}
 })();
 </script>
-<style>
+<style nonce="<?= csp_nonce() ?>">
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root,
@@ -489,7 +489,7 @@ input:-webkit-autofill:focus {
 
 <div class="bubble-wrap" id="bubbleWrap"></div>
 
-<script>
+<script nonce="<?= csp_nonce() ?>">
 (function() {
   var THEME_KEY = 'gudeg_theme';
   function applyTheme(theme) {

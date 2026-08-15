@@ -105,7 +105,7 @@ $active_sessions = $sb->select('sessions', ['user_id' => $user['id']], 'id,ip_ad
 
 layout_head('Setting', 'password');
 ?>
-<style>
+<style nonce="<?= csp_nonce() ?>">
 .form-group { margin-bottom: 1rem; }
 .text-note { font-size: .8rem; color: var(--muted-hi); padding: .5rem 0; font-family: var(--sans); }
 .form-reset { margin: 0; }
@@ -359,7 +359,7 @@ layout_head('Setting', 'password');
           <span id="pw-sym">○ Karakter spesial (!, @, #, dll)</span>
         </div>
       </div>
-      <script>
+      <script nonce="<?= csp_nonce() ?>">
       function checkStrength(v) {
         function set(id, ok, label) {
           var el = document.getElementById(id);
@@ -380,7 +380,7 @@ layout_head('Setting', 'password');
       </div>
       <button type="submit" class="btn-save" id="btn-save-pw">Simpan Password</button>
     </form>
-    <script>
+    <script nonce="<?= csp_nonce() ?>">
     (function() {
       var f = document.querySelector('form[method="POST"]:not(.form-reset)');
       if (!f) return;
@@ -500,7 +500,7 @@ layout_head('Setting', 'password');
 <!-- Floating bubble container -->
 <div class="bubble-wrap" id="bubbleWrap"></div>
 
-<script>
+<script nonce="<?= csp_nonce() ?>">
 function showBubble(type, icon, title, desc, duration) {
   duration = duration || 6000;
   var wrap = document.getElementById('bubbleWrap');

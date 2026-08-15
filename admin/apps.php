@@ -114,7 +114,7 @@ $apps = $sb->select('sso_applications', [], '*', ['order' => 'id.desc']);
 
 layout_head('Admin · Aplikasi', 'admin-apps');
 ?>
-<style>
+<style nonce="<?= csp_nonce() ?>">
 .form-inline { display: inline; }
 
 .add-card {
@@ -434,7 +434,7 @@ layout_head('Admin · Aplikasi', 'admin-apps');
 <!-- Floating bubble container -->
 <div class="bubble-wrap" id="bubbleWrap"></div>
 
-<script>
+<script nonce="<?= csp_nonce() ?>">
 var _confirmCb = null;
 
 function showConfirm(title, msg, btnLabel, cb) {

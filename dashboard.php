@@ -58,7 +58,7 @@ try {
 
 layout_head('Dashboard', 'dashboard');
 ?>
-<style>
+<style nonce="<?= csp_nonce() ?>">
 .banner-warn {
   background: rgba(234,179,8,.08);
   border: 1px solid rgba(234,179,8,.25);
@@ -333,7 +333,7 @@ layout_head('Dashboard', 'dashboard');
 <div class="bubble-wrap" id="bubbleWrap"></div>
 
 <?php if (!empty($_SESSION['new_ip_warning'])): ?>
-<script>
+<script nonce="<?= csp_nonce() ?>">
 (function() {
   var ip = <?= json_encode(htmlspecialchars($_SESSION['new_ip_warning'])) ?>;
   var wrap = document.getElementById('bubbleWrap');

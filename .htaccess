@@ -69,7 +69,8 @@ php_flag log_errors On
 
     # Content Security Policy
     # CSP diperketat: semua aset self-hosted, tidak ada CDN eksternal
-    Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self' https://*.supabase.co; frame-ancestors 'self'; form-action 'self'; base-uri 'self'"
+    # CSP dikirim via PHP (includes/headers.php) dengan nonce per request (#79 #80).
+    # Tidak bisa di-set di sini karena nonce harus di-generate oleh PHP.
 
     # Permissions Policy — nonaktifkan fitur browser yang tidak dipakai
     Header set Permissions-Policy "geolocation=(), camera=(), microphone=(), payment=(), usb=(), interest-cohort=()"

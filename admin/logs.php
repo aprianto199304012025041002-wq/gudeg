@@ -78,7 +78,7 @@ $safe_qs = htmlspecialchars($filter_qs);
 
 layout_head('Admin · Log', 'admin-logs');
 ?>
-<style>
+<style nonce="<?= csp_nonce() ?>">
 *, *::before, *::after { font-weight: inherit; }
 
 .tab-bar { display: flex; gap: 5px; margin-bottom: 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; }

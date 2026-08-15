@@ -71,15 +71,15 @@ cat /home/claude/gudeg/BACKLOG.md
     **Masalah:** `BACKLOG.md`, `README.md`, `robots.txt` (sudah ok), `version.json` bisa diakses publik. `BACKLOG.md` berisi PAT GitHub dan detail teknis internal. `README.md` berisi info arsitektur detail.
     **Solusi:** Tambah `FilesMatch` untuk block akses ke `BACKLOG.md` dan `README.md` dari browser.~~ ✅
 
-79. **`.htaccess` — CSP `script-src 'unsafe-inline'`**
+~~79. **`.htaccess` — CSP `script-src 'unsafe-inline'`**
     **File:** `.htaccess` (baris `Header set Content-Security-Policy`) dan `includes/functions.php` (baris `header("Content-Security-Policy: ...")`)
     **Masalah:** `'unsafe-inline'` di `script-src` memperbolehkan semua inline `<script>` dan event handler, melemahkan CSP secara signifikan terhadap XSS.
-    **Solusi:** Audit semua halaman PHP — inventarisasi semua `<script>` inline, lalu pilih: (a) pindahkan ke file `.js` eksternal, atau (b) ganti ke `nonce`-based CSP. Ini pekerjaan besar, kerjakan setelah item lain selesai.
+    **Solusi:** Audit semua halaman PHP — inventarisasi semua `<script>` inline, lalu pilih: (a) pindahkan ke file `.js` eksternal, atau (b) ganti ke `nonce`-based CSP. Ini pekerjaan besar, kerjakan setelah item lain selesai. ✅ (diganti nonce-based CSP)~~
 
-80. **`.htaccess` — CSP `style-src 'unsafe-inline'`**
+~~80. **`.htaccess` — CSP `style-src 'unsafe-inline'`**
     **File:** `.htaccess` dan `includes/functions.php`
     **Masalah:** Sama seperti #79 tapi untuk inline `<style>` dan `style=` attribute. Banyak halaman pakai inline style untuk komponen kecil.
-    **Solusi:** Sama seperti #79 — audit dulu, lalu pindahkan ke file `.css` eksternal atau pakai nonce.
+    **Solusi:** Sama seperti #79 — audit dulu, lalu pindahkan ke file `.css` eksternal atau pakai nonce. ✅ (diganti nonce-based CSP)~~
 
 ~~81. **`.htaccess` — `Order allow,deny` / `Deny from all` adalah syntax Apache 2.2**
     **File:** `.htaccess`
