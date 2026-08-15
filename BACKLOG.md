@@ -121,10 +121,10 @@ cat /home/claude/gudeg/BACKLOG.md
     **Masalah:** File ini campur banyak tanggung jawab: env loader, session management, auth, logging, sanitasi, CSRF, CORS, token blacklist, rate limit helpers, cleanup. Semua halaman depend ke sini.
     **Solusi:** Pecah ke beberapa file, misalnya `includes/auth.php`, `includes/session.php`, `includes/sanitize.php`. Tapi ini **risiko tinggi** — semua file harus di-update `require_once`-nya. Kerjakan terakhir setelah semua item lain selesai.
 
-89. **CSRF token tidak di-rotate setelah setiap submit form**
+~~89. **CSRF token tidak di-rotate setelah setiap submit form**
     **File:** `includes/functions.php`, fungsi `csrf_token()` dan semua halaman dengan form POST
     **Masalah:** Token CSRF dibuat sekali per session dan tidak pernah di-rotate. Kalau token bocor (misal via XSS), attacker bisa pakai token yang sama berkali-kali selama session aktif.
-    **Solusi:** Rotate token setelah setiap `csrf_verify()` berhasil. Ini butuh PRG (Post/Redirect/Get) pattern di semua form supaya tidak double-submit setelah reload — kompleks karena banyak halaman belum PRG.
+    **Solusi:** Rotate token setelah setiap `csrf_verify()` berhasil. Ini butuh PRG (Post/Redirect/Get) pattern di semua form supaya tidak double-submit setelah reload — kompleks karena banyak halaman belum PRG.~~ ✅
 
 ---
 

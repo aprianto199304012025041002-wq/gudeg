@@ -240,6 +240,8 @@ function csrf_field(): string {
 
 /**
  * Validasi CSRF token dari POST request. Mati jika tidak valid.
+ * Token di-rotate setelah validasi sukses — satu token hanya berlaku satu kali.
+ * Ini mencegah token replay kalau token bocor (misal dari log atau shoulder surfing).
  */
 function csrf_verify(): void {
     session_start_safe();
@@ -250,6 +252,8 @@ function csrf_verify(): void {
         header('Content-Type: application/json; charset=utf-8');
         die(json_encode(['error' => 'Invalid CSRF token.']));
     }
+    // Rotate token setelah validasi sukses — token lama tidak bisa dipakai lagi
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
 // ── Login rate limiting ───────────────────────────────────────────────────────
