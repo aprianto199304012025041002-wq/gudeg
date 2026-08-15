@@ -8,7 +8,7 @@
 // Nonce unik per request — dipakai di script/style yang mengandung PHP data.
 // Lebih aman dari 'unsafe-inline' karena penyerang tidak bisa tebak nonce.
 if (!defined('_CSP_NONCE')) {
-    define('_CSP_NONCE', base64_encode(random_bytes(16)));
+    define('_CSP_NONCE', bin2hex(random_bytes(16))); // bin2hex: pure hex, aman untuk interpolasi string
 }
 
 /**
