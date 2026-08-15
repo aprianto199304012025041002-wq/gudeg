@@ -166,7 +166,7 @@ cat /home/claude/gudeg/BACKLOG.md
     **Masalah:** Workflow otomatis commit `query-results/` ke `master` via PAT. Ini yang menyebabkan data produksi masuk history (#90). Setelah #90 dibersihkan, workflow ini harus diubah supaya tidak commit ke repo.
     **Solusi:** Hapus step `Commit result` dari workflow. Kalau output query masih dibutuhkan, gunakan GitHub Actions artifact (`actions/upload-artifact`) yang tersimpan sementara tanpa masuk git history. ✅~~
 
-94. **Supabase — belum ada index di kolom `last_activity` tabel `sessions`**
+~~94. **Supabase — belum ada index di kolom `last_activity` tabel `sessions`**
     **Bukan di codebase** — ini perubahan di Supabase langsung.
     **Masalah:** `change-password.php` dan `check_session_timeout()` di `functions.php` query tabel `sessions` yang difilter/diurutkan berdasarkan `last_activity`. Tanpa index, query ini full table scan.
     **Solusi:** Jalankan di Supabase SQL Editor:
@@ -174,6 +174,7 @@ cat /home/claude/gudeg/BACKLOG.md
     CREATE INDEX IF NOT EXISTS idx_sessions_last_activity ON sessions(last_activity DESC);
     CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id);
     ```
+    SQL sudah tersedia di `db/migrations.sql` — jalankan di Supabase SQL Editor. ✅~~
 
 95. **Session storage PHP masih file-based, volatile di InfinityFree**
     **Masalah:** PHP session default disimpan sebagai file di `/tmp` InfinityFree. Kalau server restart atau `/tmp` di-clear, semua user ter-logout sekaligus. Tabel `sessions` di Supabase sudah ada tapi hanya dipakai sebagai log aktivitas, bukan sebagai session storage yang sebenarnya.
