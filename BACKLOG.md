@@ -42,11 +42,11 @@ cat /home/claude/gudeg/BACKLOG.md
 
 ## 🟡 Sedang / Perlu Hati-hati
 
-75. **Google Fonts CDN bertentangan dengan CSP `font-src 'self'`**
+~~75. **Google Fonts CDN bertentangan dengan CSP `font-src 'self'`**
     **File:** `login.php`, `includes/layout.php`, `.htaccess`, `includes/functions.php`
     **Masalah:** `login.php` dan `layout.php` (semua halaman post-login) load Google Fonts dari `fonts.googleapis.com` via tag `<link>`. Tapi CSP di dua tempat — `functions.php` (via `header()` PHP) dan `.htaccess` (via `Header set`) — keduanya set `font-src 'self'`. Artinya font tidak akan load di browser yang patuh CSP, dan ada dua CSP header yang dikirim sekaligus (konflik).
     **Solusi pilihan A (lebih bersih):** Hapus Google Fonts, ganti ke system font stack di CSS. Tidak perlu ubah CSP.
-    **Solusi pilihan B:** Update CSP di kedua tempat tambah `fonts.googleapis.com fonts.gstatic.com` di `font-src`, dan tambah `fonts.googleapis.com` di `style-src`.
+    **Solusi pilihan B:** Update CSP di kedua tempat tambah `fonts.googleapis.com fonts.gstatic.com` di `font-src`, dan tambah `fonts.googleapis.com` di `style-src`.~~ ✅
 
 76. **`query-supabase.yml` — nama secret tidak konsisten dengan `deploy.yml`**
     **File:** `.github/workflows/query-supabase.yml`

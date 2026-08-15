@@ -60,7 +60,7 @@ function layout_head(string $title, string $active_nav = '', ?array $user = null
 
 <title>GUDEG - <?= htmlspecialchars($title) ?></title>
 <link rel="stylesheet" href="/assets/tabler/tabler-icons.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:opsz,wght@9..40,300;400;500;600&display=swap" rel="stylesheet">
+<!-- Google Fonts dihapus: font-src 'self' di CSP tidak mengizinkan CDN eksternal. System font stack di --sans dan --mono sudah menjadi fallback. -->
 <style>
 /* ── Reset & tokens ─────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
