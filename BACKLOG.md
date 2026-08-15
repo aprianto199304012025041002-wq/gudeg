@@ -151,20 +151,20 @@ cat /home/claude/gudeg/BACKLOG.md
     6. Regenerate semua `client_secret` KOMENK, KASPER, PASAR di panel `/admin/apps.php` GUDEG
     7. Update `client_secret` baru di config/env repo KOMENK, KASPER, PASAR masing-masing
 
-91. **🔴 `query-supabase.yml` — Supabase project URL hardcode di file workflow**
+~~91. **🔴 `query-supabase.yml` — Supabase project URL hardcode di file workflow**
     **File:** `.github/workflows/query-supabase.yml`, baris `BASE="https://nscgcspkotpghgmgbwyb.supabase.co/rest/v1"`
     **Masalah:** Project ID Supabase (`nscgcspkotpghgmgbwyb`) terekspos di repo. Siapapun yang akses repo bisa tahu project ID dan mencoba serangan langsung ke Supabase API.
-    **Solusi:** Ganti hardcode URL dengan `${{ secrets.SUPABASE_URL }}` — secret ini sudah ada di GitHub (`deploy.yml` sudah pakai). Ubah baris `BASE=` menjadi `BASE="${{ secrets.SUPABASE_URL }}/rest/v1"` (atau sesuaikan format URL-nya).
+    **Solusi:** Ganti hardcode URL dengan `${{ secrets.SUPABASE_URL }}` — secret ini sudah ada di GitHub (`deploy.yml` sudah pakai). Ubah baris `BASE=` menjadi `BASE="${{ secrets.SUPABASE_URL }}/rest/v1"` (atau sesuaikan format URL-nya). ✅~~
 
 92. **`query-supabase.yml` — input `table` tidak ada whitelist, bisa query tabel sembarang**
     **File:** `.github/workflows/query-supabase.yml`
     **Masalah:** Input `table` dari `workflow_dispatch` langsung dipakai di URL tanpa validasi: `"${BASE}/${{ github.event.inputs.table }}?..."`. Siapapun yang bisa trigger workflow ini bisa query tabel `users` (password hash), `sso_applications` (client secrets), atau tabel lain yang sensitif.
     **Solusi:** Tambah step validasi sebelum query — whitelist tabel yang boleh: misalnya hanya `sessions`, `user_logs`, `admin_logs`. Kalau tabel tidak ada di whitelist, exit dengan error.
 
-93. **`query-supabase.yml` — auto-commit hasil query langsung ke master**
+~~93. **`query-supabase.yml` — auto-commit hasil query langsung ke master**
     **File:** `.github/workflows/query-supabase.yml`, step `Commit result`
     **Masalah:** Workflow otomatis commit `query-results/` ke `master` via PAT. Ini yang menyebabkan data produksi masuk history (#90). Setelah #90 dibersihkan, workflow ini harus diubah supaya tidak commit ke repo.
-    **Solusi:** Hapus step `Commit result` dari workflow. Kalau output query masih dibutuhkan, gunakan GitHub Actions artifact (`actions/upload-artifact`) yang tersimpan sementara tanpa masuk git history.
+    **Solusi:** Hapus step `Commit result` dari workflow. Kalau output query masih dibutuhkan, gunakan GitHub Actions artifact (`actions/upload-artifact`) yang tersimpan sementara tanpa masuk git history. ✅~~
 
 94. **Supabase — belum ada index di kolom `last_activity` tabel `sessions`**
     **Bukan di codebase** — ini perubahan di Supabase langsung.

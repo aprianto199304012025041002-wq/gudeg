@@ -33,33 +33,28 @@ jobs:
           token: ${{ secrets.PAT_TOKEN }}
 
       - name: Query Supabase
+        env:
+          # SUPABASE_URL disimpan di GitHub Secrets — jangan hardcode URL di sini (#91)
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         run: |
-          mkdir -p query-results
-          BASE="https://nscgcspkotpghgmgbwyb.supabase.co/rest/v1"
-          KEY="${{ secrets.SUPABASE_SERVICE_KEY }}"
+          BASE="${SUPABASE_URL}/rest/v1"
+          KEY="${SUPABASE_SERVICE_KEY}"
 
-          # Query tabel yang diminta
-          curl -s \
+          # Query tabel yang diminta — output ke stdout saja, tidak di-commit (#93)
+          echo "=== Query result ==="
+          curl -sf \
             "${BASE}/${{ github.event.inputs.table }}?select=${{ github.event.inputs.select }}&limit=${{ github.event.inputs.limit }}&offset=${{ github.event.inputs.offset }}&order=${{ github.event.inputs.order }}" \
             -H "apikey: ${KEY}" \
-            -H "Authorization: Bearer ${KEY}" \
-            > "query-results/result.json"
+            -H "Authorization: Bearer ${KEY}" | python3 -m json.tool || echo "(kosong atau error)"
 
-          # Selalu refresh sessions dan user_logs untuk verifikasi
-          curl -s "${BASE}/sessions?select=id,user_id,last_activity,ip_address&limit=100" \
-            -H "apikey: ${KEY}" -H "Authorization: Bearer ${KEY}" \
-            > "query-results/sessions.json"
+          echo "=== sessions (last 10) ==="
+          curl -sf "${BASE}/sessions?select=id,user_id,last_activity,ip_address&limit=10&order=last_activity.desc" \
+            -H "apikey: ${KEY}" -H "Authorization: Bearer ${KEY}" | python3 -m json.tool || echo "(kosong atau error)"
 
-          curl -s "${BASE}/user_logs?select=id,user_id,activity,created_at&limit=50&order=id.desc" \
-            -H "apikey: ${KEY}" -H "Authorization: Bearer ${KEY}" \
-            > "query-results/user_logs.json"
+          echo "=== user_logs (last 10) ==="
+          curl -sf "${BASE}/user_logs?select=id,user_id,activity,created_at&limit=10&order=id.desc" \
+            -H "apikey: ${KEY}" -H "Authorization: Bearer ${KEY}" | python3 -m json.tool || echo "(kosong atau error)"
 
-          echo "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > query-results/timestamp.txt
-
-      - name: Commit result
-        run: |
-          git config user.email "actions@github.com"
-          git config user.name "GitHub Actions"
-          git add query-results/
-          git diff --staged --quiet && echo "No changes" || git commit -m "query result $(date -u +%Y%m%d-%H%M%S)"
-          git push https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/aprianto199304012025041002-wq/gudeg.git HEAD:master
+      # Step "Commit result" dihapus (#93) — data query tidak boleh masuk ke git history.
+      # Hasil query bisa dilihat di tab "Actions" → run ini → log step "Query Supabase".
