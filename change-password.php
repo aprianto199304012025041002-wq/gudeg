@@ -378,8 +378,18 @@ layout_head('Setting', 'password');
         <input type="password" id="confirm" name="confirm"
                required autocomplete="new-password">
       </div>
-      <button type="submit" class="btn-save">Simpan Password</button>
+      <button type="submit" class="btn-save" id="btn-save-pw">Simpan Password</button>
     </form>
+    <script>
+    (function() {
+      var f = document.querySelector('form[method="POST"]:not(.form-reset)');
+      if (!f) return;
+      f.addEventListener('submit', function() {
+        var btn = document.getElementById('btn-save-pw');
+        if (btn) { btn.disabled = true; btn.textContent = 'Menyimpan\u2026'; }
+      });
+    })();
+    </script>
     <?php else: ?>
       <p class="text-note">Password berhasil diubah. Semua sesi lain telah diakhiri.</p>
     <?php endif; ?>

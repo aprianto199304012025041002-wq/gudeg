@@ -97,10 +97,10 @@ cat /home/claude/gudeg/BACKLOG.md
     **Masalah:** Action `change_role` hanya izinkan nilai `user` dan `guest` (`in_array($new_role, ['user', 'guest'])`). Dropdown di HTML juga hanya punya dua pilihan itu. Tidak ada komentar kenapa `admin` tidak bisa di-set dari panel.
     **Solusi:** Tambah komentar PHP di atas blok `change_role` yang menjelaskan bahwa role `admin` harus di-set manual via Supabase SQL Editor — by design untuk cegah privilege escalation.~~ ✅
 
-84. **`change-password.php` — form ganti password tidak ada proteksi double-submit**
+~~84. **`change-password.php` — form ganti password tidak ada proteksi double-submit**
     **File:** `change-password.php`
     **Masalah:** Form ganti password (action POST biasa, bukan `logout_session`/`logout_all_sessions`) tidak punya mekanisme disable button setelah submit. User bisa klik "Simpan" dua kali dan kirim dua request ganti password berturut-turut.
-    **Solusi:** Tambah JS di akhir file — sama seperti yang sudah dikerjakan di `admin/apps.php` (#50): `form.addEventListener('submit', () => btn.disabled = true)`.
+    **Solusi:** Tambah JS di akhir file — sama seperti yang sudah dikerjakan di `admin/apps.php` (#50): `form.addEventListener('submit', () => btn.disabled = true)`.~~ ✅
 
 85. **Forgot password — belum ada fitur sama sekali**
     **Masalah:** Tidak ada halaman `forgot-password.php` atau `reset-password.php`. User yang lupa password harus minta admin reset manual via panel.
