@@ -176,6 +176,6 @@ cat /home/claude/gudeg/BACKLOG.md
     ```
     SQL sudah tersedia di `db/migrations.sql` — jalankan di Supabase SQL Editor. ✅~~
 
-95. **Session storage PHP masih file-based, volatile di InfinityFree**
+~~95. **Session storage PHP masih file-based, volatile di InfinityFree**
     **Masalah:** PHP session default disimpan sebagai file di `/tmp` InfinityFree. Kalau server restart atau `/tmp` di-clear, semua user ter-logout sekaligus. Tabel `sessions` di Supabase sudah ada tapi hanya dipakai sebagai log aktivitas, bukan sebagai session storage yang sebenarnya.
-    **Solusi ideal:** Implementasi custom PHP session handler (`session_set_save_handler()`) yang baca/tulis ke tabel `sessions` Supabase atau ke SQLite LocalCache. Ini kompleks karena ada trade-off latency (setiap request = query Supabase untuk baca session). Kerjakan setelah semua item lain selesai.
+    **Solusi ideal:** Implementasi custom PHP session handler (`session_set_save_handler()`) yang baca/tulis ke tabel `sessions` Supabase atau ke SQLite LocalCache. Ini kompleks karena ada trade-off latency (setiap request = query Supabase untuk baca session). Kerjakan setelah semua item lain selesai. ✅~~

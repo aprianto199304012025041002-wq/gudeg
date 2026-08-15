@@ -66,6 +66,23 @@ function base64url_decode(string $data): string {
 
 function session_start_safe() {
     if (session_status() === PHP_SESSION_NONE) {
+        // Daftarkan SQLite session handler (#95) — cegah session hilang saat /tmp di-clear.
+        // Handler dibuat hanya sekali; kalau gagal (misal SQLite tidak tersedia),
+        // PHP akan fallback ke default file handler secara otomatis.
+        static $handler_registered = false;
+        if (!$handler_registered) {
+            try {
+                require_once __DIR__ . '/SqliteSessionHandler.php';
+                $handler = new SqliteSessionHandler();
+                session_set_save_handler($handler, true);
+                $handler_registered = true;
+            } catch (\Throwable $e) {
+                function_exists('gudeg_log')
+                    ? gudeg_log('WARNING', 'session_start_safe', 'SqliteSessionHandler gagal, fallback ke file session: ' . $e->getMessage())
+                    : error_log('session_start_safe: SqliteSessionHandler gagal: ' . $e->getMessage());
+            }
+        }
+
         $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
         $is_https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
                     || ($_SERVER['SERVER_PORT'] ?? 80) == 443;
