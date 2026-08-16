@@ -407,12 +407,17 @@ layout_head('Admin · Aplikasi', 'admin-apps');
         🔑 Regenerate Secret
       </button>
     </form>
-    <form method="POST" class="form-inline"
-          onsubmit="return confirm('Hapus aplikasi <?= htmlspecialchars(addslashes($app['name'])) ?>?')">
+    <form method="POST" class="form-inline" id="form-delete-<?= $app['id'] ?>">
       <?= csrf_field() ?>
       <input type="hidden" name="action" value="delete_app">
       <input type="hidden" name="app_id" value="<?= $app['id'] ?>">
-      <button type="submit" class="btn-sm danger">Hapus Aplikasi</button>
+      <button type="button" class="btn-sm danger"
+              onclick="showConfirm(
+                'Hapus Aplikasi',
+                'Hapus <strong><?= htmlspecialchars(addslashes($app['name'])) ?></strong> permanen? Semua akses user ke aplikasi ini juga akan dihapus.',
+                'Ya, Hapus',
+                function(){ document.getElementById(\'form-delete-<?= $app['id'] ?>\').submit(); }
+              )">Hapus Aplikasi</button>
     </form>
   </div>
 </div>

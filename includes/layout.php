@@ -688,19 +688,6 @@ function layout_foot() {
   };
 })();
 
-/* ── Kirim kredensial ke APK Android setelah login berhasil ── */
-(function() {
-  try {
-    var email = sessionStorage.getItem('__gudeg_pending_email');
-    var password = sessionStorage.getItem('__gudeg_pending_password');
-    if (email && password && window.GudegNative && window.GudegNative.saveCredentials) {
-      window.GudegNative.saveCredentials(email, password);
-    }
-    sessionStorage.removeItem('__gudeg_pending_email');
-    sessionStorage.removeItem('__gudeg_pending_password');
-  } catch (e) {}
-})();
-
 // Bind event listeners - pengganti onclick= yang diblokir CSP (#79 #80)
 (function() {
   function bindEvents() {

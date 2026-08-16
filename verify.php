@@ -64,9 +64,6 @@ function fail($msg) {
 
 $sb = getSupabase(); // inisialisasi $sb — dipakai oleh semua query di bawah
 
-// Auto-cleanup token blacklist yang sudah expired (token asli saja, bukan rate limit)
-try { $sb->delete('token_blacklist', ['exp' => 'lt.' . time()]); } catch (\Throwable $e) { gudeg_log('WARNING', 'verify.php::cleanup_blacklist', $e->getMessage()); }
-
 // Rate limiting via RateLimiter (SQLite LocalCache, fallback file /tmp) — pisah dari token_blacklist
 // Limit: 30 request per menit per IP
 $verify_ip = trim(explode(',', ($_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? 'unknown'))[0]);
