@@ -59,8 +59,4 @@ cat /home/claude/gudeg/BACKLOG.md
     **Masalah:** User yang register langsung masuk DB dengan status `is_active = false` tanpa verifikasi email. Admin harus aktivasi manual. Tidak ada konfirmasi bahwa email yang dimasukkan valid.
     **Catatan:** Sama seperti #85, butuh infrastruktur email. Bisa dikerjakan bersamaan dengan #85.
 
----
 
-## ✅ Selesai (16 Agustus 2026)
-
-90. **Data produksi di git history** — `query-results/` dihapus dari seluruh history via `git filter-repo`, force push ke GitHub berhasil.
