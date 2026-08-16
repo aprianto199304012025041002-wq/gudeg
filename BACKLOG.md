@@ -40,13 +40,6 @@ cat /home/claude/gudeg/BACKLOG.md
 - Baca file lengkap sebelum edit — jangan grep saja
 - Kalau item sudah benar/tidak perlu diubah, tandai ✅ dan lanjut
 
-## Tindak Lanjut Manual
-
-✅ Semua selesai (16 Agustus 2026):
-- Secret `SUPABASE_KEY` lama dihapus, `SUPABASE_URL` sudah ada di GitHub Secrets
-- `db/migrations.sql` sudah dijalankan di Supabase SQL Editor
-
----
 
 ## 🟡 Hold — Butuh Setup SMTP
 
