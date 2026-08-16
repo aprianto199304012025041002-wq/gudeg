@@ -22,6 +22,9 @@ query-results/
 assets/favicon-16.png
 assets/favicon-32.png
 
+# ── Script sesi lokal (mungkin mengandung PAT) ───────────────────────────────
+start-sesi.sh
+
 # ── OS & editor junk ─────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
