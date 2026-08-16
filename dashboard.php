@@ -346,9 +346,13 @@ layout_head('Dashboard', 'dashboard');
       '<div class="bubble-desc">IP baru terdeteksi: <code>' + ip + '</code>. ' +
         'Bukan Anda? Segera <a href="/change-password.php">ubah password</a> dan hubungi administrator.</div>' +
     '</div>' +
-    '<button class="bubble-close" aria-label="Tutup" onclick="dismissIPWarning(this)">&#215;</button>' +
+    '<button class="bubble-close" aria-label="Tutup" data-action="dismiss-ip">&#215;</button>' +
     '<div class="bubble-progress"></div>';
   wrap.appendChild(b);
+
+  b.querySelector('[data-action="dismiss-ip"]').addEventListener('click', function() {
+    dismissIPWarning(this);
+  });
 
   setTimeout(function() { dismissBubble(b); }, 8000);
 })();
