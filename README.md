@@ -1,24 +1,31 @@
 # 🍛 GUDEG SSO
 
-**GUDEG** (General Unified Database And Employee Gateway) adalah sistem *Single Sign-On* (SSO) berbasis PHP untuk Balai Monitor Spektrum Frekuensi Radio Yogyakarta. Satu akun dipakai untuk mengakses banyak aplikasi internal. Backend menggunakan [Supabase](https://supabase.com/) (PostgreSQL via PostgREST REST API), di-deploy ke InfinityFree via GitHub Actions.
+**GUDEG** (General Unified Database And Employee Gateway) adalah sistem *Single Sign-On* (SSO) berbasis PHP untuk Balai Monitor Spektrum Frekuensi Radio Kelas I Yogyakarta. Satu akun dipakai untuk mengakses semua aplikasi internal: PASAR, KOMENK, KASPER, dan APK Android.
+
+- **URL Produksi:** `https://gudeg.xo.je`
+- **Hosting:** InfinityFree
+- **Stack:** PHP 8.1 + Supabase (PostgREST) + SQLite LocalCache
+- **Deploy:** GitHub Actions → FTP → InfinityFree (push ke `master` = auto deploy)
+- **Repo:** `aprianto199304012025041002-wq/gudeg`
 
 ---
 
-## ✨ Fitur Utama
+## ✨ Fitur
 
-- **SSO dengan JWT RS256** — Login sekali, akses banyak aplikasi. Token ditandatangani dengan RSA private key (RS256).
-- **Manajemen User** — Registrasi, login, ganti password, session timeout otomatis, dan deteksi login dari IP baru.
-- **Role-Based Access** — Tiga role: `admin`, `user`, dan `guest`, masing-masing dengan hak akses berbeda.
-- **Panel Admin** — Kelola user (aktifkan/nonaktifkan, ubah role, reset password) dan kelola aplikasi SSO.
-- **Audit Log** — Setiap aktivitas login, SSO, dan aksi admin dicatat lengkap beserta IP. Auto-cleanup log > 90 hari. Log yang gagal dikirim ke Supabase di-queue ke SQLite dan dikirim ulang otomatis di request berikutnya.
-- **Keamanan** — CSRF protection, rate limiting login & verify, session regeneration, CORS dinamis, sanitasi input, token replay blacklist, re-validasi role dari DB di setiap request admin.
-- **Fallback Offline** — LocalCache SQLite di `/tmp` dipakai saat Supabase down: token blacklist tetap aktif (fail-closed), user yang sudah login tetap bisa jalan, rate limit tetap berjalan.
-- **Rate Limiter SQLite** — RateLimiter disimpan di SQLite (lebih persist dari file `/tmp`), dengan fallback ke file kalau SQLite error.
-- **Structured Logging** — Semua error dicatat via `gudeg_log()` dalam format JSON `{ts, level, ctx, msg}` untuk kemudahan trace.
-- **OpenID Connect** — Discovery endpoint (`/.well-known/openid-configuration`) dan JWKS endpoint (`/jwks.json`).
-- **Health Check** — Endpoint `/healthcheck.php` dipanggil otomatis setelah deploy. Mencakup cek Supabase, RSA keys, SQLite, dan pending log queue.
-- **Custom Error Pages** — Halaman error 403, 404, dan 500 yang proper.
-- **APK Support** — Deteksi `GudegJogjaApp` user-agent untuk sesi 30 hari di aplikasi mobile.
+- **SSO JWT RS256** — Login sekali, akses banyak aplikasi. Token ditandatangani RSA private key (RS256), berlaku 15 menit, satu kali pakai (JTI blacklist).
+- **Manajemen User** — Registrasi, login, ganti password, session timeout otomatis (30 menit), deteksi login dari IP baru.
+- **Role-Based Access** — Tiga role: `admin`, `user`, `guest`. Role di-revalidasi dari DB setiap request admin — session stale tidak bisa bypass.
+- **Panel Admin** — Kelola user (aktifkan/nonaktifkan, ubah role, reset password) dan kelola aplikasi SSO (tambah, edit, regenerate secret, hapus).
+- **Audit Log** — Semua aktivitas login, SSO, dan aksi admin dicatat dengan IP. Auto-cleanup log >90 hari (max sekali per 24 jam). Log yang gagal dikirim ke Supabase di-queue ke SQLite dan di-retry otomatis.
+- **CSRF Protection** — Token CSRF di setiap form POST. Rotasi token setelah setiap submit sukses. Double-submit lock di register.
+- **Rate Limiting** — Login: 5 gagal / 10 menit per IP+email → lockout. Verify: counter naik hanya saat `client_secret` salah, bukan saat token expired.
+- **Session SQLite** — Session disimpan via `SqliteSessionHandler` (bukan file `/tmp`) — lebih persist dan portable.
+- **Fallback Offline** — LocalCache SQLite dipakai saat Supabase down: token blacklist tetap aktif (fail-closed), rate limit tetap jalan, user yang sudah login tetap bisa akses.
+- **CSP Nonce-Based** — Content Security Policy tanpa `unsafe-inline`. Setiap response dapat nonce unik via `csp_nonce()`.
+- **Structured Logging** — Semua error via `gudeg_log(level, ctx, msg)` dalam format JSON `{ts, level, ctx, msg}` ke error log server.
+- **OIDC Discovery** — Endpoint `/.well-known/openid-configuration` dan `jwks.json` untuk integrasi standar OAuth2/OIDC.
+- **Health Check** — `/healthcheck.php` dipanggil otomatis setelah deploy. Cek: Supabase, RSA keys, SQLite, pending log queue, env config.
+- **APK Android** — Deteksi `GudegJogjaApp` user-agent → session 30 hari, tidak timeout karena inaktivitas.
 
 ---
 
@@ -26,59 +33,68 @@
 
 ```
 gudeg/
-├── .github/
-│   └── workflows/
-│       ├── deploy.yml              # CI/CD — deploy ke InfinityFree via FTP
-│       └── query-supabase.yml      # ⚠️  Workflow query Supabase manual (diagnosa) — output ke query-results/ yang TIDAK boleh di-commit
-├── .htaccess                       # Konfigurasi Apache (security headers, error pages, session)
+├── .github/workflows/
+│   ├── deploy.yml              # Push ke master → FTP ke InfinityFree → health check
+│   └── query-supabase.yml      # Query manual Supabase (diagnosa) — output ke query-results/ JANGAN di-commit
+├── .htaccess                   # Security headers, error pages, blokir akses ke file sensitif
 ├── .well-known/
-│   └── openid-configuration        # OIDC discovery endpoint (JSON statis)
+│   └── openid-configuration    # OIDC discovery endpoint (JSON statis)
 ├── admin/
-│   ├── index.php                   # Panel admin — manajemen user
-│   ├── apps.php                    # Panel admin — manajemen aplikasi SSO
-│   └── logs.php                    # Panel admin — audit log (user & admin)
-├── assets/                         # CSS, JS, font lokal (Tabler self-hosted; Google Fonts masih dimuat dari CDN — lihat BACKLOG #75)
+│   ├── index.php               # Manajemen user (aktifkan, nonaktifkan, ubah role, reset password)
+│   ├── apps.php                # Manajemen aplikasi SSO (tambah, edit, regenerate secret, hapus)
+│   └── logs.php                # Audit log user & admin
+├── assets/                     # CSS, JS, font (Tabler Icons, Google Fonts via CDN)
 ├── config/
-│   └── .gitkeep                    # .env taruh di sini (JANGAN di-commit)
+│   └── .gitkeep                # Taruh config/.env di sini (JANGAN di-commit)
+├── db/
+│   └── migrations.sql          # SQL migrations — jalankan manual di Supabase SQL Editor
 ├── includes/
-│   ├── LocalCache.php              # SQLite fallback — token blacklist, user cache, rate limit, pending log queue
-│   ├── RateLimiter.php             # Rate limiter — 5 gagal / 10 menit per IP+email (SQLite, fallback file)
-│   ├── SupabaseClient.php          # Client REST API ke Supabase (PostgREST), timeout per jenis operasi
-│   ├── functions.php               # Helper: env loader, session, auth, log, sanitasi, CSRF, token blacklist, gudeg_log()
-│   ├── jwt.php                     # Generate & verify JWT RSA (RS256), dengan error handling & CRITICAL log
-│   └── layout.php                  # Template HTML (head, nav, footer)
+│   ├── functions.php           # Aggregator — load semua modul includes di bawah
+│   ├── env.php                 # Parser config/.env
+│   ├── logger.php              # gudeg_log() — structured JSON logging
+│   ├── headers.php             # Security headers + CSP nonce (csp_nonce())
+│   ├── session.php             # Session init, timeout, check_session_timeout()
+│   ├── activity.php            # Catat aktivitas user ke Supabase (dengan queue fallback)
+│   ├── csrf.php                # CSRF token: generate, verify, rotate, csrf_field()
+│   ├── validation.php          # Sanitasi & validasi input
+│   ├── token.php               # token_use(): cek + blacklist JTI (Supabase + SQLite)
+│   ├── jwt.php                 # generate_jwt() & verify_jwt() — RSA RS256
+│   ├── layout.php              # Template HTML (layout_head, layout_nav, layout_foot)
+│   ├── LocalCache.php          # SQLite: token_blacklist, user_cache, rate_limit, pending_logs, meta
+│   ├── RateLimiter.php         # Rate limiter berbasis SQLite (fallback file /tmp)
+│   ├── SqliteSessionHandler.php # Session handler custom berbasis SQLite
+│   └── SupabaseClient.php      # HTTP client ke Supabase PostgREST (select, insert, update, delete)
 ├── keys/
-│   └── .gitkeep                    # private.pem & public.pem taruh di sini (JANGAN di-commit)
-├── query-results/                  # ⚠️  Output workflow query Supabase — JANGAN di-commit! Berisi data sensitif (session IDs, email, hash). Sudah di .gitignore.
-├── 403.php                         # Error page 403 Forbidden
-├── 404.php                         # Error page 404 Not Found
-├── 500.php                         # Error page 500 Internal Server Error
-├── ROTATE_KEY_GUDEG.md             # Panduan rotate RSA key
-├── api-logout.php                  # Endpoint logout via API (untuk APK Android)
-├── change-password.php             # Halaman ganti password & kelola sesi aktif
-├── dashboard.php                   # Halaman utama setelah login (daftar aplikasi)
-├── healthcheck.php                 # Cek status Supabase, RSA keys, SQLite, dan pending logs
-├── index.php                       # Entry point — redirect ke login/dashboard
-├── jwks.json                       # JWKS endpoint — expose RSA public key
-├── login.php                       # Halaman login
-├── logout.php                      # Proses logout & hapus session
-├── register.php                    # Halaman registrasi akun baru (proteksi double-submit)
-├── robots.txt                      # Instruksi crawler (block semua halaman & file sensitif)
-├── sso.php                         # Endpoint SSO — generate JWT & redirect ke aplikasi klien
-├── verify.php                      # Endpoint verifikasi token untuk aplikasi klien
-└── version.json                    # Info versi APK (nama, URL download, catatan)
+│   └── .gitkeep                # private.pem & public.pem — JANGAN di-commit, deploy via Secrets
+├── query-results/              # ⚠️ Output query Supabase — data sensitif, JANGAN di-commit (ada di .gitignore)
+├── 403.php                     # Error page 403
+├── 404.php                     # Error page 404
+├── 500.php                     # Error page 500
+├── api-logout.php              # Endpoint logout via API (untuk APK Android)
+├── change-password.php         # Ganti password + kelola sesi aktif
+├── dashboard.php               # Daftar aplikasi SSO yang bisa diakses user
+├── healthcheck.php             # Status check: Supabase, RSA keys, SQLite, env, pending logs
+├── index.php                   # Entry point — redirect ke login atau dashboard
+├── jwks.json                   # JWKS endpoint — expose RSA public key
+├── login.php                   # Halaman login
+├── logout.php                  # Proses logout + hapus session
+├── register.php                # Registrasi akun baru (proteksi double-submit)
+├── robots.txt                  # Block semua crawler
+├── sso.php                     # SSO endpoint — generate JWT + redirect ke aplikasi klien
+├── verify.php                  # Verifikasi token untuk aplikasi klien
+└── version.json                # Info versi APK Android (auto-update tiap deploy)
 ```
 
 ---
 
-## ⚙️ Cara Setup
+## ⚙️ Setup
 
 ### 1. Prasyarat
 
-- PHP 8.0+ dengan ekstensi: `openssl`, `pdo_sqlite`, `curl`
+- PHP 8.1+ dengan ekstensi: `openssl`, `pdo_sqlite`, `curl`
 - Apache dengan `mod_rewrite` dan `mod_headers`
 - Akun [Supabase](https://supabase.com/)
-- Akun [InfinityFree](https://infinityfree.net/) untuk hosting
+- Akun InfinityFree untuk hosting
 
 ### 2. Clone
 
@@ -87,18 +103,16 @@ git clone https://github.com/aprianto199304012025041002-wq/gudeg.git
 cd gudeg
 ```
 
-### 3. Buat File Konfigurasi
-
-Buat `config/.env` (file ini **JANGAN** di-commit):
+### 3. Buat `config/.env`
 
 ```env
 SUPABASE_URL=https://xxxx.supabase.co
 SUPABASE_SERVICE_KEY=eyJ...
-HEALTH_KEY=random_string_panjang_untuk_proteksi_healthcheck
-CACHE_PATH=/tmp/gudeg_cache.sqlite   # opsional, default /tmp/gudeg_cache.sqlite
+HEALTH_KEY=random_string_panjang
+CACHE_PATH=/tmp/gudeg_cache.sqlite
 ```
 
-> Parsing `.env` dilakukan langsung di `includes/functions.php` — tidak ada dependency ke file lain.
+> Parsing `.env` dilakukan di `includes/env.php` — tidak ada dependency library.
 
 ### 4. Generate RSA Key
 
@@ -107,106 +121,28 @@ openssl genrsa -out keys/private.pem 2048
 openssl rsa -in keys/private.pem -pubout -out keys/public.pem
 ```
 
-File `keys/` sudah diproteksi `.htaccess` dan **tidak pernah di-commit** — deploy ke server via GitHub Secrets (lihat bagian Deploy).
+File `keys/` diproteksi `.htaccess` dan tidak pernah di-commit — di-deploy ke server via GitHub Secrets.
 
 ### 5. Setup Database Supabase
 
-Jalankan SQL berikut di **Supabase SQL Editor**:
-
-```sql
--- Tabel user
-CREATE TABLE users (
-  id                  BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  name                TEXT NOT NULL,
-  email               TEXT NOT NULL UNIQUE,
-  password            TEXT NOT NULL,
-  role                TEXT NOT NULL DEFAULT 'guest', -- 'admin' | 'user' | 'guest'
-  is_active           BOOLEAN NOT NULL DEFAULT false,
-  created_at          TIMESTAMP,
-  deleted_at          TIMESTAMP,
-  password_changed_at TIMESTAMP
-);
-
--- Tabel sesi aktif
-CREATE TABLE sessions (
-  id            TEXT PRIMARY KEY,  -- session_id PHP
-  user_id       BIGINT REFERENCES users(id),
-  ip_address    TEXT,
-  user_agent    TEXT,
-  payload       TEXT,
-  last_activity TEXT,
-  created_at    TIMESTAMP
-);
-CREATE INDEX idx_sessions_user_id ON sessions(user_id);
-
--- Tabel aplikasi SSO
-CREATE TABLE sso_applications (
-  id               BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  name             TEXT NOT NULL,
-  description      TEXT,
-  redirect         TEXT NOT NULL,
-  client_id        TEXT NOT NULL UNIQUE,
-  client_secret    TEXT NOT NULL,      -- bcrypt hash, bukan plaintext
-  use_signed_token BOOLEAN NOT NULL DEFAULT true,
-  is_active        BOOLEAN NOT NULL DEFAULT true,
-  created_at       TIMESTAMP,
-  updated_at       TIMESTAMP
-);
-
--- Tabel hak akses user ke aplikasi
-CREATE TABLE user_applications (
-  user_id         BIGINT REFERENCES users(id),
-  application_id  BIGINT REFERENCES sso_applications(id),
-  PRIMARY KEY (user_id, application_id)
-);
-
--- Tabel audit log aktivitas user
-CREATE TABLE user_logs (
-  id          BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  user_id     BIGINT,
-  user_name   TEXT,
-  user_email  TEXT,
-  activity    TEXT,
-  ip_address  TEXT,
-  created_at  TIMESTAMP
-);
-
--- Tabel audit log aksi admin
-CREATE TABLE admin_logs (
-  id          BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  admin_id    BIGINT,
-  admin_name  TEXT,
-  action      TEXT,
-  target_user TEXT,
-  ip_address  TEXT,
-  created_at  TIMESTAMP
-);
-
--- Token blacklist (cegah JWT replay attack)
-CREATE TABLE token_blacklist (
-  jti     TEXT PRIMARY KEY,
-  exp     BIGINT,
-  used_at TIMESTAMP
-);
-```
+Jalankan `db/migrations.sql` di Supabase SQL Editor. Untuk skema tabel lengkap (users, sessions, sso_applications, user_applications, user_logs, admin_logs, token_blacklist), lihat file tersebut.
 
 ---
 
 ## 🔄 Alur SSO
 
 ```
-User → Login ke GUDEG SSO
-     → Dashboard (daftar aplikasi yang bisa diakses)
-     → Klik aplikasi
+User → Login ke GUDEG
+     → Dashboard → klik aplikasi
      → /sso.php?client_id=<id>&state=<random>
      → GUDEG generate JWT RS256 (berlaku 15 menit)
      → Redirect ke <redirect_url>?token=<jwt>&state=<state>
-     → Aplikasi klien POST ke /verify.php untuk validasi token
-     → GUDEG cek: signature, expiry, issuer, JTI replay, user aktif, akses app
+     → Aplikasi klien POST /verify.php (token + client_id + client_secret)
+     → GUDEG: cek signature, expiry, issuer, JTI replay, user aktif, akses app
      → Balas { valid: true, payload: { user_id, name, email, role, exp } }
 ```
 
-### Token Payload (RS256)
+### Token Payload
 
 ```json
 {
@@ -214,7 +150,7 @@ User → Login ke GUDEG SSO
   "name":  "Budi Santoso",
   "email": "budi@example.com",
   "role":  "user",
-  "app":   "Nama Aplikasi",
+  "app":   "PASAR",
   "jti":   "a1b2c3d4e5f6g7h8",
   "iat":   1720000000,
   "exp":   1720000900,
@@ -222,33 +158,31 @@ User → Login ke GUDEG SSO
 }
 ```
 
-Token berlaku **15 menit** dan hanya bisa diverifikasi **satu kali** (JTI di-blacklist setelah verify).
+Token berlaku **15 menit** dan hanya bisa dipakai **satu kali** — JTI di-blacklist setelah verify.
 
 ---
 
 ## 🔌 Integrasi Aplikasi Klien
 
-### Langkah 1 — Daftarkan Aplikasi
+### 1. Daftarkan Aplikasi
 
-Admin mendaftarkan aplikasi di `/admin/apps.php`. Sistem generate `client_id` dan `client_secret`. **Simpan `client_secret` saat itu juga — tidak akan ditampilkan lagi.**
+Admin mendaftarkan aplikasi di `/admin/apps.php`. Sistem generate `client_id` dan `client_secret` — **simpan `client_secret` saat itu juga, tidak bisa dilihat lagi.**
 
-### Langkah 2 — Redirect ke SSO
-
-```
-https://gudeg.xo.je/sso.php?client_id=<client_id>&state=<random_state>
-```
-
-### Langkah 3 — Terima Token
-
-Setelah login, user diarahkan ke redirect URL yang terdaftar:
+### 2. Redirect ke SSO
 
 ```
-https://aplikasi-anda.com/callback?token=<jwt>&state=<state>
+GET https://gudeg.xo.je/sso.php?client_id=<client_id>&state=<random_state>
+```
+
+### 3. Terima Token
+
+```
+GET https://aplikasi-anda.com/callback?token=<jwt>&state=<state>
 ```
 
 **Selalu verifikasi `state` untuk mencegah CSRF.**
 
-### Langkah 4 — Verifikasi Token
+### 4. Verifikasi Token
 
 ```http
 POST https://gudeg.xo.je/verify.php
@@ -272,144 +206,89 @@ Response sukses:
 }
 ```
 
-Response gagal:
-
-```json
-{
-  "valid": false,
-  "error": "Token sudah pernah digunakan (replay attack)."
-}
-```
-
-> **Rate limit:** `verify.php` dibatasi per IP. Counter hanya naik kalau `client_secret` salah — bukan kalau token expired biasa.
-
 ---
 
 ## 🛡️ Keamanan
 
 | Fitur | Detail |
 |---|---|
-| CSRF Protection | Token CSRF di setiap form POST |
-| Rate Limiting Login | 5 gagal dalam 10 menit per IP+email → lockout (SQLite, fallback file) |
-| Rate Limiting Verify | Counter naik hanya saat credential salah, bukan token expired |
-| Role Re-validasi | `require_admin()` re-query DB setiap request — session stale tidak bisa akses admin |
-| Session Hardening | `httponly`, `strict_mode`, `SameSite=Lax`, regenerasi setelah login |
-| Session Timeout | 30 menit tidak aktif → auto logout (kecuali APK) |
-| CORS Dinamis | Hanya origin yang terdaftar di DB yang diizinkan |
-| Open Redirect Protection | Redirect URL diambil dari DB, bukan dari query string |
-| JWT RS256 | Semua token ditandatangani RSA — tidak bisa dipalsukan tanpa private key |
-| Token Replay Protection | JTI di-blacklist di Supabase + LocalCache SQLite setelah satu kali verify |
+| JWT RS256 | Token ditandatangani RSA — tidak bisa dipalsukan tanpa private key |
+| Token Replay Protection | JTI di-blacklist di Supabase + SQLite setelah satu verify |
 | Fallback Fail-Closed | Kalau Supabase & SQLite dua-duanya error saat cek JTI → token **ditolak** |
-| Double-Submit Protection | Register dilindungi session lock — cegah race condition klik dua kali |
-| File Protection | `.htaccess` blokir akses ke `.pem`, `.key`, `.env`, dotfiles |
+| CSRF Protection | Token CSRF di setiap form POST, rotasi setelah submit sukses |
+| Double-Submit Lock | Register dilindungi session lock — cegah race condition |
+| Rate Limiting Login | 5 gagal / 10 menit per IP+email → lockout (SQLite, fallback file) |
+| Rate Limiting Verify | Counter naik hanya saat `client_secret` salah, bukan token expired |
+| CSP Nonce-Based | Tidak ada `unsafe-inline` — nonce unik per response |
+| Role Re-validasi | `require_admin()` re-query DB setiap request |
+| Session Hardening | `httponly`, `secure`, `strict_mode`, `SameSite=Lax`, regenerasi setelah login |
+| Session Timeout | 30 menit inaktif → auto logout (kecuali APK) |
+| CORS Dinamis | Hanya origin yang terdaftar di DB yang diizinkan |
+| Open Redirect Protection | Redirect URL dari DB, bukan dari query string |
+| File Protection | `.htaccess` blokir akses ke `.pem`, `.key`, `.env`, dotfiles, `query-results/` |
 | Error Hiding | `display_errors Off` di production |
-| Input Sanitization | Semua input di-trim + batas panjang sebelum masuk DB |
-| Log Auto-Cleanup | Log > 90 hari dihapus otomatis (max sekali per 24 jam) |
-| Structured Logging | `gudeg_log(level, ctx, msg)` output JSON — mudah di-filter dan di-trace |
+| Structured Logging | `gudeg_log(level, ctx, msg)` — format JSON ke error log |
 
 ---
 
-## 🚀 Deploy (GitHub Actions)
+## 🚀 Deploy
 
-Deploy otomatis ke InfinityFree via FTP setiap push ke branch `master`. File sensitif **tidak pernah di-commit** — dibuat di runner dari GitHub Secrets lalu langsung di-upload ke server.
+Push ke `master` → GitHub Actions otomatis deploy ke InfinityFree via FTP → health check otomatis.
 
-### Setup Secrets di GitHub
-
-Masuk ke **Settings → Secrets and variables → Actions**, tambahkan:
+### GitHub Secrets yang Dibutuhkan
 
 | Secret | Keterangan |
 |---|---|
 | `FTP_SERVER` | Hostname FTP InfinityFree |
 | `FTP_USERNAME` | Username FTP |
 | `FTP_PASSWORD` | Password FTP |
-| `SUPABASE_URL` | URL project Supabase (`https://xxxx.supabase.co`) |
-| `SUPABASE_SERVICE_KEY` | Service role key Supabase untuk `deploy.yml` (bukan anon key) |
-| `SUPABASE_KEY` | Service role key Supabase untuk `query-supabase.yml` (sama nilainya dengan `SUPABASE_SERVICE_KEY`) |
-| `PAT_TOKEN` | GitHub Personal Access Token — dipakai `query-supabase.yml` untuk commit hasil query |
-| `HEALTH_KEY` | String acak untuk proteksi endpoint `/healthcheck.php` |
-| `RSA_PRIVATE_KEY` | Isi `keys/private.pem` (termasuk header `-----BEGIN...-----`) |
+| `SUPABASE_URL` | URL project Supabase |
+| `SUPABASE_SERVICE_KEY` | Service role key Supabase |
+| `HEALTH_KEY` | String acak proteksi `/healthcheck.php` |
+| `RSA_PRIVATE_KEY` | Isi `keys/private.pem` |
 | `RSA_PUBLIC_KEY` | Isi `keys/public.pem` |
-
-### Health Check
-
-Setelah deploy, workflow otomatis memanggil:
-
-```
-GET https://gudeg.xo.je/healthcheck.php?key=<HEALTH_KEY>
-```
-
-Response mencakup: status Supabase, env config, RSA keys, `/tmp` writable, SQLite LocalCache, dan pending log queue.
 
 ---
 
 ## 👥 Role & Hak Akses
 
-| Role | Dashboard | Akses Aplikasi SSO | Panel Admin | Default saat Register |
+| Role | Dashboard | Akses Aplikasi SSO | Panel Admin | Default Saat Register |
 |---|---|---|---|---|
-| `admin` | ✅ | Semua aplikasi aktif | ✅ | — (diset manual) |
-| `user` | ✅ | Hanya yang diberi izin admin | ❌ | — (diupgrade admin dari guest) |
+| `admin` | ✅ | Semua aplikasi aktif | ✅ | — |
+| `user` | ✅ | Hanya yang diberi izin | ❌ | — |
 | `guest` | ✅ (terbatas) | Tidak ada | ❌ | ✅ |
 
-Akun baru dari `register.php` langsung berstatus `guest` dan **tidak aktif** (`is_active = false`) sampai diaktifkan admin.
+Akun baru dari `register.php` langsung berstatus `guest` dan `is_active = false` sampai diaktifkan admin.
 
 ---
 
-## 📱 Aplikasi Mobile (APK)
+## 📱 APK Android
 
-`version.json` digunakan APK Android untuk cek update:
+`version.json` dipakai APK untuk cek update. Di-update otomatis setiap deploy oleh workflow.
 
-```json
-{
-  "version":     "1.2",
-  "url":         "https://gudeg.xo.je/gudeg-jogja.apk",
-  "notes":       "Catatan rilis",
-  "deployed_at": "2026-08-01T07:35:03.189523"
-}
-```
-
-APK terdeteksi via `User-Agent: GudegJogjaApp` — session otomatis diperpanjang menjadi **30 hari** dan tidak pernah timeout karena inaktivitas.
+APK terdeteksi via `User-Agent: GudegJogjaApp` → session 30 hari, tidak timeout karena inaktivitas.
 
 ---
 
-## 🔑 Panduan Rotate RSA Key
+## 🔑 Rotate RSA Key
 
-> Berdasarkan pemeriksaan git history, `keys/private.pem` tidak terbukti pernah ter-commit. Panduan ini disimpan untuk prosedur bila diperlukan di masa mendatang.
-
-### 1. Generate key baru
 ```bash
+# 1. Generate key baru
 openssl genrsa -out keys/private.pem 2048
 openssl rsa -in keys/private.pem -pubout -out keys/public.pem
-openssl rsa -in keys/private.pem -check -noout  # RSA key ok
-```
 
-### 2. Bersihkan git history (kalau key sempat ter-commit)
-```bash
-pip install git-filter-repo
-git filter-repo --path keys/ --invert-paths --force
-git remote add origin https://github.com/aprianto199304012025041002-wq/gudeg.git
-git push origin master --force
-```
+# 2. Update GitHub Secrets: RSA_PRIVATE_KEY dan RSA_PUBLIC_KEY
 
-### 3. Deploy key baru ke server GUDEG
-Upload `keys/private.pem` dan `keys/public.pem` via FTP InfinityFree ke folder `keys/`.
+# 3. Update SSO_PUBLIC_KEY di semua aplikasi klien (PASAR, KOMENK, KASPER)
 
-### 4. Update public key di semua aplikasi klien SSO
-- **PASAR** (Hostinger) — update `SSO_PUBLIC_KEY` di `config.local.php`
-- **KASPER** dan **KOMENK** — update konstanta/env var yang menyimpan public key
-
-### 5. Invalidate semua session aktif
-```sql
--- Jalankan di Supabase SQL Editor
+# 4. Invalidate semua session aktif (jalankan di Supabase SQL Editor)
 DELETE FROM sessions;
 ```
 
-### 6. Test SSO flow
-Buka PASAR → login → redirect ke GUDEG → callback → pastikan token baru diterima.
-
-> User yang sedang aktif akan di-logout otomatis. Lakukan rotate di luar jam kerja.
+> Lakukan rotate di luar jam kerja — semua user yang sedang login akan di-logout.
 
 ---
 
 ## 📄 Lisensi
 
-Proyek ini bersifat privat. Hak cipta sepenuhnya milik pengembang.
+Proyek privat — hak cipta milik Balai Monitor Spektrum Frekuensi Radio Kelas I Yogyakarta.
