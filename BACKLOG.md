@@ -40,14 +40,15 @@ cat /home/claude/gudeg/BACKLOG.md
 - Baca file lengkap sebelum edit — jangan grep saja
 - Kalau item sudah benar/tidak perlu diubah, tandai ✅ dan lanjut
 
-## Tindak Lanjut Manual (belum dikerjakan)
+## Tindak Lanjut Manual
 
-- **GitHub Secrets:** hapus secret `SUPABASE_KEY` (lama), buat `SUPABASE_URL` = `https://nscgcspkotpghgmgbwyb.supabase.co`
-- **Supabase SQL Editor:** jalankan `db/migrations.sql` (index `sessions.last_activity` dan `sessions.user_id`)
+✅ Semua selesai (16 Agustus 2026):
+- Secret `SUPABASE_KEY` lama dihapus, `SUPABASE_URL` sudah ada di GitHub Secrets
+- `db/migrations.sql` sudah dijalankan di Supabase SQL Editor
 
 ---
 
-## 🟡 Pending — Butuh Infrastruktur Email
+## 🟡 Hold — Butuh Setup SMTP
 
 85. **Forgot password — belum ada fitur sama sekali**
     **Masalah:** Tidak ada halaman `forgot-password.php` atau `reset-password.php`. User yang lupa password harus minta admin reset manual via panel.
@@ -60,24 +61,6 @@ cat /home/claude/gudeg/BACKLOG.md
 
 ---
 
-## 🔴 Kritis — Butuh Konfirmasi Eksplisit
+## ✅ Selesai (16 Agustus 2026)
 
-90. **🔴 DATA PRODUKSI NYATA DI GIT HISTORY**
-    **Root cause:** Workflow `query-supabase.yml` pernah auto-commit hasil query ke master (sudah diperbaiki di #93, tapi history lama belum dibersihkan).
-    **Data yang masuk history:**
-    - `sso_applications.json` — `client_secret_plain` KOMENK, KASPER, PASAR dalam plaintext
-    - `users.json` — email + bcrypt hash + `remember_token` user nyata
-    - `sessions.json` — session ID aktif + IP address user
-    - `admin_logs.json` — email pegawai internal `@komdigi.go.id`
-    - `user_logs.json` — histori aktivitas login/SSO
-    - `tables.json` — schema DB lengkap
-
-    **Langkah penanganan (urut, jangan dilewati):**
-    1. Install `git-filter-repo`: `pip install git-filter-repo`
-    2. Hapus dari seluruh history: `git filter-repo --path query-results/ --invert-paths --force`
-    3. Re-add remote: `git remote add origin https://<PAT>@github.com/aprianto199304012025041002-wq/gudeg.git`
-    4. Force push: `git push origin master --force`
-    5. Regenerate semua `client_secret` KOMENK, KASPER, PASAR di panel `/admin/apps.php`
-    6. Update `client_secret` baru di config/env repo KOMENK, KASPER, PASAR masing-masing
-
-    **⚠️ Operasi ini rewrite seluruh git history dan tidak bisa di-undo. Konfirmasi eksplisit diperlukan sebelum dikerjakan.**
+90. **Data produksi di git history** — `query-results/` dihapus dari seluruh history via `git filter-repo`, force push ke GitHub berhasil.
