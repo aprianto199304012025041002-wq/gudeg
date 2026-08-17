@@ -416,12 +416,11 @@ layout_head('Admin · Aplikasi', 'admin-apps');
       <input type="hidden" name="action" value="regenerate_secret">
       <input type="hidden" name="app_id" value="<?= $app['id'] ?>">
       <button type="button" class="btn-sm warn"
-              onclick="showConfirm(
-                'Regenerate Client Secret',
-                'Generate secret baru untuk <strong><?= htmlspecialchars(addslashes($app['name'])) ?></strong>? Secret lama akan langsung tidak berlaku. Kamu harus update GitHub Secrets di repo aplikasi klien.',
-                'Ya, Regenerate',
-                function(){ document.getElementById(\'form-regen-<?= $app['id'] ?>\').submit(); }
-              )">
+              data-action="confirm"
+              data-title="Regenerate Client Secret"
+              data-msg="Generate secret baru untuk <strong><?= htmlspecialchars(addslashes($app['name'])) ?></strong>? Secret lama akan langsung tidak berlaku. Kamu harus update GitHub Secrets di repo aplikasi klien."
+              data-label="Ya, Regenerate"
+              data-target="form-regen-<?= $app['id'] ?>">
         🔑 Regenerate Secret
       </button>
     </form>
@@ -430,12 +429,11 @@ layout_head('Admin · Aplikasi', 'admin-apps');
       <input type="hidden" name="action" value="delete_app">
       <input type="hidden" name="app_id" value="<?= $app['id'] ?>">
       <button type="button" class="btn-sm danger"
-              onclick="showConfirm(
-                'Hapus Aplikasi',
-                'Hapus <strong><?= htmlspecialchars(addslashes($app['name'])) ?></strong> permanen? Semua akses user ke aplikasi ini juga akan dihapus.',
-                'Ya, Hapus',
-                function(){ document.getElementById(\'form-delete-<?= $app['id'] ?>\').submit(); }
-              )">Hapus Aplikasi</button>
+              data-action="confirm"
+              data-title="Hapus Aplikasi"
+              data-msg="Hapus <strong><?= htmlspecialchars(addslashes($app['name'])) ?></strong> permanen? Semua akses user ke aplikasi ini juga akan dihapus."
+              data-label="Ya, Hapus"
+              data-target="form-delete-<?= $app['id'] ?>">Hapus Aplikasi</button>
     </form>
   </div>
 </div>
@@ -460,7 +458,7 @@ layout_head('Admin · Aplikasi', 'admin-apps');
 <script nonce="<?= csp_nonce() ?>">
 var _confirmCb = null;
 
-function showConfirm(title, msg, btnLabel, cb) {
+function showConfirm(title, msg, btnLabel, btnClass, cb) {
   document.getElementById('confirmTitle').textContent = title;
   document.getElementById('confirmMsg').innerHTML = msg;
   var ok = document.getElementById('confirmOkBtn');
@@ -496,9 +494,12 @@ function showBubble(type, icon, title, desc, code, warn, duration) {
     '<i class="ti ti-' + icon + '" aria-hidden="true"></i>' +
     '<div class="bubble-body"><div class="bubble-title">' + title + '</div>' +
     '<div class="bubble-desc">' + desc + extra + '</div></div>' +
-    '<button class="bubble-close" aria-label="Tutup" onclick="closeBubble(this.parentNode)">&#215;</button>' +
+    '<button class="bubble-close" aria-label="Tutup" data-action="close-bubble">&#215;</button>' +
     '<div class="bubble-progress" style="animation-duration:' + (duration/1000) + 's"></div>';
   wrap.appendChild(b);
+  b.querySelector('[data-action="close-bubble"]').addEventListener('click', function() {
+    closeBubble(b);
+  });
   setTimeout(function() { closeBubble(b); }, duration);
 }
 function closeBubble(b) {
