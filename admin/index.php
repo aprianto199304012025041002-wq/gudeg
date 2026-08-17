@@ -396,10 +396,12 @@ select.sel-sm:focus { outline: none; border-color: var(--accent-bdr); box-shadow
       <input type="hidden" name="action" value="reset_password">
       <input type="hidden" name="target_id" value="<?= $u['id'] ?>">
       <button type="button" class="btn-sm danger"
-              onclick="showConfirm('Reset Password',
-                'Reset password <strong><?= htmlspecialchars(addslashes($u['name'])) ?></strong>? Password baru akan muncul di notifikasi dan log admin.',
-                'Ya, Reset', 'danger',
-                function(){ document.getElementById('form-reset-<?= $u['id'] ?>').submit(); })">
+              data-action="confirm"
+              data-title="Reset Password"
+              data-msg="Reset password <strong><?= htmlspecialchars(addslashes($u['name'])) ?></strong>? Password baru akan muncul di notifikasi dan log admin."
+              data-label="Ya, Reset"
+              data-cls="danger"
+              data-target="form-reset-<?= $u['id'] ?>">
         Reset Password
       </button>
     </form>
@@ -409,10 +411,12 @@ select.sel-sm:focus { outline: none; border-color: var(--accent-bdr); box-shadow
       <input type="hidden" name="action" value="delete_user">
       <input type="hidden" name="target_id" value="<?= $u['id'] ?>">
       <button type="button" class="btn-sm delete"
-              onclick="showConfirm('Hapus User',
-                '<span style=\'color:var(--danger);font-weight:600\'>PERINGATAN:</span> Hapus akun <strong><?= htmlspecialchars(addslashes($u['name'])) ?></strong>? Akun akan disembunyikan permanen dari sistem dan tidak bisa login. Data tetap tersimpan di database (soft delete).',
-                'Ya, Hapus', 'danger',
-                function(){ document.getElementById('form-delete-<?= $u['id'] ?>').submit(); })">
+              data-action="confirm"
+              data-title="Hapus User"
+              data-msg="<span style='color:var(--danger);font-weight:600'>PERINGATAN:</span> Hapus akun <strong><?= htmlspecialchars(addslashes($u['name'])) ?></strong>? Akun akan disembunyikan permanen dari sistem dan tidak bisa login. Data tetap tersimpan di database (soft delete)."
+              data-label="Ya, Hapus"
+              data-cls="danger"
+              data-target="form-delete-<?= $u['id'] ?>">
         &#128683; Hapus User
       </button>
     </form>
@@ -424,7 +428,7 @@ select.sel-sm:focus { outline: none; border-color: var(--accent-bdr); box-shadow
 
   <div class="app-access">
     <button type="button" class="app-access-toggle"
-            onclick="toggleAppAccess(this)"
+            data-action="toggle-app-access"
             data-uid="<?= $u['id'] ?>">
       <span>Akses Aplikasi (<?= count($ua_map[$u['id']] ?? []) ?>)</span>
       <span class="chevron">▼</span>
@@ -520,9 +524,10 @@ function showBubble(type, icon, title, desc, code, duration) {
     '<i class="ti ti-' + icon + '" aria-hidden="true"></i>' +
     '<div class="bubble-body"><div class="bubble-title">' + title + '</div>' +
     '<div class="bubble-desc">' + desc + codeHtml + '</div></div>' +
-    '<button class="bubble-close" aria-label="Tutup" onclick="closeBubble(this.parentNode)">&#215;</button>' +
+    '<button class="bubble-close" aria-label="Tutup" data-action="close-bubble">&#215;</button>' +
     '<div class="bubble-progress" style="animation-duration:' + (duration/1000) + 's"></div>';
   wrap.appendChild(b);
+  b.querySelector('[data-action="close-bubble"]').addEventListener('click', function() { closeBubble(b); });
   setTimeout(function() { closeBubble(b); }, duration);
 }
 
@@ -561,6 +566,25 @@ function closeBubble(b) {
 document.addEventListener('DOMContentLoaded', function() {
   var cancelBtn = document.getElementById('confirm-cancel-btn');
   if (cancelBtn) cancelBtn.addEventListener('click', function() { if (window.closeConfirm) closeConfirm(); });
+
+  // data-action="confirm"
+  document.querySelectorAll('[data-action="confirm"]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var title  = this.dataset.title  || 'Konfirmasi';
+      var msg    = this.dataset.msg    || 'Lanjutkan?';
+      var label  = this.dataset.label  || 'Ya';
+      var cls    = this.dataset.cls    || 'danger';
+      var target = this.dataset.target;
+      showConfirm(title, msg, label, cls, function() {
+        if (target) { var form = document.getElementById(target); if (form) form.submit(); }
+      });
+    });
+  });
+
+  // data-action="toggle-app-access"
+  document.querySelectorAll('[data-action="toggle-app-access"]').forEach(function(btn) {
+    btn.addEventListener('click', function() { toggleAppAccess(this); });
+  });
 });
 </script>
 

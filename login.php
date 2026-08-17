@@ -755,9 +755,10 @@ function showBubble(type, icon, title, desc, duration) {
     '<i class="ti ti-' + icon + '" aria-hidden="true"></i>' +
     '<div class="bubble-body"><div class="bubble-title">' + title + '</div>' +
     '<div class="bubble-desc">' + desc + '</div></div>' +
-    '<button class="bubble-close" aria-label="Tutup" onclick="closeBubble(this.parentNode)">&#215;</button>' +
+    '<button class="bubble-close" aria-label="Tutup" data-action="close-bubble">&#215;</button>' +
     '<div class="bubble-progress" style="animation-duration:' + (duration/1000) + 's"></div>';
   wrap.appendChild(b);
+  b.querySelector('[data-action="close-bubble"]').addEventListener('click', function() { closeBubble(b); });
   setTimeout(function() { closeBubble(b); }, duration);
 }
 function closeBubble(b) {
