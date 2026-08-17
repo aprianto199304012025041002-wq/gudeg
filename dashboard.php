@@ -92,7 +92,7 @@ layout_head('Dashboard', 'dashboard');
   text-shadow: none;
 }
 .greeting-sub {
-  font-size: .78rem; color: var(--muted-hi);
+  font-size: .78rem; font-weight: 500; color: var(--muted-hi);
   margin-top: .3rem; text-transform: uppercase;
   letter-spacing: .06em; font-family: var(--mono);
 }
@@ -167,7 +167,7 @@ layout_head('Dashboard', 'dashboard');
   letter-spacing: .06em; margin-bottom: .25rem; line-height: 1.3;
 }
 .app-desc {
-  font-size: .75rem; color: var(--muted-hi);
+  font-size: .75rem; font-weight: 500; color: var(--muted-hi);
   font-family: var(--sans); line-height: 1.5;
   display: -webkit-box; -webkit-line-clamp: 2;
   -webkit-box-orient: vertical; overflow: hidden;
@@ -219,7 +219,7 @@ layout_head('Dashboard', 'dashboard');
   letter-spacing: .06em; margin-bottom: 3px;
   font-family: var(--mono); font-size: .72rem;
 }
-.bubble-desc { font-size: .78rem; opacity: .9; line-height: 1.6; }
+.bubble-desc { font-size: .78rem; font-weight: 500; opacity: .9; line-height: 1.6; }
 .bubble-desc a { color: inherit; text-decoration: underline; }
 .bubble-desc code {
   font-family: var(--mono); background: rgba(0,0,0,.3);

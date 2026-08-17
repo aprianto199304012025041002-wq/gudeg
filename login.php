@@ -460,7 +460,7 @@ body::after {
 }
 .logo-title .jogja { color: #eab308; -webkit-text-fill-color: #eab308; }
 .logo-acronym {
-  font-size: 10px; color: var(--muted);
+  font-size: 10px; font-weight: 600; color: var(--muted);
   text-transform: uppercase; letter-spacing: .08em;
   margin-top: 10px; line-height: 1.8;
   font-family: var(--mono);
@@ -513,6 +513,7 @@ input[type="password"] {
   color: var(--text);
   font-family: var(--sans);
   font-size: 14px;
+  font-weight: 500;
   outline: none;
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
   -webkit-appearance: none;
@@ -632,7 +633,7 @@ input:-webkit-autofill:focus {
 .bubble i { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
 .bubble-body { flex: 1; min-width: 0; }
 .bubble-title { font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; font-size: .72rem; font-family: var(--mono); }
-.bubble-desc  { font-size: .78rem; opacity: .9; }
+.bubble-desc  { font-size: .78rem; font-weight: 500; opacity: .9; }
 .bubble-close {
   position: absolute; top: 6px; right: 8px;
   cursor: pointer; opacity: .5; font-size: 16px;

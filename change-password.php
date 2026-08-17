@@ -107,7 +107,7 @@ layout_head('Setting', 'password');
 ?>
 <style nonce="<?= csp_nonce() ?>">
 .form-group { margin-bottom: 1rem; }
-.text-note { font-size: .8rem; color: var(--muted-hi); padding: .5rem 0; font-family: var(--sans); }
+.text-note { font-size: .8rem; font-weight: 500; color: var(--muted-hi); padding: .5rem 0; font-family: var(--sans); }
 .form-reset { margin: 0; }
 #pw-hint {
   margin-top: 8px; font-size: 10px; line-height: 1.9; color: var(--muted);
@@ -153,7 +153,7 @@ layout_head('Setting', 'password');
   border: 1px solid var(--accent-bdr);
   color: var(--accent); border-radius: var(--radius-sm);
   padding: .75rem; font-family: var(--mono);
-  font-size: .78rem; font-weight: 700; text-transform: uppercase;
+  font-size: .78rem; font-weight: 800; text-transform: uppercase;
   letter-spacing: .08em; cursor: pointer; margin-top: .5rem;
   box-shadow: 0 0 16px var(--accent-glow-sm), var(--elev-1);
   transition: background var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
@@ -230,7 +230,7 @@ layout_head('Setting', 'password');
 [data-theme="bright"] .log-row { border-bottom-color: rgba(0,0,0,.06); }
 .log-row:last-child { border-bottom: none; }
 .log-activity {
-  font-size: .78rem; font-weight: 700; font-family: var(--mono);
+  font-size: .78rem; font-weight: 800; font-family: var(--mono);
   text-transform: uppercase; letter-spacing: .04em; color: var(--text);
   word-break: break-word; overflow-wrap: anywhere; min-width: 0;
 }
@@ -246,7 +246,7 @@ layout_head('Setting', 'password');
 [data-theme="bright"] .sesi-row { border-bottom-color: rgba(0,0,0,.06); }
 .sesi-row:last-child { border-bottom: none; }
 .sesi-device {
-  font-size: .78rem; font-weight: 700; font-family: var(--mono);
+  font-size: .78rem; font-weight: 800; font-family: var(--mono);
   text-transform: uppercase; letter-spacing: .04em; color: var(--text);
   display: flex; align-items: center; gap: 6px;
   word-break: break-word; overflow-wrap: anywhere; min-width: 0;
@@ -273,7 +273,7 @@ layout_head('Setting', 'password');
 .btn-logout-all {
   width: 100%; background: var(--danger-bg); border: 1px solid var(--danger-bdr);
   color: var(--danger); border-radius: var(--radius-sm); padding: .65rem;
-  font-size: .78rem; font-weight: 700; text-transform: uppercase;
+  font-size: .78rem; font-weight: 800; text-transform: uppercase;
   letter-spacing: .06em; cursor: pointer; font-family: var(--mono);
   margin-top: .75rem; box-sizing: border-box;
   transition: background var(--transition-fast), box-shadow var(--transition-fast);
@@ -311,7 +311,7 @@ layout_head('Setting', 'password');
 .bubble i { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
 .bubble-body { flex: 1; min-width: 0; }
 .bubble-title { font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; font-size: .72rem; font-family: var(--mono); }
-.bubble-desc  { font-size: .78rem; opacity: .9; }
+.bubble-desc  { font-size: .78rem; font-weight: 500; opacity: .9; }
 .bubble-close {
   position: absolute; top: 6px; right: 8px;
   cursor: pointer; opacity: .5; font-size: 16px;

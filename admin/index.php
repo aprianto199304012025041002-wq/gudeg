@@ -143,7 +143,7 @@ layout_head('Admin · User', 'admin-users');
   font-family: var(--mono);
 }
 .user-email {
-  font-size: .75rem; color: var(--muted-hi);
+  font-size: .75rem; font-weight: 500; color: var(--muted-hi);
   margin-top: .2rem; word-break: break-all; line-height: 1.4;
   font-family: var(--mono);
 }
@@ -239,7 +239,7 @@ select.sel-sm:focus { outline: none; border-color: var(--accent-bdr); box-shadow
 .apps-check label:hover { border-color: var(--accent-bdr); color: var(--text); background: var(--accent-bg); }
 .apps-check input[type=checkbox] { accent-color: var(--accent); }
 
-.self-note { font-size: .78rem; color: var(--muted-hi); font-style: italic; font-family: var(--mono); }
+.self-note { font-size: .78rem; font-weight: 500; color: var(--muted-hi); font-style: italic; font-family: var(--mono); }
 
 @media (max-width: 600px) {
   .role-form { flex-wrap: nowrap; }
@@ -283,7 +283,7 @@ select.sel-sm:focus { outline: none; border-color: var(--accent-bdr); box-shadow
   text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px;
   font-family: var(--mono);
 }
-.confirm-msg { font-size: .82rem; color: var(--muted-hi); line-height: 1.6; margin-bottom: 16px; }
+.confirm-msg { font-size: .82rem; font-weight: 500; color: var(--muted-hi); line-height: 1.6; margin-bottom: 16px; }
 .confirm-msg strong { color: var(--text); }
 .confirm-btns { display: flex; gap: 8px; justify-content: flex-end; }
 
@@ -318,7 +318,7 @@ select.sel-sm:focus { outline: none; border-color: var(--accent-bdr); box-shadow
 .bubble i { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
 .bubble-body { flex: 1; min-width: 0; }
 .bubble-title { font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; font-size: .72rem; font-family: var(--mono); }
-.bubble-desc  { font-size: .78rem; opacity: .9; }
+.bubble-desc  { font-size: .78rem; font-weight: 500; opacity: .9; }
 .bubble-code  {
   font-family: var(--mono); font-size: .75rem;
   background: rgba(0,0,0,.3); padding: 2px 7px;

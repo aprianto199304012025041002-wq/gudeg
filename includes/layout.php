@@ -154,6 +154,7 @@ body {
   color: var(--text);
   font-family: var(--sans);
   font-size: 14px;
+  font-weight: 500;
   min-height: 100vh;
   overflow-x: hidden;
   transition: background var(--transition-med), color var(--transition-med);
@@ -273,7 +274,7 @@ a { color: inherit; text-decoration: none; }
   white-space: normal; line-height: 1.35; word-break: break-word;
 }
 .sb-user-email {
-  font-size: 10px; color: var(--muted); font-family: var(--mono);
+  font-size: 10px; font-weight: 500; color: var(--muted); font-family: var(--mono);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px;
 }
 .sb-role {
@@ -473,7 +474,7 @@ a { color: inherit; text-decoration: none; }
   font-family: var(--mono);
   text-shadow: 0 0 20px var(--accent-glow);
 }
-.page-subtitle { color: var(--muted); font-size: 11px; margin-top: 4px; font-family: var(--mono); letter-spacing: .05em; }
+.page-subtitle { color: var(--muted); font-size: 11px; font-weight: 600; margin-top: 4px; font-family: var(--mono); letter-spacing: .05em; }
 .page-header { margin-bottom: 18px; }
 
 .section-label {
