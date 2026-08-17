@@ -541,6 +541,24 @@ document.querySelectorAll('form').forEach(function(form) {
 document.addEventListener('DOMContentLoaded', function() {
   var cancelBtn = document.getElementById('confirm-cancel-btn');
   if (cancelBtn) cancelBtn.addEventListener('click', function() { if (window.closeConfirm) closeConfirm(); });
+
+  // Tombol dengan data-action="confirm" -> showConfirm
+  document.querySelectorAll('[data-action="confirm"]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var title  = this.dataset.title  || 'Konfirmasi';
+      var msg    = this.dataset.msg    || 'Lanjutkan?';
+      var label  = this.dataset.label  || 'Ya';
+      var cls    = this.dataset.cls    || 'danger';
+      var target = this.dataset.target;
+      showConfirm(title, msg, label, cls, function() {
+        if (target) {
+          var form = document.getElementById(target);
+          if (form) form.submit();
+        }
+      });
+    });
+  });
+
   document.querySelectorAll('[data-reveal="toggle"]').forEach(function(el) {
     el.addEventListener('click', function() { this.classList.toggle('revealed'); });
   });
