@@ -397,19 +397,33 @@ layout_head('Admin · Aplikasi', 'admin-apps');
     </div>
   </div>
   <div class="app-actions">
-    <form method="POST" class="form-inline">
+    <form method="POST" class="form-inline" id="form-toggle-app-<?= $app['id'] ?>">
       <?= csrf_field() ?>
       <input type="hidden" name="action" value="toggle_status">
       <input type="hidden" name="app_id" value="<?= $app['id'] ?>">
-      <button type="submit" class="btn-sm <?= $app['is_active'] ? 'danger' : '' ?>">
+      <button type="button" class="btn-sm <?= $app['is_active'] ? 'danger' : '' ?>"
+              data-action="confirm"
+              data-title="<?= $app['is_active'] ? 'Nonaktifkan Aplikasi' : 'Aktifkan Aplikasi' ?>"
+              data-msg="<?= $app['is_active'] ? 'Nonaktifkan' : 'Aktifkan' ?> aplikasi <strong><?= htmlspecialchars(addslashes($app['name'])) ?></strong>?"
+              data-label="Ya, <?= $app['is_active'] ? 'Nonaktifkan' : 'Aktifkan' ?>"
+              data-cls="<?= $app['is_active'] ? 'danger' : '' ?>"
+              data-target="form-toggle-app-<?= $app['id'] ?>">
         <?= $app['is_active'] ? 'Nonaktifkan' : 'Aktifkan' ?>
       </button>
     </form>
-    <form method="POST" class="form-inline">
+    <form method="POST" class="form-inline" id="form-rsa-<?= $app['id'] ?>">
       <?= csrf_field() ?>
       <input type="hidden" name="action" value="toggle_signed">
       <input type="hidden" name="app_id" value="<?= $app['id'] ?>">
-      <button type="submit" class="btn-sm">Toggle RSA</button>
+      <button type="button" class="btn-sm warn"
+              data-action="confirm"
+              data-title="Toggle RSA"
+              data-msg="<?= $app['use_signed_token'] ? 'Matikan' : 'Aktifkan' ?> RSA signed token untuk <strong><?= htmlspecialchars(addslashes($app['name'])) ?></strong>? Pastikan aplikasi klien sudah siap."
+              data-label="Ya, Toggle"
+              data-cls="warn"
+              data-target="form-rsa-<?= $app['id'] ?>">
+        Toggle RSA
+      </button>
     </form>
     <form method="POST" class="form-inline" id="form-regen-<?= $app['id'] ?>">
       <?= csrf_field() ?>

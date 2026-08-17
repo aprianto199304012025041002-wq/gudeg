@@ -447,11 +447,19 @@ layout_head('Setting', 'password');
           <div class="sesi-meta"><?= htmlspecialchars($sess['ip_address'] ?? '—') ?> · <?= $last_act ?></div>
         </div>
         <?php if (!$is_current): ?>
-        <form method="POST" class="form-reset">
+        <form method="POST" class="form-reset" id="form-logout-sess-<?= htmlspecialchars($sess['id']) ?>">
           <?= csrf_field() ?>
           <input type="hidden" name="action" value="logout_session">
           <input type="hidden" name="session_id" value="<?= htmlspecialchars($sess['id']) ?>">
-          <button type="submit" class="btn-logout-sess">Logout</button>
+          <button type="button" class="btn-logout-sess"
+                  data-action="confirm"
+                  data-title="Logout Perangkat"
+                  data-msg="Logout sesi ini dari sistem?"
+                  data-label="Ya, Logout"
+                  data-cls="danger"
+                  data-target="form-logout-sess-<?= htmlspecialchars($sess['id']) ?>">
+            Logout
+          </button>
         </form>
         <?php endif; ?>
       </div>
@@ -461,10 +469,18 @@ layout_head('Setting', 'password');
         $other_sessions = array_filter($active_sessions, fn($s) => $s['id'] !== $current_sess_id);
       ?>
       <?php if (count($other_sessions) > 0): ?>
-      <form method="POST" class="form-reset">
+      <form method="POST" class="form-reset" id="form-logout-all">
         <?= csrf_field() ?>
         <input type="hidden" name="action" value="logout_all_sessions">
-        <button type="submit" class="btn-logout-all">Logout Semua Perangkat Lain</button>
+        <button type="button" class="btn-logout-all"
+                data-action="confirm"
+                data-title="Logout Semua Perangkat"
+                data-msg="Logout semua perangkat lain yang sedang aktif? Sesi ini tidak akan terpengaruh."
+                data-label="Ya, Logout Semua"
+                data-cls="danger"
+                data-target="form-logout-all">
+          Logout Semua Perangkat Lain
+        </button>
       </form>
       <?php endif; ?>
     <?php else: ?>

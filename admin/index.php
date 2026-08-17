@@ -370,25 +370,35 @@ select.sel-sm:focus { outline: none; border-color: var(--accent-bdr); box-shadow
 
   <?php if ($u['id'] !== (int)$user['id']): ?>
   <div class="user-actions">
-    <form method="POST" class="form-inline">
+    <form method="POST" class="form-inline" id="form-toggle-<?= $u['id'] ?>">
       <?= csrf_field() ?>
       <input type="hidden" name="action" value="toggle_active">
       <input type="hidden" name="target_id" value="<?= $u['id'] ?>">
-      <button type="submit" class="btn-sm <?= $u['is_active'] ? 'danger' : '' ?>">
+      <button type="button" class="btn-sm <?= $u['is_active'] ? 'danger' : '' ?>"
+              data-action="confirm"
+              data-title="<?= $u['is_active'] ? 'Nonaktifkan User' : 'Aktifkan User' ?>"
+              data-msg="<?= $u['is_active'] ? 'Nonaktifkan' : 'Aktifkan' ?> akun <strong><?= htmlspecialchars(addslashes($u['name'])) ?></strong>?"
+              data-label="Ya, <?= $u['is_active'] ? 'Nonaktifkan' : 'Aktifkan' ?>"
+              data-cls="<?= $u['is_active'] ? 'danger' : '' ?>"
+              data-target="form-toggle-<?= $u['id'] ?>">
         <?= $u['is_active'] ? 'Nonaktifkan' : 'Aktifkan' ?>
       </button>
     </form>
 
-    <form method="POST" class="role-form">
+    <form method="POST" class="role-form" id="form-role-<?= $u['id'] ?>">
       <?= csrf_field() ?>
       <input type="hidden" name="action" value="change_role">
       <input type="hidden" name="target_id" value="<?= $u['id'] ?>">
-      <select name="new_role" class="sel-sm">
+      <select name="new_role" class="sel-sm" id="sel-role-<?= $u['id'] ?>">
         <option value="user"  <?= $u['role']==='user' ?'selected':'' ?>>User</option>
         <option value="guest" <?= $u['role']==='guest'?'selected':'' ?>>Guest</option>
-        <!-- 'admin' tidak ada di sini: promosi admin harus via Supabase dashboard langsung -->
       </select>
-      <button type="submit" class="btn-sm">Ubah Role</button>
+      <button type="button" class="btn-sm"
+              data-action="confirm-role"
+              data-uid="<?= $u['id'] ?>"
+              data-name="<?= htmlspecialchars(addslashes($u['name'])) ?>">
+        Ubah Role
+      </button>
     </form>
 
     <form method="POST" class="form-inline" id="form-reset-<?= $u['id'] ?>">
@@ -584,6 +594,21 @@ document.addEventListener('DOMContentLoaded', function() {
   // data-action="toggle-app-access"
   document.querySelectorAll('[data-action="toggle-app-access"]').forEach(function(btn) {
     btn.addEventListener('click', function() { toggleAppAccess(this); });
+  });
+
+  // data-action="confirm-role"
+  document.querySelectorAll('[data-action="confirm-role"]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var uid  = this.dataset.uid;
+      var name = this.dataset.name;
+      var sel  = document.getElementById('sel-role-' + uid);
+      var role = sel ? sel.value : '?';
+      showConfirm('Ubah Role', 'Ubah role <strong>' + name + '</strong> menjadi <strong>' + role.toUpperCase() + '</strong>?',
+        'Ya, Ubah', '', function() {
+          var form = document.getElementById('form-role-' + uid);
+          if (form) form.submit();
+        });
+    });
   });
 });
 </script>
