@@ -119,13 +119,19 @@ layout_head('Admin · Aplikasi', 'admin-apps');
 
 .add-card {
   background: var(--glass-hi);
-  backdrop-filter: blur(12px) saturate(150%);
-  border: 1px solid var(--border-hi);
-  border-radius: 8px;
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid var(--glass-border-hi);
+  border-radius: var(--radius);
   padding: .9rem; margin-bottom: 1.2rem;
-  box-shadow: 0 2px 12px rgba(0,0,0,.2);
+  box-shadow: var(--elev-3), var(--elev-inset);
+  position: relative; overflow: hidden;
 }
 
+.add-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-bdr), transparent);
+}
 .add-card-title {
   font-size: .78rem; font-weight: 700; font-family: var(--mono);
   color: var(--accent); text-transform: uppercase;
@@ -141,16 +147,18 @@ layout_head('Admin · Aplikasi', 'admin-apps');
 }
 
 .fg input[type=text] {
-  width: 100%; background: var(--bg);
-  border: 1px solid var(--border); border-radius: 5px;
+  width: 100%; background: rgba(0,0,0,.2);
+  border: 1px solid var(--glass-border-hi); border-radius: var(--radius-sm);
   padding: .6rem .75rem; color: var(--text);
   font-family: var(--sans); font-size: .9rem; outline: none;
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
   -webkit-appearance: none;
-  -webkit-box-shadow: 0 0 0 1000px var(--bg) inset;
+  -webkit-box-shadow: 0 0 0 1000px rgba(5,8,15,.8) inset;
   -webkit-text-fill-color: var(--text);
+  box-shadow: var(--elev-inset);
 }
-.fg input[type=text]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+[data-theme="bright"] .fg input[type=text] { background: rgba(255,255,255,.7); -webkit-box-shadow: 0 0 0 1000px rgba(255,255,255,.9) inset; }
+.fg input[type=text]:focus { border-color: var(--accent-bdr); background: var(--accent-bg); box-shadow: 0 0 0 3px var(--accent-glow-sm), var(--elev-inset); }
 
 .check-label {
   display: flex; align-items: flex-start; gap: .5rem;
@@ -161,27 +169,31 @@ layout_head('Admin · Aplikasi', 'admin-apps');
 .check-label input { accent-color: var(--accent); flex-shrink: 0; margin-top: .2rem; }
 
 .btn-add {
-  background: var(--accent-bg); border: 1px solid var(--accent-bdr);
-  color: var(--accent); border-radius: 5px;
+  background: linear-gradient(135deg, var(--accent-bg), rgba(120,58,237,.08));
+  border: 1px solid var(--accent-bdr); color: var(--accent); border-radius: var(--radius-sm);
   padding: .6rem 1rem; font-size: .78rem; font-weight: 700;
   cursor: pointer; font-family: var(--mono); text-transform: uppercase;
   letter-spacing: .08em; margin-top: .75rem; width: 100%;
+  box-shadow: 0 0 16px var(--accent-glow-sm), var(--elev-1);
   transition: background var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+  position: relative; overflow: hidden;
 }
-.btn-add:hover { background: rgba(0,229,255,.12); border-color: var(--accent); box-shadow: 0 0 16px var(--accent-glow); }
-[data-theme="bright"] .btn-add:hover { background: rgba(2,132,199,.1); box-shadow: 0 0 12px var(--accent-glow); }
+.btn-add::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(0,229,255,.3), transparent); }
+.btn-add:hover { background: linear-gradient(135deg, rgba(0,229,255,.12), rgba(120,58,237,.12)); border-color: var(--accent); box-shadow: 0 0 24px var(--accent-glow), var(--elev-2); }
 
 .app-list { display: flex; flex-direction: column; gap: .6rem; }
 
 .app-card {
   background: var(--glass-hi);
-  backdrop-filter: blur(12px) saturate(150%);
-  border: 1px solid var(--border-hi);
-  border-radius: 8px; overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0,0,0,.2);
-  transition: border-color var(--transition-fast);
+  backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid var(--glass-border-hi);
+  border-radius: var(--radius); overflow: hidden;
+  box-shadow: var(--elev-2), var(--elev-inset);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+  position: relative;
 }
-.app-card:hover { border-color: var(--accent-bdr); }
+.app-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--glass-border-hi), transparent); pointer-events: none; }
+.app-card:hover { border-color: var(--accent-bdr); box-shadow: 0 0 20px var(--accent-glow-sm), var(--elev-3), var(--elev-inset); transform: translateY(-1px); }
 
 .app-card-head { padding: .85rem 1rem; }
 
@@ -211,43 +223,46 @@ layout_head('Admin · Aplikasi', 'admin-apps');
 .redirect-url { font-size: .72rem; color: var(--muted); margin-top: .2rem; font-family: var(--mono); }
 
 .app-actions {
-  border-top: 1px solid var(--border); padding: .6rem .9rem;
+  border-top: 1px solid var(--glass-border); padding: .65rem .95rem;
   display: flex; flex-wrap: wrap; gap: .4rem;
+  background: rgba(0,0,0,.08);
 }
+[data-theme="bright"] .app-actions { background: rgba(0,0,0,.02); }
 
 .btn-sm {
-  background: var(--surface2); border: 1px solid var(--border-hi);
-  color: var(--muted-hi); border-radius: 5px;
+  background: rgba(255,255,255,.04); border: 1px solid var(--glass-border-hi);
+  color: var(--muted-hi); border-radius: var(--radius-sm);
   padding: .35rem .7rem; font-size: .72rem; font-weight: 700;
   cursor: pointer; font-family: var(--mono); text-transform: uppercase;
   letter-spacing: .06em; white-space: nowrap;
-  transition: border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
-  line-height: 1.2;
+  transition: border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+  line-height: 1.2; box-shadow: var(--elev-inset);
 }
-.btn-sm:hover { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
-.btn-sm.danger { border-color: var(--danger-bdr); color: var(--danger); }
-.btn-sm.danger:hover { border-color: var(--danger); box-shadow: 0 0 8px rgba(239,68,68,.2); }
-.btn-sm.warn { border-color: rgba(234,179,8,.25); color: #eab308; }
-.btn-sm.warn:hover { border-color: #eab308; box-shadow: 0 0 8px rgba(234,179,8,.2); }
+[data-theme="bright"] .btn-sm { background: rgba(0,0,0,.03); }
+.btn-sm:hover { border-color: var(--accent-bdr); color: var(--accent); box-shadow: 0 0 10px var(--accent-glow-sm), var(--elev-inset); }
+.btn-sm.danger { border-color: var(--danger-bdr); color: var(--danger); background: rgba(239,68,68,.04); }
+.btn-sm.danger:hover { border-color: var(--danger); background: rgba(239,68,68,.08); box-shadow: 0 0 10px rgba(239,68,68,.15), var(--elev-inset); }
+.btn-sm.warn { border-color: rgba(234,179,8,.25); color: #eab308; background: rgba(234,179,8,.04); }
+.btn-sm.warn:hover { border-color: #eab308; background: rgba(234,179,8,.08); box-shadow: 0 0 10px rgba(234,179,8,.15), var(--elev-inset); }
 
-/* ── Confirm dialog ─────────────────────────────────────── */
+/* ── Confirm dialog ── */
 .confirm-overlay {
   display: none; position: fixed; inset: 0;
-  background: rgba(0,0,0,.7); backdrop-filter: blur(4px);
+  background: rgba(0,0,0,.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
   z-index: 200; align-items: center; justify-content: center;
 }
 .confirm-overlay.show { display: flex; }
 .confirm-box {
-  background: var(--glass-hi); backdrop-filter: blur(20px) saturate(160%);
-  border: 1px solid var(--border-hi); border-radius: 10px;
+  background: var(--glass-hi); backdrop-filter: blur(24px) saturate(180%); -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--glass-border-hi); border-radius: var(--radius);
   padding: 20px 22px; width: 320px; max-width: 90vw;
-  box-shadow: 0 8px 32px rgba(0,0,0,.6);
+  box-shadow: var(--elev-4), var(--elev-inset); position: relative; overflow: hidden;
 }
-.confirm-title {
-  font-size: .85rem; font-weight: 700; color: var(--text);
-  text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px;
-  font-family: var(--mono);
+.confirm-box::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--glass-border-hi), transparent);
 }
+.confirm-title { font-size: .85rem; font-weight: 700; color: var(--text); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px; font-family: var(--mono); }
 .confirm-msg { font-size: .82rem; color: var(--muted-hi); line-height: 1.6; margin-bottom: 16px; }
 .confirm-msg strong { color: var(--text); }
 .confirm-btns { display: flex; gap: 8px; justify-content: flex-end; }
@@ -263,7 +278,7 @@ layout_head('Admin · Aplikasi', 'admin-apps');
   .confirm-box { width: calc(100vw - 32px); padding: 16px; }
 }
 
-/* ── Floating bubble ─────────────────────────────────────── */
+/* ── Bubble ── */
 .bubble-wrap {
   position: fixed;
   bottom: calc(16px + env(safe-area-inset-bottom)); right: 16px;
@@ -274,20 +289,23 @@ layout_head('Admin · Aplikasi', 'admin-apps');
   .bubble-wrap { bottom: calc(12px + env(safe-area-inset-bottom)); right: 8px; left: 8px; width: auto; }
 }
 .bubble {
-  border-radius: 8px; padding: 10px 32px 10px 14px;
+  border-radius: var(--radius); padding: 10px 32px 10px 14px;
   font-size: .8rem; line-height: 1.5; border: 1px solid;
   display: flex; align-items: flex-start; gap: 8px;
   pointer-events: all; animation: bubbleIn .25s ease;
-  box-shadow: 0 8px 32px rgba(0,0,0,.5); position: relative;
-  backdrop-filter: blur(16px);
+  box-shadow: var(--elev-3); position: relative;
+  backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%);
 }
 @keyframes bubbleIn {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 .bubble.success { background: rgba(34,197,94,.1);  border-color: rgba(34,197,94,.3);  color: #86efac; }
-.bubble.danger  { background: rgba(239,68,68,.1);  border-color: rgba(239,68,68,.3);  color: #fca5a5; }
+.bubble.danger  { background: rgba(239,68,68,.1);   border-color: rgba(239,68,68,.3);  color: #fca5a5; }
 .bubble.info    { background: rgba(0,229,255,.08);  border-color: rgba(0,229,255,.25); color: #67e8f9; }
+[data-theme="bright"] .bubble.success { color: #166534; }
+[data-theme="bright"] .bubble.danger  { color: #991b1b; }
+[data-theme="bright"] .bubble.info    { color: #0369a1; }
 .bubble i { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
 .bubble-body { flex: 1; min-width: 0; }
 .bubble-title { font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; font-size: .72rem; font-family: var(--mono); }
@@ -311,9 +329,9 @@ layout_head('Admin · Aplikasi', 'admin-apps');
 }
 .bubble-close:hover { opacity: 1; }
 .bubble-progress {
-  position: absolute; bottom: 0; left: 0;
-  height: 2px; background: currentColor; opacity: .35;
-  border-radius: 0 0 8px 8px;
+  position: absolute; bottom: 0; left: 0; height: 2px;
+  background: currentColor; opacity: .35;
+  border-radius: 0 0 var(--radius) var(--radius);
   animation: bubbleProgress 10s linear forwards;
 }
 @keyframes bubbleProgress { from { width: 100%; } to { width: 0%; } }

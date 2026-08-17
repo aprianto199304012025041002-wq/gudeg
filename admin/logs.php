@@ -84,8 +84,8 @@ layout_head('Admin · Log', 'admin-logs');
 .tab-bar { display: flex; gap: 5px; margin-bottom: 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; }
 .tab-bar a {
   padding: 5px 12px;
-  border: 1px solid var(--border);
-  border-radius: 5px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
   font-size: 11px; font-weight: 700;
   text-transform: uppercase; letter-spacing: .07em;
   color: var(--muted-hi); font-family: var(--mono);
@@ -101,8 +101,8 @@ layout_head('Admin · Log', 'admin-logs');
 .filter-bar input[type="text"],
 .filter-bar input[type="date"] {
   background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 5px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
   padding: 5px 9px;
   font-size: 11px; color: var(--text);
   font-family: var(--mono); outline: none;
@@ -127,7 +127,7 @@ layout_head('Admin · Log', 'admin-logs');
 
 .filter-bar button {
   background: var(--bg);
-  border: 1px solid var(--border); border-radius: 5px;
+  border: 1px solid var(--glass-border); border-radius: var(--radius-sm);
   padding: 5px 12px;
   font-size: 11px; font-weight: 700;
   color: var(--muted-hi); font-family: var(--mono);
@@ -136,7 +136,7 @@ layout_head('Admin · Log', 'admin-logs');
   transition: border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
 }
 .filter-bar button:hover { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
-.filter-bar .btn-reset { color: var(--danger); border-color: var(--danger-bdr); text-decoration: none; padding: 5px 12px; border: 1px solid var(--danger-bdr); border-radius: 5px; font-size: 11px; font-weight: 700; font-family: var(--mono); text-transform: uppercase; letter-spacing: .06em; cursor: pointer; transition: border-color var(--transition-fast), box-shadow var(--transition-fast); }
+.filter-bar .btn-reset { color: var(--danger); border-color: var(--danger-bdr); text-decoration: none; padding: 5px 12px; border: 1px solid var(--danger-bdr); border-radius: var(--radius-sm); font-size: 11px; font-weight: 700; font-family: var(--mono); text-transform: uppercase; letter-spacing: .06em; cursor: pointer; transition: border-color var(--transition-fast), box-shadow var(--transition-fast); }
 .filter-bar .btn-reset:hover { border-color: var(--danger); box-shadow: 0 0 8px rgba(239,68,68,.2); }
 .filter-active {
   font-size: 10px; color: var(--accent); font-family: var(--mono);
@@ -147,8 +147,8 @@ layout_head('Admin · Log', 'admin-logs');
 .log-item {
   background: var(--glass-hi);
   backdrop-filter: blur(10px) saturate(140%);
-  border: 1px solid var(--border-hi);
-  border-radius: 6px; padding: 9px 12px;
+  border: 1px solid var(--glass-border-hi);
+  border-radius: var(--radius-sm); padding: 9px 12px;
   transition: border-color var(--transition-fast);
 }
 .log-item:hover { border-color: var(--accent-bdr); }
@@ -174,7 +174,7 @@ layout_head('Admin · Log', 'admin-logs');
 
 .pagination { display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; }
 .pagination a {
-  padding: 4px 10px; border: 1px solid var(--border);
+  padding: 4px 10px; border: 1px solid var(--glass-border);
   border-radius: 4px; font-size: 11px; color: var(--muted-hi);
   font-family: var(--mono);
   transition: border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
