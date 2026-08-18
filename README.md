@@ -289,15 +289,18 @@ APK terdeteksi via `User-Agent: GudegJogjaApp` → session 30 hari, tidak timeou
 openssl genrsa -out keys/private.pem 2048
 openssl rsa -in keys/private.pem -pubout -out keys/public.pem
 
-# 2. Update GitHub Secrets: RSA_PRIVATE_KEY dan RSA_PUBLIC_KEY
+# 2. Update GitHub Secrets: RSA_PRIVATE_KEY dan RSA_PUBLIC_KEY (manual, repo gudeg)
 
-# 3. Update SSO_PUBLIC_KEY di semua aplikasi klien (PASAR, KOMENK, KASPER)
+# 3. Sync SSO_PUBLIC_KEY ke semua aplikasi klien sekaligus
+cd scripts && pip install -r requirements.txt
+export GITHUB_PAT=github_pat_xxx
+python3 sync_sso_public_key.py ../keys/public.pem
 
 # 4. Invalidate semua session aktif (jalankan di Supabase SQL Editor)
 DELETE FROM sessions;
 ```
 
-> Lakukan rotate di luar jam kerja — semua user yang sedang login akan di-logout.
+> Lakukan rotate di luar jam kerja — semua user yang sedang login akan di-logout. Detail lengkap di `scripts/README.md`.
 
 ---
 
