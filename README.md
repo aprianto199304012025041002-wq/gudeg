@@ -137,8 +137,8 @@ User → Login ke GUDEG
      → /sso.php?client_id=<id>&state=<random>
      → GUDEG generate JWT RS256 (berlaku 15 menit)
      → Redirect ke <redirect_url>?token=<jwt>&state=<state>
-     → Aplikasi klien POST /verify.php (token + client_id + client_secret)
-     → GUDEG: cek signature, expiry, issuer, JTI replay, user aktif, akses app
+     → Aplikasi klien verifikasi token lokal (RS256 via public key)
+     → Atau POST /verify.php (token + client_id + client_secret) untuk verifikasi server-side
      → Balas { valid: true, payload: { user_id, name, email, role, exp } }
 ```
 
@@ -182,7 +182,7 @@ GET https://aplikasi-anda.com/callback?token=<jwt>&state=<state>
 
 **Selalu verifikasi `state` untuk mencegah CSRF.**
 
-### 4. Verifikasi Token
+### 4. Verifikasi Token (server-side)
 
 ```http
 POST https://gudeg.xo.je/verify.php
@@ -205,6 +205,18 @@ Response sukses:
   }
 }
 ```
+
+### 5. Verifikasi Token (lokal RS256)
+
+Aplikasi klien dapat memverifikasi token langsung tanpa memanggil `/verify.php`, menggunakan RSA public key GUDEG (`SSO_PUBLIC_KEY`) yang di-deploy via GitHub Secrets. Ini yang dipakai PASAR dan KOMENK.
+
+### Daftar Aplikasi Klien Terdaftar
+
+| Aplikasi | Client ID | Mode Verify |
+|---|---|---|
+| PASAR | `5d1a8495f13ca5d1` | RS256 lokal |
+| KOMENK | `fea056cf6cdea01d` | RS256 lokal |
+| KASPER | `1d4b1ae1b885ed27` | RS256 lokal |
 
 ---
 
@@ -239,9 +251,9 @@ Push ke `master` → GitHub Actions otomatis deploy ke InfinityFree via FTP → 
 
 | Secret | Keterangan |
 |---|---|
-| `FTP_SERVER` | Hostname FTP InfinityFree |
-| `FTP_USERNAME` | Username FTP |
-| `FTP_PASSWORD` | Password FTP |
+| `FTP_HOST` | Hostname FTP InfinityFree |
+| `FTP_USER` | Username FTP |
+| `FTP_PASS` | Password FTP |
 | `SUPABASE_URL` | URL project Supabase |
 | `SUPABASE_SERVICE_KEY` | Service role key Supabase |
 | `HEALTH_KEY` | String acak proteksi `/healthcheck.php` |
