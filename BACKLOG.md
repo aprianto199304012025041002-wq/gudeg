@@ -40,16 +40,6 @@ cat /home/claude/gudeg/BACKLOG.md
 - Baca file lengkap sebelum edit — jangan grep saja
 - Kalau item sudah benar/tidak perlu diubah, tandai ✅ dan lanjut
 
+## ✅ Backlog Selesai
 
-## 🟡 Hold — Butuh Setup SMTP
-
-85. **Forgot password — belum ada fitur sama sekali**
-    **Masalah:** Tidak ada halaman `forgot-password.php` atau `reset-password.php`. User yang lupa password harus minta admin reset manual via panel.
-    **Catatan:** InfinityFree tidak support `mail()` PHP. Butuh layanan email eksternal (Resend, Mailgun, atau Supabase Edge Function). Ini fitur baru yang cukup besar — butuh: halaman form email, generate token reset, kirim email, halaman reset password dengan token.
-    **Prioritas:** Medium — tidak ada workaround selain admin reset manual.
-
-86. **Email verification saat register — belum ada**
-    **Masalah:** User yang register langsung masuk DB dengan status `is_active = false` tanpa verifikasi email. Admin harus aktivasi manual. Tidak ada konfirmasi bahwa email yang dimasukkan valid.
-    **Catatan:** Sama seperti #85, butuh infrastruktur email. Bisa dikerjakan bersamaan dengan #85.
-
-
+Semua item backlog telah diselesaikan. Forgot password (#85) dan email verification (#86) tidak diperlukan — admin reset password user via panel admin sudah cukup untuk kebutuhan operasional internal.
