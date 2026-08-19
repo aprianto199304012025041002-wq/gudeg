@@ -40,6 +40,22 @@ cat /home/claude/gudeg/BACKLOG.md
 - Baca file lengkap sebelum edit — jangan grep saja
 - Kalau item sudah benar/tidak perlu diubah, tandai ✅ dan lanjut
 
-## ✅ Backlog Selesai
+## 🟡 Hold — Butuh Setup Firebase (perlu PC)
 
-Semua item backlog telah diselesaikan. Forgot password (#85) dan email verification (#86) tidak diperlukan — admin reset password user via panel admin sudah cukup untuk kebutuhan operasional internal.
+87. **FCM Push Notification — APK**
+    **Scope:** Notif native Android via Firebase Cloud Messaging untuk ekosistem GUDEG.
+    **Trigger notif:**
+    - Login baru di akun (ada device lain login)
+    - Password diganti (oleh admin atau sendiri)
+    - Akun diaktifkan / dinonaktifkan oleh admin
+    - Ada user baru register (notif ke admin untuk approval)
+
+    **Yang perlu disiapkan sebelum implementasi (di PC):**
+    1. Buat Firebase project di console.firebase.google.com
+    2. Add Android app → package name `je.xo.gudeg`
+    3. Download `google-services.json` → masuk ke `apk/app/`
+    4. Salin Server Key / Service Account key untuk backend GUDEG
+
+    **Yang perlu diimplementasi:**
+    - **APK** — dependency `firebase-messaging`, `MyFirebaseMessagingService.java`, kirim FCM token ke GUDEG setelah login
+    - **GUDEG** — endpoint simpan FCM token, tabel `fcm_tokens` di Supabase, trigger kirim notif di titik-titik login/password/status/register
