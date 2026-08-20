@@ -25,7 +25,12 @@ $req_key   = $_SERVER['HTTP_X_STATS_KEY'] ?? '';
 
 if ($stats_key === '' || $req_key !== $stats_key) {
     http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized']);
+    echo json_encode([
+        'error' => 'Unauthorized',
+        'debug_key_defined' => defined('STATS_KEY'),
+        'debug_req_key_len' => strlen($req_key),
+        'debug_stored_key_len' => strlen($stats_key),
+    ]);
     exit;
 }
 
