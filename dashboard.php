@@ -67,8 +67,8 @@ layout_head('Dashboard', 'dashboard');
   margin-bottom: 1rem;
   font-size: .78rem;
   color: #eab308;
-  font-family: var(--mono);
-  letter-spacing: .03em;
+  font-family: var(--sans);
+  letter-spacing: .01em;
   display: flex; align-items: center; gap: 8px;
   box-shadow: 0 0 16px rgba(234,179,8,.06), var(--elev-1), var(--elev-inset);
   backdrop-filter: blur(12px);
@@ -84,17 +84,15 @@ layout_head('Dashboard', 'dashboard');
 
 .greeting { margin-bottom: 1.2rem; }
 .greeting-name {
-  font-size: 1.1rem; font-weight: 700;
-  text-transform: uppercase; letter-spacing: .08em;
-  font-family: var(--mono);
-  background: linear-gradient(135deg, var(--accent), #7dd3fc);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-  text-shadow: none;
+  font-size: 1.15rem; font-weight: 700;
+  letter-spacing: .01em;
+  font-family: var(--sans);
+  color: var(--text);
 }
 .greeting-sub {
-  font-size: .78rem; font-weight: 500; color: var(--muted-hi);
-  margin-top: .3rem; text-transform: uppercase;
-  letter-spacing: .06em; font-family: var(--mono);
+  font-size: .8rem; font-weight: 400; color: var(--muted-hi);
+  margin-top: .25rem; letter-spacing: .01em;
+  font-family: var(--sans);
 }
 
 .guest-notice {
@@ -103,7 +101,7 @@ layout_head('Dashboard', 'dashboard');
   border-radius: var(--radius);
   padding: .9rem 1rem;
   margin-bottom: 1rem;
-  font-size: .82rem; font-family: var(--mono);
+  font-size: .84rem; font-family: var(--sans);
   color: var(--muted-hi); line-height: 1.7;
   box-shadow: 0 0 16px var(--accent-glow-sm), var(--elev-1), var(--elev-inset);
   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
@@ -162,9 +160,9 @@ layout_head('Dashboard', 'dashboard');
 .app-logo img { width: 100%; height: 100%; object-fit: cover; }
 
 .app-name {
-  font-weight: 700; font-size: .78rem;
-  font-family: var(--mono); text-transform: uppercase;
-  letter-spacing: .06em; margin-bottom: .25rem; line-height: 1.3;
+  font-weight: 700; font-size: .82rem;
+  font-family: var(--sans);
+  letter-spacing: .01em; margin-bottom: .25rem; line-height: 1.3;
 }
 .app-desc {
   font-size: .75rem; font-weight: 500; color: var(--muted-hi);
@@ -173,9 +171,9 @@ layout_head('Dashboard', 'dashboard');
   -webkit-box-orient: vertical; overflow: hidden;
 }
 .app-launch {
-  margin-top: .55rem; font-size: .72rem;
-  font-family: var(--mono); font-weight: 700;
-  color: var(--accent); text-transform: uppercase; letter-spacing: .08em;
+  margin-top: .55rem; font-size: .73rem;
+  font-family: var(--sans); font-weight: 600;
+  color: var(--accent); letter-spacing: .02em;
 }
 
 .empty-apps {
@@ -184,9 +182,9 @@ layout_head('Dashboard', 'dashboard');
   border: 1px dashed var(--glass-border-hi);
   border-radius: var(--radius);
   padding: 2rem 1rem; text-align: center;
-  color: var(--muted-hi); font-size: .82rem;
-  font-family: var(--mono); line-height: 1.7;
-  margin-bottom: 1.2rem; letter-spacing: .04em;
+  color: var(--muted-hi); font-size: .84rem;
+  font-family: var(--sans); line-height: 1.7;
+  margin-bottom: 1.2rem; letter-spacing: .01em;
   box-shadow: var(--elev-1);
 }
 
@@ -216,8 +214,8 @@ layout_head('Dashboard', 'dashboard');
 .bubble-body { flex: 1; min-width: 0; }
 .bubble-title {
   font-weight: 700; text-transform: uppercase;
-  letter-spacing: .06em; margin-bottom: 3px;
-  font-family: var(--mono); font-size: .72rem;
+  letter-spacing: .04em; margin-bottom: 3px;
+  font-family: var(--sans); font-size: .74rem;
 }
 .bubble-desc { font-size: .78rem; font-weight: 500; opacity: .9; line-height: 1.6; }
 .bubble-desc a { color: inherit; text-decoration: underline; }
