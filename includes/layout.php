@@ -695,7 +695,7 @@ function layout_foot() {
       ic.className = 'ti ' + (theme === 'bright' ? 'ti-moon' : 'ti-sun') + ' theme-toggle-icon';
     });
     document.querySelectorAll('.theme-toggle-label').forEach(function(lb) {
-      lb.textContent = theme === 'bright' ? 'Dark' : 'Terang';
+      lb.textContent = theme === 'bright' ? 'Gelap' : 'Terang';
     });
   }
   function getTheme() {
