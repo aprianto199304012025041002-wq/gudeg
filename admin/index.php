@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $msg_type = 'success';
         } elseif ($action === 'change_role') {
             $new_role = $_POST['new_role'] ?? '';
-            // Whitelist hanya 'user' dan 'guest' — sengaja tidak termasuk 'admin'.
+            // Whitelist hanya 'user' dan 'guest' - sengaja tidak termasuk 'admin'.
             // Promosi ke admin harus dilakukan langsung di DB (Supabase dashboard)
             // oleh superadmin, bukan via panel ini, untuk mencegah privilege escalation
             // tidak sengaja oleh admin biasa.
@@ -99,7 +99,7 @@ if (!empty($user_ids)) {
     }
 }
 
-layout_head('Admin · User', 'admin-users');
+layout_head('Admin . User', 'admin-users');
 ?>
 <style nonce="<?= csp_nonce() ?>">
 .page-header { margin-bottom: 1rem; }
@@ -138,14 +138,13 @@ layout_head('Admin · User', 'admin-users');
 }
 .user-info { min-width: 0; flex: 1; }
 .user-name {
-  font-weight: 700; font-size: .85rem;
-  text-transform: uppercase; letter-spacing: .06em; line-height: 1.3;
-  font-family: var(--mono);
+  font-weight: 700; font-size: .85rem; line-height: 1.3;
+  font-family: var(--sans);
 }
 .user-email {
   font-size: .75rem; font-weight: 500; color: var(--muted-hi);
   margin-top: .2rem; word-break: break-all; line-height: 1.4;
-  font-family: var(--mono);
+  font-family: var(--sans);
 }
 .user-meta {
   display: flex; gap: .3rem; flex-shrink: 0;
@@ -166,8 +165,7 @@ layout_head('Admin · User', 'admin-users');
   border-radius: var(--radius-sm);
   padding: .35rem .7rem;
   font-size: .72rem; font-weight: 700;
-  cursor: pointer; font-family: var(--mono);
-  text-transform: uppercase; letter-spacing: .06em;
+  cursor: pointer; font-family: var(--sans);
   white-space: nowrap;
   transition: border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
   line-height: 1.2;
@@ -188,8 +186,8 @@ select.sel-sm {
   color: var(--text); border-radius: var(--radius-sm);
   padding: .35rem .5rem;
   font-size: .72rem; font-weight: 700;
-  cursor: pointer; font-family: var(--mono);
-  flex: 1; text-transform: uppercase; letter-spacing: .04em;
+  cursor: pointer; font-family: var(--sans);
+  flex: 1;
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
   box-shadow: var(--elev-inset);
 }
@@ -200,7 +198,7 @@ select.sel-sm:focus { outline: none; border-color: var(--accent-bdr); box-shadow
 .user-last-login {
   font-size: .7rem; color: var(--muted);
   width: 100%; margin-top: .15rem;
-  letter-spacing: .04em; font-family: var(--mono);
+  font-family: var(--sans);
 }
 
 .app-access { border-top: 1px solid var(--glass-border); }
@@ -209,8 +207,7 @@ select.sel-sm:focus { outline: none; border-color: var(--accent-bdr); box-shadow
   padding: .65rem .95rem;
   display: flex; align-items: center; justify-content: space-between;
   color: var(--muted-hi);
-  font-size: .72rem; font-weight: 700; font-family: var(--mono);
-  text-transform: uppercase; letter-spacing: .06em;
+  font-size: .72rem; font-weight: 700; font-family: var(--sans);
   cursor: pointer; transition: color var(--transition-fast);
 }
 .app-access-toggle:hover { color: var(--accent); }
@@ -228,8 +225,7 @@ select.sel-sm:focus { outline: none; border-color: var(--accent-bdr); box-shadow
 .apps-check { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .6rem; }
 .apps-check label {
   display: flex; align-items: center; gap: .35rem;
-  font-size: .72rem; font-weight: 700; font-family: var(--mono);
-  text-transform: uppercase; letter-spacing: .05em;
+  font-size: .72rem; font-weight: 700; font-family: var(--sans);
   color: var(--muted-hi); cursor: pointer;
   padding: .32rem .6rem;
   border: 1px solid var(--glass-border-hi); border-radius: var(--radius-sm);
@@ -239,7 +235,7 @@ select.sel-sm:focus { outline: none; border-color: var(--accent-bdr); box-shadow
 .apps-check label:hover { border-color: var(--accent-bdr); color: var(--text); background: var(--accent-bg); }
 .apps-check input[type=checkbox] { accent-color: var(--accent); }
 
-.self-note { font-size: .78rem; font-weight: 500; color: var(--muted-hi); font-style: italic; font-family: var(--mono); }
+.self-note { font-size: .78rem; font-weight: 500; color: var(--muted-hi); font-style: italic; font-family: var(--sans); }
 
 @media (max-width: 600px) {
   .role-form { flex-wrap: nowrap; }
@@ -256,7 +252,7 @@ select.sel-sm:focus { outline: none; border-color: var(--accent-bdr); box-shadow
   .confirm-box { width: calc(100vw - 32px); padding: 16px; }
 }
 
-/* ── Confirm dialog ── */
+/* -- Confirm dialog -- */
 .confirm-overlay {
   display: none; position: fixed; inset: 0;
   background: rgba(0,0,0,.7);
@@ -280,14 +276,13 @@ select.sel-sm:focus { outline: none; border-color: var(--accent-bdr); box-shadow
 }
 .confirm-title {
   font-size: .85rem; font-weight: 700; color: var(--text);
-  text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px;
-  font-family: var(--mono);
+  margin-bottom: 8px; font-family: var(--sans);
 }
 .confirm-msg { font-size: .82rem; font-weight: 500; color: var(--muted-hi); line-height: 1.6; margin-bottom: 16px; }
 .confirm-msg strong { color: var(--text); }
 .confirm-btns { display: flex; gap: 8px; justify-content: flex-end; }
 
-/* ── Bubble ── */
+/* -- Bubble -- */
 .bubble-wrap {
   position: fixed;
   bottom: calc(16px + env(safe-area-inset-bottom)); right: 16px;
@@ -310,14 +305,14 @@ select.sel-sm:focus { outline: none; border-color: var(--accent-bdr); box-shadow
   to   { opacity: 1; transform: translateY(0); }
 }
 .bubble.success { background: rgba(34,197,94,.1);  border-color: rgba(34,197,94,.3);  color: #86efac; }
-.bubble.info    { background: rgba(0,229,255,.08);  border-color: rgba(0,229,255,.25); color: #67e8f9; }
+.bubble.info    { background: var(--accent-bg);     border-color: var(--accent-bdr);   color: var(--accent); }
 .bubble.danger  { background: rgba(239,68,68,.1);   border-color: rgba(239,68,68,.3);  color: #fca5a5; }
 [data-theme="bright"] .bubble.success { color: #166534; }
-[data-theme="bright"] .bubble.info    { color: #0369a1; }
+[data-theme="bright"] .bubble.info    { color: var(--accent-deep); }
 [data-theme="bright"] .bubble.danger  { color: #991b1b; }
 .bubble i { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
 .bubble-body { flex: 1; min-width: 0; }
-.bubble-title { font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; font-size: .72rem; font-family: var(--mono); }
+.bubble-title { font-weight: 700; letter-spacing: .02em; margin-bottom: 2px; font-size: .72rem; font-family: var(--sans); }
 .bubble-desc  { font-size: .78rem; font-weight: 500; opacity: .9; }
 .bubble-code  {
   font-family: var(--mono); font-size: .75rem;
@@ -432,7 +427,7 @@ select.sel-sm:focus { outline: none; border-color: var(--accent-bdr); box-shadow
     </form>
 
     <span class="user-last-login">
-      Login Terakhir: <?= $u['last_login_at'] ? date('d M Y H:i', strtotime($u['last_login_at'])) : '—' ?>
+      Login Terakhir: <?= $u['last_login_at'] ? date('d M Y H:i', strtotime($u['last_login_at'])) : '-' ?>
     </span>
   </div>
 
@@ -441,7 +436,7 @@ select.sel-sm:focus { outline: none; border-color: var(--accent-bdr); box-shadow
             data-action="toggle-app-access"
             data-uid="<?= $u['id'] ?>">
       <span>Akses Aplikasi (<?= count($ua_map[$u['id']] ?? []) ?>)</span>
-      <span class="chevron">▼</span>
+      <span class="chevron">v</span>
     </button>
     <div class="app-access-body" id="app-access-<?= $u['id'] ?>">
       <form method="POST">
@@ -468,7 +463,7 @@ select.sel-sm:focus { outline: none; border-color: var(--accent-bdr); box-shadow
 
   <?php else: ?>
   <div class="user-actions">
-    <span class="self-note">(Anda sendiri — tidak dapat diubah)</span>
+    <span class="self-note">(Anda sendiri - tidak dapat diubah)</span>
   </div>
   <?php endif; ?>
 </div>
