@@ -293,9 +293,9 @@ layout_head('Dashboard', 'dashboard');
   b.innerHTML =
     '<i class="ti ti-alert-triangle" aria-hidden="true"></i>' +
     '<div class="bubble-body">' +
-      '<div class="bubble-title">Login dari Perangkat Baru</div>' +
+      '<div class="bubble-title">Masuk dari Perangkat Baru</div>' +
       '<div class="bubble-desc">IP baru terdeteksi: <code>' + ip + '</code>. ' +
-        'Bukan Anda? Segera <a href="/change-password.php">ubah password</a> dan hubungi administrator.</div>' +
+        'Bukan Anda? Segera <a href="/change-password.php">ubah kata sandi</a> dan hubungi administrator.</div>' +
     '</div>' +
     '<button class="bubble-close" aria-label="Tutup" data-action="dismiss-ip">&#215;</button>' +
     '<div class="bubble-progress"></div>';
