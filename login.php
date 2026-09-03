@@ -113,7 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $expired_ts      = time() - SESSION_TIMEOUT;
                             $expired_cutoff  = date('Y-m-d H:i:s', $expired_ts);
 
-                            // Hapus session expired (format datetime) — kecuali session sekarang
+                            // Hapus session expired (format datetime) -- kecuali session sekarang
                             $sb->delete('sessions', [
                                 'user_id'       => (int)$user['id'],
                                 'id'            => 'neq.' . $sess_id,
@@ -153,7 +153,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             // GudegNative.saveCredentials() terlebih dahulu,
                             // lalu JS redirect ke dashboard.
                             // Dengan cara ini password TIDAK pernah mampir di
-                            // sessionStorage — langsung ke EncryptedSharedPreferences.
+                            // sessionStorage -- langsung ke EncryptedSharedPreferences.
                             $login_success  = true;
                             $login_email    = $email;
                             $login_password = $password;
@@ -179,10 +179,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// ── Halaman bridge APK ────────────────────────────────────────────────────────
+// -- Halaman bridge APK -------------------------------------------------------
 // Hanya dirender saat login sukses dari APK.
-// Halaman ini tidak terlihat user (blank putih sesaat) — tugasnya hanya:
-// 1. Panggil GudegNative.saveCredentials() → tersimpan ke EncryptedSharedPreferences
+// Halaman ini tidak terlihat user (blank putih sesaat) -- tugasnya hanya:
+// 1. Panggil GudegNative.saveCredentials() -> tersimpan ke EncryptedSharedPreferences
 // 2. JS redirect ke dashboard
 if ($login_success) {
 ?><!DOCTYPE html>
@@ -192,16 +192,12 @@ if ($login_success) {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Masuk...</title>
 <style nonce="<?= csp_nonce() ?>">
-  body { background: #080a0e; margin: 0; }
+  body { background: #07090f; margin: 0; }
 </style>
 </head>
 <body>
 <script nonce="<?= csp_nonce() ?>">
 (function () {
-  // Simpan credentials ke EncryptedSharedPreferences via JS bridge APK.
-  // Ini dipanggil SEBELUM redirect ke dashboard sehingga:
-  // - Password tidak pernah masuk sessionStorage
-  // - Tidak ada null form saat cari #email/#password di halaman lain
   try {
     if (window.GudegNative && window.GudegNative.saveCredentials) {
       window.GudegNative.saveCredentials(
@@ -210,8 +206,6 @@ if ($login_success) {
       );
     }
   } catch (e) {}
-
-  // Redirect ke dashboard (atau tujuan semula)
   window.location.replace(<?= json_encode($login_dest) ?>);
 })();
 </script>
@@ -220,19 +214,19 @@ if ($login_success) {
 <?php
     exit;
 }
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 ?>
 <!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>GUDEG - Login</title>
-<meta name="description" content="Masuk ke GUDEG — sistem SSO terpadu Balai Monitor Spektrum Frekuensi Radio Yogyakarta.">
+<meta name="description" content="Masuk ke GUDEG -- sistem SSO terpadu Balai Monitor Spektrum Frekuensi Radio Yogyakarta.">
 <meta name="robots" content="index, follow">
 <meta property="og:type" content="website">
 <meta property="og:title" content="GUDEG - Login">
-<meta property="og:description" content="Masuk ke GUDEG — sistem SSO terpadu Balai Monitor Spektrum Frekuensi Radio Yogyakarta.">
+<meta property="og:description" content="Masuk ke GUDEG -- sistem SSO terpadu Balai Monitor Spektrum Frekuensi Radio Yogyakarta.">
 <meta property="og:url" content="https://gudeg.xo.je/login.php">
 <meta property="og:site_name" content="GUDEG JOGJA">
 <meta property="og:image" content="https://gudeg.xo.je/assets/og-image.png">
@@ -240,7 +234,7 @@ if ($login_success) {
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="GUDEG - Login">
-<meta name="twitter:description" content="Masuk ke GUDEG — sistem SSO terpadu Balai Monitor Spektrum Frekuensi Radio Yogyakarta.">
+<meta name="twitter:description" content="Masuk ke GUDEG -- sistem SSO terpadu Balai Monitor Spektrum Frekuensi Radio Yogyakarta.">
 <meta name="twitter:image" content="https://gudeg.xo.je/assets/og-image.png">
 <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
 <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
@@ -255,17 +249,16 @@ if ($login_success) {
   } catch(e) {}
 })();
 </script>
-<!-- Google Fonts dihapus: font-src 'self' di CSP tidak mengizinkan CDN eksternal. System font stack di --sans dan --mono sudah menjadi fallback. -->
 <style nonce="<?= csp_nonce() ?>">
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* ── Tokens ── */
+/* -- Tokens -- */
 :root,
 [data-theme="dark"] {
   --bg:             #07090f;
-  --bg-mesh:        radial-gradient(ellipse at 15% 15%, rgba(19,81,180,.14) 0%, transparent 55%),
-                    radial-gradient(ellipse at 85% 88%, rgba(13,61,140,.08) 0%, transparent 55%),
-                    radial-gradient(ellipse at 60% 2%,  rgba(10,45,110,.07) 0%, transparent 45%),
+  --bg-mesh:        radial-gradient(ellipse at 15% 15%, rgba(19,81,180,.18) 0%, transparent 55%),
+                    radial-gradient(ellipse at 85% 88%, rgba(13,61,140,.12) 0%, transparent 55%),
+                    radial-gradient(ellipse at 60% 2%,  rgba(10,45,110,.10) 0%, transparent 45%),
                     #07090f;
 
   /* Glass */
@@ -281,7 +274,7 @@ if ($login_success) {
   --elev-4: 0 20px 60px rgba(0,0,0,.65), 0 4px 20px rgba(0,0,0,.45);
   --elev-inset: inset 0 1px 0 rgba(255,255,255,.05), inset 0 -1px 0 rgba(0,0,0,.15);
 
-  /* Accent — biru BSSN/Komdigi */
+  /* Accent -- biru BSSN/Komdigi */
   --accent:         #4A90D9;
   --accent-deep:    #1351B4;
   --accent-glow:    rgba(74,144,217,.22);
@@ -301,7 +294,7 @@ if ($login_success) {
   --warning-bg:     rgba(234,179,8,.10);
   --warning-bdr:    rgba(234,179,8,.28);
 
-  /* Type — formal, readable */
+  /* Type -- formal, readable */
   --sans:           'Segoe UI', 'Noto Sans', system-ui, -apple-system, Arial, sans-serif;
   --mono:           'Consolas', 'Courier New', monospace;
 
@@ -349,7 +342,7 @@ if ($login_success) {
 
 html { -webkit-text-size-adjust: 100%; }
 
-/* ── Scrollbar ── */
+/* -- Scrollbar -- */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 4px; }
@@ -371,7 +364,7 @@ body {
   position: relative;
 }
 
-/* Ambient glow orbs */
+/* Ambient glow orbs -- biru saja, tanpa cyan */
 body::before,
 body::after {
   content: '';
@@ -384,19 +377,19 @@ body::after {
 body::before {
   width: 500px; height: 500px;
   top: -150px; left: -150px;
-  background: radial-gradient(circle, rgba(0,229,255,.07) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(19,81,180,.10) 0%, transparent 70%);
 }
 body::after {
   width: 400px; height: 400px;
   bottom: -100px; right: -50px;
-  background: radial-gradient(circle, rgba(120,58,237,.06) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(13,61,140,.08) 0%, transparent 70%);
 }
-[data-theme="bright"] body::before { background: radial-gradient(circle, rgba(2,132,199,.05) 0%, transparent 70%); }
-[data-theme="bright"] body::after  { background: radial-gradient(circle, rgba(120,58,237,.04) 0%, transparent 70%); }
+[data-theme="bright"] body::before { background: radial-gradient(circle, rgba(19,81,180,.07) 0%, transparent 70%); }
+[data-theme="bright"] body::after  { background: radial-gradient(circle, rgba(13,61,140,.05) 0%, transparent 70%); }
 
 .container { width: 100%; max-width: 400px; position: relative; z-index: 1; }
 
-/* ── Theme FAB ── */
+/* -- Theme FAB -- */
 .theme-fab {
   position: fixed;
   top: calc(14px + env(safe-area-inset-top)); right: 14px;
@@ -421,7 +414,7 @@ body::after {
 }
 .theme-fab i { font-size: 17px; }
 
-/* ── Logo ── */
+/* -- Logo -- */
 .logo-area { text-align: center; margin-bottom: 28px; }
 .logo-shield {
   width: 58px; height: 58px;
@@ -434,7 +427,6 @@ body::after {
   transition: box-shadow var(--transition-med), transform var(--transition-med);
   position: relative;
 }
-/* Accent shimmer on logo */
 .logo-shield::before {
   content: '';
   position: absolute;
@@ -464,7 +456,7 @@ body::after {
   font-size: 10px; font-weight: 600; color: var(--muted);
   text-transform: uppercase; letter-spacing: .08em;
   margin-top: 10px; line-height: 1.8;
-  font-family: var(--mono);
+  font-family: var(--sans);
 }
 .logo-acronym strong {
   display: block; color: var(--muted-hi);
@@ -472,7 +464,7 @@ body::after {
   margin-top: 3px;
 }
 
-/* ── Card (glass) ── */
+/* -- Card (glass) -- */
 .card {
   background: var(--glass-hi);
   backdrop-filter: blur(24px) saturate(180%);
@@ -485,7 +477,6 @@ body::after {
   position: relative;
   overflow: hidden;
 }
-/* Top shimmer line on card */
 .card::before {
   content: '';
   position: absolute;
@@ -494,7 +485,16 @@ body::after {
   background: linear-gradient(90deg, transparent, var(--glass-border-hi), transparent);
 }
 
-/* ── Form ── */
+/* -- Section title -- */
+.card-title {
+  font-size: 13px; font-weight: 700;
+  color: var(--text);
+  letter-spacing: .02em;
+  margin-bottom: 18px;
+  font-family: var(--sans);
+}
+
+/* -- Form -- */
 .form-group { margin-bottom: 16px; }
 label {
   display: block;
@@ -539,7 +539,7 @@ input:-webkit-autofill:focus {
   border-color: var(--glass-border-hi) !important;
 }
 
-/* ── Remember row ── */
+/* -- Remember row -- */
 .remember-row {
   display: flex; align-items: center; gap: 8px;
   margin: 14px 0 8px;
@@ -550,63 +550,60 @@ input:-webkit-autofill:focus {
   cursor: pointer; flex-shrink: 0;
 }
 .remember-row label {
-  font-size: 11px; color: var(--muted-hi); cursor: pointer;
-  text-transform: uppercase; letter-spacing: .08em;
+  font-size: 12px; color: var(--muted-hi); cursor: pointer;
+  letter-spacing: .02em;
   margin-bottom: 0;
+  font-family: var(--sans);
 }
 
-/* ── Submit button ── */
+/* -- Submit button -- */
 .btn-submit {
   width: 100%;
-  background: linear-gradient(135deg, var(--accent-bg), rgba(19,81,180,.06));
-  color: var(--accent);
-  border: 1px solid var(--accent-bdr);
+  background: var(--accent-deep);
+  color: #ffffff;
+  border: 1px solid rgba(74,144,217,.35);
   border-radius: var(--radius-sm);
   padding: 11px;
   font-family: var(--sans);
-  font-size: 13px; font-weight: 600;
-  text-transform: uppercase; letter-spacing: .06em;
+  font-size: 14px; font-weight: 600;
+  letter-spacing: .03em;
   cursor: pointer;
   margin-top: 8px;
-  box-shadow: 0 0 20px var(--accent-glow-sm), var(--elev-1);
+  box-shadow: 0 0 20px var(--accent-glow-sm), var(--elev-2);
   transition: background var(--transition-fast), border-color var(--transition-fast),
               box-shadow var(--transition-fast), transform var(--transition-fast);
   -webkit-tap-highlight-color: transparent;
-  position: relative;
-  overflow: hidden;
-}
-.btn-submit::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(74,144,217,.25), transparent);
 }
 .btn-submit:hover {
-  background: linear-gradient(135deg, rgba(74,144,217,.14), rgba(19,81,180,.10));
+  background: var(--accent);
   border-color: var(--accent);
-  box-shadow: 0 0 28px var(--accent-glow), var(--elev-2);
+  box-shadow: 0 0 28px var(--accent-glow), var(--elev-3);
 }
 .btn-submit:active { transform: scale(.98); }
+[data-theme="bright"] .btn-submit {
+  background: var(--accent-deep);
+  color: #ffffff;
+}
+[data-theme="bright"] .btn-submit:hover {
+  background: #1a5fcc;
+}
 
-/* ── Divider & links ── */
+/* -- Divider & links -- */
 .divider { border: none; border-top: 1px solid var(--glass-border-hi); margin: 18px 0; }
 .link-row {
-  text-align: center; font-size: 12px;
+  text-align: center; font-size: 13px;
   color: var(--muted);
   font-family: var(--sans);
-  letter-spacing: .01em;
 }
-.link-row a { color: var(--accent); transition: color var(--transition-fast); }
-.link-row a:hover { color: var(--text); }
+.link-row a { color: var(--accent); text-decoration: none; transition: color var(--transition-fast); }
+.link-row a:hover { color: var(--text); text-decoration: underline; }
 .footer-note {
   text-align: center; margin-top: 20px;
-  font-size: 10px; color: var(--muted);
-  letter-spacing: .05em;
+  font-size: 11px; color: var(--muted);
   font-family: var(--sans);
 }
 
-/* ── Bubbles ── */
+/* -- Bubbles -- */
 .bubble-wrap {
   position: fixed;
   bottom: calc(16px + env(safe-area-inset-bottom)); right: 16px;
@@ -621,18 +618,19 @@ input:-webkit-autofill:focus {
   box-shadow: var(--elev-3); position: relative;
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
+  font-family: var(--sans);
 }
 @keyframes bubbleIn {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-.bubble.danger  { background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.3); color: #fca5a5; }
+.bubble.danger  { background: rgba(224,82,82,.12); border-color: rgba(224,82,82,.3); color: #fca5a5; }
 .bubble.warning { background: var(--warning-bg); border-color: var(--warning-bdr); color: #fde68a; }
 [data-theme="bright"] .bubble.warning { color: #92400e; }
 [data-theme="bright"] .bubble.danger  { color: #991b1b; }
 .bubble i { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
 .bubble-body { flex: 1; min-width: 0; }
-.bubble-title { font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; font-size: .72rem; font-family: var(--mono); }
+.bubble-title { font-weight: 700; letter-spacing: .04em; margin-bottom: 2px; font-size: .72rem; }
 .bubble-desc  { font-size: .78rem; font-weight: 500; opacity: .9; }
 .bubble-close {
   position: absolute; top: 6px; right: 8px;
@@ -649,7 +647,7 @@ input:-webkit-autofill:focus {
 }
 @keyframes bubbleProgress { from { width: 100%; } to { width: 0%; } }
 
-/* ── Responsive ── */
+/* -- Responsive -- */
 @media (max-width: 480px) {
   .bubble-wrap { bottom: calc(12px + env(safe-area-inset-bottom)); right: 8px; left: 8px; width: auto; }
   body { padding: 1rem .75rem; align-items: flex-start; padding-top: calc(60px + env(safe-area-inset-top)); }
@@ -657,8 +655,7 @@ input:-webkit-autofill:focus {
   .card { padding: 20px 16px; }
   input[type="email"],
   input[type="password"] { padding: 11px 12px; font-size: 16px; }
-  .remember-row label { font-size: 12px; }
-  .btn-submit { padding: 13px; font-size: 13px; }
+  .btn-submit { padding: 13px; font-size: 14px; }
   .theme-fab { top: calc(10px + env(safe-area-inset-top)); right: 10px; }
   .logo-shield { width: 48px; height: 48px; }
   .logo-shield i { font-size: 24px; }
@@ -666,7 +663,7 @@ input:-webkit-autofill:focus {
   .logo-acronym { font-size: 9px; }
 }
 
-/* ── Reduced motion ── */
+/* -- Reduced motion -- */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
@@ -691,13 +688,13 @@ input:-webkit-autofill:focus {
   </div>
 
   <div class="card">
-    <!-- Form tanpa onsubmit sessionStorage — credentials tidak disimpan di browser -->
+    <p class="card-title">Masuk ke Akun Anda</p>
     <form method="POST">
       <?= csrf_field() ?>
       <input type="hidden" name="redirect" value="<?= htmlspecialchars($redirect) ?>">
 
       <div class="form-group">
-        <label for="email">Email</label>
+        <label for="email">Alamat Email</label>
         <input type="email" id="email" name="email"
                placeholder="user@example.com"
                value="<?= htmlspecialchars($_POST['email'] ?? $remembered_email) ?>"
@@ -707,14 +704,14 @@ input:-webkit-autofill:focus {
       <div class="form-group">
         <label for="password">Password</label>
         <input type="password" id="password" name="password"
-               placeholder="••••••••"
+               placeholder="Masukkan password"
                required autocomplete="current-password">
       </div>
 
       <div class="remember-row">
         <input type="checkbox" id="remember" name="remember"
                <?= $remembered_email ? 'checked' : '' ?>>
-        <label for="remember">Ingat Saya</label>
+        <label for="remember">Ingat saya di perangkat ini</label>
       </div>
 
       <button type="submit" class="btn-submit">Masuk</button>
@@ -724,7 +721,7 @@ input:-webkit-autofill:focus {
     <p class="link-row">Belum punya akun? <a href="/register.php">Daftar di sini</a></p>
   </div>
 
-  <p class="footer-note">© 2026 QOS Balmon Jogja Team</p>
+  <p class="footer-note">&copy; 2026 QOS Balmon Jogja Team</p>
 </div>
 
 <div class="bubble-wrap" id="bubbleWrap"></div>
@@ -783,7 +780,6 @@ try {
 } catch (e) {}
 <?php endif; ?>
 
-// Bind event listeners - pengganti onclick= yang diblokir CSP nonce
 (function() {
   var fab = document.getElementById('theme-fab-btn');
   if (fab) fab.addEventListener('click', function() { if (window.toggleTheme) toggleTheme(); });
