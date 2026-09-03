@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'logou
             'password'            => $hash,
             'password_changed_at' => date('Y-m-d H:i:s'),
         ]);
-        log_activity($user['id'], $user['name'], $user['email'], 'Ubah Password Sendiri');
+        log_activity($user['id'], $user['name'], $user['email'], 'Ubah Kata Sandi Sendiri');
 
         // Hapus cache user -- paksa fetch ulang dari DB saat login berikutnya
         LocalCache::clearUser((string)$user['id']);
@@ -343,23 +343,23 @@ layout_head('Setting', 'password');
 <div class="two-col">
 <div><!-- kolom kiri: ubah password + sesi -->
 
-<!-- Panel: Ubah Password -->
+<!-- Panel: Ubah Kata Sandi -->
 <div class="panel">
   <div class="panel-hd">
     <i class="ti ti-key" aria-hidden="true"></i>
-    <span class="panel-title">Ubah Password</span>
+    <span class="panel-title">Ubah Kata Sandi</span>
   </div>
   <div class="panel-body">
     <?php if (!$ok): ?>
     <form method="POST">
       <?= csrf_field() ?>
       <div class="form-group">
-        <label for="old_password">Password Lama</label>
+        <label for="old_password">Kata Sandi Lama</label>
         <input type="password" id="old_password" name="old_password"
                required autocomplete="current-password">
       </div>
       <div class="form-group">
-        <label for="new_password">Password Baru</label>
+        <label for="new_password">Kata Sandi Baru</label>
         <input type="password" id="new_password" name="new_password"
                placeholder="Min. 8 karakter" required autocomplete="new-password"
                oninput="checkStrength(this.value)">
@@ -386,11 +386,11 @@ layout_head('Setting', 'password');
       }
       </script>
       <div class="form-group">
-        <label for="confirm">Konfirmasi Password Baru</label>
+        <label for="confirm">Konfirmasi Kata Sandi Baru</label>
         <input type="password" id="confirm" name="confirm"
                required autocomplete="new-password">
       </div>
-      <button type="submit" class="btn-save" id="btn-save-pw">Simpan Password</button>
+      <button type="submit" class="btn-save" id="btn-save-pw">Simpan Kata Sandi</button>
     </form>
     <script nonce="<?= csp_nonce() ?>">
     (function() {
@@ -403,16 +403,16 @@ layout_head('Setting', 'password');
     })();
     </script>
     <?php else: ?>
-      <p class="text-note">Password berhasil diubah. Semua sesi lain telah diakhiri.</p>
+      <p class="text-note">Kata sandi berhasil diubah. Semua sesi lain telah diakhiri.</p>
     <?php endif; ?>
   </div>
 </div>
 
-<!-- Panel: Sesi Login Aktif -->
+<!-- Panel: Sesi Aktif -->
 <div class="panel">
   <div class="panel-hd">
     <i class="ti ti-device-laptop" aria-hidden="true"></i>
-    <span class="panel-title">Sesi Login Aktif</span>
+    <span class="panel-title">Sesi Aktif</span>
   </div>
   <div class="panel-body">
     <?php if ($active_sessions): ?>
@@ -460,9 +460,9 @@ layout_head('Setting', 'password');
           <input type="hidden" name="session_id" value="<?= htmlspecialchars($sess['id']) ?>">
           <button type="button" class="btn-logout-sess"
                   data-action="confirm"
-                  data-title="Logout Perangkat"
-                  data-msg="Logout sesi ini dari sistem?"
-                  data-label="Ya, Logout"
+                  data-title="Keluar Perangkat"
+                  data-msg="Keluar dari sesi ini?"
+                  data-label="Ya, Keluar"
                   data-cls="danger"
                   data-target="form-logout-sess-<?= htmlspecialchars($sess['id']) ?>">
             Logout
@@ -481,12 +481,12 @@ layout_head('Setting', 'password');
         <input type="hidden" name="action" value="logout_all_sessions">
         <button type="button" class="btn-logout-all"
                 data-action="confirm"
-                data-title="Logout Semua Perangkat"
-                data-msg="Logout semua perangkat lain yang sedang aktif? Sesi ini tidak akan terpengaruh."
-                data-label="Ya, Logout Semua"
+                data-title="Keluar Semua Perangkat"
+                data-msg="Keluar dari semua perangkat lain yang sedang aktif? Sesi ini tidak akan terpengaruh."
+                data-label="Ya, Keluar Semua"
                 data-cls="danger"
                 data-target="form-logout-all">
-          Logout Semua Perangkat Lain
+          Keluar Semua Perangkat Lain
         </button>
       </form>
       <?php endif; ?>
@@ -552,7 +552,7 @@ function closeBubble(b) {
 }
 
 <?php if ($ok): ?>
-showBubble('success', 'check', 'Password Diubah', 'Password berhasil diubah. Semua sesi lain telah diakhiri.');
+showBubble('success', 'check', 'Kata Sandi Diubah', 'Kata sandi berhasil diubah. Semua sesi lain telah diakhiri.');
 <?php elseif ($error): ?>
 showBubble('danger', 'alert-circle', 'Gagal', <?= json_encode(htmlspecialchars($error)) ?>);
 <?php endif; ?>
