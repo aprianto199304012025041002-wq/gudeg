@@ -767,7 +767,7 @@ function closeBubble(b) {
 }
 
 <?php if ($error): ?>
-showBubble('danger', 'alert-circle', 'Login Gagal', <?= json_encode(htmlspecialchars($error)) ?>);
+showBubble('danger', 'alert-circle', 'Masuk Gagal', <?= json_encode(htmlspecialchars($error)) ?>);
 <?php elseif ($timeout): ?>
 showBubble('warning', 'clock', 'Sesi Berakhir', 'Sesi Anda telah berakhir karena tidak aktif. Silakan login kembali.');
 <?php endif; ?>
