@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['dismiss_ip_warning']
     exit;
 }
 
-// Apps user punya akses — dengan graceful degrade saat Supabase down
+// Apps user punya akses -- dengan graceful degrade saat Supabase down
 $apps          = [];
 $supabase_down = false;
 
@@ -43,7 +43,7 @@ try {
     LocalCache::setUser((string)$user['id'], $user);
 
 } catch (\Throwable $e) {
-    // Supabase down — graceful degrade
+    // Supabase down -- graceful degrade
     function_exists('gudeg_log') ? gudeg_log('ERROR', 'dashboard.php', 'Supabase error: ' . $e->getMessage()) : error_log('dashboard.php Supabase error: ' . $e->getMessage());
     $supabase_down = true;
 
@@ -53,7 +53,7 @@ try {
         $user = array_merge($user, $cached);
     }
 
-    // Apps tidak bisa ditampilkan tanpa Supabase — biarkan $apps = []
+    // Apps tidak bisa ditampilkan tanpa Supabase -- biarkan $apps = []
 }
 
 layout_head('Dashboard', 'dashboard');
@@ -213,8 +213,7 @@ layout_head('Dashboard', 'dashboard');
 .bubble i { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
 .bubble-body { flex: 1; min-width: 0; }
 .bubble-title {
-  font-weight: 700; text-transform: uppercase;
-  letter-spacing: .04em; margin-bottom: 3px;
+  font-weight: 700; letter-spacing: .02em; margin-bottom: 3px;
   font-family: var(--sans); font-size: .74rem;
 }
 .bubble-desc { font-size: .78rem; font-weight: 500; opacity: .9; line-height: 1.6; }
@@ -267,12 +266,12 @@ layout_head('Dashboard', 'dashboard');
         <?php if (!empty($app['logo'])): ?>
           <img src="/<?= htmlspecialchars($app['logo']) ?>" alt="<?= htmlspecialchars($app['name']) ?>">
         <?php else: ?>
-          🖥️
+          <i class="ti ti-device-desktop"></i>
         <?php endif; ?>
       </div>
       <div class="app-name"><?= htmlspecialchars($app['name']) ?></div>
       <div class="app-desc"><?= htmlspecialchars($app['description'] ?? 'Klik untuk akses') ?></div>
-      <div class="app-launch">Buka →</div>
+      <div class="app-launch">Buka &rarr;</div>
     </a>
     <?php endforeach; ?>
   </div>
