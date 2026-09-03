@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $desc      = trim($_POST['description'] ?? '');
         $signed    = isset($_POST['use_signed_token']) ? 1 : 0;
         if ($name && $redirect) {
-            // Validasi format URL redirect — harus https:// atau http://localhost
+            // Validasi format URL redirect - harus https:// atau http://localhost
             $parsed = parse_url($redirect);
             $scheme = strtolower($parsed['scheme'] ?? '');
             $host   = strtolower($parsed['host'] ?? '');
@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $bubble_title = 'Aplikasi Didaftarkan';
             $bubble_desc  = htmlspecialchars($name) . ' berhasil didaftarkan. Client ID: <code>' . htmlspecialchars($cid) . '</code>';
             $bubble_code  = $sec_plain;
-            $bubble_warn  = 'Simpan secret ini sekarang — tidak akan ditampilkan lagi!';
+            $bubble_warn  = 'Simpan secret ini sekarang - tidak akan ditampilkan lagi!';
             } // end if ($valid_redirect)
         }
     } elseif ($action === 'regenerate_secret') {
@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $bubble_title = 'Secret Diperbarui';
             $bubble_desc  = 'Secret baru untuk <strong>' . htmlspecialchars($app['name']) . '</strong>. Update nilai ini di GitHub Secrets repo aplikasi klien.';
             $bubble_code  = $new_plain;
-            $bubble_warn  = 'Simpan secret baru ini sekarang — tidak akan ditampilkan lagi!';
+            $bubble_warn  = 'Simpan secret baru ini sekarang - tidak akan ditampilkan lagi!';
         }
     } elseif ($action === 'toggle_status') {
         $id  = (int)$_POST['app_id'];
@@ -112,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $apps = $sb->select('sso_applications', [], '*', ['order' => 'id.desc']);
 
-layout_head('Admin · Aplikasi', 'admin-apps');
+layout_head('Admin . Aplikasi', 'admin-apps');
 ?>
 <style nonce="<?= csp_nonce() ?>">
 .form-inline { display: inline; }
@@ -130,20 +130,19 @@ layout_head('Admin · Aplikasi', 'admin-apps');
 
 .add-card::before {
   content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, var(--accent-bdr), transparent);
+  background: linear-gradient(90deg, transparent, var(--glass-border-hi), transparent);
 }
 .add-card-title {
-  font-size: .78rem; font-weight: 800; font-family: var(--mono);
-  color: var(--accent); text-transform: uppercase;
-  letter-spacing: .1em; margin-bottom: .8rem;
+  font-size: .82rem; font-weight: 700; font-family: var(--sans);
+  color: var(--accent); margin-bottom: .8rem;
 }
 
 .fg { margin-bottom: .7rem; }
 
 .fg label {
-  display: block; font-size: .7rem; font-weight: 700;
-  color: var(--muted-hi); text-transform: uppercase;
-  letter-spacing: .1em; margin-bottom: .35rem; font-family: var(--mono);
+  display: block; font-size: 11px; font-weight: 600;
+  color: var(--muted-hi); letter-spacing: .04em;
+  margin-bottom: .35rem; font-family: var(--sans);
 }
 
 .fg input[type=text] {
@@ -162,24 +161,24 @@ layout_head('Admin · Aplikasi', 'admin-apps');
 
 .check-label {
   display: flex; align-items: flex-start; gap: .5rem;
-  font-size: .72rem; font-weight: 700; font-family: var(--mono);
-  color: var(--muted-hi); text-transform: uppercase;
-  letter-spacing: .06em; cursor: pointer; margin-top: .3rem; line-height: 1.5;
+  font-size: .78rem; font-weight: 500; font-family: var(--sans);
+  color: var(--muted-hi); cursor: pointer; margin-top: .3rem; line-height: 1.5;
 }
 .check-label input { accent-color: var(--accent); flex-shrink: 0; margin-top: .2rem; }
 
 .btn-add {
-  background: linear-gradient(135deg, var(--accent-bg), rgba(120,58,237,.08));
-  border: 1px solid var(--accent-bdr); color: var(--accent); border-radius: var(--radius-sm);
-  padding: .6rem 1rem; font-size: .78rem; font-weight: 800;
-  cursor: pointer; font-family: var(--mono); text-transform: uppercase;
-  letter-spacing: .08em; margin-top: .75rem; width: 100%;
-  box-shadow: 0 0 16px var(--accent-glow-sm), var(--elev-1);
+  background: var(--accent-deep);
+  color: #ffffff;
+  border: 1px solid rgba(74,144,217,.35); border-radius: var(--radius-sm);
+  padding: .65rem 1rem; font-size: .88rem; font-weight: 600;
+  cursor: pointer; font-family: var(--sans);
+  margin-top: .75rem; width: 100%;
+  box-shadow: 0 0 16px var(--accent-glow-sm), var(--elev-2);
   transition: background var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
-  position: relative; overflow: hidden;
 }
-.btn-add::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(0,229,255,.3), transparent); }
-.btn-add:hover { background: linear-gradient(135deg, rgba(0,229,255,.12), rgba(120,58,237,.12)); border-color: var(--accent); box-shadow: 0 0 24px var(--accent-glow), var(--elev-2); }
+.btn-add:hover { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 24px var(--accent-glow), var(--elev-3); }
+[data-theme="bright"] .btn-add { background: var(--accent-deep); color: #ffffff; }
+[data-theme="bright"] .btn-add:hover { background: #1a5fcc; }
 
 .app-list { display: flex; flex-direction: column; gap: .6rem; }
 
@@ -198,8 +197,7 @@ layout_head('Admin · Aplikasi', 'admin-apps');
 .app-card-head { padding: .85rem 1rem; }
 
 .app-name {
-  font-weight: 700; font-size: .85rem; font-family: var(--mono);
-  text-transform: uppercase; letter-spacing: .06em;
+  font-weight: 700; font-size: .88rem; font-family: var(--sans);
   margin-bottom: .2rem; line-height: 1.4;
 }
 
@@ -233,8 +231,8 @@ layout_head('Admin · Aplikasi', 'admin-apps');
   background: rgba(255,255,255,.04); border: 1px solid var(--glass-border-hi);
   color: var(--muted-hi); border-radius: var(--radius-sm);
   padding: .35rem .7rem; font-size: .72rem; font-weight: 700;
-  cursor: pointer; font-family: var(--mono); text-transform: uppercase;
-  letter-spacing: .06em; white-space: nowrap;
+  cursor: pointer; font-family: var(--sans);
+  white-space: nowrap;
   transition: border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
   line-height: 1.2; box-shadow: var(--elev-inset);
 }
@@ -245,7 +243,7 @@ layout_head('Admin · Aplikasi', 'admin-apps');
 .btn-sm.warn { border-color: rgba(234,179,8,.25); color: #eab308; background: rgba(234,179,8,.04); }
 .btn-sm.warn:hover { border-color: #eab308; background: rgba(234,179,8,.08); box-shadow: 0 0 10px rgba(234,179,8,.15), var(--elev-inset); }
 
-/* ── Confirm dialog ── */
+/* -- Confirm dialog -- */
 .confirm-overlay {
   display: none; position: fixed; inset: 0;
   background: rgba(0,0,0,.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
@@ -262,7 +260,7 @@ layout_head('Admin · Aplikasi', 'admin-apps');
   content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
   background: linear-gradient(90deg, transparent, var(--glass-border-hi), transparent);
 }
-.confirm-title { font-size: .85rem; font-weight: 700; color: var(--text); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px; font-family: var(--mono); }
+.confirm-title { font-size: .85rem; font-weight: 700; color: var(--text); margin-bottom: 8px; font-family: var(--sans); }
 .confirm-msg { font-size: .82rem; font-weight: 500; color: var(--muted-hi); line-height: 1.6; margin-bottom: 16px; }
 .confirm-msg strong { color: var(--text); }
 .confirm-btns { display: flex; gap: 8px; justify-content: flex-end; }
@@ -278,7 +276,7 @@ layout_head('Admin · Aplikasi', 'admin-apps');
   .confirm-box { width: calc(100vw - 32px); padding: 16px; }
 }
 
-/* ── Bubble ── */
+/* -- Bubble -- */
 .bubble-wrap {
   position: fixed;
   bottom: calc(16px + env(safe-area-inset-bottom)); right: 16px;
@@ -302,13 +300,13 @@ layout_head('Admin · Aplikasi', 'admin-apps');
 }
 .bubble.success { background: rgba(34,197,94,.1);  border-color: rgba(34,197,94,.3);  color: #86efac; }
 .bubble.danger  { background: rgba(239,68,68,.1);   border-color: rgba(239,68,68,.3);  color: #fca5a5; }
-.bubble.info    { background: rgba(0,229,255,.08);  border-color: rgba(0,229,255,.25); color: #67e8f9; }
+.bubble.info    { background: var(--accent-bg);     border-color: var(--accent-bdr);   color: var(--accent); }
 [data-theme="bright"] .bubble.success { color: #166534; }
 [data-theme="bright"] .bubble.danger  { color: #991b1b; }
-[data-theme="bright"] .bubble.info    { color: #0369a1; }
+[data-theme="bright"] .bubble.info    { color: var(--accent-deep); }
 .bubble i { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
 .bubble-body { flex: 1; min-width: 0; }
-.bubble-title { font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; font-size: .72rem; font-family: var(--mono); }
+.bubble-title { font-weight: 700; letter-spacing: .02em; margin-bottom: 2px; font-size: .72rem; font-family: var(--sans); }
 .bubble-desc  { font-size: .78rem; font-weight: 500; opacity: .9; line-height: 1.5; }
 .bubble-desc code {
   font-family: var(--mono); background: rgba(0,0,0,.3);
@@ -389,11 +387,11 @@ layout_head('Admin · Aplikasi', 'admin-apps');
       <div>
         Client Secret (hash):
         <span class="secret-blur" data-reveal="toggle"
-              title="Ketuk untuk tampilkan"><?= htmlspecialchars($app['client_secret'] ?? '—') ?></span>
+              title="Ketuk untuk tampilkan"><?= htmlspecialchars($app['client_secret'] ?? '-') ?></span>
         <span class="reveal-hint" data-reveal="hint">[Ketuk untuk tampilkan]</span>
       </div>
 
-      <div class="redirect-url">↳ <?= htmlspecialchars($app['redirect']) ?></div>
+      <div class="redirect-url">&gt; <?= htmlspecialchars($app['redirect']) ?></div>
     </div>
   </div>
   <div class="app-actions">
@@ -435,7 +433,7 @@ layout_head('Admin · Aplikasi', 'admin-apps');
               data-msg="Generate secret baru untuk <strong><?= htmlspecialchars(addslashes($app['name'])) ?></strong>? Secret lama akan langsung tidak berlaku. Kamu harus update GitHub Secrets di repo aplikasi klien."
               data-label="Ya, Regenerate"
               data-target="form-regen-<?= $app['id'] ?>">
-        🔑 Regenerate Secret
+        [key] Regenerate Secret
       </button>
     </form>
     <form method="POST" class="form-inline" id="form-delete-<?= $app['id'] ?>">
@@ -503,7 +501,7 @@ function showBubble(type, icon, title, desc, code, warn, duration) {
   b.className = 'bubble ' + type;
   var extra = '';
   if (code) extra += '<span class="bubble-code">' + code + '</span>';
-  if (warn) extra += '<div class="bubble-warn">⚠ ' + warn + '</div>';
+  if (warn) extra += '<div class="bubble-warn">! ' + warn + '</div>';
   b.innerHTML =
     '<i class="ti ti-' + icon + '" aria-hidden="true"></i>' +
     '<div class="bubble-body"><div class="bubble-title">' + title + '</div>' +
