@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'logou
         ]);
         log_activity($user['id'], $user['name'], $user['email'], 'Ubah Password Sendiri');
 
-        // Hapus cache user — paksa fetch ulang dari DB saat login berikutnya
+        // Hapus cache user -- paksa fetch ulang dari DB saat login berikutnya
         LocalCache::clearUser((string)$user['id']);
 
         try {
@@ -107,20 +107,22 @@ layout_head('Setting', 'password');
 ?>
 <style nonce="<?= csp_nonce() ?>">
 .form-group { margin-bottom: 1rem; }
-.text-note { font-size: .8rem; font-weight: 500; color: var(--muted-hi); padding: .5rem 0; font-family: var(--sans); }
+.text-note { font-size: .85rem; color: var(--muted-hi); padding: .5rem 0; font-family: var(--sans); }
 .form-reset { margin: 0; }
+
 #pw-hint {
-  margin-top: 8px; font-size: 10px; line-height: 1.9; color: var(--muted);
-  font-family: var(--mono); padding: 8px 12px;
-  background: rgba(0,0,0,.15); border-radius: var(--radius-sm);
+  margin-top: 8px; font-size: 11px; line-height: 1.9; color: var(--muted);
+  font-family: var(--sans); padding: 8px 12px;
+  background: rgba(0,0,0,.12); border-radius: var(--radius-sm);
   border: 1px solid var(--glass-border);
 }
 [data-theme="bright"] #pw-hint { background: rgba(0,0,0,.03); }
+#pw-hint span { display: block; }
 
 .form-group label {
-  display: block; font-size: .7rem; font-weight: 700;
-  color: var(--muted-hi); text-transform: uppercase;
-  letter-spacing: .1em; margin-bottom: .35rem; font-family: var(--mono);
+  display: block; font-size: 11px; font-weight: 600;
+  color: var(--muted-hi); letter-spacing: .04em;
+  margin-bottom: .35rem; font-family: var(--sans);
 }
 .form-group input[type="password"] {
   width: 100%;
@@ -147,30 +149,32 @@ layout_head('Setting', 'password');
   box-shadow: 0 0 0 3px var(--accent-glow-sm), var(--elev-inset);
 }
 
+/* -- Tombol Simpan -- */
 .btn-save {
   width: 100%;
-  background: linear-gradient(135deg, var(--accent-bg), rgba(120,58,237,.08));
-  border: 1px solid var(--accent-bdr);
-  color: var(--accent); border-radius: var(--radius-sm);
-  padding: .75rem; font-family: var(--mono);
-  font-size: .78rem; font-weight: 800; text-transform: uppercase;
-  letter-spacing: .08em; cursor: pointer; margin-top: .5rem;
-  box-shadow: 0 0 16px var(--accent-glow-sm), var(--elev-1);
+  background: var(--accent-deep);
+  color: #ffffff;
+  border: 1px solid rgba(74,144,217,.35);
+  border-radius: var(--radius-sm);
+  padding: .75rem;
+  font-family: var(--sans);
+  font-size: .88rem; font-weight: 600;
+  letter-spacing: .03em;
+  cursor: pointer; margin-top: .5rem;
+  box-shadow: 0 0 16px var(--accent-glow-sm), var(--elev-2);
   transition: background var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
   -webkit-tap-highlight-color: transparent;
-  position: relative; overflow: hidden;
-}
-.btn-save::before {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(0,229,255,.3), transparent);
 }
 .btn-save:hover {
-  background: linear-gradient(135deg, rgba(0,229,255,.12), rgba(120,58,237,.12));
-  border-color: var(--accent); box-shadow: 0 0 24px var(--accent-glow), var(--elev-2);
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 24px var(--accent-glow), var(--elev-3);
 }
-.btn-save:active { opacity: .85; }
+.btn-save:active { opacity: .88; }
+[data-theme="bright"] .btn-save { background: var(--accent-deep); color: #ffffff; }
+[data-theme="bright"] .btn-save:hover { background: #1a5fcc; }
 
+/* -- Layout dua kolom -- */
 .two-col {
   display: grid; grid-template-columns: 1fr 1fr;
   gap: 1rem; margin-bottom: 1rem; align-items: start;
@@ -193,6 +197,7 @@ layout_head('Setting', 'password');
   .log-meta { text-align: left; }
 }
 
+/* -- Panel -- */
 .panel {
   background: var(--glass-hi);
   backdrop-filter: blur(20px) saturate(160%);
@@ -213,16 +218,17 @@ layout_head('Setting', 'password');
   padding: .65rem 1rem;
   border-bottom: 1px solid var(--glass-border);
   display: flex; align-items: center; gap: 8px;
-  background: rgba(0,229,255,.02);
+  background: var(--accent-bg);
 }
-[data-theme="bright"] .panel-hd { background: rgba(2,132,199,.02); }
 .panel-hd i { font-size: 15px; color: var(--accent); }
 .panel-title {
-  font-size: 10px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: .1em; color: var(--muted-hi); font-family: var(--mono);
+  font-size: 12px; font-weight: 700;
+  color: var(--muted-hi); font-family: var(--sans);
+  letter-spacing: .02em;
 }
 .panel-body { padding: .8rem 1rem; }
 
+/* -- Log aktivitas -- */
 .log-row {
   display: flex; align-items: center; justify-content: space-between;
   padding: .55rem 0; border-bottom: 1px solid rgba(255,255,255,.04); gap: .6rem;
@@ -230,15 +236,15 @@ layout_head('Setting', 'password');
 [data-theme="bright"] .log-row { border-bottom-color: rgba(0,0,0,.06); }
 .log-row:last-child { border-bottom: none; }
 .log-activity {
-  font-size: .78rem; font-weight: 800; font-family: var(--mono);
-  text-transform: uppercase; letter-spacing: .04em; color: var(--text);
-  word-break: break-word; overflow-wrap: anywhere; min-width: 0;
+  font-size: .8rem; font-weight: 600; font-family: var(--sans);
+  color: var(--text); word-break: break-word; overflow-wrap: anywhere; min-width: 0;
 }
 .log-meta {
-  color: var(--muted-hi); font-family: var(--mono);
-  font-size: .7rem; text-align: right; flex-shrink: 0; line-height: 1.6;
+  color: var(--muted-hi); font-family: var(--sans);
+  font-size: .72rem; text-align: right; flex-shrink: 0; line-height: 1.6;
 }
 
+/* -- Sesi aktif -- */
 .sesi-row {
   display: flex; align-items: center; justify-content: space-between;
   padding: .65rem 0; border-bottom: 1px solid rgba(255,255,255,.04); gap: .6rem;
@@ -246,41 +252,41 @@ layout_head('Setting', 'password');
 [data-theme="bright"] .sesi-row { border-bottom-color: rgba(0,0,0,.06); }
 .sesi-row:last-child { border-bottom: none; }
 .sesi-device {
-  font-size: .78rem; font-weight: 800; font-family: var(--mono);
-  text-transform: uppercase; letter-spacing: .04em; color: var(--text);
+  font-size: .8rem; font-weight: 600; font-family: var(--sans);
+  color: var(--text);
   display: flex; align-items: center; gap: 6px;
   word-break: break-word; overflow-wrap: anywhere; min-width: 0;
 }
 .sesi-device i { font-size: 14px; color: var(--accent); flex-shrink: 0; }
-.sesi-meta { font-size: .7rem; color: var(--muted-hi); margin-top: 2px; word-break: break-all; font-family: var(--mono); }
+.sesi-meta { font-size: .72rem; color: var(--muted-hi); margin-top: 2px; word-break: break-all; font-family: var(--sans); }
 .sesi-row > div:first-child { min-width: 0; flex: 1 1 0; }
 .badge-current {
-  display: inline-block; font-size: 9px; padding: 1px 6px; border-radius: 4px;
-  background: rgba(34,197,94,.08); color: var(--success);
-  border: 1px solid rgba(34,197,94,.25); text-transform: uppercase;
-  letter-spacing: .06em; margin-left: 4px; white-space: nowrap; font-family: var(--mono);
+  display: inline-block; font-size: 10px; padding: 1px 7px; border-radius: 4px;
+  background: var(--accent-bg); color: var(--accent);
+  border: 1px solid var(--accent-bdr);
+  margin-left: 4px; white-space: nowrap; font-family: var(--sans);
+  font-weight: 600;
 }
 .btn-logout-sess {
-  background: var(--danger-bg); border: 1px solid var(--danger-bdr);
+  background: rgba(224,82,82,.08); border: 1px solid rgba(224,82,82,.25);
   color: var(--danger); border-radius: var(--radius-sm); padding: .3rem .7rem;
-  font-size: .72rem; font-weight: 700; text-transform: uppercase;
-  letter-spacing: .06em; cursor: pointer; font-family: var(--mono);
-  white-space: nowrap; flex-shrink: 0;
+  font-size: .78rem; font-weight: 600; font-family: var(--sans);
+  cursor: pointer; white-space: nowrap; flex-shrink: 0;
   transition: box-shadow var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
   box-shadow: var(--elev-inset);
 }
-.btn-logout-sess:hover { border-color: var(--danger); background: rgba(239,68,68,.12); box-shadow: 0 0 10px rgba(239,68,68,.15), var(--elev-inset); }
+.btn-logout-sess:hover { border-color: var(--danger); background: rgba(224,82,82,.14); }
 .btn-logout-all {
-  width: 100%; background: var(--danger-bg); border: 1px solid var(--danger-bdr);
+  width: 100%; background: rgba(224,82,82,.08); border: 1px solid rgba(224,82,82,.25);
   color: var(--danger); border-radius: var(--radius-sm); padding: .65rem;
-  font-size: .78rem; font-weight: 800; text-transform: uppercase;
-  letter-spacing: .06em; cursor: pointer; font-family: var(--mono);
-  margin-top: .75rem; box-sizing: border-box;
+  font-size: .84rem; font-weight: 600; font-family: var(--sans);
+  cursor: pointer; margin-top: .75rem; box-sizing: border-box;
   transition: background var(--transition-fast), box-shadow var(--transition-fast);
   box-shadow: var(--elev-inset);
 }
-.btn-logout-all:hover { background: rgba(239,68,68,.12); box-shadow: 0 0 12px rgba(239,68,68,.15), var(--elev-inset); }
+.btn-logout-all:hover { background: rgba(224,82,82,.14); }
 
+/* -- Bubble -- */
 .bubble-wrap {
   position: fixed;
   bottom: calc(16px + env(safe-area-inset-bottom)); right: 16px;
@@ -297,20 +303,21 @@ layout_head('Setting', 'password');
   pointer-events: all; animation: bubbleIn .25s ease;
   box-shadow: var(--elev-3); position: relative;
   backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%);
+  font-family: var(--sans);
 }
 @keyframes bubbleIn {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-.bubble.success { background: rgba(34,197,94,.1);  border-color: rgba(34,197,94,.3);  color: #86efac; }
-.bubble.danger  { background: rgba(239,68,68,.1);  border-color: rgba(239,68,68,.3);  color: #fca5a5; }
-.bubble.info    { background: rgba(0,229,255,.08);  border-color: rgba(0,229,255,.25); color: #67e8f9; }
-[data-theme="bright"] .bubble.success { color: #166534; }
+.bubble.success { background: rgba(52,211,153,.10); border-color: rgba(52,211,153,.28); color: #6ee7b7; }
+.bubble.danger  { background: rgba(224,82,82,.12);  border-color: rgba(224,82,82,.30);  color: #fca5a5; }
+.bubble.info    { background: var(--accent-bg);     border-color: var(--accent-bdr);    color: var(--accent); }
+[data-theme="bright"] .bubble.success { color: #065f46; }
 [data-theme="bright"] .bubble.danger  { color: #991b1b; }
-[data-theme="bright"] .bubble.info    { color: #0369a1; }
+[data-theme="bright"] .bubble.info    { color: var(--accent-deep); }
 .bubble i { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
 .bubble-body { flex: 1; min-width: 0; }
-.bubble-title { font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; font-size: .72rem; font-family: var(--mono); }
+.bubble-title { font-weight: 700; letter-spacing: .03em; margin-bottom: 2px; font-size: .72rem; }
 .bubble-desc  { font-size: .78rem; font-weight: 500; opacity: .9; }
 .bubble-close {
   position: absolute; top: 6px; right: 8px;
@@ -357,25 +364,25 @@ layout_head('Setting', 'password');
                placeholder="Min. 8 karakter" required autocomplete="new-password"
                oninput="checkStrength(this.value)">
         <div id="pw-hint">
-          <span id="pw-len">○ Min. 8 karakter</span><br>
-          <span id="pw-upper">○ Huruf besar (A-Z)</span><br>
-          <span id="pw-lower">○ Huruf kecil (a-z)</span><br>
-          <span id="pw-num">○ Angka (0-9)</span><br>
-          <span id="pw-sym">○ Karakter spesial (!, @, #, dll)</span>
+          <span id="pw-len">&#9675; Min. 8 karakter</span>
+          <span id="pw-upper">&#9675; Huruf besar (A-Z)</span>
+          <span id="pw-lower">&#9675; Huruf kecil (a-z)</span>
+          <span id="pw-num">&#9675; Angka (0-9)</span>
+          <span id="pw-sym">&#9675; Karakter spesial (!, @, #, dll)</span>
         </div>
       </div>
       <script nonce="<?= csp_nonce() ?>">
       function checkStrength(v) {
         function set(id, ok, label) {
           var el = document.getElementById(id);
-          el.textContent = (ok ? "● " : "○ ") + label;
-          el.style.color = ok ? "var(--success)" : "var(--muted)";
+          el.textContent = (ok ? '\u25CF ' : '\u25CB ') + label;
+          el.style.color = ok ? 'var(--success)' : 'var(--muted)';
         }
-        set("pw-len",   v.length >= 8,           "Min. 8 karakter");
-        set("pw-upper", /[A-Z]/.test(v),         "Huruf besar (A-Z)");
-        set("pw-lower", /[a-z]/.test(v),         "Huruf kecil (a-z)");
-        set("pw-num",   /[0-9]/.test(v),         "Angka (0-9)");
-        set("pw-sym",   /[^a-zA-Z0-9]/.test(v),  "Karakter spesial (!, @, #, dll)");
+        set('pw-len',   v.length >= 8,           'Min. 8 karakter');
+        set('pw-upper', /[A-Z]/.test(v),         'Huruf besar (A-Z)');
+        set('pw-lower', /[a-z]/.test(v),         'Huruf kecil (a-z)');
+        set('pw-num',   /[0-9]/.test(v),         'Angka (0-9)');
+        set('pw-sym',   /[^a-zA-Z0-9]/.test(v), 'Karakter spesial (!, @, #, dll)');
       }
       </script>
       <div class="form-group">
@@ -411,20 +418,20 @@ layout_head('Setting', 'password');
     <?php if ($active_sessions): ?>
       <?php foreach ($active_sessions as $sess): ?>
       <?php
-        $ua_raw   = $sess['user_agent'] ?? '';
+        $ua_raw    = $sess['user_agent'] ?? '';
         $is_mobile = stripos($ua_raw, 'Mobile') !== false || stripos($ua_raw, 'Android') !== false;
-        $icon     = $is_mobile ? 'device-mobile' : 'device-desktop';
-        $browser  = 'Browser';
-        if (stripos($ua_raw, 'Firefox') !== false)       $browser = 'Firefox';
-        elseif (stripos($ua_raw, 'Edg') !== false)       $browser = 'Edge';
-        elseif (stripos($ua_raw, 'Chrome') !== false)    $browser = 'Chrome';
-        elseif (stripos($ua_raw, 'Safari') !== false)    $browser = 'Safari';
+        $icon      = $is_mobile ? 'device-mobile' : 'device-desktop';
+        $browser   = 'Browser';
+        if (stripos($ua_raw, 'Firefox') !== false)    $browser = 'Firefox';
+        elseif (stripos($ua_raw, 'Edg') !== false)    $browser = 'Edge';
+        elseif (stripos($ua_raw, 'Chrome') !== false) $browser = 'Chrome';
+        elseif (stripos($ua_raw, 'Safari') !== false) $browser = 'Safari';
         $os = 'Unknown';
-        if (stripos($ua_raw, 'Windows') !== false)       $os = 'Windows';
-        elseif (stripos($ua_raw, 'Android') !== false)   $os = 'Android';
-        elseif (stripos($ua_raw, 'iPhone') !== false)    $os = 'iPhone';
-        elseif (stripos($ua_raw, 'Mac') !== false)       $os = 'Mac';
-        elseif (stripos($ua_raw, 'Linux') !== false)     $os = 'Linux';
+        if (stripos($ua_raw, 'Windows') !== false)    $os = 'Windows';
+        elseif (stripos($ua_raw, 'Android') !== false) $os = 'Android';
+        elseif (stripos($ua_raw, 'iPhone') !== false) $os = 'iPhone';
+        elseif (stripos($ua_raw, 'Mac') !== false)    $os = 'Mac';
+        elseif (stripos($ua_raw, 'Linux') !== false)  $os = 'Linux';
         $is_current = $sess['id'] === $current_sess_id;
         $la_raw = $sess['last_activity'];
         if ($la_raw && is_numeric($la_raw)) {
@@ -432,19 +439,19 @@ layout_head('Setting', 'password');
         } elseif ($la_raw) {
             $last_act = date('d M Y H:i', strtotime($la_raw));
         } else {
-            $last_act = '—';
+            $last_act = '-';
         }
       ?>
       <div class="sesi-row">
         <div>
           <div class="sesi-device">
             <i class="ti ti-<?= $icon ?>" aria-hidden="true"></i>
-            <?= $os ?> · <?= $browser ?>
+            <?= $os ?> &middot; <?= $browser ?>
             <?php if ($is_current): ?>
               <span class="badge-current">Sesi ini</span>
             <?php endif; ?>
           </div>
-          <div class="sesi-meta"><?= htmlspecialchars($sess['ip_address'] ?? '—') ?> · <?= $last_act ?></div>
+          <div class="sesi-meta"><?= htmlspecialchars($sess['ip_address'] ?? '-') ?> &middot; <?= $last_act ?></div>
         </div>
         <?php if (!$is_current): ?>
         <form method="POST" class="form-reset" id="form-logout-sess-<?= htmlspecialchars($sess['id']) ?>">
@@ -518,7 +525,6 @@ layout_head('Setting', 'password');
 </div><!-- /kolom kanan -->
 </div><!-- /two-col -->
 
-<!-- Floating bubble container -->
 <div class="bubble-wrap" id="bubbleWrap"></div>
 
 <script nonce="<?= csp_nonce() ?>">
@@ -534,6 +540,7 @@ function showBubble(type, icon, title, desc, duration) {
     '<button class="bubble-close" aria-label="Tutup" data-action="close-bubble">&#215;</button>' +
     '<div class="bubble-progress" style="animation-duration:' + (duration/1000) + 's"></div>';
   wrap.appendChild(b);
+  b.querySelector('[data-action="close-bubble"]').addEventListener('click', function() { closeBubble(b); });
   setTimeout(function() { closeBubble(b); }, duration);
 }
 function closeBubble(b) {
