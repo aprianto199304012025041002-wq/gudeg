@@ -6,7 +6,7 @@ require_admin();
 $user = get_current_user_data();
 $sb   = getSupabase();
 
-// ── Auto-cleanup ─────────────────────────────────────────────────────────────
+// -- Auto-cleanup -------------------------------------------------------------
 // Cleanup token blacklist expired
 try {
     $sb->delete('token_blacklist', ['exp' => 'lt.' . time()]);
@@ -22,7 +22,7 @@ $per  = 50;
 $off  = ($page - 1) * $per;
 $tab  = ($_GET['tab'] ?? 'user') === 'admin' ? 'admin' : 'user';
 
-// ── Filter params ─────────────────────────────────────────────────────────────
+// -- Filter params -------------------------------------------------------------
 $search      = trim($_GET['search'] ?? '');
 $filter_ip   = trim($_GET['ip'] ?? '');
 $filter_date = trim($_GET['date'] ?? '');
@@ -36,7 +36,7 @@ function pgrest_escape_search(string $v): string {
     return str_replace([',', '(', ')'], ['\,', '\(', '\)'], $v);
 }
 
-// ── Build filter dengan syntax PostgREST ────────────────────────────────────
+// -- Build filter dengan syntax PostgREST ------------------------------------
 $table   = $tab === 'admin' ? 'admin_logs' : 'user_logs';
 $filters = [];
 
@@ -76,7 +76,7 @@ $filter_qs = http_build_query(array_filter([
 ]));
 $safe_qs = htmlspecialchars($filter_qs);
 
-layout_head('Admin · Log', 'admin-logs');
+layout_head('Admin . Log', 'admin-logs');
 ?>
 <style nonce="<?= csp_nonce() ?>">
 *, *::before, *::after { font-weight: inherit; }
@@ -88,7 +88,7 @@ layout_head('Admin · Log', 'admin-logs');
   border-radius: var(--radius-sm);
   font-size: 11px; font-weight: 700;
   text-transform: uppercase; letter-spacing: .07em;
-  color: var(--muted-hi); font-family: var(--mono);
+  color: var(--muted-hi); font-family: var(--sans);
   transition: border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
   white-space: nowrap; flex-shrink: 0;
 }
@@ -105,7 +105,7 @@ layout_head('Admin · Log', 'admin-logs');
   border-radius: var(--radius-sm);
   padding: 5px 9px;
   font-size: 11px; color: var(--text);
-  font-family: var(--mono); outline: none;
+  font-family: var(--sans); outline: none;
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 .filter-bar input[type="text"] { width: 180px; }
@@ -129,18 +129,17 @@ layout_head('Admin · Log', 'admin-logs');
   background: var(--bg);
   border: 1px solid var(--glass-border); border-radius: var(--radius-sm);
   padding: 5px 12px;
-  font-size: 11px; font-weight: 700;
-  color: var(--muted-hi); font-family: var(--mono);
-  text-transform: uppercase; letter-spacing: .06em;
+  font-size: 11px; font-weight: 600;
+  color: var(--muted-hi); font-family: var(--sans);
   cursor: pointer;
   transition: border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
 }
 .filter-bar button:hover { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
-.filter-bar .btn-reset { color: var(--danger); border-color: var(--danger-bdr); text-decoration: none; padding: 5px 12px; border: 1px solid var(--danger-bdr); border-radius: var(--radius-sm); font-size: 11px; font-weight: 700; font-family: var(--mono); text-transform: uppercase; letter-spacing: .06em; cursor: pointer; transition: border-color var(--transition-fast), box-shadow var(--transition-fast); }
+.filter-bar .btn-reset { color: var(--danger); border-color: var(--danger-bdr); text-decoration: none; padding: 5px 12px; border: 1px solid var(--danger-bdr); border-radius: var(--radius-sm); font-size: 11px; font-weight: 600; font-family: var(--sans); cursor: pointer; transition: border-color var(--transition-fast), box-shadow var(--transition-fast); }
 .filter-bar .btn-reset:hover { border-color: var(--danger); box-shadow: 0 0 8px rgba(239,68,68,.2); }
 .filter-active {
-  font-size: 10px; color: var(--accent); font-family: var(--mono);
-  letter-spacing: .06em; text-transform: uppercase; padding: 5px 0;
+  font-size: 11px; color: var(--accent); font-family: var(--sans);
+  padding: 5px 0;
 }
 
 .log-list { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
@@ -156,9 +155,9 @@ layout_head('Admin · Log', 'admin-logs');
   display: flex; justify-content: space-between; align-items: flex-start;
   gap: 6px; margin-bottom: 4px;
 }
-.log-action { font-size: 12px; font-weight: 700; color: var(--text); font-family: var(--mono); text-transform: uppercase; letter-spacing: .04em; }
-.log-time { font-size: 11px; color: var(--muted-hi); white-space: nowrap; flex-shrink: 0; font-family: var(--mono); }
-.log-meta { font-size: 11px; color: var(--muted-hi); line-height: 1.6; font-family: var(--mono); }
+.log-action { font-size: 12px; font-weight: 700; color: var(--text); font-family: var(--sans); }
+.log-time { font-size: 11px; color: var(--muted-hi); white-space: nowrap; flex-shrink: 0; font-family: var(--sans); }
+.log-meta { font-size: 11px; color: var(--muted-hi); line-height: 1.6; font-family: var(--sans); }
 .log-meta span { margin-right: 8px; }
 .log-id { font-size: 10px; color: var(--muted); font-family: var(--mono); }
 .log-ip {
@@ -169,19 +168,19 @@ layout_head('Admin · Log', 'admin-logs');
 .log-empty {
   text-align: center; padding: 2rem;
   font-size: 12px; color: var(--muted-hi);
-  font-family: var(--mono); text-transform: uppercase; letter-spacing: .06em;
+  font-family: var(--sans);
 }
 
 .pagination { display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; }
 .pagination a {
   padding: 4px 10px; border: 1px solid var(--glass-border);
   border-radius: 4px; font-size: 11px; color: var(--muted-hi);
-  font-family: var(--mono);
+  font-family: var(--sans);
   transition: border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
 }
 .pagination a.current { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 6px var(--accent-glow); }
 .pagination a:hover   { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 6px var(--accent-glow); }
-.pagination-sep { font-size: 11px; color: var(--muted); padding: 4px 2px; font-family: var(--mono); }
+.pagination-sep { font-size: 11px; color: var(--muted); padding: 4px 2px; font-family: var(--sans); }
 </style>
 
 <div class="page-header">
@@ -230,7 +229,7 @@ layout_head('Admin · Log', 'admin-logs');
     <?php else: ?>
       <span><?= htmlspecialchars($log['admin_name'] ?? '') ?></span>
       <?php if (!empty($log['target_user']) && $log['target_user'] !== '-'): ?>
-        <span>→ <?= htmlspecialchars($log['target_user']) ?></span>
+        <span>-&gt; <?= htmlspecialchars($log['target_user']) ?></span>
       <?php endif; ?>
       <?php if (!empty($log['ip_address'])): ?>
         <span class="log-ip"><?= htmlspecialchars($log['ip_address']) ?></span>
@@ -248,21 +247,21 @@ layout_head('Admin · Log', 'admin-logs');
 <?php if ($pages > 1): ?>
 <div class="pagination">
   <?php if ($page > 1): ?>
-    <a href="?<?= $safe_qs ?>&page=<?= $page - 1 ?>">‹</a>
+    <a href="?<?= $safe_qs ?>&page=<?= $page - 1 ?>">&lsaquo;</a>
   <?php endif; ?>
   <?php
   $start = max(1, $page - 2);
   $end   = min($pages, $page + 2);
   if ($start > 1) echo '<a href="?' . $safe_qs . '&page=1">1</a>';
-  if ($start > 2) echo '<span class="pagination-sep">…</span>';
+  if ($start > 2) echo '<span class="pagination-sep">...</span>';
   for ($i = $start; $i <= $end; $i++):
   ?>
     <a href="?<?= $safe_qs ?>&page=<?= $i ?>" class="<?= $i === $page ? 'current' : '' ?>"><?= $i ?></a>
   <?php endfor; ?>
-  <?php if ($end < $pages - 1) echo '<span class="pagination-sep">…</span>'; ?>
+  <?php if ($end < $pages - 1) echo '<span class="pagination-sep">...</span>'; ?>
   <?php if ($end < $pages) echo '<a href="?' . $safe_qs . '&page=' . $pages . '">' . $pages . '</a>'; ?>
   <?php if ($page < $pages): ?>
-    <a href="?<?= $safe_qs ?>&page=<?= $page + 1 ?>">›</a>
+    <a href="?<?= $safe_qs ?>&page=<?= $page + 1 ?>">&rsaquo;</a>
   <?php endif; ?>
 </div>
 <?php endif; ?>
