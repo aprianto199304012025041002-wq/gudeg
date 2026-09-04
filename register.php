@@ -271,7 +271,7 @@ body::after {
 /* -- Logo -- */
 .logo-area { text-align: center; margin-bottom: 24px; }
 .logo-shield {
-  width: 54px; height: 54px;
+  width: 58px; height: 58px;
   background: var(--accent-bg);
   border: 1px solid var(--accent-bdr);
   border-radius: var(--radius-lg);
@@ -289,10 +289,10 @@ body::after {
   background: linear-gradient(90deg, transparent, rgba(74,144,217,.30), transparent);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
-.logo-shield i { font-size: 26px; color: var(--accent); }
+.logo-shield i { font-size: 28px; color: var(--accent); }
 .logo-title {
   font-family: var(--sans);
-  font-size: 16px; font-weight: 700;
+  font-size: 18px; font-weight: 700;
   letter-spacing: .04em; line-height: 1.1;
 }
 .logo-title .gudeg {
