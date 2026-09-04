@@ -104,9 +104,9 @@ layout_head('Admin . User', 'admin-users');
 <style nonce="<?= csp_nonce() ?>">
 .page-header { margin-bottom: 1rem; }
 .form-inline { display: inline; }
-.text-muted-sm { font-size: 11px; color: var(--muted-hi); margin-bottom: .6rem; }
+.text-muted-sm { font-size: 11px; color: var(--muted-hi); margin-bottom: 10px; }
 
-.user-list { display: flex; flex-direction: column; gap: .7rem; }
+.user-list { display: flex; flex-direction: column; gap: 12px; }
 
 .user-card {
   background: var(--glass-hi);
@@ -134,7 +134,7 @@ layout_head('Admin . User', 'admin-users');
 .user-card-head {
   display: flex; align-items: flex-start;
   justify-content: space-between;
-  padding: .8rem .95rem; gap: .6rem;
+  padding: 12px 14px; gap: 10px;
 }
 .user-info { min-width: 0; flex: 1; }
 .user-name {
@@ -147,13 +147,13 @@ layout_head('Admin . User', 'admin-users');
   font-family: var(--sans);
 }
 .user-meta {
-  display: flex; gap: .3rem; flex-shrink: 0;
+  display: flex; gap: 6px; flex-shrink: 0;
   flex-wrap: wrap; justify-content: flex-end; max-width: 110px;
 }
 .user-actions {
   border-top: 1px solid var(--glass-border);
-  padding: .65rem .95rem;
-  display: flex; flex-wrap: wrap; gap: .4rem; align-items: center;
+  padding: 10px 14px;
+  display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
   background: rgba(0,0,0,.08);
 }
 [data-theme="bright"] .user-actions { background: rgba(0,0,0,.02); }
@@ -163,7 +163,7 @@ layout_head('Admin . User', 'admin-users');
   border: 1px solid var(--glass-border-hi);
   color: var(--muted-hi);
   border-radius: var(--radius-sm);
-  padding: .35rem .7rem;
+  padding: 5px 10px;
   font-size: 12px; font-weight: 600;
   cursor: pointer; font-family: var(--sans);
   white-space: nowrap;
@@ -178,13 +178,13 @@ layout_head('Admin . User', 'admin-users');
 .btn-sm.delete { border-color: var(--danger-bdr); color: var(--danger); background: rgba(239,68,68,.04); }
 .btn-sm.delete:hover { border-color: var(--danger); background: rgba(239,68,68,.08); box-shadow: 0 0 10px rgba(239,68,68,.15), var(--elev-inset); }
 
-.role-form { display: flex; gap: .35rem; align-items: center; width: 100%; }
+.role-form { display: flex; gap: 6px; align-items: center; width: 100%; }
 
 select.sel-sm {
   background: rgba(0,0,0,.2);
   border: 1px solid var(--glass-border-hi);
   color: var(--text); border-radius: var(--radius-sm);
-  padding: .35rem .5rem;
+  padding: 5px 8px;
   font-size: 12px; font-weight: 700;
   cursor: pointer; font-family: var(--sans);
   flex: 1;
@@ -196,38 +196,38 @@ select.sel-sm:hover { border-color: var(--accent-bdr); }
 select.sel-sm:focus { outline: none; border-color: var(--accent-bdr); box-shadow: 0 0 0 2px var(--accent-glow-sm), var(--elev-inset); }
 
 .user-last-login {
-  font-size: .7rem; color: var(--muted);
-  font-size: 11px; width: 100%; margin-top: .15rem;
+  font-size: 11px; color: var(--muted);
+  font-size: 11px; width: 100%; margin-top: 2px;
   font-family: var(--sans);
 }
 
 .app-access { border-top: 1px solid var(--glass-border); }
 .app-access-toggle {
   width: 100%; background: none; border: none;
-  padding: .65rem .95rem;
+  padding: 10px 14px;
   display: flex; align-items: center; justify-content: space-between;
   color: var(--muted-hi);
   font-size: 12px; font-weight: 600; font-family: var(--sans);
   cursor: pointer; transition: color var(--transition-fast);
 }
 .app-access-toggle:hover { color: var(--accent); }
-.app-access-toggle .chevron { transition: transform var(--transition-med); font-size: .7rem; }
+.app-access-toggle .chevron { transition: transform var(--transition-med); font-size: 11px; }
 .app-access-toggle.open .chevron { transform: rotate(180deg); }
 
 .app-access-body {
-  display: none; padding: .65rem .95rem .85rem;
+  display: none; padding: 10px 14px 12px;
   border-top: 1px solid var(--glass-border);
   background: rgba(0,0,0,.06);
 }
 [data-theme="bright"] .app-access-body { background: rgba(0,0,0,.02); }
 .app-access-body.open { display: block; }
 
-.apps-check { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .6rem; }
+.apps-check { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
 .apps-check label {
-  display: flex; align-items: center; gap: .35rem;
+  display: flex; align-items: center; gap: 6px;
   font-size: 11px; font-weight: 600; font-family: var(--sans);
   color: var(--muted-hi); cursor: pointer;
-  padding: .32rem .6rem;
+  padding: 5px 10px;
   border: 1px solid var(--glass-border-hi); border-radius: var(--radius-sm);
   transition: border-color var(--transition-fast), color var(--transition-fast), background var(--transition-fast);
   background: rgba(255,255,255,.02);
@@ -235,20 +235,20 @@ select.sel-sm:focus { outline: none; border-color: var(--accent-bdr); box-shadow
 .apps-check label:hover { border-color: var(--accent-bdr); color: var(--text); background: var(--accent-bg); }
 .apps-check input[type=checkbox] { accent-color: var(--accent); }
 
-.self-note { font-size: .78rem; font-weight: 500; color: var(--muted-hi); font-style: italic; font-family: var(--sans); }
+.self-note { font-size: 13px; font-weight: 500; color: var(--muted-hi); font-style: italic; font-family: var(--sans); }
 
 @media (max-width: 600px) {
   .role-form { flex-wrap: nowrap; }
   select.sel-sm { min-width: 0; }
-  .user-actions { gap: .3rem; padding: .5rem .75rem; }
-  .btn-sm { padding: .28rem .5rem; font-size: .68rem; }
-  .user-card-head { padding: .6rem .75rem; }
-  .user-name { font-size: .78rem; }
-  .user-email { font-size: .68rem; }
-  .user-last-login { font-size: .65rem; }
-  .app-access-toggle { padding: .5rem .75rem; font-size: .68rem; }
-  .app-access-body { padding: .5rem .75rem .7rem; }
-  .apps-check label { font-size: .68rem; padding: .25rem .45rem; }
+  .user-actions { gap: 6px; padding: 8px 12px; }
+  .btn-sm { padding: 4px 8px; font-size: 11px; }
+  .user-card-head { padding: 10px 12px; }
+  .user-name { font-size: 13px; }
+  .user-email { font-size: 11px; }
+  .user-last-login { font-size: 10px; }
+  .app-access-toggle { padding: 8px 12px; font-size: 11px; }
+  .app-access-body { padding: 8px 12px 10px; }
+  .apps-check label { font-size: 11px; padding: 4px 7px; }
   .confirm-box { width: calc(100vw - 32px); padding: 16px; }
 }
 
