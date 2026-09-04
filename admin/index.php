@@ -106,7 +106,7 @@ layout_head('Admin . User', 'admin-users');
 .form-inline { display: inline; }
 .text-muted-sm { font-size: 11px; color: var(--muted-hi); margin-bottom: 10px; }
 
-.user-list { display: flex; flex-direction: column; gap: 12px; }
+.user-list { display: flex; flex-direction: column; gap: 8px; }
 
 .user-card {
   background: var(--glass-hi);
@@ -134,7 +134,7 @@ layout_head('Admin . User', 'admin-users');
 .user-card-head {
   display: flex; align-items: center;
   justify-content: space-between;
-  padding: 12px 14px; gap: 10px;
+  padding: 9px 12px; gap: 8px;
   cursor: pointer; -webkit-tap-highlight-color: transparent;
   user-select: none;
 }
@@ -146,12 +146,12 @@ layout_head('Admin . User', 'admin-users');
 .user-card.expanded .user-expand-icon { transform: rotate(180deg); color: var(--accent); }
 .user-card.expanded .user-info { min-width: 0; flex: 1; }
 .user-name {
-  font-weight: 700; font-size: 14px; line-height: 1.3;
+  font-weight: 700; font-size: 13px; line-height: 1.3;
   font-family: var(--sans);
 }
 .user-email {
-  font-size: 13px; font-weight: 500; color: var(--muted-hi);
-  margin-top: .2rem; word-break: break-all; line-height: 1.4;
+  font-size: 12px; font-weight: 400; color: var(--muted-hi);
+  margin-top: 2px; word-break: break-all; line-height: 1.4;
   font-family: var(--sans);
 }
 .user-meta {
@@ -159,7 +159,7 @@ layout_head('Admin . User', 'admin-users');
 }
 .user-actions {
   border-top: 1px solid var(--glass-border);
-  padding: 10px 14px;
+  padding: 8px 12px;
   display: none; flex-wrap: wrap; gap: 6px; align-items: center;
   background: rgba(0,0,0,.06);
 }
@@ -212,7 +212,7 @@ select.sel-sm:focus { outline: none; border-color: var(--accent-bdr); box-shadow
 .app-access { border-top: 1px solid var(--glass-border); }
 .app-access-toggle {
   width: 100%; background: none; border: none;
-  padding: 10px 14px;
+  padding: 8px 12px;
   display: flex; align-items: center; justify-content: space-between;
   color: var(--muted-hi);
   font-size: 12px; font-weight: 600; font-family: var(--sans);
