@@ -366,7 +366,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.25rem 1rem;
+  padding: 20px 16px;
   transition: background var(--transition-med), color var(--transition-med);
   position: relative;
 }
@@ -394,7 +394,7 @@ body::after {
 [data-theme="bright"] body::before { background: radial-gradient(circle, rgba(19,81,180,.07) 0%, transparent 70%); }
 [data-theme="bright"] body::after  { background: radial-gradient(circle, rgba(13,61,140,.05) 0%, transparent 70%); }
 
-.container { width: 100%; max-width: 400px; position: relative; z-index: 1; }
+.container { width: 100%; max-width: 420px; position: relative; z-index: 1; }
 
 /* -- Theme FAB -- */
 .theme-fab {
@@ -657,7 +657,7 @@ input:-webkit-autofill:focus {
 /* -- Responsive -- */
 @media (max-width: 480px) {
   .bubble-wrap { bottom: calc(12px + env(safe-area-inset-bottom)); right: 8px; left: 8px; width: auto; }
-  body { padding: 1rem .75rem; align-items: flex-start; padding-top: calc(60px + env(safe-area-inset-top)); }
+  body { padding: 16px 12px; align-items: flex-start; padding-top: calc(60px + env(safe-area-inset-top)); }
   .container { max-width: 100%; }
   .card { padding: 20px 16px; }
   input[type="email"],
@@ -667,7 +667,7 @@ input:-webkit-autofill:focus {
   .logo-shield { width: 48px; height: 48px; }
   .logo-shield i { font-size: 24px; }
   .logo-title { font-size: 16px; }
-  .logo-acronym { font-size: 9px; }
+  .logo-acronym { display: none; }
 }
 
 /* -- Reduced motion -- */
