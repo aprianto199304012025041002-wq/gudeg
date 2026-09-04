@@ -82,7 +82,7 @@ layout_head('Dashboard', 'dashboard');
 }
 .banner-warn i { font-size: 15px; flex-shrink: 0; }
 
-.greeting { margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--glass-border); }
+.greeting, .page-header.greeting { margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--glass-border); }
 .greeting-name {
   font-size: 18px; font-weight: 700;
   letter-spacing: .01em;
