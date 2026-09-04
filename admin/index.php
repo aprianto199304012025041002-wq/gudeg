@@ -144,7 +144,7 @@ layout_head('Admin . User', 'admin-users');
   transition: transform var(--transition-fast), color var(--transition-fast);
 }
 .user-card.expanded .user-expand-icon { transform: rotate(180deg); color: var(--accent); }
-.user-info { min-width: 0; flex: 1; }
+.user-card.expanded .user-info { min-width: 0; flex: 1; }
 .user-name {
   font-weight: 700; font-size: 14px; line-height: 1.3;
   font-family: var(--sans);
@@ -163,8 +163,7 @@ layout_head('Admin . User', 'admin-users');
   display: none; flex-wrap: wrap; gap: 6px; align-items: center;
   background: rgba(0,0,0,.06);
 }
-.user-card.expanded .user-actions { display: flex; }
-.user-card.expanded .app-access-body.open { display: block; }
+.user-card.expanded .user-card.expanded .app-access-body.open { display: block; }
 [data-theme="bright"] .user-actions { background: rgba(0,0,0,.02); }
 
 .btn-sm {
@@ -358,7 +357,7 @@ select.sel-sm:focus { outline: none; border-color: var(--accent-bdr); box-shadow
 <div class="user-list">
 <?php foreach ($users as $u): ?>
 <div class="user-card">
-  <div class="user-card-head" onclick="toggleUserCard(this)">
+  <div class="user-card-head" data-action="toggle-user-card">
     <div class="user-info">
       <div class="user-name"><?= htmlspecialchars($u['name']) ?></div>
       <div class="user-email"><?= htmlspecialchars($u['email']) ?></div>
@@ -623,13 +622,16 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <script nonce="<?= csp_nonce() ?>">
-function toggleUserCard(headEl) {
-  var card = headEl.closest('.user-card');
-  if (!card) return;
-  // Hanya toggle jika bukan card sendiri (yang tidak punya expand icon)
-  var icon = card.querySelector('.user-expand-icon');
-  if (!icon) return;
-  card.classList.toggle('expanded');
-}
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('[data-action="toggle-user-card"]').forEach(function (head) {
+    head.addEventListener('click', function () {
+      var card = head.closest('.user-card');
+      if (!card) return;
+      var icon = card.querySelector('.user-expand-icon');
+      if (!icon) return;
+      card.classList.toggle('expanded');
+    });
+  });
+});
 </script>
 <?php layout_foot(); ?>
