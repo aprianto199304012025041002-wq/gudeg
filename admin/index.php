@@ -163,7 +163,8 @@ layout_head('Admin . User', 'admin-users');
   display: none; flex-wrap: wrap; gap: 6px; align-items: center;
   background: rgba(0,0,0,.06);
 }
-.user-card.expanded .user-card.expanded .app-access-body.open { display: block; }
+.user-card.expanded .user-actions { display: flex; }
+.user-card.expanded .app-access-body.open { display: block; }
 [data-theme="bright"] .user-actions { background: rgba(0,0,0,.02); }
 
 .btn-sm {
