@@ -132,10 +132,18 @@ layout_head('Admin . User', 'admin-users');
 }
 
 .user-card-head {
-  display: flex; align-items: flex-start;
+  display: flex; align-items: center;
   justify-content: space-between;
   padding: 12px 14px; gap: 10px;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
+.user-card-head:hover .user-name { color: var(--accent); transition: color var(--transition-fast); }
+.user-expand-icon {
+  font-size: 14px; color: var(--muted); flex-shrink: 0;
+  transition: transform var(--transition-fast), color var(--transition-fast);
+}
+.user-card.expanded .user-expand-icon { transform: rotate(180deg); color: var(--accent); }
 .user-info { min-width: 0; flex: 1; }
 .user-name {
   font-weight: 700; font-size: 14px; line-height: 1.3;
@@ -147,15 +155,16 @@ layout_head('Admin . User', 'admin-users');
   font-family: var(--sans);
 }
 .user-meta {
-  display: flex; gap: 6px; flex-shrink: 0;
-  flex-wrap: wrap; justify-content: flex-end; max-width: 110px;
+  display: flex; gap: 5px; flex-shrink: 0; align-items: center;
 }
 .user-actions {
   border-top: 1px solid var(--glass-border);
   padding: 10px 14px;
-  display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
-  background: rgba(0,0,0,.08);
+  display: none; flex-wrap: wrap; gap: 6px; align-items: center;
+  background: rgba(0,0,0,.06);
 }
+.user-card.expanded .user-actions { display: flex; }
+.user-card.expanded .app-access-body.open { display: block; }
 [data-theme="bright"] .user-actions { background: rgba(0,0,0,.02); }
 
 .btn-sm {
@@ -196,9 +205,8 @@ select.sel-sm:hover { border-color: var(--accent-bdr); }
 select.sel-sm:focus { outline: none; border-color: var(--accent-bdr); box-shadow: 0 0 0 2px var(--accent-glow-sm), var(--elev-inset); }
 
 .user-last-login {
-  font-size: 11px; color: var(--muted);
-  font-size: 11px; width: 100%; margin-top: 2px;
-  font-family: var(--sans);
+  font-size: 10px; color: var(--muted);
+  margin-top: 2px; font-family: var(--sans); display: block;
 }
 
 .app-access { border-top: 1px solid var(--glass-border); }
@@ -350,16 +358,24 @@ select.sel-sm:focus { outline: none; border-color: var(--accent-bdr); box-shadow
 <div class="user-list">
 <?php foreach ($users as $u): ?>
 <div class="user-card">
-  <div class="user-card-head">
+  <div class="user-card-head" onclick="toggleUserCard(this)">
     <div class="user-info">
       <div class="user-name"><?= htmlspecialchars($u['name']) ?></div>
       <div class="user-email"><?= htmlspecialchars($u['email']) ?></div>
+      <?php if (!empty($u['last_login_at'])): ?>
+        <div class="user-last-login"><?= date('d M Y H:i', strtotime($u['last_login_at'])) ?></div>
+      <?php endif; ?>
     </div>
-    <div class="user-meta">
-      <span class="badge badge-<?= $u['role'] ?>"><?= strtoupper($u['role']) ?></span>
-      <span class="badge <?= $u['is_active'] ? 'badge-active' : 'badge-inactive' ?>">
-        <?= $u['is_active'] ? 'Aktif' : 'Nonaktif' ?>
-      </span>
+    <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+      <div class="user-meta">
+        <span class="badge badge-<?= $u['role'] ?>"><?= ucfirst($u['role']) ?></span>
+        <span class="badge <?= $u['is_active'] ? 'badge-active' : 'badge-inactive' ?>">
+          <?= $u['is_active'] ? 'Aktif' : 'Nonaktif' ?>
+        </span>
+      </div>
+      <?php if ($u['id'] !== (int)$user['id']): ?>
+        <i class="ti ti-chevron-down user-expand-icon" aria-hidden="true"></i>
+      <?php endif; ?>
     </div>
   </div>
 
@@ -426,9 +442,7 @@ select.sel-sm:focus { outline: none; border-color: var(--accent-bdr); box-shadow
       </button>
     </form>
 
-    <span class="user-last-login">
-      Login Terakhir: <?= $u['last_login_at'] ? date('d M Y H:i', strtotime($u['last_login_at'])) : '-' ?>
-    </span>
+
   </div>
 
   <div class="app-access">
@@ -608,4 +622,14 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+<script nonce="<?= csp_nonce() ?>">
+function toggleUserCard(headEl) {
+  var card = headEl.closest('.user-card');
+  if (!card) return;
+  // Hanya toggle jika bukan card sendiri (yang tidak punya expand icon)
+  var icon = card.querySelector('.user-expand-icon');
+  if (!icon) return;
+  card.classList.toggle('expanded');
+}
+</script>
 <?php layout_foot(); ?>
