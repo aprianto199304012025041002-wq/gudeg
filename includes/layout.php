@@ -447,7 +447,7 @@ a { color: inherit; text-decoration: none; }
 
 #hamburger {
   background: none; border: none; cursor: pointer;
-  display: flex; flex-direction: column; gap: 4px; padding: .3rem;
+  display: flex; flex-direction: column; gap: 4px; padding: 5px;
 }
 #hamburger span {
   display: block; width: 18px; height: 2px;
@@ -556,15 +556,15 @@ button, .btn { font-family: var(--sans); cursor: pointer; }
 
 /* ── Mobile ── */
 @media (max-width: 767px) {
-  #main-content { padding: 12px 10px 20px; }
+  #main-content { padding: 14px 12px 20px; }
   .page-header { margin-bottom: 14px; }
   .page-title { font-size: 15px; }
   .sb-user-email { max-width: 140px; }
   #topbar { height: 50px; padding: 0 12px; }
-  .badge { font-size: 9px; padding: 2px 6px; }
+  .badge { font-size: 10px; padding: 2px 6px; }
 }
 @media (max-width: 400px) {
-  #main-content { padding: 10px 8px 20px; }
+  #main-content { padding: 12px 10px 20px; }
   .sb-user-email { max-width: 115px; }
 }
 
