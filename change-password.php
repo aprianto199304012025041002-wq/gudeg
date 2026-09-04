@@ -107,7 +107,7 @@ layout_head('Setting', 'password');
 ?>
 <style nonce="<?= csp_nonce() ?>">
 .form-group { margin-bottom: 1rem; }
-.text-note { font-size: .85rem; color: var(--muted-hi); padding: .5rem 0; font-family: var(--sans); }
+.text-note { font-size: 13px; color: var(--muted-hi); padding: .5rem 0; font-family: var(--sans); }
 .form-reset { margin: 0; }
 
 #pw-hint {
@@ -130,7 +130,7 @@ layout_head('Setting', 'password');
   border: 1px solid var(--glass-border-hi);
   border-radius: var(--radius-sm);
   padding: .65rem .85rem;
-  color: var(--text); font-family: var(--sans); font-size: .9rem;
+  color: var(--text); font-family: var(--sans); font-size: 14px;
   outline: none;
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
   -webkit-appearance: none;
@@ -158,7 +158,7 @@ layout_head('Setting', 'password');
   border-radius: var(--radius-sm);
   padding: .75rem;
   font-family: var(--sans);
-  font-size: .88rem; font-weight: 600;
+  font-size: 14px; font-weight: 600;
   letter-spacing: .03em;
   cursor: pointer; margin-top: .5rem;
   box-shadow: 0 0 16px var(--accent-glow-sm), var(--elev-2);
