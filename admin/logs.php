@@ -87,7 +87,7 @@ layout_head('Admin . Log', 'admin-logs');
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-sm);
   font-size: 11px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: .07em;
+  letter-spacing: .02em;
   color: var(--muted-hi); font-family: var(--sans);
   transition: border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
   white-space: nowrap; flex-shrink: 0;
@@ -117,10 +117,10 @@ layout_head('Admin . Log', 'admin-logs');
   .filter-bar input[type="text"],
   .filter-bar input[type="date"] { width: 100%; }
   .filter-bar button { width: 100%; text-align: center; }
-  .log-item-top { flex-direction: column; gap: 2px; }
+  .log-item { grid-template-columns: 1fr auto; padding: 7px 10px; }
   .log-time { font-size: 10px; }
   .log-action { font-size: 11px; }
-  .log-meta span { display: block; margin-right: 0; }
+  .log-meta { gap: 0 8px; }
   .pagination { gap: 3px; }
   .pagination a { padding: 4px 8px; font-size: 10px; }
 }
@@ -142,23 +142,42 @@ layout_head('Admin . Log', 'admin-logs');
   padding: 5px 0;
 }
 
-.log-list { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
-.log-item {
+.log-list {
   background: var(--glass-hi);
   backdrop-filter: blur(10px) saturate(140%);
   border: 1px solid var(--glass-border-hi);
-  border-radius: var(--radius-sm); padding: 9px 12px;
-  transition: border-color var(--transition-fast);
+  border-radius: var(--radius-sm);
+  margin-bottom: 12px;
+  overflow: hidden;
 }
-.log-item:hover { border-color: var(--accent-bdr); }
-.log-item-top {
-  display: flex; justify-content: space-between; align-items: flex-start;
-  gap: 6px; margin-bottom: 4px;
+.log-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  gap: 0 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--glass-border);
+  transition: background var(--transition-fast);
+  align-items: start;
 }
-.log-action { font-size: 12px; font-weight: 700; color: var(--text); font-family: var(--sans); }
-.log-time { font-size: 11px; color: var(--muted-hi); white-space: nowrap; flex-shrink: 0; font-family: var(--sans); }
-.log-meta { font-size: 11px; color: var(--muted-hi); line-height: 1.6; font-family: var(--sans); }
-.log-meta span { margin-right: 8px; }
+.log-item:last-child { border-bottom: none; }
+.log-item:hover { background: rgba(74,144,217,.04); }
+.log-item-top { display: contents; }
+.log-action {
+  font-size: 12px; font-weight: 700; color: var(--text);
+  font-family: var(--sans); grid-column: 1; grid-row: 1;
+}
+.log-time {
+  font-size: 10px; color: var(--muted-hi); white-space: nowrap;
+  flex-shrink: 0; font-family: var(--sans);
+  grid-column: 2; grid-row: 1; text-align: right; padding-top: 1px;
+}
+.log-meta {
+  font-size: 11px; color: var(--muted-hi); line-height: 1.5;
+  font-family: var(--sans); grid-column: 1 / -1; grid-row: 2;
+  display: flex; flex-wrap: wrap; gap: 0 10px; margin-top: 1px;
+}
+.log-meta span { white-space: nowrap; }
 .log-id { font-size: 10px; color: var(--muted); font-family: var(--mono); }
 .log-ip {
   font-family: var(--mono); font-size: 10px;
@@ -213,18 +232,15 @@ layout_head('Admin . Log', 'admin-logs');
 <?php if ($logs): ?>
 <?php foreach ($logs as $log): ?>
 <div class="log-item">
-  <div class="log-item-top">
-    <?php if ($tab === 'user'): ?>
-      <span class="log-action"><?= htmlspecialchars($log['activity']) ?></span>
-    <?php else: ?>
-      <span class="log-action"><?= htmlspecialchars($log['action']) ?></span>
-    <?php endif; ?>
-    <span class="log-time"><?= date('d M Y H:i:s', strtotime($log['created_at'])) ?></span>
-  </div>
+  <?php if ($tab === 'user'): ?>
+    <span class="log-action"><?= htmlspecialchars($log['activity']) ?></span>
+  <?php else: ?>
+    <span class="log-action"><?= htmlspecialchars($log['action']) ?></span>
+  <?php endif; ?>
+  <span class="log-time"><?= date('d M H:i', strtotime($log['created_at'])) ?></span>
   <div class="log-meta">
     <?php if ($tab === 'user'): ?>
       <span><?= htmlspecialchars($log['user_name']) ?></span>
-      <span><?= htmlspecialchars($log['user_email']) ?></span>
       <span class="log-ip"><?= htmlspecialchars($log['ip_address']) ?></span>
     <?php else: ?>
       <span><?= htmlspecialchars($log['admin_name'] ?? '') ?></span>
