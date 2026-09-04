@@ -180,7 +180,7 @@ layout_head('Setting', 'password');
   gap: 16px; margin-bottom: 16px; align-items: start;
 }
 .two-col > div { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
-@media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+@media (max-width: 767px) { .two-col { grid-template-columns: 1fr; } }
 
 @media (max-width: 767px) {
   .panel-body { padding: 10px 12px; }
