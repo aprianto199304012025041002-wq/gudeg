@@ -106,8 +106,8 @@ $active_sessions = $sb->select('sessions', ['user_id' => $user['id']], 'id,ip_ad
 layout_head('Setting', 'password');
 ?>
 <style nonce="<?= csp_nonce() ?>">
-.form-group { margin-bottom: 1rem; }
-.text-note { font-size: 13px; color: var(--muted-hi); padding: .5rem 0; font-family: var(--sans); }
+.form-group { margin-bottom: 16px; }
+.text-note { font-size: 13px; color: var(--muted-hi); padding: 8px 0; font-family: var(--sans); }
 .form-reset { margin: 0; }
 
 #pw-hint {
@@ -122,14 +122,14 @@ layout_head('Setting', 'password');
 .form-group label {
   display: block; font-size: 11px; font-weight: 600;
   color: var(--muted-hi); letter-spacing: .04em;
-  margin-bottom: .35rem; font-family: var(--sans);
+  margin-bottom: 6px; font-family: var(--sans);
 }
 .form-group input[type="password"] {
   width: 100%;
   background: rgba(0,0,0,.2);
   border: 1px solid var(--glass-border-hi);
   border-radius: var(--radius-sm);
-  padding: .65rem .85rem;
+  padding: 10px 13px;
   color: var(--text); font-family: var(--sans); font-size: 14px;
   outline: none;
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
@@ -156,11 +156,11 @@ layout_head('Setting', 'password');
   color: #ffffff;
   border: 1px solid rgba(74,144,217,.35);
   border-radius: var(--radius-sm);
-  padding: .75rem;
+  padding: 11px;
   font-family: var(--sans);
   font-size: 14px; font-weight: 600;
   letter-spacing: .03em;
-  cursor: pointer; margin-top: .5rem;
+  cursor: pointer; margin-top: 8px;
   box-shadow: 0 0 16px var(--accent-glow-sm), var(--elev-2);
   transition: background var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
   -webkit-tap-highlight-color: transparent;
@@ -177,23 +177,23 @@ layout_head('Setting', 'password');
 /* -- Layout dua kolom -- */
 .two-col {
   display: grid; grid-template-columns: 1fr 1fr;
-  gap: 1rem; margin-bottom: 1rem; align-items: start;
+  gap: 16px; margin-bottom: 16px; align-items: start;
 }
-.two-col > div { display: flex; flex-direction: column; gap: .6rem; min-width: 0; }
+.two-col > div { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
 
 @media (max-width: 767px) {
-  .panel-body { padding: .65rem .85rem; }
-  .panel-hd   { padding: .55rem .85rem; }
-  .btn-save   { padding: .65rem; }
-  .btn-logout-all { padding: .55rem; }
-  .log-meta { font-size: .68rem; }
-  .sesi-meta { font-size: .68rem; }
+  .panel-body { padding: 10px 12px; }
+  .panel-hd   { padding: 6px 12px; }
+  .btn-save   { padding: 10px; }
+  .btn-logout-all { padding: 8px; }
+  .log-meta { font-size: 10px; }
+  .sesi-meta { font-size: 10px; }
   .sesi-row { flex-wrap: wrap; }
   .sesi-row > div:first-child { width: 100%; }
 }
 @media (max-width: 400px) {
-  .log-row { flex-direction: column; align-items: flex-start; gap: .25rem; }
+  .log-row { flex-direction: column; align-items: flex-start; gap: 4px; }
   .log-meta { text-align: left; }
 }
 
@@ -215,7 +215,7 @@ layout_head('Setting', 'password');
   pointer-events: none; z-index: 1;
 }
 .panel-hd {
-  padding: .65rem 1rem;
+  padding: 8px 14px;
   border-bottom: 1px solid var(--glass-border);
   display: flex; align-items: center; gap: 8px;
   background: var(--accent-bg);
@@ -226,39 +226,39 @@ layout_head('Setting', 'password');
   color: var(--muted-hi); font-family: var(--sans);
   letter-spacing: .02em;
 }
-.panel-body { padding: .8rem 1rem; }
+.panel-body { padding: 12px 14px; }
 
 /* -- Log aktivitas -- */
 .log-row {
   display: flex; align-items: center; justify-content: space-between;
-  padding: .55rem 0; border-bottom: 1px solid rgba(255,255,255,.04); gap: .6rem;
+  padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.04); gap: 8px;
 }
 [data-theme="bright"] .log-row { border-bottom-color: rgba(0,0,0,.06); }
 .log-row:last-child { border-bottom: none; }
 .log-activity {
-  font-size: .8rem; font-weight: 600; font-family: var(--sans);
+  font-size: 13px; font-weight: 600; font-family: var(--sans);
   color: var(--text); word-break: break-word; overflow-wrap: anywhere; min-width: 0;
 }
 .log-meta {
   color: var(--muted-hi); font-family: var(--sans);
-  font-size: .72rem; text-align: right; flex-shrink: 0; line-height: 1.6;
+  font-size: 11px; text-align: right; flex-shrink: 0; line-height: 1.6;
 }
 
 /* -- Sesi aktif -- */
 .sesi-row {
   display: flex; align-items: center; justify-content: space-between;
-  padding: .65rem 0; border-bottom: 1px solid rgba(255,255,255,.04); gap: .6rem;
+  padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,.04); gap: 8px;
 }
 [data-theme="bright"] .sesi-row { border-bottom-color: rgba(0,0,0,.06); }
 .sesi-row:last-child { border-bottom: none; }
 .sesi-device {
-  font-size: .8rem; font-weight: 600; font-family: var(--sans);
+  font-size: 13px; font-weight: 600; font-family: var(--sans);
   color: var(--text);
-  display: flex; align-items: center; gap: 6px;
+  display: flex; align-items: center; gap: 8px;
   word-break: break-word; overflow-wrap: anywhere; min-width: 0;
 }
 .sesi-device i { font-size: 14px; color: var(--accent); flex-shrink: 0; }
-.sesi-meta { font-size: .72rem; color: var(--muted-hi); margin-top: 2px; word-break: break-all; font-family: var(--sans); }
+.sesi-meta { font-size: 11px; color: var(--muted-hi); margin-top: 2px; word-break: break-all; font-family: var(--sans); }
 .sesi-row > div:first-child { min-width: 0; flex: 1 1 0; }
 .badge-current {
   display: inline-block; font-size: 10px; padding: 1px 7px; border-radius: 4px;
@@ -269,8 +269,8 @@ layout_head('Setting', 'password');
 }
 .btn-logout-sess {
   background: rgba(224,82,82,.08); border: 1px solid rgba(224,82,82,.25);
-  color: var(--danger); border-radius: var(--radius-sm); padding: .3rem .7rem;
-  font-size: .78rem; font-weight: 600; font-family: var(--sans);
+  color: var(--danger); border-radius: var(--radius-sm); padding: 5px 11px;
+  font-size: 12px; font-weight: 600; font-family: var(--sans);
   cursor: pointer; white-space: nowrap; flex-shrink: 0;
   transition: box-shadow var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
   box-shadow: var(--elev-inset);
@@ -278,9 +278,9 @@ layout_head('Setting', 'password');
 .btn-logout-sess:hover { border-color: var(--danger); background: rgba(224,82,82,.14); }
 .btn-logout-all {
   width: 100%; background: rgba(224,82,82,.08); border: 1px solid rgba(224,82,82,.25);
-  color: var(--danger); border-radius: var(--radius-sm); padding: .65rem;
-  font-size: .84rem; font-weight: 600; font-family: var(--sans);
-  cursor: pointer; margin-top: .75rem; box-sizing: border-box;
+  color: var(--danger); border-radius: var(--radius-sm); padding: 11px;
+  font-size: 13px; font-weight: 600; font-family: var(--sans);
+  cursor: pointer; margin-top: 12px; box-sizing: border-box;
   transition: background var(--transition-fast), box-shadow var(--transition-fast);
   box-shadow: var(--elev-inset);
 }
@@ -298,7 +298,7 @@ layout_head('Setting', 'password');
 }
 .bubble {
   border-radius: var(--radius); padding: 10px 32px 10px 14px;
-  font-size: .8rem; line-height: 1.5; border: 1px solid;
+  font-size: 13px; line-height: 1.5; border: 1px solid;
   display: flex; align-items: flex-start; gap: 8px;
   pointer-events: all; animation: bubbleIn .25s ease;
   box-shadow: var(--elev-3); position: relative;
