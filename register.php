@@ -213,7 +213,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.25rem 1rem;
+  padding: 20px 16px;
   transition: background var(--transition-med), color var(--transition-med);
   position: relative;
 }
@@ -527,7 +527,7 @@ input:-webkit-autofill:focus {
 /* -- Responsive -- */
 @media (max-width: 480px) {
   .bubble-wrap { bottom: calc(12px + env(safe-area-inset-bottom)); right: 8px; left: 8px; width: auto; }
-  body { padding: 1rem .75rem; align-items: flex-start; padding-top: calc(60px + env(safe-area-inset-top)); }
+  body { padding: 16px 12px; align-items: flex-start; padding-top: calc(60px + env(safe-area-inset-top)); }
   .container { max-width: 100%; }
   .card { padding: 20px 16px; }
   input[type="text"],
@@ -535,6 +535,10 @@ input:-webkit-autofill:focus {
   input[type="password"] { padding: 11px 12px; font-size: 16px; }
   .btn-submit { padding: 13px; font-size: 14px; }
   .theme-fab { top: calc(10px + env(safe-area-inset-top)); right: 10px; }
+  .logo-shield { width: 48px; height: 48px; }
+  .logo-shield i { font-size: 24px; }
+  .logo-title { font-size: 16px; }
+  .logo-acronym { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
