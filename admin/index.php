@@ -104,7 +104,7 @@ layout_head('Admin . User', 'admin-users');
 <style nonce="<?= csp_nonce() ?>">
 .page-header { margin-bottom: 1rem; }
 .form-inline { display: inline; }
-.text-muted-sm { font-size: .72rem; color: var(--muted-hi); margin-bottom: .6rem; }
+.text-muted-sm { font-size: 11px; color: var(--muted-hi); margin-bottom: .6rem; }
 
 .user-list { display: flex; flex-direction: column; gap: .7rem; }
 
@@ -138,11 +138,11 @@ layout_head('Admin . User', 'admin-users');
 }
 .user-info { min-width: 0; flex: 1; }
 .user-name {
-  font-weight: 700; font-size: .85rem; line-height: 1.3;
+  font-weight: 700; font-size: 14px; line-height: 1.3;
   font-family: var(--sans);
 }
 .user-email {
-  font-size: .75rem; font-weight: 500; color: var(--muted-hi);
+  font-size: 13px; font-weight: 500; color: var(--muted-hi);
   margin-top: .2rem; word-break: break-all; line-height: 1.4;
   font-family: var(--sans);
 }
@@ -164,7 +164,7 @@ layout_head('Admin . User', 'admin-users');
   color: var(--muted-hi);
   border-radius: var(--radius-sm);
   padding: .35rem .7rem;
-  font-size: .72rem; font-weight: 700;
+  font-size: 12px; font-weight: 600;
   cursor: pointer; font-family: var(--sans);
   white-space: nowrap;
   transition: border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
@@ -185,7 +185,7 @@ select.sel-sm {
   border: 1px solid var(--glass-border-hi);
   color: var(--text); border-radius: var(--radius-sm);
   padding: .35rem .5rem;
-  font-size: .72rem; font-weight: 700;
+  font-size: 12px; font-weight: 700;
   cursor: pointer; font-family: var(--sans);
   flex: 1;
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
@@ -197,7 +197,7 @@ select.sel-sm:focus { outline: none; border-color: var(--accent-bdr); box-shadow
 
 .user-last-login {
   font-size: .7rem; color: var(--muted);
-  width: 100%; margin-top: .15rem;
+  font-size: 11px; width: 100%; margin-top: .15rem;
   font-family: var(--sans);
 }
 
@@ -207,7 +207,7 @@ select.sel-sm:focus { outline: none; border-color: var(--accent-bdr); box-shadow
   padding: .65rem .95rem;
   display: flex; align-items: center; justify-content: space-between;
   color: var(--muted-hi);
-  font-size: .72rem; font-weight: 700; font-family: var(--sans);
+  font-size: 12px; font-weight: 600; font-family: var(--sans);
   cursor: pointer; transition: color var(--transition-fast);
 }
 .app-access-toggle:hover { color: var(--accent); }
@@ -225,7 +225,7 @@ select.sel-sm:focus { outline: none; border-color: var(--accent-bdr); box-shadow
 .apps-check { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .6rem; }
 .apps-check label {
   display: flex; align-items: center; gap: .35rem;
-  font-size: .72rem; font-weight: 700; font-family: var(--sans);
+  font-size: 11px; font-weight: 600; font-family: var(--sans);
   color: var(--muted-hi); cursor: pointer;
   padding: .32rem .6rem;
   border: 1px solid var(--glass-border-hi); border-radius: var(--radius-sm);
@@ -275,7 +275,7 @@ select.sel-sm:focus { outline: none; border-color: var(--accent-bdr); box-shadow
   background: linear-gradient(90deg, transparent, var(--glass-border-hi), transparent);
 }
 .confirm-title {
-  font-size: .85rem; font-weight: 700; color: var(--text);
+  font-size: 13px; font-weight: 700; color: var(--text);
   margin-bottom: 8px; font-family: var(--sans);
 }
 .confirm-msg { font-size: .82rem; font-weight: 500; color: var(--muted-hi); line-height: 1.6; margin-bottom: 16px; }
