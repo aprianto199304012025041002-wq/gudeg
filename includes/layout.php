@@ -402,7 +402,7 @@ a { color: inherit; text-decoration: none; }
 .sb-datetime .dt-time {
   font-size: 16px; font-weight: 700;
   color: var(--accent); letter-spacing: .06em; margin-top: 2px;
-  font-family: var(--mono);
+  font-family: var(--sans);
 }
 .sb-logout {
   display: flex; align-items: center; gap: 7px;
