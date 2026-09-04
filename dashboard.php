@@ -63,9 +63,9 @@ layout_head('Dashboard', 'dashboard');
   background: rgba(234,179,8,.08);
   border: 1px solid rgba(234,179,8,.2);
   border-radius: var(--radius);
-  padding: .75rem 1rem;
+  padding: 12px 16px;
   margin-bottom: 1rem;
-  font-size: .78rem;
+  font-size: 13px;
   color: #eab308;
   font-family: var(--sans);
   letter-spacing: .01em;
@@ -82,16 +82,16 @@ layout_head('Dashboard', 'dashboard');
 }
 .banner-warn i { font-size: 15px; flex-shrink: 0; }
 
-.greeting { margin-bottom: 1.2rem; }
+.greeting { margin-bottom: 20px; }
 .greeting-name {
-  font-size: 1.15rem; font-weight: 700;
+  font-size: 18px; font-weight: 700;
   letter-spacing: .01em;
   font-family: var(--sans);
   color: var(--text);
 }
 .greeting-sub {
-  font-size: .8rem; font-weight: 400; color: var(--muted-hi);
-  margin-top: .25rem; letter-spacing: .01em;
+  font-size: 13px; font-weight: 400; color: var(--muted-hi);
+  margin-top: 4px; letter-spacing: .01em;
   font-family: var(--sans);
 }
 
@@ -99,9 +99,9 @@ layout_head('Dashboard', 'dashboard');
   background: var(--accent-bg);
   border: 1px solid var(--accent-bdr);
   border-radius: var(--radius);
-  padding: .9rem 1rem;
+  padding: 14px 16px;
   margin-bottom: 1rem;
-  font-size: .84rem; font-family: var(--sans);
+  font-size: 14px; font-family: var(--sans);
   color: var(--muted-hi); line-height: 1.7;
   box-shadow: 0 0 16px var(--accent-glow-sm), var(--elev-1), var(--elev-inset);
   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
@@ -117,20 +117,21 @@ layout_head('Dashboard', 'dashboard');
 .apps-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: .6rem; margin-bottom: 1.2rem;
+  gap: 10px; margin-bottom: 20px;
 }
-@media (max-width: 400px) {
+@media (max-width: 480px) {
   .apps-grid { grid-template-columns: 1fr 1fr; }
-  .app-card { padding: .65rem .75rem; }
+  .app-card { padding: 10px 12px; }
 }
 
 .app-card {
+  min-height: 90px;
   background: var(--glass-hi);
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
   border: 1px solid var(--glass-border-hi);
   border-radius: var(--radius);
-  padding: .85rem .9rem;
+  padding: 12px 14px;
   display: block; text-decoration: none; color: var(--text);
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
   -webkit-tap-highlight-color: transparent;
@@ -154,24 +155,24 @@ layout_head('Dashboard', 'dashboard');
   width: 32px; height: 32px; border-radius: 8px;
   background: var(--accent-bg); border: 1px solid var(--accent-bdr);
   display: flex; align-items: center; justify-content: center;
-  font-size: 1rem; margin-bottom: .7rem; overflow: hidden;
+  font-size: 16px; margin-bottom: 10px; overflow: hidden;
   box-shadow: 0 0 10px var(--accent-glow-sm), var(--elev-1);
 }
 .app-logo img { width: 100%; height: 100%; object-fit: cover; }
 
 .app-name {
-  font-weight: 700; font-size: .82rem;
+  font-weight: 700; font-size: 13px;
   font-family: var(--sans);
   letter-spacing: .01em; margin-bottom: .25rem; line-height: 1.3;
 }
 .app-desc {
-  font-size: .75rem; font-weight: 500; color: var(--muted-hi);
+  font-size: 12px; font-weight: 500; color: var(--muted-hi);
   font-family: var(--sans); line-height: 1.5;
   display: -webkit-box; -webkit-line-clamp: 2;
   -webkit-box-orient: vertical; overflow: hidden;
 }
 .app-launch {
-  margin-top: .55rem; font-size: .73rem;
+  margin-top: 8px; font-size: 12px;
   font-family: var(--sans); font-weight: 600;
   color: var(--accent); letter-spacing: .02em;
 }
@@ -182,9 +183,9 @@ layout_head('Dashboard', 'dashboard');
   border: 1px dashed var(--glass-border-hi);
   border-radius: var(--radius);
   padding: 2rem 1rem; text-align: center;
-  color: var(--muted-hi); font-size: .84rem;
+  color: var(--muted-hi); font-size: 14px;
   font-family: var(--sans); line-height: 1.7;
-  margin-bottom: 1.2rem; letter-spacing: .01em;
+  margin-bottom: 20px; letter-spacing: .01em;
   box-shadow: var(--elev-1);
 }
 
@@ -214,7 +215,7 @@ layout_head('Dashboard', 'dashboard');
 .bubble-body { flex: 1; min-width: 0; }
 .bubble-title {
   font-weight: 700; letter-spacing: .02em; margin-bottom: 3px;
-  font-family: var(--sans); font-size: .72rem;
+  font-family: var(--sans); font-size: 11px;
 }
 .bubble-desc { font-size: .78rem; font-weight: 500; opacity: .9; line-height: 1.6; }
 .bubble-desc a { color: inherit; text-decoration: underline; }
