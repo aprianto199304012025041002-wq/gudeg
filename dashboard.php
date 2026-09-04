@@ -82,7 +82,7 @@ layout_head('Dashboard', 'dashboard');
 }
 .banner-warn i { font-size: 15px; flex-shrink: 0; }
 
-.greeting { margin-bottom: 20px; }
+.greeting { margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--glass-border); }
 .greeting-name {
   font-size: 18px; font-weight: 700;
   letter-spacing: .01em;
@@ -116,7 +116,7 @@ layout_head('Dashboard', 'dashboard');
 
 .apps-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 10px; margin-bottom: 20px;
 }
 @media (max-width: 480px) {
@@ -125,7 +125,8 @@ layout_head('Dashboard', 'dashboard');
 }
 
 .app-card {
-  min-height: 90px;
+  min-height: 100px;
+  display: flex; flex-direction: column; justify-content: space-between;
   background: var(--glass-hi);
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
@@ -143,6 +144,7 @@ layout_head('Dashboard', 'dashboard');
   position: absolute; top: 0; left: 0; right: 0; height: 1px;
   background: linear-gradient(90deg, transparent, var(--glass-border-hi), transparent);
 }
+.app-card:hover .app-launch, .app-card:focus .app-launch { text-decoration: underline; }
 .app-card:hover, .app-card:focus {
   border-color: var(--accent-bdr);
   box-shadow: 0 0 20px var(--accent-glow), var(--elev-3), var(--elev-inset);
@@ -161,19 +163,20 @@ layout_head('Dashboard', 'dashboard');
 .app-logo img { width: 100%; height: 100%; object-fit: cover; }
 
 .app-name {
-  font-weight: 700; font-size: 13px;
+  font-weight: 700; font-size: 14px;
   font-family: var(--sans);
-  letter-spacing: .01em; margin-bottom: .25rem; line-height: 1.3;
+  margin-bottom: .25rem; line-height: 1.3;
 }
 .app-desc {
-  font-size: 12px; font-weight: 500; color: var(--muted-hi);
-  font-family: var(--sans); line-height: 1.5;
+  font-size: 11px; font-weight: 500; color: var(--muted-hi);
+  font-family: var(--sans); line-height: 1.4;
   display: -webkit-box; -webkit-line-clamp: 2;
   -webkit-box-orient: vertical; overflow: hidden;
 }
 .app-launch {
-  margin-top: 8px; font-size: 12px;
+  margin-top: 10px; font-size: 12px;
   font-family: var(--sans); font-weight: 600;
+  display: inline-block;
   color: var(--accent); letter-spacing: .02em;
 }
 
@@ -185,7 +188,7 @@ layout_head('Dashboard', 'dashboard');
   padding: 2rem 1rem; text-align: center;
   color: var(--muted-hi); font-size: 14px;
   font-family: var(--sans); line-height: 1.7;
-  margin-bottom: 20px; letter-spacing: .01em;
+  margin-bottom: 16px; letter-spacing: .02em;
   box-shadow: var(--elev-1);
 }
 
