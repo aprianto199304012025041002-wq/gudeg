@@ -123,7 +123,7 @@ layout_head('Admin . Aplikasi', 'admin-apps');
   -webkit-backdrop-filter: blur(20px) saturate(160%);
   border: 1px solid var(--glass-border-hi);
   border-radius: var(--radius);
-  padding: .9rem; margin-bottom: 1.2rem;
+  padding: 14px; margin-bottom: 20px;
   box-shadow: var(--elev-3), var(--elev-inset);
   position: relative; overflow: hidden;
 }
@@ -134,21 +134,21 @@ layout_head('Admin . Aplikasi', 'admin-apps');
 }
 .add-card-title {
   font-size: 13px; font-weight: 700; font-family: var(--sans);
-  color: var(--accent); margin-bottom: .8rem;
+  color: var(--accent); margin-bottom: 12px;
 }
 
-.fg { margin-bottom: .7rem; }
+.fg { margin-bottom: 10px; }
 
 .fg label {
   display: block; font-size: 11px; font-weight: 600;
   color: var(--muted-hi); letter-spacing: .04em;
-  margin-bottom: .35rem; font-family: var(--sans);
+  margin-bottom: 6px; font-family: var(--sans);
 }
 
 .fg input[type=text] {
   width: 100%; background: rgba(0,0,0,.2);
   border: 1px solid var(--glass-border-hi); border-radius: var(--radius-sm);
-  padding: .6rem .75rem; color: var(--text);
+  padding: 10px 12px; color: var(--text);
   font-family: var(--sans); font-size: 14px; font-weight: 500; outline: none;
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
   -webkit-appearance: none;
@@ -160,19 +160,19 @@ layout_head('Admin . Aplikasi', 'admin-apps');
 .fg input[type=text]:focus { border-color: var(--accent-bdr); background: var(--accent-bg); box-shadow: 0 0 0 3px var(--accent-glow-sm), var(--elev-inset); }
 
 .check-label {
-  display: flex; align-items: flex-start; gap: .5rem;
-  font-size: .78rem; font-weight: 500; font-family: var(--sans);
+  display: flex; align-items: flex-start; gap: 8px;
+  font-size: 13px; font-weight: 500; font-family: var(--sans);
   color: var(--muted-hi); cursor: pointer; margin-top: .3rem; line-height: 1.5;
 }
-.check-label input { accent-color: var(--accent); flex-shrink: 0; margin-top: .2rem; }
+.check-label input { accent-color: var(--accent); flex-shrink: 0; margin-top: 3px; }
 
 .btn-add {
   background: var(--accent-deep);
   color: #ffffff;
   border: 1px solid rgba(74,144,217,.35); border-radius: var(--radius-sm);
-  padding: .65rem 1rem; font-size: .88rem; font-weight: 600;
+  padding: 10px 16px; font-size: 14px; font-weight: 600;
   cursor: pointer; font-family: var(--sans);
-  margin-top: .75rem; width: 100%;
+  margin-top: 12px; width: 100%;
   box-shadow: 0 0 16px var(--accent-glow-sm), var(--elev-2);
   transition: background var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
@@ -180,7 +180,7 @@ layout_head('Admin . Aplikasi', 'admin-apps');
 [data-theme="bright"] .btn-add { background: var(--accent-deep); color: #ffffff; }
 [data-theme="bright"] .btn-add:hover { background: #1a5fcc; }
 
-.app-list { display: flex; flex-direction: column; gap: .6rem; }
+.app-list { display: flex; flex-direction: column; gap: 10px; }
 
 .app-card {
   background: var(--glass-hi);
@@ -194,7 +194,7 @@ layout_head('Admin . Aplikasi', 'admin-apps');
 .app-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--glass-border-hi), transparent); pointer-events: none; }
 .app-card:hover { border-color: var(--accent-bdr); box-shadow: 0 0 20px var(--accent-glow-sm), var(--elev-3), var(--elev-inset); transform: translateY(-1px); }
 
-.app-card-head { padding: .85rem 1rem; }
+.app-card-head { padding: 12px 16px; }
 
 .app-name {
   font-weight: 700; font-size: 14px; font-family: var(--sans);
@@ -202,11 +202,11 @@ layout_head('Admin . Aplikasi', 'admin-apps');
 }
 
 .app-desc {
-  font-size: .78rem; font-weight: 500; color: var(--muted-hi);
+  font-size: 13px; font-weight: 500; color: var(--muted-hi);
   font-family: var(--sans); margin-bottom: .5rem; line-height: 1.4;
 }
 
-.app-badges { display: flex; gap: .35rem; flex-wrap: wrap; }
+.app-badges { display: flex; gap: 6px; flex-wrap: wrap; }
 
 .mono-block {
   font-family: var(--mono); font-size: .75rem;
@@ -218,11 +218,11 @@ layout_head('Admin . Aplikasi', 'admin-apps');
 
 .reveal-hint { font-size: .7rem; color: var(--accent); margin-left: .3rem; cursor: pointer; font-family: var(--mono); }
 
-.redirect-url { font-size: 11px; color: var(--muted); margin-top: .2rem; font-family: var(--mono); }
+.redirect-url { font-size: 11px; color: var(--muted); margin-top: 3px; font-family: var(--mono); }
 
 .app-actions {
-  border-top: 1px solid var(--glass-border); padding: .65rem .95rem;
-  display: flex; flex-wrap: wrap; gap: .4rem;
+  border-top: 1px solid var(--glass-border); padding: 10px 14px;
+  display: flex; flex-wrap: wrap; gap: 6px;
   background: rgba(0,0,0,.08);
 }
 [data-theme="bright"] .app-actions { background: rgba(0,0,0,.02); }
@@ -230,7 +230,7 @@ layout_head('Admin . Aplikasi', 'admin-apps');
 .btn-sm {
   background: rgba(255,255,255,.04); border: 1px solid var(--glass-border-hi);
   color: var(--muted-hi); border-radius: var(--radius-sm);
-  padding: .35rem .7rem; font-size: 12px; font-weight: 600;
+  padding: 5px 10px; font-size: 12px; font-weight: 600;
   cursor: pointer; font-family: var(--sans);
   white-space: nowrap;
   transition: border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
@@ -266,12 +266,12 @@ layout_head('Admin . Aplikasi', 'admin-apps');
 .confirm-btns { display: flex; gap: 8px; justify-content: flex-end; }
 
 @media (max-width: 600px) {
-  .add-card { padding: .75rem; }
-  .fg input[type=text] { font-size: .85rem; }
-  .mono-block { font-size: .68rem; word-break: break-all; }
-  .app-actions { gap: .3rem; padding: .5rem .75rem; }
-  .btn-sm { padding: .28rem .5rem; font-size: .65rem; }
-  .app-card-head { padding: .75rem; }
+  .add-card { padding: 12px; }
+  .fg input[type=text] { font-size: 14px; }
+  .mono-block { font-size: 11px; word-break: break-all; }
+  .app-actions { gap: 6px; padding: 8px 12px; }
+  .btn-sm { padding: 4px 8px; font-size: 11px; }
+  .app-card-head { padding: 12px; }
   .secret-blur { display: block; }
   .confirm-box { width: calc(100vw - 32px); padding: 16px; }
 }
