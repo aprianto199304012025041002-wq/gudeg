@@ -222,7 +222,7 @@ layout_head('Admin . Aplikasi', 'admin-apps');
 
 .app-actions {
   border-top: 1px solid var(--glass-border); padding: 10px 14px;
-  display: flex; flex-wrap: wrap; gap: 6px;
+  display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
   background: rgba(0,0,0,.08);
 }
 [data-theme="bright"] .app-actions { background: rgba(0,0,0,.02); }
@@ -440,12 +440,13 @@ layout_head('Admin . Aplikasi', 'admin-apps');
       <?= csrf_field() ?>
       <input type="hidden" name="action" value="delete_app">
       <input type="hidden" name="app_id" value="<?= $app['id'] ?>">
-      <button type="button" class="btn-sm danger"
+      <span style="width:1px;height:18px;background:var(--glass-border-hi);flex-shrink:0;"></span>
+              <button type="button" class="btn-sm danger"
               data-action="confirm"
               data-title="Hapus Aplikasi"
               data-msg="Hapus <strong><?= htmlspecialchars(addslashes($app['name'])) ?></strong> permanen? Semua akses user ke aplikasi ini juga akan dihapus."
               data-label="Ya, Hapus"
-              data-target="form-delete-<?= $app['id'] ?>">Hapus Aplikasi</button>
+              data-target="form-delete-<?= $app['id'] ?>"><i class="ti ti-trash" aria-hidden="true"></i> Hapus</button>
     </form>
   </div>
 </div>
