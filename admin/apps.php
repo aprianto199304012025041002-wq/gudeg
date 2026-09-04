@@ -133,7 +133,7 @@ layout_head('Admin . Aplikasi', 'admin-apps');
   background: linear-gradient(90deg, transparent, var(--glass-border-hi), transparent);
 }
 .add-card-title {
-  font-size: .82rem; font-weight: 700; font-family: var(--sans);
+  font-size: 13px; font-weight: 700; font-family: var(--sans);
   color: var(--accent); margin-bottom: .8rem;
 }
 
@@ -149,7 +149,7 @@ layout_head('Admin . Aplikasi', 'admin-apps');
   width: 100%; background: rgba(0,0,0,.2);
   border: 1px solid var(--glass-border-hi); border-radius: var(--radius-sm);
   padding: .6rem .75rem; color: var(--text);
-  font-family: var(--sans); font-size: .9rem; font-weight: 500; outline: none;
+  font-family: var(--sans); font-size: 14px; font-weight: 500; outline: none;
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
   -webkit-appearance: none;
   -webkit-box-shadow: 0 0 0 1000px rgba(5,8,15,.8) inset;
@@ -197,7 +197,7 @@ layout_head('Admin . Aplikasi', 'admin-apps');
 .app-card-head { padding: .85rem 1rem; }
 
 .app-name {
-  font-weight: 700; font-size: .88rem; font-family: var(--sans);
+  font-weight: 700; font-size: 14px; font-family: var(--sans);
   margin-bottom: .2rem; line-height: 1.4;
 }
 
@@ -218,7 +218,7 @@ layout_head('Admin . Aplikasi', 'admin-apps');
 
 .reveal-hint { font-size: .7rem; color: var(--accent); margin-left: .3rem; cursor: pointer; font-family: var(--mono); }
 
-.redirect-url { font-size: .72rem; color: var(--muted); margin-top: .2rem; font-family: var(--mono); }
+.redirect-url { font-size: 11px; color: var(--muted); margin-top: .2rem; font-family: var(--mono); }
 
 .app-actions {
   border-top: 1px solid var(--glass-border); padding: .65rem .95rem;
@@ -230,7 +230,7 @@ layout_head('Admin . Aplikasi', 'admin-apps');
 .btn-sm {
   background: rgba(255,255,255,.04); border: 1px solid var(--glass-border-hi);
   color: var(--muted-hi); border-radius: var(--radius-sm);
-  padding: .35rem .7rem; font-size: .72rem; font-weight: 700;
+  padding: .35rem .7rem; font-size: 12px; font-weight: 600;
   cursor: pointer; font-family: var(--sans);
   white-space: nowrap;
   transition: border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
@@ -260,7 +260,7 @@ layout_head('Admin . Aplikasi', 'admin-apps');
   content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
   background: linear-gradient(90deg, transparent, var(--glass-border-hi), transparent);
 }
-.confirm-title { font-size: .85rem; font-weight: 700; color: var(--text); margin-bottom: 8px; font-family: var(--sans); }
+.confirm-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 8px; font-family: var(--sans); }
 .confirm-msg { font-size: .82rem; font-weight: 500; color: var(--muted-hi); line-height: 1.6; margin-bottom: 16px; }
 .confirm-msg strong { color: var(--text); }
 .confirm-btns { display: flex; gap: 8px; justify-content: flex-end; }
