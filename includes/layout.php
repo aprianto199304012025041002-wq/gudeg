@@ -308,7 +308,7 @@ a { color: inherit; text-decoration: none; }
 .sb-role {
   display: inline-block; margin-top: 4px;
   background: var(--accent-bg); border: 1px solid var(--accent-bdr);
-  color: var(--accent); font-size: 9px;
+  color: var(--accent); font-size: 11px;
   text-transform: uppercase; letter-spacing: .06em;
   padding: 1px 6px; border-radius: 3px;
   font-family: var(--sans); font-weight: 600;
