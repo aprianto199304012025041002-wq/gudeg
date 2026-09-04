@@ -214,7 +214,7 @@ layout_head('Dashboard', 'dashboard');
 .bubble-body { flex: 1; min-width: 0; }
 .bubble-title {
   font-weight: 700; letter-spacing: .02em; margin-bottom: 3px;
-  font-family: var(--sans); font-size: .74rem;
+  font-family: var(--sans); font-size: .72rem;
 }
 .bubble-desc { font-size: .78rem; font-weight: 500; opacity: .9; line-height: 1.6; }
 .bubble-desc a { color: inherit; text-decoration: underline; }
