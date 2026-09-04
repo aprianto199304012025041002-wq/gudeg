@@ -291,9 +291,9 @@ body::after {
 }
 .logo-shield i { font-size: 26px; color: var(--accent); }
 .logo-title {
-  font-family: var(--mono);
+  font-family: var(--sans);
   font-size: 16px; font-weight: 700;
-  letter-spacing: .08em; line-height: 1.1;
+  letter-spacing: .04em; line-height: 1.1;
 }
 .logo-title .gudeg {
   background: linear-gradient(135deg, var(--accent), #90bef0);
