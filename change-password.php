@@ -277,14 +277,13 @@ layout_head('Setting', 'password');
 }
 .btn-logout-sess:hover { border-color: var(--danger); background: rgba(224,82,82,.14); }
 .btn-logout-all {
-  width: 100%; background: rgba(224,82,82,.08); border: 1px solid rgba(224,82,82,.25);
-  color: var(--danger); border-radius: var(--radius-sm); padding: 11px;
-  font-size: 13px; font-weight: 600; font-family: var(--sans);
-  cursor: pointer; margin-top: 12px; box-sizing: border-box;
-  transition: background var(--transition-fast), box-shadow var(--transition-fast);
-  box-shadow: var(--elev-inset);
+  width: 100%; background: transparent; border: 1px solid rgba(224,82,82,.35);
+  color: var(--danger); border-radius: var(--radius-sm); padding: 10px;
+  font-size: 12px; font-weight: 500; cursor: pointer; font-family: var(--sans);
+  margin-top: 12px; box-sizing: border-box;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
 }
-.btn-logout-all:hover { background: rgba(224,82,82,.14); }
+.btn-logout-all:hover { background: rgba(224,82,82,.08); border-color: var(--danger); }
 
 /* -- Bubble -- */
 .bubble-wrap {
