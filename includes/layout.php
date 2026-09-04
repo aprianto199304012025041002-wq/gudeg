@@ -5,6 +5,12 @@
  */
 
 function layout_head(string $title, string $active_nav = '', ?array $user = null) {
+    // Cache-busting -- paksa WebView selalu ambil versi terbaru
+    if (!headers_sent()) {
+        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+        header('Pragma: no-cache');
+        header('Expires: Thu, 01 Jan 1970 00:00:00 GMT');
+    }
     if ($user === null) {
         $user = $GLOBALS['user'] ?? [];
     }
