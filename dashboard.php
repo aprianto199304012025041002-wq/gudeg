@@ -16,6 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['dismiss_ip_warning']
 
 // Apps user punya akses -- dengan graceful degrade saat Supabase down
 $apps          = [];
+$fav_ids       = [];
 $supabase_down = false;
 
 try {
@@ -41,6 +42,10 @@ try {
 
     // Refresh LocalCache setiap kali berhasil ambil data dari Supabase
     LocalCache::setUser((string)$user['id'], $user);
+
+    // Ambil daftar application_id yang difavoritkan user ini
+    $fav_rows = $sb->select('user_favorites', ['user_id' => (string)$user['id']], 'application_id');
+    $fav_ids  = array_flip(array_column($fav_rows, 'application_id'));
 
 } catch (\Throwable $e) {
     // Supabase down -- graceful degrade
@@ -116,6 +121,22 @@ layout_head('Dashboard', 'dashboard');
 
 .section-label { margin-bottom: 6px; }
 
+.fav-btn {
+  position: absolute; top: 8px; right: 8px;
+  background: none; border: none; padding: 2px;
+  cursor: pointer; line-height: 1;
+  color: var(--muted); font-size: 16px;
+  transition: color var(--transition-fast), transform var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+  z-index: 1;
+}
+.fav-btn:hover  { color: #f59e0b; transform: scale(1.15); }
+.fav-btn.active { color: #f59e0b; }
+.fav-btn.active i::before { content: "\eb04"; } /* ti-star-filled */
+
+.section-fav { margin-bottom: 20px; }
+.section-fav .section-label { color: #f59e0b; }
+
 .apps-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -133,7 +154,7 @@ layout_head('Dashboard', 'dashboard');
   -webkit-backdrop-filter: blur(20px) saturate(160%);
   border: 1px solid var(--glass-border-hi);
   border-radius: var(--radius);
-  padding: 10px 12px;
+  padding: 10px 32px 10px 12px;
   text-decoration: none; color: var(--text);
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
   -webkit-tap-highlight-color: transparent;
@@ -255,11 +276,43 @@ layout_head('Dashboard', 'dashboard');
 <?php endif; ?>
 
 <?php if ($user['role'] !== 'guest'): ?>
+<?php
+  $fav_apps   = array_filter($apps, fn($a) => isset($fav_ids[$a['id']]));
+  $other_apps = array_filter($apps, fn($a) => !isset($fav_ids[$a['id']]));
+?>
+
+<?php if ($fav_apps): ?>
+<div class="section-fav">
+  <div class="section-label">&#9733; Favorit</div>
+  <div class="apps-grid">
+    <?php foreach ($fav_apps as $app): ?>
+    <?php $app_id = htmlspecialchars($app['id']); ?>
+    <a href="/sso.php?client_id=<?= urlencode($app['client_id']) ?>" class="app-card" target="_blank" rel="noopener noreferrer">
+      <button class="fav-btn active" data-app-id="<?= $app_id ?>" aria-label="Hapus dari favorit" title="Hapus dari favorit"><i class="ti ti-star-filled"></i></button>
+      <div class="app-logo">
+        <?php if (!empty($app['logo'])): ?>
+          <img src="/<?= htmlspecialchars($app['logo']) ?>" alt="<?= htmlspecialchars($app['name']) ?>">
+        <?php else: ?>
+          <i class="ti ti-device-desktop"></i>
+        <?php endif; ?>
+      </div>
+      <div class="app-info">
+        <div class="app-name"><?= htmlspecialchars($app['name']) ?></div>
+        <div class="app-desc"><?= htmlspecialchars($app['description'] ?? 'Klik untuk akses') ?></div>
+      </div>
+    </a>
+    <?php endforeach; ?>
+  </div>
+</div>
+<?php endif; ?>
+
   <div class="section-label">Aplikasi Anda</div>
   <?php if ($apps): ?>
   <div class="apps-grid">
-    <?php foreach ($apps as $app): ?>
+    <?php foreach ($other_apps as $app): ?>
+    <?php $app_id = htmlspecialchars($app['id']); ?>
     <a href="/sso.php?client_id=<?= urlencode($app['client_id']) ?>" class="app-card" target="_blank" rel="noopener noreferrer">
+      <button class="fav-btn" data-app-id="<?= $app_id ?>" aria-label="Tambah ke favorit" title="Tambah ke favorit"><i class="ti ti-star"></i></button>
       <div class="app-logo">
         <?php if (!empty($app['logo'])): ?>
           <img src="/<?= htmlspecialchars($app['logo']) ?>" alt="<?= htmlspecialchars($app['name']) ?>">
@@ -278,6 +331,87 @@ layout_head('Dashboard', 'dashboard');
   <div class="empty-apps">Belum ada aplikasi yang ditugaskan ke akun Anda.<br>Hubungi administrator.</div>
   <?php endif; ?>
 <?php endif; ?>
+
+<script nonce="<?= csp_nonce() ?>">
+(function () {
+  var CSRF = <?= json_encode($_SESSION['csrf_token'] ?? '') ?>;
+
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest('.fav-btn');
+    if (!btn) return;
+
+    // Cegah link card terbuka
+    e.preventDefault();
+    e.stopPropagation();
+
+    var appId    = btn.dataset.appId;
+    var isFav    = btn.classList.contains('active');
+    var icon     = btn.querySelector('i');
+
+    // Optimistic UI — langsung update tampilan
+    if (isFav) {
+      btn.classList.remove('active');
+      icon.className = 'ti ti-star';
+      btn.title       = 'Tambah ke favorit';
+      btn.setAttribute('aria-label', 'Tambah ke favorit');
+      // Pindahkan card ke grid "Aplikasi Anda"
+      moveCard(btn.closest('.app-card'), false);
+    } else {
+      btn.classList.add('active');
+      icon.className = 'ti ti-star-filled';
+      btn.title       = 'Hapus dari favorit';
+      btn.setAttribute('aria-label', 'Hapus dari favorit');
+      moveCard(btn.closest('.app-card'), true);
+    }
+
+    // Kirim ke server
+    fetch('/api/favorite.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({ application_id: appId, csrf_token: CSRF })
+    })
+    .then(function (r) { return r.json(); })
+    .catch(function () {
+      // Rollback kalau gagal
+      if (isFav) {
+        btn.classList.add('active');
+        icon.className = 'ti ti-star-filled';
+        moveCard(btn.closest('.app-card'), true);
+      } else {
+        btn.classList.remove('active');
+        icon.className = 'ti ti-star';
+        moveCard(btn.closest('.app-card'), false);
+      }
+    });
+  });
+
+  function moveCard(card, toFav) {
+    if (!card) return;
+
+    // Pastikan section favorit ada, kalau belum buat
+    var favSection = document.querySelector('.section-fav');
+    if (!favSection) {
+      favSection = document.createElement('div');
+      favSection.className = 'section-fav';
+      favSection.innerHTML = '<div class="section-label">&#9733; Favorit</div><div class="apps-grid"></div>';
+      var appSection = document.querySelector('.section-label:not(.section-fav .section-label)');
+      if (appSection) appSection.parentNode.insertBefore(favSection, appSection);
+    }
+
+    var favGrid   = favSection.querySelector('.apps-grid');
+    var otherGrid = document.querySelector('.section-label:not(.section-fav .section-label) ~ .apps-grid');
+
+    if (toFav) {
+      if (favGrid) favGrid.appendChild(card);
+    } else {
+      if (otherGrid) otherGrid.appendChild(card);
+      // Hapus section favorit kalau sudah kosong
+      if (favGrid && favGrid.children.length === 0) favSection.remove();
+    }
+  }
+})();
+</script>
 
 <!-- Floating bubble container -->
 <div class="bubble-wrap" id="bubbleWrap"></div>
