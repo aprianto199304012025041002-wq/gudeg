@@ -114,6 +114,8 @@ layout_head('Dashboard', 'dashboard');
 }
 .guest-notice strong { color: var(--accent); }
 
+.section-label { margin-bottom: 6px; }
+
 .apps-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -125,15 +127,14 @@ layout_head('Dashboard', 'dashboard');
 }
 
 .app-card {
-  min-height: 100px;
-  display: flex; flex-direction: column; justify-content: space-between;
+  display: flex; flex-direction: row; align-items: flex-start; gap: 10px;
   background: var(--glass-hi);
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
   border: 1px solid var(--glass-border-hi);
   border-radius: var(--radius);
-  padding: 12px 14px;
-  display: block; text-decoration: none; color: var(--text);
+  padding: 10px 12px;
+  text-decoration: none; color: var(--text);
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
   -webkit-tap-highlight-color: transparent;
   box-shadow: var(--elev-2), var(--elev-inset);
@@ -144,7 +145,6 @@ layout_head('Dashboard', 'dashboard');
   position: absolute; top: 0; left: 0; right: 0; height: 1px;
   background: linear-gradient(90deg, transparent, var(--glass-border-hi), transparent);
 }
-.app-card:hover .app-launch, .app-card:focus .app-launch { text-decoration: underline; }
 .app-card:hover, .app-card:focus {
   border-color: var(--accent-bdr);
   box-shadow: 0 0 20px var(--accent-glow), var(--elev-3), var(--elev-inset);
@@ -154,31 +154,25 @@ layout_head('Dashboard', 'dashboard');
 .app-card:active { opacity: .85; transform: translateY(0); }
 
 .app-logo {
-  width: 32px; height: 32px; border-radius: 8px;
+  width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
   background: var(--accent-bg); border: 1px solid var(--accent-bdr);
   display: flex; align-items: center; justify-content: center;
-  font-size: 16px; margin-bottom: 10px; overflow: hidden;
+  font-size: 16px; overflow: hidden;
   box-shadow: 0 0 10px var(--accent-glow-sm), var(--elev-1);
 }
 .app-logo img { width: 100%; height: 100%; object-fit: cover; }
 
+.app-info { flex: 1; min-width: 0; }
 .app-name {
-  font-weight: 700; font-size: 14px;
+  font-weight: 700; font-size: 13px;
   font-family: var(--sans);
-  margin-bottom: .25rem; line-height: 1.3;
+  margin-bottom: 3px; line-height: 1.3;
 }
 .app-desc {
-  font-size: 11px; font-weight: 500; color: var(--muted-hi);
-  font-family: var(--sans); line-height: 1.4;
-  display: -webkit-box; -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical; overflow: hidden;
+  font-size: 12px; font-weight: 400; color: var(--muted-hi);
+  font-family: var(--sans); line-height: 1.5;
 }
-.app-launch {
-  margin-top: 10px; font-size: 12px;
-  font-family: var(--sans); font-weight: 600;
-  display: inline-block;
-  color: var(--accent); letter-spacing: .02em;
-}
+
 
 .empty-apps {
   background: var(--glass-hi);
@@ -273,9 +267,10 @@ layout_head('Dashboard', 'dashboard');
           <i class="ti ti-device-desktop"></i>
         <?php endif; ?>
       </div>
-      <div class="app-name"><?= htmlspecialchars($app['name']) ?></div>
-      <div class="app-desc"><?= htmlspecialchars($app['description'] ?? 'Klik untuk akses') ?></div>
-      <div class="app-launch">Buka &rarr;</div>
+      <div class="app-info">
+        <div class="app-name"><?= htmlspecialchars($app['name']) ?></div>
+        <div class="app-desc"><?= htmlspecialchars($app['description'] ?? 'Klik untuk akses') ?></div>
+      </div>
     </a>
     <?php endforeach; ?>
   </div>
