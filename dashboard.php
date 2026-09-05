@@ -383,32 +383,92 @@ layout_head('Dashboard', 'dashboard');
 (function () {
   var CSRF = <?= json_encode($_SESSION['csrf_token'] ?? '') ?>;
 
+  // Helper: set state semua tombol bintang untuk appId tertentu
+  function syncStars(appId, active) {
+    document.querySelectorAll('.fav-btn[data-app-id="' + appId + '"]').forEach(function(b) {
+      if (active) {
+        b.classList.add('active');
+        b.querySelector('i').className = 'ti ti-star-filled';
+        b.title = 'Hapus dari favorit';
+        b.setAttribute('aria-label', 'Hapus dari favorit');
+      } else {
+        b.classList.remove('active');
+        b.querySelector('i').className = 'ti ti-star';
+        b.title = 'Tambah ke favorit';
+        b.setAttribute('aria-label', 'Tambah ke favorit');
+      }
+    });
+  }
+
+  // Helper: pastikan section favorit ada, return favGrid
+  function ensureFavSection() {
+    var favSection = document.querySelector('.section-fav');
+    if (!favSection) {
+      favSection = document.createElement('div');
+      favSection.className = 'section-fav';
+      favSection.innerHTML = '<div class="section-label">&#9733; Favorit</div><div class="apps-grid"></div>';
+      var sectionAll = document.getElementById('section-all');
+      if (sectionAll) sectionAll.parentNode.insertBefore(favSection, sectionAll);
+    }
+    return favSection.querySelector('.apps-grid');
+  }
+
+  // Helper: hapus clone dari section favorit by appId
+  function removeFromFav(appId) {
+    var favSection = document.querySelector('.section-fav');
+    if (!favSection) return;
+    var favGrid = favSection.querySelector('.apps-grid');
+    if (favGrid) {
+      favGrid.querySelectorAll('[data-fav-clone="1"]').forEach(function(c) {
+        var b = c.querySelector('.fav-btn');
+        if (b && b.dataset.appId === appId) c.remove();
+      });
+      if (favGrid.children.length === 0) favSection.remove();
+    }
+  }
+
   document.addEventListener('click', function (e) {
     var btn = e.target.closest('.fav-btn');
     if (!btn) return;
 
-    // Cegah link card terbuka
     e.preventDefault();
     e.stopPropagation();
 
-    var appId    = btn.dataset.appId;
-    var isFav    = btn.classList.contains('active');
-    var icon     = btn.querySelector('i');
+    var appId = btn.dataset.appId;
+    var isFav = btn.classList.contains('active');
 
-    // Optimistic UI — langsung update tampilan
     if (isFav) {
-      btn.classList.remove('active');
-      icon.className = 'ti ti-star';
-      btn.title       = 'Tambah ke favorit';
-      btn.setAttribute('aria-label', 'Tambah ke favorit');
-      // Pindahkan card ke grid "Aplikasi Anda"
-      moveCard(btn.closest('.app-card'), false);
+      // UNFAV: sinkron semua bintang → mati, hapus clone dari favorit
+      syncStars(appId, false);
+      removeFromFav(appId);
     } else {
-      btn.classList.add('active');
-      icon.className = 'ti ti-star-filled';
-      btn.title       = 'Hapus dari favorit';
-      btn.setAttribute('aria-label', 'Hapus dari favorit');
-      moveCard(btn.closest('.app-card'), true);
+      // FAV: sinkron semua bintang → nyala, clone card asli ke favorit
+      syncStars(appId, true);
+      // Cari card asli di grid bawah (bukan clone)
+      var otherGrid = document.querySelector('#section-all .apps-grid');
+      if (otherGrid) {
+        var original = null;
+        otherGrid.querySelectorAll('.app-card').forEach(function(c) {
+          var b = c.querySelector('.fav-btn');
+          if (b && b.dataset.appId === appId) original = c;
+        });
+        if (original) {
+          var favGrid = ensureFavSection();
+          if (favGrid) {
+            var clone = original.cloneNode(true);
+            clone.dataset.favClone = '1';
+            // Pastikan bintang di clone juga active
+            var cloneBtn = clone.querySelector('.fav-btn');
+            if (cloneBtn) {
+              cloneBtn.classList.add('active');
+              cloneBtn.querySelector('i').className = 'ti ti-star-filled';
+              cloneBtn.title = 'Hapus dari favorit';
+              cloneBtn.setAttribute('aria-label', 'Hapus dari favorit');
+            }
+            favGrid.appendChild(clone);
+          }
+        }
+      }
     }
 
     // Kirim ke server
@@ -420,78 +480,30 @@ layout_head('Dashboard', 'dashboard');
     })
     .then(function (r) { return r.json(); })
     .catch(function () {
-      // Rollback optimistic UI kalau fetch gagal
+      // Rollback kalau gagal
       if (isFav) {
-        // Tadi di-unfav, rollback: tambah lagi ke favorit
-        btn.classList.add('active');
-        icon.className = 'ti ti-star-filled';
-        moveCard(btn.closest('.app-card'), true);
-      } else {
-        // Tadi di-fav, rollback: hapus dari favorit
-        btn.classList.remove('active');
-        icon.className = 'ti ti-star';
-        moveCard(btn.closest('.app-card'), false);
-      }
-    });
-  });
-
-  function moveCard(card, toFav) {
-    if (!card) return;
-
-    if (toFav) {
-      // Pastikan section favorit ada, kalau belum buat
-      var favSection = document.querySelector('.section-fav');
-      if (!favSection) {
-        favSection = document.createElement('div');
-        favSection.className = 'section-fav';
-        favSection.innerHTML = '<div class="section-label">&#9733; Favorit</div><div class="apps-grid"></div>';
-        var appSection = document.querySelector('.section-label:not(.section-fav .section-label)');
-        if (appSection) appSection.parentNode.insertBefore(favSection, appSection);
-      }
-      var favGrid = favSection.querySelector('.apps-grid');
-      if (favGrid) {
-        // Clone card — original tetap di grid bawah
-        var clone = card.cloneNode(true);
-        clone.dataset.favClone = '1';
-        favGrid.appendChild(clone);
-      }
-    } else {
-      // Unfav: hapus clone/card dari section favorit, reset bintang di grid bawah
-      var appId = card.querySelector('.fav-btn') ? card.querySelector('.fav-btn').dataset.appId : null;
-
-      // 1. Hapus dari section favorit
-      var favSection = document.querySelector('.section-fav');
-      if (favSection) {
-        var favGrid = favSection.querySelector('.apps-grid');
-        if (appId && favGrid) {
-          var clones = favGrid.querySelectorAll('[data-fav-clone="1"]');
-          clones.forEach(function(c) {
-            var b = c.querySelector('.fav-btn');
-            if (b && b.dataset.appId === appId) c.remove();
-          });
-        }
-        // Hapus section favorit kalau sudah kosong
-        if (favGrid && favGrid.children.length === 0) favSection.remove();
-      }
-
-      // 2. Reset bintang di card grid bawah (other_apps) jadi tidak active
-      if (appId) {
-        var otherGrid = document.querySelector('.section-label:not(.section-fav .section-label) ~ .apps-grid');
+        syncStars(appId, true);
+        // Tambah balik clone ke favorit
+        var otherGrid = document.querySelector('#section-all .apps-grid');
         if (otherGrid) {
-          var otherCards = otherGrid.querySelectorAll('.app-card');
-          otherCards.forEach(function(c) {
+          otherGrid.querySelectorAll('.app-card').forEach(function(c) {
             var b = c.querySelector('.fav-btn');
             if (b && b.dataset.appId === appId) {
-              b.classList.remove('active');
-              b.querySelector('i').className = 'ti ti-star';
-              b.title = 'Tambah ke favorit';
-              b.setAttribute('aria-label', 'Tambah ke favorit');
+              var favGrid = ensureFavSection();
+              if (favGrid) {
+                var clone = c.cloneNode(true);
+                clone.dataset.favClone = '1';
+                favGrid.appendChild(clone);
+              }
             }
           });
         }
+      } else {
+        syncStars(appId, false);
+        removeFromFav(appId);
       }
-    }
-  }
+    });
+  });
 })();
 </script>
 
