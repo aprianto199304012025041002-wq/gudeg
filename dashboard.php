@@ -278,7 +278,7 @@ layout_head('Dashboard', 'dashboard');
 <?php if ($user['role'] !== 'guest'): ?>
 <?php
   $fav_apps   = array_filter($apps, fn($a) => isset($fav_ids[$a['id']]));
-  $other_apps = array_filter($apps, fn($a) => !isset($fav_ids[$a['id']]));
+  $other_apps = $apps; // semua app tetap tampil di section bawah (favorit duplikasi)
 ?>
 
 <?php if ($fav_apps): ?>
@@ -389,23 +389,37 @@ layout_head('Dashboard', 'dashboard');
   function moveCard(card, toFav) {
     if (!card) return;
 
-    // Pastikan section favorit ada, kalau belum buat
-    var favSection = document.querySelector('.section-fav');
-    if (!favSection) {
-      favSection = document.createElement('div');
-      favSection.className = 'section-fav';
-      favSection.innerHTML = '<div class="section-label">&#9733; Favorit</div><div class="apps-grid"></div>';
-      var appSection = document.querySelector('.section-label:not(.section-fav .section-label)');
-      if (appSection) appSection.parentNode.insertBefore(favSection, appSection);
-    }
-
-    var favGrid   = favSection.querySelector('.apps-grid');
-    var otherGrid = document.querySelector('.section-label:not(.section-fav .section-label) ~ .apps-grid');
-
     if (toFav) {
-      if (favGrid) favGrid.appendChild(card);
+      // Pastikan section favorit ada, kalau belum buat
+      var favSection = document.querySelector('.section-fav');
+      if (!favSection) {
+        favSection = document.createElement('div');
+        favSection.className = 'section-fav';
+        favSection.innerHTML = '<div class="section-label">&#9733; Favorit</div><div class="apps-grid"></div>';
+        var appSection = document.querySelector('.section-label:not(.section-fav .section-label)');
+        if (appSection) appSection.parentNode.insertBefore(favSection, appSection);
+      }
+      var favGrid = favSection.querySelector('.apps-grid');
+      if (favGrid) {
+        // Clone card — original tetap di grid bawah
+        var clone = card.cloneNode(true);
+        clone.dataset.favClone = '1';
+        favGrid.appendChild(clone);
+      }
     } else {
-      if (otherGrid) otherGrid.appendChild(card);
+      // Unfav: hapus clone dari section favorit, card asli di bawah tetap
+      var favSection = document.querySelector('.section-fav');
+      if (!favSection) return;
+      var favGrid = favSection.querySelector('.apps-grid');
+      // Cari clone berdasarkan app-id
+      var appId  = card.querySelector('.fav-btn') ? card.querySelector('.fav-btn').dataset.appId : null;
+      if (appId && favGrid) {
+        var clones = favGrid.querySelectorAll('[data-fav-clone="1"]');
+        clones.forEach(function(c) {
+          var b = c.querySelector('.fav-btn');
+          if (b && b.dataset.appId === appId) c.remove();
+        });
+      }
       // Hapus section favorit kalau sudah kosong
       if (favGrid && favGrid.children.length === 0) favSection.remove();
     }
