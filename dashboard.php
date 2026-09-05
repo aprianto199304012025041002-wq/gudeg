@@ -286,7 +286,7 @@ layout_head('Dashboard', 'dashboard');
   <div class="apps-grid">
     <?php foreach ($fav_apps as $app): ?>
     <?php $app_id = htmlspecialchars($app['id']); ?>
-    <a href="/sso.php?client_id=<?= urlencode($app['client_id']) ?>" class="app-card" target="_blank" rel="noopener noreferrer">
+    <a href="/sso.php?client_id=<?= urlencode($app['client_id']) ?>" class="app-card" data-fav-clone="1" target="_blank" rel="noopener noreferrer">
       <button class="fav-btn active" data-app-id="<?= $app_id ?>" aria-label="Hapus dari favorit" title="Hapus dari favorit"><i class="ti ti-star-filled"></i></button>
       <div class="app-logo">
         <?php if (!empty($app['logo'])): ?>
@@ -372,12 +372,14 @@ layout_head('Dashboard', 'dashboard');
     })
     .then(function (r) { return r.json(); })
     .catch(function () {
-      // Rollback kalau gagal
+      // Rollback optimistic UI kalau fetch gagal
       if (isFav) {
+        // Tadi di-unfav, rollback: tambah lagi ke favorit
         btn.classList.add('active');
         icon.className = 'ti ti-star-filled';
         moveCard(btn.closest('.app-card'), true);
       } else {
+        // Tadi di-fav, rollback: hapus dari favorit
         btn.classList.remove('active');
         icon.className = 'ti ti-star';
         moveCard(btn.closest('.app-card'), false);
@@ -406,21 +408,40 @@ layout_head('Dashboard', 'dashboard');
         favGrid.appendChild(clone);
       }
     } else {
-      // Unfav: hapus clone dari section favorit, card asli di bawah tetap
+      // Unfav: hapus clone/card dari section favorit, reset bintang di grid bawah
+      var appId = card.querySelector('.fav-btn') ? card.querySelector('.fav-btn').dataset.appId : null;
+
+      // 1. Hapus dari section favorit
       var favSection = document.querySelector('.section-fav');
-      if (!favSection) return;
-      var favGrid = favSection.querySelector('.apps-grid');
-      // Cari clone berdasarkan app-id
-      var appId  = card.querySelector('.fav-btn') ? card.querySelector('.fav-btn').dataset.appId : null;
-      if (appId && favGrid) {
-        var clones = favGrid.querySelectorAll('[data-fav-clone="1"]');
-        clones.forEach(function(c) {
-          var b = c.querySelector('.fav-btn');
-          if (b && b.dataset.appId === appId) c.remove();
-        });
+      if (favSection) {
+        var favGrid = favSection.querySelector('.apps-grid');
+        if (appId && favGrid) {
+          var clones = favGrid.querySelectorAll('[data-fav-clone="1"]');
+          clones.forEach(function(c) {
+            var b = c.querySelector('.fav-btn');
+            if (b && b.dataset.appId === appId) c.remove();
+          });
+        }
+        // Hapus section favorit kalau sudah kosong
+        if (favGrid && favGrid.children.length === 0) favSection.remove();
       }
-      // Hapus section favorit kalau sudah kosong
-      if (favGrid && favGrid.children.length === 0) favSection.remove();
+
+      // 2. Reset bintang di card grid bawah (other_apps) jadi tidak active
+      if (appId) {
+        var otherGrid = document.querySelector('.section-label:not(.section-fav .section-label) ~ .apps-grid');
+        if (otherGrid) {
+          var otherCards = otherGrid.querySelectorAll('.app-card');
+          otherCards.forEach(function(c) {
+            var b = c.querySelector('.fav-btn');
+            if (b && b.dataset.appId === appId) {
+              b.classList.remove('active');
+              b.querySelector('i').className = 'ti ti-star';
+              b.title = 'Tambah ke favorit';
+              b.setAttribute('aria-label', 'Tambah ke favorit');
+            }
+          });
+        }
+      }
     }
   }
 })();
