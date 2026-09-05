@@ -132,11 +132,11 @@ layout_head('Admin . User', 'admin-users');
 }
 
 .user-card-head {
-  display: flex; align-items: center;
+  display: flex; align-items: flex-start;
   justify-content: space-between;
   padding: 9px 12px; gap: 8px;
   cursor: pointer; -webkit-tap-highlight-color: transparent;
-  user-select: none;
+  user-select: none; flex-wrap: nowrap;
 }
 .user-card-head:hover .user-name { color: var(--accent); transition: color var(--transition-fast); }
 .user-expand-icon {
@@ -144,18 +144,19 @@ layout_head('Admin . User', 'admin-users');
   transition: transform var(--transition-fast), color var(--transition-fast);
 }
 .user-card.expanded .user-expand-icon { transform: rotate(180deg); color: var(--accent); }
-.user-card.expanded .user-info { min-width: 0; flex: 1; }
+.user-card.expanded .user-info { min-width: 0; flex: 1 1 0; overflow: hidden; }
 .user-name {
   font-weight: 700; font-size: 13px; line-height: 1.3;
   font-family: var(--sans);
 }
 .user-email {
   font-size: 12px; font-weight: 400; color: var(--muted-hi);
-  margin-top: 2px; word-break: break-all; line-height: 1.4;
+  margin-top: 2px; line-height: 1.4;
   font-family: var(--sans);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .user-meta {
-  display: flex; gap: 5px; flex-shrink: 0; align-items: center;
+  display: flex; gap: 5px; flex-shrink: 0; align-items: center; flex-wrap: nowrap;
 }
 .user-actions {
   border-top: 1px solid var(--glass-border);
