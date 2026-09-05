@@ -132,7 +132,6 @@ layout_head('Dashboard', 'dashboard');
 }
 .fav-btn:hover  { color: #f59e0b; transform: scale(1.15); }
 .fav-btn.active { color: #f59e0b; }
-.fav-btn.active i::before { content: "\eb04"; } /* ti-star-filled */
 
 .section-fav { margin-bottom: 20px; }
 .section-fav .section-label { color: #f59e0b; }
