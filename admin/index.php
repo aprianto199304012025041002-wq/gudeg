@@ -137,7 +137,10 @@ layout_head('Admin . User', 'admin-users');
   padding: 10px 12px; gap: 8px;
   cursor: pointer; -webkit-tap-highlight-color: transparent;
   user-select: none;
+  border-bottom: 1px solid transparent;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
 }
+.user-card.expanded .user-card-head { border-bottom-color: var(--glass-border); }
 .user-card-head:hover { background: rgba(74,144,217,.04); }
 .user-info { min-width: 0; flex: 1 1 0; overflow: hidden; }
 .user-row1 {
@@ -149,10 +152,10 @@ layout_head('Admin . User', 'admin-users');
   margin-top: 2px; white-space: nowrap;
   overflow: hidden; text-overflow: ellipsis;
 }
-.user-expand-icon {
-  font-size: 13px; color: var(--muted); flex-shrink: 0;
+.user-expand-icon,
+.chevron {
+  font-size: 14px; color: var(--muted); flex-shrink: 0;
   transition: transform var(--transition-fast), color var(--transition-fast);
-  margin-left: 2px;
 }
 .user-card.expanded .user-expand-icon { transform: rotate(180deg); color: var(--accent); }
 .user-name {
@@ -215,15 +218,16 @@ select.sel-sm:focus { outline: none; border-color: var(--accent-bdr); box-shadow
 
 .app-access { border-top: 1px solid var(--glass-border); }
 .app-access-toggle {
-  width: 100%; background: none; border: none;
+  width: 100%; background: var(--accent-bg); border: none;
+  border-top: 1px solid var(--glass-border);
   padding: 8px 12px;
   display: flex; align-items: center; justify-content: space-between;
-  color: var(--muted-hi);
+  color: var(--accent); cursor: pointer;
   font-size: 12px; font-weight: 600; font-family: var(--sans);
-  cursor: pointer; transition: color var(--transition-fast);
+  transition: background var(--transition-fast);
 }
-.app-access-toggle:hover { color: var(--accent); }
-.app-access-toggle .chevron { transition: transform var(--transition-med); font-size: 11px; }
+.app-access-toggle:hover { background: rgba(74,144,217,.10); }
+.app-access-toggle 
 .app-access-toggle.open .chevron { transform: rotate(180deg); }
 
 .app-access-body {
@@ -454,7 +458,7 @@ select.sel-sm:focus { outline: none; border-color: var(--accent-bdr); box-shadow
             data-action="toggle-app-access"
             data-uid="<?= $u['id'] ?>">
       <span>Akses Aplikasi (<?= count($ua_map[$u['id']] ?? []) ?>)</span>
-      <span class="chevron">v</span>
+      <i class="ti ti-chevron-down chevron" aria-hidden="true"></i>
     </button>
     <div class="app-access-body" id="app-access-<?= $u['id'] ?>">
       <form method="POST">
