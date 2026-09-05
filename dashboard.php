@@ -136,6 +136,27 @@ layout_head('Dashboard', 'dashboard');
 .section-fav { margin-bottom: 20px; }
 .section-fav .section-label { color: #f59e0b; }
 
+.section-all { }
+.section-all-header {
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.section-all-header .section-label { margin-bottom: 0; }
+.section-all-toggle {
+  width: 20px; height: 20px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--muted); font-size: 14px;
+  transition: transform var(--transition-fast);
+}
+.section-all.collapsed .section-all-toggle { transform: rotate(-90deg); }
+.section-all-body {
+  overflow: hidden;
+  transition: max-height 0.28s ease, opacity 0.2s ease;
+  max-height: 2000px; opacity: 1;
+}
+.section-all.collapsed .section-all-body { max-height: 0; opacity: 0; }
+
 .apps-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -305,9 +326,14 @@ layout_head('Dashboard', 'dashboard');
 </div>
 <?php endif; ?>
 
-  <div class="section-label">Aplikasi Anda</div>
+  <div class="section-all" id="section-all">
+    <div class="section-all-header" id="section-all-header" role="button" aria-expanded="true" aria-controls="section-all-body">
+      <div class="section-label">Aplikasi Anda</div>
+      <div class="section-all-toggle"><i class="ti ti-chevron-down"></i></div>
+    </div>
+    <div class="section-all-body" id="section-all-body">
   <?php if ($apps): ?>
-  <div class="apps-grid">
+  <div class="apps-grid" style="margin-top:6px">
     <?php foreach ($other_apps as $app): ?>
     <?php $app_id = htmlspecialchars($app['id']); ?>
     <a href="/sso.php?client_id=<?= urlencode($app['client_id']) ?>" class="app-card" target="_blank" rel="noopener noreferrer">
@@ -327,11 +353,31 @@ layout_head('Dashboard', 'dashboard');
     <?php endforeach; ?>
   </div>
   <?php else: ?>
-  <div class="empty-apps">Belum ada aplikasi yang ditugaskan ke akun Anda.<br>Hubungi administrator.</div>
+  <div class="empty-apps" style="margin-top:6px">Belum ada aplikasi yang ditugaskan ke akun Anda.<br>Hubungi administrator.</div>
   <?php endif; ?>
+    </div><!-- /section-all-body -->
+  </div><!-- /section-all -->
 <?php endif; ?>
 
 <script nonce="<?= csp_nonce() ?>">
+(function () {
+  // ── Collapsible "Aplikasi Anda" ──────────────────────────────────────────
+  var sectionAll    = document.getElementById('section-all');
+  var sectionHeader = document.getElementById('section-all-header');
+  if (sectionAll && sectionHeader) {
+    // Restore state dari localStorage
+    if (localStorage.getItem('apps_collapsed') === '1') {
+      sectionAll.classList.add('collapsed');
+      sectionHeader.setAttribute('aria-expanded', 'false');
+    }
+    sectionHeader.addEventListener('click', function () {
+      var collapsed = sectionAll.classList.toggle('collapsed');
+      sectionHeader.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+      localStorage.setItem('apps_collapsed', collapsed ? '1' : '0');
+    });
+  }
+})();
+
 (function () {
   var CSRF = <?= json_encode($_SESSION['csrf_token'] ?? '') ?>;
 
