@@ -588,6 +588,17 @@ document.addEventListener('DOMContentLoaded', function() {
   if (cancelBtn) cancelBtn.addEventListener('click', function() { if (window.closeConfirm) closeConfirm(); });
 
   // data-action="confirm"
+  // Toggle expand user card
+  document.querySelectorAll('[data-action="toggle-user-card"]').forEach(function (head) {
+    head.addEventListener('click', function () {
+      var card = head.closest('.user-card');
+      if (!card) return;
+      var icon = card.querySelector('.user-expand-icon');
+      if (!icon) return;
+      card.classList.toggle('expanded');
+    });
+  });
+
   document.querySelectorAll('[data-action="confirm"]').forEach(function(btn) {
     btn.addEventListener('click', function() {
       var title  = this.dataset.title  || 'Konfirmasi';
@@ -623,17 +634,5 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<script nonce="<?= csp_nonce() ?>">
-document.addEventListener('DOMContentLoaded', function () {
-  document.querySelectorAll('[data-action="toggle-user-card"]').forEach(function (head) {
-    head.addEventListener('click', function () {
-      var card = head.closest('.user-card');
-      if (!card) return;
-      var icon = card.querySelector('.user-expand-icon');
-      if (!icon) return;
-      card.classList.toggle('expanded');
-    });
-  });
-});
-</script>
+
 <?php layout_foot(); ?>
