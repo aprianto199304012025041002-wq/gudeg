@@ -365,8 +365,9 @@ layout_head('Dashboard', 'dashboard');
   var sectionAll    = document.getElementById('section-all');
   var sectionHeader = document.getElementById('section-all-header');
   if (sectionAll && sectionHeader) {
-    // Restore state dari localStorage
-    if (localStorage.getItem('apps_collapsed') === '1') {
+    // Restore state dari localStorage — default: collapsed
+    var stored = localStorage.getItem('apps_collapsed');
+    if (stored === null || stored === '1') {
       sectionAll.classList.add('collapsed');
       sectionHeader.setAttribute('aria-expanded', 'false');
     }
