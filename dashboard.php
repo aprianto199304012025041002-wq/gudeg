@@ -338,7 +338,12 @@ layout_head('Dashboard', 'dashboard');
     <?php foreach ($other_apps as $app): ?>
     <?php $app_id = htmlspecialchars($app['id']); ?>
     <a href="/sso.php?client_id=<?= urlencode($app['client_id']) ?>" class="app-card" target="_blank" rel="noopener noreferrer">
-      <button class="fav-btn" data-app-id="<?= $app_id ?>" aria-label="Tambah ke favorit" title="Tambah ke favorit"><i class="ti ti-star"></i></button>
+      <?php $is_fav = isset($fav_ids[$app['id']]); ?>
+      <button class="fav-btn <?= $is_fav ? 'active' : '' ?>" data-app-id="<?= $app_id ?>"
+        aria-label="<?= $is_fav ? 'Hapus dari favorit' : 'Tambah ke favorit' ?>"
+        title="<?= $is_fav ? 'Hapus dari favorit' : 'Tambah ke favorit' ?>">
+        <i class="ti <?= $is_fav ? 'ti-star-filled' : 'ti-star' ?>"></i>
+      </button>
       <div class="app-logo">
         <?php if (!empty($app['logo'])): ?>
           <img src="/<?= htmlspecialchars($app['logo']) ?>" alt="<?= htmlspecialchars($app['name']) ?>">
