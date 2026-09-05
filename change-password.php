@@ -550,6 +550,18 @@ function closeBubble(b) {
   setTimeout(function() { if (b.parentNode) b.remove(); }, 320);
 }
 
+// Handler tombol konfirmasi (logout sesi)
+document.addEventListener('click', function(e) {
+  var btn = e.target.closest('[data-action="confirm"]');
+  if (!btn) return;
+  var msg   = btn.dataset.msg   || 'Yakin?';
+  var label = btn.dataset.label || 'Ya';
+  var formId = btn.dataset.target;
+  if (!confirm(msg)) return;
+  var form = formId ? document.getElementById(formId) : btn.closest('form');
+  if (form) form.submit();
+});
+
 <?php if ($ok): ?>
 showBubble('success', 'check', 'Kata Sandi Diubah', 'Kata sandi berhasil diubah. Semua sesi lain telah diakhiri.');
 <?php elseif ($error): ?>
