@@ -133,10 +133,10 @@ layout_head('Dashboard', 'dashboard');
 .fav-btn:hover  { color: #f59e0b; transform: scale(1.15); }
 .fav-btn.active { color: #f59e0b; }
 
-.section-fav { margin-bottom: 20px; }
+.section-fav { margin-bottom: 0; }
 .section-fav .section-label { color: #f59e0b; }
 
-.section-all { }
+.section-all { margin-top: 16px; }
 .section-all-header {
   display: flex; align-items: center; justify-content: space-between;
   cursor: pointer; user-select: none;
@@ -158,6 +158,7 @@ layout_head('Dashboard', 'dashboard');
 .section-all.collapsed .section-all-body { max-height: 0; opacity: 0; }
 
 .apps-grid {
+  overflow: hidden;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 10px; margin-bottom: 20px;
@@ -174,7 +175,7 @@ layout_head('Dashboard', 'dashboard');
   -webkit-backdrop-filter: blur(20px) saturate(160%);
   border: 1px solid var(--glass-border-hi);
   border-radius: var(--radius);
-  padding: 10px 32px 10px 12px;
+  padding: 10px 36px 10px 12px;
   text-decoration: none; color: var(--text);
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
   -webkit-tap-highlight-color: transparent;
