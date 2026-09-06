@@ -99,7 +99,7 @@ layout_head('Admin . Log', 'admin-logs');
 
 .filter-bar {
   display: grid;
-  grid-template-columns: 52px 1fr 36px auto;
+  grid-template-columns: 52px 1fr 44px auto;
   gap: 4px; margin-bottom: 10px; align-items: center;
 }
 .filter-bar input[type="text"],
@@ -122,12 +122,8 @@ layout_head('Admin . Log', 'admin-logs');
   width: 100%;
 }
 .filter-bar input[type="date"] {
-  width: 100%; padding: 5px 2px;
-  color: transparent; cursor: pointer;
-}
-.filter-bar input[type="date"]::-webkit-calendar-picker-indicator {
-  margin: 0; padding: 0; width: 100%; height: 20px;
-  opacity: 0.6; cursor: pointer;
+  width: 100%; padding: 5px 0;
+  cursor: pointer; font-size: 10px;
 }
 .btn-filter-submit { white-space: nowrap; }
 .filter-bar input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow); }
