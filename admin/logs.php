@@ -97,20 +97,8 @@ layout_head('Admin . Log', 'admin-logs');
 .tab-bar a.active,
 .tab-bar a:hover { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
 
-.per-page-bar {
-  display: flex; align-items: center; gap: 6px;
-  margin-bottom: 10px; font-size: 11px; color: var(--muted-hi);
-  font-family: var(--sans);
-}
-.per-page-bar select {
-  background: rgba(0,0,0,.2); border: 1px solid var(--glass-border-hi);
-  color: var(--text); border-radius: var(--radius-sm);
-  padding: 4px 8px; font-size: 11px; font-family: var(--sans); cursor: pointer;
-}
-[data-theme="bright"] .per-page-bar select { background: rgba(255,255,255,.7); }
-
 .filter-bar {
-  display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; align-items: center;
+  display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: nowrap; align-items: center; overflow: hidden;
 }
 .filter-bar input[type="text"],
 .filter-bar input[type="date"] {
@@ -122,8 +110,14 @@ layout_head('Admin . Log', 'admin-logs');
   font-family: var(--sans); outline: none;
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
-.filter-bar input[type="text"] { width: 180px; }
-.filter-bar input[type="date"] { width: 140px; }
+.filter-bar input[type="text"] { width: auto; flex: 1; min-width: 60px; }
+.filter-bar input[type="date"] { width: 130px; flex-shrink: 0; }
+.filter-bar select {
+  background: var(--bg); border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm); padding: 5px 6px;
+  font-size: 11px; color: var(--text); font-family: var(--sans);
+  cursor: pointer; flex-shrink: 0;
+}
 .filter-bar input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow); }
 
 @media (max-width: 600px) {
@@ -238,36 +232,25 @@ layout_head('Admin . Log', 'admin-logs');
 <!-- Filter bar -->
 <form method="GET">
   <input type="hidden" name="tab" value="<?= htmlspecialchars($tab) ?>">
-  <form method="GET" class="per-page-bar" id="per-page-form">
-  <input type="hidden" name="tab" value="<?= htmlspecialchars($tab) ?>">
-  <?php if ($search !== ''): ?><input type="hidden" name="search" value="<?= htmlspecialchars($search) ?>"><?php endif; ?>
-  <?php if ($filter_ip !== ''): ?><input type="hidden" name="ip" value="<?= htmlspecialchars($filter_ip) ?>"><?php endif; ?>
-  <?php if ($filter_date !== ''): ?><input type="hidden" name="date" value="<?= htmlspecialchars($filter_date) ?>"><?php endif; ?>
-  <input type="hidden" name="page" value="1">
-  <span>Tampilkan:</span>
+  <div class="filter-bar">
   <select name="per" id="per-select">
     <?php foreach ([10, 20, 50, 100] as $_opt): ?>
-    <option value="<?= $_opt ?>" <?= $per === $_opt ? 'selected' : '' ?>><?= $_opt ?> / hal</option>
+    <option value="<?= $_opt ?>" <?= $per === $_opt ? 'selected' : '' ?>><?= $_opt ?></option>
     <?php endforeach; ?>
   </select>
-</form>
+  <input type="text" name="search" placeholder="Cari..."
+         value="<?= htmlspecialchars($search) ?>" style="flex:1;min-width:80px">
+  <input type="date" name="date" value="<?= htmlspecialchars($filter_date) ?>">
+  <button type="submit">Cari</button>
+  <?php if ($search || $filter_ip || $filter_date): ?>
+    <a href="?tab=<?= htmlspecialchars($tab) ?>" class="btn-reset">&#10005;</a>
+  <?php endif; ?>
+</div>
 <script nonce="<?= csp_nonce() ?>">
 document.getElementById('per-select').addEventListener('change', function() {
-  document.getElementById('per-page-form').submit();
+  this.closest('form').submit();
 });
 </script>
-<div class="filter-bar">
-    <input type="text" name="search" placeholder="Cari aksi / nama / email..."
-           value="<?= htmlspecialchars($search) ?>">
-    <input type="text" name="ip" placeholder="Filter IP..."
-           value="<?= htmlspecialchars($filter_ip) ?>">
-    <input type="date" name="date" value="<?= htmlspecialchars($filter_date) ?>">
-    <button type="submit">Filter</button>
-    <?php if ($search || $filter_ip || $filter_date): ?>
-      <a href="?tab=<?= htmlspecialchars($tab) ?>" class="btn-reset">Reset</a>
-    <?php endif; ?>
-  </div>
-</form>
 
 <div class="log-list">
 <?php if ($logs): ?>
