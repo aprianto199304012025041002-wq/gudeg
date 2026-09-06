@@ -194,38 +194,70 @@ layout_head('Admin . Aplikasi', 'admin-apps');
 .app-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--glass-border-hi), transparent); pointer-events: none; }
 .app-card:hover { border-color: var(--accent-bdr); box-shadow: 0 0 20px var(--accent-glow-sm), var(--elev-3), var(--elev-inset); transform: translateY(-1px); }
 
-.app-card-head { padding: 12px 16px; }
+.app-card-head { padding: 10px 12px; }
 
 .app-name {
-  font-weight: 700; font-size: 14px; font-family: var(--sans);
-  margin-bottom: .2rem; line-height: 1.4;
+  font-weight: 600; font-size: 13px; font-family: var(--sans);
+  line-height: 1.3; flex: 1; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
+
+.app-head-row {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 6px; margin-bottom: 4px;
+}
+.app-badges { display: flex; gap: 5px; flex-shrink: 0; }
 
 .app-desc {
-  font-size: 13px; font-weight: 500; color: var(--muted-hi);
-  font-family: var(--sans); margin-bottom: .5rem; line-height: 1.4;
+  font-size: 11px; color: var(--muted-hi);
+  font-family: var(--sans); line-height: 1.4;
 }
 
-.app-badges { display: flex; gap: 6px; flex-wrap: wrap; }
-
-.mono-block {
-  font-family: var(--mono); font-size: .75rem;
-  color: var(--muted-hi); word-break: break-all; line-height: 1.7; margin-top: .5rem;
+/* Detail expandable */
+.app-detail-body {
+  display: none; border-top: 1px solid var(--glass-border);
+  padding: 8px 12px; background: rgba(0,0,0,.06);
 }
+.app-detail-body.open { display: block; }
+[data-theme="bright"] .app-detail-body { background: rgba(0,0,0,.02); }
 
-.secret-blur { filter: blur(4px); transition: filter var(--transition-med); cursor: pointer; display: inline; }
+.detail-grid {
+  display: grid; grid-template-columns: auto 1fr;
+  gap: 3px 10px; align-items: baseline; margin-bottom: 10px;
+}
+.detail-label {
+  font-size: 10px; font-weight: 700; letter-spacing: .05em;
+  color: var(--muted); white-space: nowrap; font-family: var(--sans);
+}
+.detail-val {
+  font-size: 11px; font-family: var(--mono);
+  color: var(--muted-hi); word-break: break-all;
+}
+.secret-blur { filter: blur(4px); transition: filter var(--transition-med); cursor: pointer; }
 .secret-blur:hover, .secret-blur.revealed { filter: none; }
 
-.reveal-hint { font-size: .7rem; color: var(--accent); margin-left: .3rem; cursor: pointer; font-family: var(--mono); }
-
-.redirect-url { font-size: 11px; color: var(--muted); margin-top: 3px; font-family: var(--mono); }
-
-.app-actions {
-  border-top: 1px solid var(--glass-border); padding: 10px 14px;
-  display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
-  background: rgba(0,0,0,.08);
+.app-action-row {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  padding-top: 8px; border-top: 1px solid var(--glass-border);
 }
-[data-theme="bright"] .app-actions { background: rgba(0,0,0,.02); }
+
+/* Footer toggle */
+.app-card-foot {
+  border-top: 1px solid var(--glass-border);
+  padding: 6px 12px;
+  display: flex; justify-content: flex-end; align-items: center;
+  gap: 5px; cursor: pointer;
+  -webkit-tap-highlight-color: transparent; user-select: none;
+  transition: background var(--transition-fast);
+}
+.app-card-foot:hover { background: rgba(74,144,217,.04); }
+.app-card-foot .foot-label { font-size: 11px; color: var(--muted); font-family: var(--sans); }
+.app-expand-icon {
+  font-size: 13px; color: var(--muted); flex-shrink: 0;
+  transition: transform var(--transition-fast);
+}
+.app-card.expanded .app-expand-icon { transform: rotate(180deg); color: var(--accent); }
+.app-card.expanded .app-detail-body { display: block; }
 
 .btn-sm {
   background: rgba(255,255,255,.04); border: 1px solid var(--glass-border-hi);
@@ -370,84 +402,93 @@ layout_head('Admin . Aplikasi', 'admin-apps');
 <?php foreach ($apps as $app): ?>
 <div class="app-card">
   <div class="app-card-head">
-    <div class="app-name"><?= htmlspecialchars($app['name']) ?></div>
+    <div class="app-head-row">
+      <div class="app-name"><?= htmlspecialchars($app['name']) ?></div>
+      <div class="app-badges">
+        <span class="badge <?= $app['is_active'] ? 'badge-active' : 'badge-inactive' ?>">
+          <?= $app['is_active'] ? 'Aktif' : 'Nonaktif' ?>
+        </span>
+        <span class="badge <?= $app['use_signed_token'] ? 'badge-rsa' : 'badge-hmac' ?>">
+          <?= $app['use_signed_token'] ? 'RSA' : 'HMAC' ?>
+        </span>
+      </div>
+    </div>
     <?php if ($app['description']): ?>
       <div class="app-desc"><?= htmlspecialchars($app['description']) ?></div>
     <?php endif; ?>
-    <div class="app-badges">
-      <span class="badge <?= $app['is_active'] ? 'badge-active' : 'badge-inactive' ?>">
-        <?= $app['is_active'] ? 'Aktif' : 'Nonaktif' ?>
-      </span>
-      <span class="badge <?= $app['use_signed_token'] ? 'badge-rsa' : 'badge-hmac' ?>">
-        <?= $app['use_signed_token'] ? 'RSA' : 'HMAC' ?>
-      </span>
-    </div>
-    <div class="mono-block">
-      <div>Client ID: <?= htmlspecialchars($app['client_id']) ?></div>
-      <div>
-        Client Secret (hash):
-        <span class="secret-blur" data-reveal="toggle"
-              title="Ketuk untuk tampilkan"><?= htmlspecialchars($app['client_secret'] ?? '-') ?></span>
-        <span class="reveal-hint" data-reveal="hint">[Ketuk untuk tampilkan]</span>
-      </div>
+  </div>
 
-      <div class="redirect-url">&gt; <?= htmlspecialchars($app['redirect']) ?></div>
+  <div class="app-detail-body" id="app-detail-<?= $app['id'] ?>">
+    <div class="detail-grid">
+      <span class="detail-label">CLIENT ID</span>
+      <span class="detail-val"><?= htmlspecialchars($app['client_id']) ?></span>
+
+      <span class="detail-label">SECRET</span>
+      <span class="detail-val secret-blur" data-reveal="toggle" title="Ketuk untuk tampilkan"><?= htmlspecialchars($app['client_secret'] ?? '-') ?></span>
+
+      <span class="detail-label">REDIRECT</span>
+      <span class="detail-val"><?= htmlspecialchars($app['redirect']) ?></span>
+    </div>
+
+    <div class="app-action-row">
+      <form method="POST" class="form-inline" id="form-toggle-app-<?= $app['id'] ?>">
+        <?= csrf_field() ?>
+        <input type="hidden" name="action" value="toggle_status">
+        <input type="hidden" name="app_id" value="<?= $app['id'] ?>">
+        <button type="button" class="btn-sm <?= $app['is_active'] ? 'danger' : '' ?>"
+                data-action="confirm"
+                data-title="<?= $app['is_active'] ? 'Nonaktifkan Aplikasi' : 'Aktifkan Aplikasi' ?>"
+                data-msg="<?= $app['is_active'] ? 'Nonaktifkan' : 'Aktifkan' ?> aplikasi <strong><?= htmlspecialchars(addslashes($app['name'])) ?></strong>?"
+                data-label="Ya, <?= $app['is_active'] ? 'Nonaktifkan' : 'Aktifkan' ?>"
+                data-cls="<?= $app['is_active'] ? 'danger' : '' ?>"
+                data-target="form-toggle-app-<?= $app['id'] ?>">
+          <?= $app['is_active'] ? 'Nonaktifkan' : 'Aktifkan' ?>
+        </button>
+      </form>
+      <form method="POST" class="form-inline" id="form-rsa-<?= $app['id'] ?>">
+        <?= csrf_field() ?>
+        <input type="hidden" name="action" value="toggle_signed">
+        <input type="hidden" name="app_id" value="<?= $app['id'] ?>">
+        <button type="button" class="btn-sm warn"
+                data-action="confirm"
+                data-title="Toggle RSA/HMAC"
+                data-msg="<?= $app['use_signed_token'] ? 'Matikan' : 'Aktifkan' ?> RSA signed token untuk <strong><?= htmlspecialchars(addslashes($app['name'])) ?></strong>? Pastikan aplikasi klien sudah siap."
+                data-label="Ya, Toggle"
+                data-cls="warn"
+                data-target="form-rsa-<?= $app['id'] ?>">
+          Toggle RSA
+        </button>
+      </form>
+      <form method="POST" class="form-inline" id="form-regen-<?= $app['id'] ?>">
+        <?= csrf_field() ?>
+        <input type="hidden" name="action" value="regenerate_secret">
+        <input type="hidden" name="app_id" value="<?= $app['id'] ?>">
+        <button type="button" class="btn-sm warn"
+                data-action="confirm"
+                data-title="Regenerate Client Secret"
+                data-msg="Generate secret baru untuk <strong><?= htmlspecialchars(addslashes($app['name'])) ?></strong>? Secret lama langsung tidak berlaku. Update GitHub Secrets di repo klien."
+                data-label="Ya, Regenerate"
+                data-target="form-regen-<?= $app['id'] ?>">
+          Regenerate Secret
+        </button>
+      </form>
+      <form method="POST" class="form-inline" id="form-delete-<?= $app['id'] ?>">
+        <?= csrf_field() ?>
+        <input type="hidden" name="action" value="delete_app">
+        <input type="hidden" name="app_id" value="<?= $app['id'] ?>">
+        <button type="button" class="btn-sm danger"
+                data-action="confirm"
+                data-title="Hapus Aplikasi"
+                data-msg="Hapus <strong><?= htmlspecialchars(addslashes($app['name'])) ?></strong> permanen? Semua akses user ke aplikasi ini juga akan dihapus."
+                data-label="Ya, Hapus"
+                data-target="form-delete-<?= $app['id'] ?>">Hapus</button>
+      </form>
     </div>
   </div>
-  <div class="app-actions">
-    <form method="POST" class="form-inline" id="form-toggle-app-<?= $app['id'] ?>">
-      <?= csrf_field() ?>
-      <input type="hidden" name="action" value="toggle_status">
-      <input type="hidden" name="app_id" value="<?= $app['id'] ?>">
-      <button type="button" class="btn-sm <?= $app['is_active'] ? 'danger' : '' ?>"
-              data-action="confirm"
-              data-title="<?= $app['is_active'] ? 'Nonaktifkan Aplikasi' : 'Aktifkan Aplikasi' ?>"
-              data-msg="<?= $app['is_active'] ? 'Nonaktifkan' : 'Aktifkan' ?> aplikasi <strong><?= htmlspecialchars(addslashes($app['name'])) ?></strong>?"
-              data-label="Ya, <?= $app['is_active'] ? 'Nonaktifkan' : 'Aktifkan' ?>"
-              data-cls="<?= $app['is_active'] ? 'danger' : '' ?>"
-              data-target="form-toggle-app-<?= $app['id'] ?>">
-        <?= $app['is_active'] ? 'Nonaktifkan' : 'Aktifkan' ?>
-      </button>
-    </form>
-    <form method="POST" class="form-inline" id="form-rsa-<?= $app['id'] ?>">
-      <?= csrf_field() ?>
-      <input type="hidden" name="action" value="toggle_signed">
-      <input type="hidden" name="app_id" value="<?= $app['id'] ?>">
-      <button type="button" class="btn-sm warn"
-              data-action="confirm"
-              data-title="Toggle RSA"
-              data-msg="<?= $app['use_signed_token'] ? 'Matikan' : 'Aktifkan' ?> RSA signed token untuk <strong><?= htmlspecialchars(addslashes($app['name'])) ?></strong>? Pastikan aplikasi klien sudah siap."
-              data-label="Ya, Toggle"
-              data-cls="warn"
-              data-target="form-rsa-<?= $app['id'] ?>">
-        Toggle RSA
-      </button>
-    </form>
-    <form method="POST" class="form-inline" id="form-regen-<?= $app['id'] ?>">
-      <?= csrf_field() ?>
-      <input type="hidden" name="action" value="regenerate_secret">
-      <input type="hidden" name="app_id" value="<?= $app['id'] ?>">
-      <button type="button" class="btn-sm warn"
-              data-action="confirm"
-              data-title="Regenerate Client Secret"
-              data-msg="Generate secret baru untuk <strong><?= htmlspecialchars(addslashes($app['name'])) ?></strong>? Secret lama akan langsung tidak berlaku. Kamu harus update GitHub Secrets di repo aplikasi klien."
-              data-label="Ya, Regenerate"
-              data-target="form-regen-<?= $app['id'] ?>">
-        [key] Regenerate Secret
-      </button>
-    </form>
-    <form method="POST" class="form-inline" id="form-delete-<?= $app['id'] ?>">
-      <?= csrf_field() ?>
-      <input type="hidden" name="action" value="delete_app">
-      <input type="hidden" name="app_id" value="<?= $app['id'] ?>">
-      <span style="width:1px;height:18px;background:var(--glass-border-hi);flex-shrink:0;"></span>
-              <button type="button" class="btn-sm danger"
-              data-action="confirm"
-              data-title="Hapus Aplikasi"
-              data-msg="Hapus <strong><?= htmlspecialchars(addslashes($app['name'])) ?></strong> permanen? Semua akses user ke aplikasi ini juga akan dihapus."
-              data-label="Ya, Hapus"
-              data-target="form-delete-<?= $app['id'] ?>"><i class="ti ti-trash" aria-hidden="true"></i> Hapus</button>
-    </form>
+
+  <div class="app-card-foot" data-action="toggle-app-card" data-id="<?= $app['id'] ?>">
+    <span class="foot-label">Detail</span>
+    <i class="ti ti-chevron-down app-expand-icon" aria-hidden="true"></i>
   </div>
 </div>
 <?php endforeach; ?>
@@ -569,6 +610,16 @@ document.addEventListener('DOMContentLoaded', function() {
           if (form) form.submit();
         }
       });
+    });
+  });
+
+  document.querySelectorAll('[data-action="toggle-app-card"]').forEach(function(foot) {
+    foot.addEventListener('click', function() {
+      var card   = foot.closest('.app-card');
+      var detail = document.getElementById('app-detail-' + foot.dataset.id);
+      var icon   = foot.querySelector('.app-expand-icon');
+      var expanded = card.classList.toggle('expanded');
+      if (detail) detail.classList.toggle('open', expanded);
     });
   });
 
