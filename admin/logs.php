@@ -67,15 +67,13 @@ $total  = $result['total'] ?? count($logs);
 
 $pages = ceil($total / $per);
 
-// Tambahkan per ke params
-if ($per !== 20) $params['per'] = $per;
-
 // Build filter query string untuk pagination
 $filter_qs = http_build_query(array_filter([
     'tab'    => $tab,
     'search' => $search,
     'ip'     => $filter_ip,
     'date'   => $filter_date,
+    'per'    => $per !== 20 ? $per : null,
 ]));
 $safe_qs = htmlspecialchars($filter_qs);
 
@@ -239,14 +237,24 @@ layout_head('Admin . Log', 'admin-logs');
 <!-- Filter bar -->
 <form method="GET">
   <input type="hidden" name="tab" value="<?= htmlspecialchars($tab) ?>">
-  <div class="per-page-bar">
+  <form method="GET" class="per-page-bar" id="per-page-form">
+  <input type="hidden" name="tab" value="<?= htmlspecialchars($tab) ?>">
+  <?php if ($search): ?><input type="hidden" name="search" value="<?= htmlspecialchars($search) ?>"><?php endif; ?>
+  <?php if ($filter_ip): ?><input type="hidden" name="ip" value="<?= htmlspecialchars($filter_ip) ?>"><?php endif; ?>
+  <?php if ($filter_date): ?><input type="hidden" name="date" value="<?= htmlspecialchars($filter_date) ?>"><?php endif; ?>
+  <input type="hidden" name="page" value="1">
   <span>Tampilkan:</span>
-  <select onchange="var u=new URL(window.location);u.searchParams.set('per',this.value);u.searchParams.set('page',1);window.location=u">
+  <select name="per" id="per-select">
     <?php foreach ([10,20,50,100] as $opt): ?>
     <option value="<?= $opt ?>" <?= $per===$opt?'selected':'' ?>><?= $opt ?> / hal</option>
     <?php endforeach; ?>
   </select>
-</div>
+</form>
+<script nonce="<?= csp_nonce() ?>">
+document.getElementById('per-select').addEventListener('change', function() {
+  document.getElementById('per-page-form').submit();
+});
+</script>
 <div class="filter-bar">
     <input type="text" name="search" placeholder="Cari aksi / nama / email..."
            value="<?= htmlspecialchars($search) ?>">
