@@ -187,12 +187,22 @@ layout_head('Admin . User', 'admin-users');
 .user-actions {
   border-top: 1px solid var(--glass-border);
   padding: 8px 12px;
-  display: none; flex-wrap: wrap; gap: 6px; align-items: center;
+  display: none; flex-direction: column; gap: 8px;
   background: rgba(0,0,0,.06);
 }
 .user-card.expanded .user-actions { display: flex; }
-.user-card.expanded .app-access-body.open { display: block; }
 [data-theme="bright"] .user-actions { background: rgba(0,0,0,.02); }
+
+.action-row {
+  display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+}
+
+.app-access-inner { padding-top: 8px; border-top: 1px solid var(--glass-border); }
+.app-access-label {
+  font-size: 10px; font-weight: 700; letter-spacing: .06em;
+  color: var(--muted); font-family: var(--sans);
+  margin-bottom: 6px;
+}
 
 .btn-sm {
   background: rgba(255,255,255,.04);
@@ -214,8 +224,6 @@ layout_head('Admin . User', 'admin-users');
 .btn-sm.delete { border-color: var(--danger-bdr); color: var(--danger); background: rgba(239,68,68,.04); }
 .btn-sm.delete:hover { border-color: var(--danger); background: rgba(239,68,68,.08); box-shadow: 0 0 10px rgba(239,68,68,.15), var(--elev-inset); }
 
-.role-form { display: flex; gap: 6px; align-items: center; width: 100%; }
-
 select.sel-sm {
   background: rgba(0,0,0,.2);
   border: 1px solid var(--glass-border-hi);
@@ -233,27 +241,7 @@ select.sel-sm:focus { outline: none; border-color: var(--accent-bdr); box-shadow
 
 
 
-.app-access { border-top: 1px solid var(--glass-border); }
-.app-access-toggle {
-  width: 100%; background: var(--accent-bg); border: none;
-  border-top: 1px solid var(--glass-border);
-  padding: 8px 12px;
-  display: flex; align-items: center; justify-content: space-between;
-  color: var(--accent); cursor: pointer;
-  font-size: 12px; font-weight: 600; font-family: var(--sans);
-  transition: background var(--transition-fast);
-}
-.app-access-toggle:hover { background: rgba(74,144,217,.10); }
-.app-access-toggle 
-.app-access-toggle.open .chevron { transform: rotate(180deg); }
 
-.app-access-body {
-  display: none; padding: 10px 14px 12px;
-  border-top: 1px solid var(--glass-border);
-  background: rgba(0,0,0,.06);
-}
-[data-theme="bright"] .app-access-body { background: rgba(0,0,0,.02); }
-.app-access-body.open { display: block; }
 
 .apps-check { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
 .apps-check label {
@@ -411,78 +399,68 @@ select.sel-sm:focus { outline: none; border-color: var(--accent-bdr); box-shadow
 
   <?php if ($u['id'] !== (int)$user['id']): ?>
   <div class="user-actions">
-    <form method="POST" class="form-inline" id="form-toggle-<?= $u['id'] ?>">
-      <?= csrf_field() ?>
-      <input type="hidden" name="action" value="toggle_active">
-      <input type="hidden" name="target_id" value="<?= $u['id'] ?>">
-      <button type="button" class="btn-sm <?= $u['is_active'] ? 'danger' : '' ?>"
-              data-action="confirm"
-              data-title="<?= $u['is_active'] ? 'Nonaktifkan User' : 'Aktifkan User' ?>"
-              data-msg="<?= $u['is_active'] ? 'Nonaktifkan' : 'Aktifkan' ?> akun <strong><?= htmlspecialchars(addslashes($u['name'])) ?></strong>?"
-              data-label="Ya, <?= $u['is_active'] ? 'Nonaktifkan' : 'Aktifkan' ?>"
-              data-cls="<?= $u['is_active'] ? 'danger' : '' ?>"
-              data-target="form-toggle-<?= $u['id'] ?>">
-        <?= $u['is_active'] ? 'Nonaktifkan' : 'Aktifkan' ?>
-      </button>
-    </form>
-
-    <form method="POST" class="role-form" id="form-role-<?= $u['id'] ?>">
-      <?= csrf_field() ?>
-      <input type="hidden" name="action" value="change_role">
-      <input type="hidden" name="target_id" value="<?= $u['id'] ?>">
-      <select name="new_role" class="sel-sm" id="sel-role-<?= $u['id'] ?>">
-        <option value="user"  <?= $u['role']==='user' ?'selected':'' ?>>User</option>
-        <option value="guest" <?= $u['role']==='guest'?'selected':'' ?>>Guest</option>
-      </select>
+    <div class="action-row">
+      <form method="POST" class="form-inline" id="form-role-<?= $u['id'] ?>">
+        <?= csrf_field() ?>
+        <input type="hidden" name="action" value="change_role">
+        <input type="hidden" name="target_id" value="<?= $u['id'] ?>">
+        <select name="new_role" class="sel-sm" id="sel-role-<?= $u['id'] ?>">
+          <option value="user"  <?= $u['role']==='user' ?'selected':'' ?>>User</option>
+          <option value="guest" <?= $u['role']==='guest'?'selected':'' ?>>Guest</option>
+        </select>
+      </form>
       <button type="button" class="btn-sm"
               data-action="confirm-role"
               data-uid="<?= $u['id'] ?>"
               data-name="<?= htmlspecialchars(addslashes($u['name'])) ?>">
         Ubah Role
       </button>
-    </form>
+      <form method="POST" class="form-inline" id="form-reset-<?= $u['id'] ?>">
+        <?= csrf_field() ?>
+        <input type="hidden" name="action" value="reset_password">
+        <input type="hidden" name="target_id" value="<?= $u['id'] ?>">
+        <button type="button" class="btn-sm danger"
+                data-action="confirm"
+                data-title="Reset Password"
+                data-msg="Reset password <strong><?= htmlspecialchars(addslashes($u['name'])) ?></strong>? Password baru akan muncul di notifikasi dan log admin."
+                data-label="Ya, Reset"
+                data-cls="danger"
+                data-target="form-reset-<?= $u['id'] ?>">
+          Reset PW
+        </button>
+      </form>
+      <form method="POST" class="form-inline" id="form-toggle-<?= $u['id'] ?>">
+        <?= csrf_field() ?>
+        <input type="hidden" name="action" value="toggle_active">
+        <input type="hidden" name="target_id" value="<?= $u['id'] ?>">
+        <button type="button" class="btn-sm <?= $u['is_active'] ? 'danger' : '' ?>"
+                data-action="confirm"
+                data-title="<?= $u['is_active'] ? 'Nonaktifkan User' : 'Aktifkan User' ?>"
+                data-msg="<?= $u['is_active'] ? 'Nonaktifkan' : 'Aktifkan' ?> akun <strong><?= htmlspecialchars(addslashes($u['name'])) ?></strong>?"
+                data-label="Ya, <?= $u['is_active'] ? 'Nonaktifkan' : 'Aktifkan' ?>"
+                data-cls="<?= $u['is_active'] ? 'danger' : '' ?>"
+                data-target="form-toggle-<?= $u['id'] ?>">
+          <?= $u['is_active'] ? 'Nonaktifkan' : 'Aktifkan' ?>
+        </button>
+      </form>
+      <form method="POST" class="form-inline" id="form-delete-<?= $u['id'] ?>">
+        <?= csrf_field() ?>
+        <input type="hidden" name="action" value="delete_user">
+        <input type="hidden" name="target_id" value="<?= $u['id'] ?>">
+        <button type="button" class="btn-sm delete"
+                data-action="confirm"
+                data-title="Hapus User"
+                data-msg="<span style='color:var(--danger);font-weight:600'>PERINGATAN:</span> Hapus akun <strong><?= htmlspecialchars(addslashes($u['name'])) ?></strong>? Akun akan disembunyikan permanen dari sistem dan tidak bisa login."
+                data-label="Ya, Hapus"
+                data-cls="danger"
+                data-target="form-delete-<?= $u['id'] ?>">
+          Hapus
+        </button>
+      </form>
+    </div>
 
-    <form method="POST" class="form-inline" id="form-reset-<?= $u['id'] ?>">
-      <?= csrf_field() ?>
-      <input type="hidden" name="action" value="reset_password">
-      <input type="hidden" name="target_id" value="<?= $u['id'] ?>">
-      <button type="button" class="btn-sm danger"
-              data-action="confirm"
-              data-title="Reset Password"
-              data-msg="Reset password <strong><?= htmlspecialchars(addslashes($u['name'])) ?></strong>? Password baru akan muncul di notifikasi dan log admin."
-              data-label="Ya, Reset"
-              data-cls="danger"
-              data-target="form-reset-<?= $u['id'] ?>">
-        Reset Password
-      </button>
-    </form>
-
-    <form method="POST" class="form-inline" id="form-delete-<?= $u['id'] ?>">
-      <?= csrf_field() ?>
-      <input type="hidden" name="action" value="delete_user">
-      <input type="hidden" name="target_id" value="<?= $u['id'] ?>">
-      <button type="button" class="btn-sm delete"
-              data-action="confirm"
-              data-title="Hapus User"
-              data-msg="<span style='color:var(--danger);font-weight:600'>PERINGATAN:</span> Hapus akun <strong><?= htmlspecialchars(addslashes($u['name'])) ?></strong>? Akun akan disembunyikan permanen dari sistem dan tidak bisa login. Data tetap tersimpan di database (soft delete)."
-              data-label="Ya, Hapus"
-              data-cls="danger"
-              data-target="form-delete-<?= $u['id'] ?>">
-        &#128683; Hapus User
-      </button>
-    </form>
-
-
-  </div>
-
-  <div class="app-access">
-    <button type="button" class="app-access-toggle"
-            data-action="toggle-app-access"
-            data-uid="<?= $u['id'] ?>">
-      <span>Akses Aplikasi (<?= count($ua_map[$u['id']] ?? []) ?>)</span>
-      <i class="ti ti-chevron-down chevron" aria-hidden="true"></i>
-    </button>
-    <div class="app-access-body" id="app-access-<?= $u['id'] ?>">
+    <div class="app-access-inner">
+      <div class="app-access-label">AKSES APLIKASI</div>
       <form method="POST">
         <?= csrf_field() ?>
         <input type="hidden" name="action" value="update_apps">
@@ -500,7 +478,7 @@ select.sel-sm:focus { outline: none; border-color: var(--accent-bdr); box-shadow
         <?php else: ?>
         <p class="text-muted-sm">Belum ada aplikasi SSO terdaftar.</p>
         <?php endif; ?>
-        <button type="submit" class="btn-sm">Simpan Akses</button>
+        <button type="submit" class="btn-sm" style="margin-top:4px">Simpan Akses</button>
       </form>
     </div>
   </div>
@@ -530,12 +508,6 @@ select.sel-sm:focus { outline: none; border-color: var(--accent-bdr); box-shadow
 <div class="bubble-wrap" id="bubbleWrap"></div>
 
 <script nonce="<?= csp_nonce() ?>">
-function toggleAppAccess(btn) {
-  btn.classList.toggle('open');
-  var uid = btn.dataset.uid;
-  document.getElementById('app-access-' + uid).classList.toggle('open');
-}
-
 var _confirmCb = null;
 
 function showConfirm(title, msg, btnLabel, btnClass, cb) {
@@ -639,11 +611,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (target) { var form = document.getElementById(target); if (form) form.submit(); }
       });
     });
-  });
-
-  // data-action="toggle-app-access"
-  document.querySelectorAll('[data-action="toggle-app-access"]').forEach(function(btn) {
-    btn.addEventListener('click', function() { toggleAppAccess(this); });
   });
 
   // data-action="confirm-role"
