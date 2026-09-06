@@ -98,7 +98,7 @@ layout_head('Admin . Log', 'admin-logs');
 .tab-bar a:hover { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
 
 .filter-bar {
-  display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: nowrap; align-items: center; overflow: hidden;
+  display: flex; gap: 4px; margin-bottom: 10px; flex-wrap: nowrap; align-items: center;
 }
 .filter-bar input[type="text"],
 .filter-bar input[type="date"] {
@@ -110,13 +110,29 @@ layout_head('Admin . Log', 'admin-logs');
   font-family: var(--sans); outline: none;
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
-.filter-bar input[type="text"] { width: auto; flex: 1; min-width: 60px; }
-.filter-bar input[type="date"] { width: 130px; flex-shrink: 0; }
+.filter-bar input[type="text"] {
+  flex: 1; min-width: 0; width: 0;
+}
+.filter-bar input[type="date"] {
+  flex-shrink: 0; width: 36px; min-width: 0;
+  color: transparent; padding: 5px 4px;
+  cursor: pointer;
+}
+.filter-bar input[type="date"]::-webkit-calendar-picker-indicator {
+  margin: 0; padding: 0; width: 18px; height: 18px;
+  color: var(--text); opacity: 0.7; cursor: pointer;
+}
+.filter-bar input[type="date"].has-value {
+  width: 110px; color: var(--text);
+}
 .filter-bar select {
   background: var(--bg); border: 1px solid var(--glass-border);
-  border-radius: var(--radius-sm); padding: 5px 6px;
+  border-radius: var(--radius-sm); padding: 5px 2px;
   font-size: 11px; color: var(--text); font-family: var(--sans);
-  cursor: pointer; flex-shrink: 0;
+  cursor: pointer; flex-shrink: 0; max-width: 52px;
+}
+.filter-bar button, .filter-bar .btn-reset {
+  flex-shrink: 0; white-space: nowrap;
 }
 .filter-bar input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow); }
 
@@ -250,6 +266,13 @@ layout_head('Admin . Log', 'admin-logs');
 document.getElementById('per-select').addEventListener('change', function() {
   this.closest('form').submit();
 });
+(function() {
+  var d = document.querySelector('.filter-bar input[type="date"]');
+  if (!d) return;
+  function checkDate() { d.classList.toggle('has-value', !!d.value); }
+  checkDate();
+  d.addEventListener('change', checkDate);
+})();
 </script>
 
 <div class="log-list">
