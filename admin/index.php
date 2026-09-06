@@ -426,7 +426,7 @@ select.sel-sm:focus { outline: none; border-color: var(--accent-bdr); box-shadow
                 data-label="Ya, Reset"
                 data-cls="danger"
                 data-target="form-reset-<?= $u['id'] ?>">
-          Reset PW
+          Reset Password
         </button>
       </form>
       <form method="POST" class="form-inline" id="form-toggle-<?= $u['id'] ?>">
