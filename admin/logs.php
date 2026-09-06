@@ -98,7 +98,9 @@ layout_head('Admin . Log', 'admin-logs');
 .tab-bar a:hover { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
 
 .filter-bar {
-  display: flex; gap: 4px; margin-bottom: 10px; flex-wrap: nowrap; align-items: center;
+  display: grid;
+  grid-template-columns: 52px 1fr 36px auto;
+  gap: 4px; margin-bottom: 10px; align-items: center;
 }
 .filter-bar input[type="text"],
 .filter-bar input[type="date"] {
@@ -110,30 +112,24 @@ layout_head('Admin . Log', 'admin-logs');
   font-family: var(--sans); outline: none;
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
-.filter-bar input[type="text"] {
-  flex: 1; min-width: 0; width: 0;
-}
-.filter-bar input[type="date"] {
-  flex-shrink: 0; width: 36px; min-width: 0;
-  color: transparent; padding: 5px 4px;
-  cursor: pointer;
-}
-.filter-bar input[type="date"]::-webkit-calendar-picker-indicator {
-  margin: 0; padding: 0; width: 18px; height: 18px;
-  color: var(--text); opacity: 0.7; cursor: pointer;
-}
-.filter-bar input[type="date"].has-value {
-  width: 110px; color: var(--text);
-}
 .filter-bar select {
   background: var(--bg); border: 1px solid var(--glass-border);
   border-radius: var(--radius-sm); padding: 5px 2px;
   font-size: 11px; color: var(--text); font-family: var(--sans);
-  cursor: pointer; flex-shrink: 0; max-width: 52px;
+  cursor: pointer; width: 100%;
 }
-.filter-bar button, .filter-bar .btn-reset {
-  flex-shrink: 0; white-space: nowrap;
+.filter-bar input[type="text"] {
+  width: 100%;
 }
+.filter-bar input[type="date"] {
+  width: 100%; padding: 5px 2px;
+  color: transparent; cursor: pointer;
+}
+.filter-bar input[type="date"]::-webkit-calendar-picker-indicator {
+  margin: 0; padding: 0; width: 100%; height: 20px;
+  opacity: 0.6; cursor: pointer;
+}
+.btn-filter-submit { white-space: nowrap; }
 .filter-bar input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-glow); }
 
 @media (max-width: 600px) {
@@ -254,25 +250,15 @@ layout_head('Admin . Log', 'admin-logs');
     <option value="<?= $_opt ?>" <?= $per === $_opt ? 'selected' : '' ?>><?= $_opt ?></option>
     <?php endforeach; ?>
   </select>
-  <input type="text" name="search" placeholder="Cari..."
-         value="<?= htmlspecialchars($search) ?>" style="flex:1;min-width:80px">
+  <input type="text" name="search" placeholder="Cari..." value="<?= htmlspecialchars($search) ?>">
   <input type="date" name="date" value="<?= htmlspecialchars($filter_date) ?>">
-  <button type="submit">Cari</button>
+  <button type="submit" class="btn-filter-submit">Cari</button>
   <?php if ($search || $filter_ip || $filter_date): ?>
     <a href="?tab=<?= htmlspecialchars($tab) ?>" class="btn-reset">&#10005;</a>
   <?php endif; ?>
 </div>
 <script nonce="<?= csp_nonce() ?>">
-document.getElementById('per-select').addEventListener('change', function() {
-  this.closest('form').submit();
-});
-(function() {
-  var d = document.querySelector('.filter-bar input[type="date"]');
-  if (!d) return;
-  function checkDate() { d.classList.toggle('has-value', !!d.value); }
-  checkDate();
-  d.addEventListener('change', checkDate);
-})();
+document.getElementById('per-select').addEventListener('change',function(){this.closest('form').submit();});
 </script>
 
 <div class="log-list">
