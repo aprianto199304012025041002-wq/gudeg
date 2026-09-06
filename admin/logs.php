@@ -18,7 +18,8 @@ try {
 cleanup_old_logs();
 
 $page = max(1, (int)($_GET['page'] ?? 1));
-$per  = in_array((int)($_GET['per'] ?? 20), [10, 20, 50, 100]) ? (int)$_GET['per'] : 20;
+$_per_raw = isset($_GET['per']) ? (int)$_GET['per'] : 20;
+$per  = in_array($_per_raw, [10, 20, 50, 100]) ? $_per_raw : 20;
 $off  = ($page - 1) * $per;
 $tab  = ($_GET['tab'] ?? 'user') === 'admin' ? 'admin' : 'user';
 
@@ -73,7 +74,7 @@ $filter_qs = http_build_query(array_filter([
     'search' => $search,
     'ip'     => $filter_ip,
     'date'   => $filter_date,
-    'per'    => $per !== 20 ? $per : null,
+    'per'    => $per !== 20 ? (string)$per : '',
 ]));
 $safe_qs = htmlspecialchars($filter_qs);
 
@@ -104,8 +105,7 @@ layout_head('Admin . Log', 'admin-logs');
 .per-page-bar select {
   background: rgba(0,0,0,.2); border: 1px solid var(--glass-border-hi);
   color: var(--text); border-radius: var(--radius-sm);
-  padding: 4px 8px; font-size: 11px; font-family: var(--sans);
-  cursor: pointer;
+  padding: 4px 8px; font-size: 11px; font-family: var(--sans); cursor: pointer;
 }
 [data-theme="bright"] .per-page-bar select { background: rgba(255,255,255,.7); }
 
@@ -131,7 +131,7 @@ layout_head('Admin . Log', 'admin-logs');
   .filter-bar input[type="text"],
   .filter-bar input[type="date"] { width: 100%; }
   .filter-bar button { width: 100%; text-align: center; }
-  .log-item { grid-template-columns: auto 1fr auto; padding: 7px 10px; }
+  .log-item { grid-template-columns: auto 1fr auto; gap: 0 6px; padding: 7px 10px; }
   .log-time { font-size: 10px; }
   .log-action { font-size: 11px; }
   .log-meta { gap: 0 8px; }
@@ -166,12 +166,13 @@ layout_head('Admin . Log', 'admin-logs');
 }
 .log-num {
   font-size: 10px; color: var(--muted); font-family: var(--mono);
-  white-space: nowrap; padding-top: 1px; flex-shrink: 0;
-  min-width: 32px;
+  white-space: nowrap; padding-top: 2px; flex-shrink: 0;
+  grid-column: 1; grid-row: 1;
 }
 .log-item {
   display: grid;
   grid-template-columns: auto 1fr auto;
+  gap: 0 8px;
   grid-template-rows: auto auto;
   gap: 0 8px;
   padding: 8px 12px;
@@ -189,7 +190,7 @@ layout_head('Admin . Log', 'admin-logs');
 .log-time {
   font-size: 10px; color: var(--muted-hi); white-space: nowrap;
   flex-shrink: 0; font-family: var(--sans);
-  grid-column: 3; grid-row: 1; text-align: right; padding-top: 1px;
+  grid-column: 3; grid-row: 1; text-align: right; padding-top: 2px;
 }
 .log-meta {
   font-size: 11px; color: var(--muted-hi); line-height: 1.5;
@@ -198,7 +199,7 @@ layout_head('Admin . Log', 'admin-logs');
   gap: 2px 8px; margin-top: 3px; align-items: center;
 }
 .log-meta-label {
-  font-size: 10px; color: var(--muted); white-space: nowrap; font-family: var(--sans);
+  font-size: 10px; color: var(--muted); white-space: nowrap;
 }
 .log-meta-val { font-size: 11px; color: var(--muted-hi); }
 .log-ip {
@@ -239,14 +240,14 @@ layout_head('Admin . Log', 'admin-logs');
   <input type="hidden" name="tab" value="<?= htmlspecialchars($tab) ?>">
   <form method="GET" class="per-page-bar" id="per-page-form">
   <input type="hidden" name="tab" value="<?= htmlspecialchars($tab) ?>">
-  <?php if ($search): ?><input type="hidden" name="search" value="<?= htmlspecialchars($search) ?>"><?php endif; ?>
-  <?php if ($filter_ip): ?><input type="hidden" name="ip" value="<?= htmlspecialchars($filter_ip) ?>"><?php endif; ?>
-  <?php if ($filter_date): ?><input type="hidden" name="date" value="<?= htmlspecialchars($filter_date) ?>"><?php endif; ?>
+  <?php if ($search !== ''): ?><input type="hidden" name="search" value="<?= htmlspecialchars($search) ?>"><?php endif; ?>
+  <?php if ($filter_ip !== ''): ?><input type="hidden" name="ip" value="<?= htmlspecialchars($filter_ip) ?>"><?php endif; ?>
+  <?php if ($filter_date !== ''): ?><input type="hidden" name="date" value="<?= htmlspecialchars($filter_date) ?>"><?php endif; ?>
   <input type="hidden" name="page" value="1">
   <span>Tampilkan:</span>
   <select name="per" id="per-select">
-    <?php foreach ([10,20,50,100] as $opt): ?>
-    <option value="<?= $opt ?>" <?= $per===$opt?'selected':'' ?>><?= $opt ?> / hal</option>
+    <?php foreach ([10, 20, 50, 100] as $_opt): ?>
+    <option value="<?= $_opt ?>" <?= $per === $_opt ? 'selected' : '' ?>><?= $_opt ?> / hal</option>
     <?php endforeach; ?>
   </select>
 </form>
@@ -284,7 +285,7 @@ document.getElementById('per-select').addEventListener('change', function() {
       <span class="log-meta-label">User</span>
       <span class="log-meta-val"><?= htmlspecialchars($log['user_name']) ?></span>
       <span class="log-meta-label">IP</span>
-      <span class="log-ip"><?= htmlspecialchars($log['ip_address']) ?></span>
+      <span class="log-meta-val log-ip"><?= htmlspecialchars($log['ip_address']) ?></span>
     <?php else: ?>
       <span class="log-meta-label">Admin</span>
       <span class="log-meta-val"><?= htmlspecialchars($log['admin_name'] ?? '') ?></span>
@@ -292,11 +293,7 @@ document.getElementById('per-select').addEventListener('change', function() {
       <span class="log-meta-label">Target</span>
       <span class="log-meta-val"><?= htmlspecialchars($log['target_user']) ?></span>
       <?php endif; ?>
-      <?php if (!empty($log['ip_address'])): ?>
-        <span class="log-ip"><?= htmlspecialchars($log['ip_address']) ?></span>
-      <?php endif; ?>
     <?php endif; ?>
-    <span class="log-id">#<?= $log['id'] ?></span>
   </div>
 </div>
 <?php endforeach; ?>
