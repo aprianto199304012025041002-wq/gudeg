@@ -132,41 +132,58 @@ layout_head('Admin . User', 'admin-users');
 }
 
 .user-card-head {
-  display: flex; align-items: center;
-  justify-content: space-between;
-  padding: 10px 12px; gap: 8px;
-  cursor: pointer; -webkit-tap-highlight-color: transparent;
-  user-select: none;
+  padding: 10px 12px;
+  cursor: default;
   border-bottom: 1px solid transparent;
-  transition: background var(--transition-fast), border-color var(--transition-fast);
+  transition: border-color var(--transition-fast);
 }
 .user-card.expanded .user-card-head { border-bottom-color: var(--glass-border); }
-.user-card-head:hover { background: rgba(74,144,217,.04); }
-.user-info { min-width: 0; flex: 1 1 0; overflow: hidden; }
+.user-info { min-width: 0; }
 .user-row1 {
-  display: flex; align-items: center; gap: 6px;
-  min-width: 0;
+  display: flex; align-items: flex-start;
+  justify-content: space-between; gap: 6px;
+  margin-bottom: 5px;
 }
 .user-row2 {
-  font-size: 11px; color: var(--muted-hi);
-  margin-top: 2px; white-space: nowrap;
-  overflow: hidden; text-overflow: ellipsis;
+  display: flex; align-items: center;
+  justify-content: space-between; gap: 6px;
 }
-.user-expand-icon,
-.chevron {
-  font-size: 14px; color: var(--muted); flex-shrink: 0;
-  transition: transform var(--transition-fast), color var(--transition-fast);
-}
-.user-card.expanded .user-expand-icon { transform: rotate(180deg); color: var(--accent); }
 .user-name {
   font-weight: 600; font-size: 13px; line-height: 1.3;
-  font-family: var(--sans); white-space: nowrap;
-  overflow: hidden; text-overflow: ellipsis;
+  font-family: var(--sans);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  flex: 1; min-width: 0;
 }
-
+.user-email {
+  font-size: 11px; color: var(--muted-hi);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  flex: 1; min-width: 0;
+}
+.user-date {
+  font-size: 11px; color: var(--muted);
+  white-space: nowrap; flex-shrink: 0;
+}
 .user-meta {
   display: flex; gap: 5px; flex-shrink: 0; align-items: center; flex-wrap: nowrap;
 }
+.user-card-foot {
+  border-top: 1px solid var(--glass-border);
+  padding: 6px 12px;
+  display: flex; justify-content: flex-end; align-items: center;
+  gap: 5px; cursor: pointer;
+  -webkit-tap-highlight-color: transparent; user-select: none;
+  transition: background var(--transition-fast);
+}
+.user-card-foot:hover { background: rgba(74,144,217,.04); }
+.user-card-foot .foot-label {
+  font-size: 11px; color: var(--muted); font-family: var(--sans);
+}
+.user-expand-icon,
+.chevron {
+  font-size: 13px; color: var(--muted); flex-shrink: 0;
+  transition: transform var(--transition-fast), color var(--transition-fast);
+}
+.user-card.expanded .user-expand-icon { transform: rotate(180deg); color: var(--accent); }
 .user-actions {
   border-top: 1px solid var(--glass-border);
   padding: 8px 12px;
@@ -366,26 +383,31 @@ select.sel-sm:focus { outline: none; border-color: var(--accent-bdr); box-shadow
 <div class="user-list">
 <?php foreach ($users as $u): ?>
 <div class="user-card">
-  <div class="user-card-head" data-action="toggle-user-card">
+  <div class="user-card-head">
     <div class="user-info">
       <div class="user-row1">
         <span class="user-name"><?= htmlspecialchars($u['name']) ?></span>
-        <span class="badge badge-<?= $u['role'] ?>"><?= ucfirst($u['role']) ?></span>
-        <span class="badge <?= $u['is_active'] ? 'badge-active' : 'badge-inactive' ?>">
-          <?= $u['is_active'] ? 'Aktif' : 'Nonaktif' ?>
-        </span>
+        <div class="user-meta">
+          <span class="badge badge-<?= $u['role'] ?>"><?= ucfirst($u['role']) ?></span>
+          <span class="badge <?= $u['is_active'] ? 'badge-active' : 'badge-inactive' ?>">
+            <?= $u['is_active'] ? 'Aktif' : 'Nonaktif' ?>
+          </span>
+        </div>
       </div>
       <div class="user-row2">
-        <?= htmlspecialchars($u['email']) ?>
+        <span class="user-email"><?= htmlspecialchars($u['email']) ?></span>
         <?php if (!empty($u['last_login_at'])): ?>
-          &middot; <?= date('d M Y', strtotime($u['last_login_at'])) ?>
+          <span class="user-date"><?= date('d M Y', strtotime($u['last_login_at'])) ?></span>
         <?php endif; ?>
       </div>
     </div>
-    <?php if ($u['id'] !== (int)$user['id']): ?>
-      <i class="ti ti-chevron-down user-expand-icon" aria-hidden="true"></i>
-    <?php endif; ?>
   </div>
+  <?php if ($u['id'] !== (int)$user['id']): ?>
+  <div class="user-card-foot" data-action="toggle-user-card">
+    <span class="foot-label">Detail</span>
+    <i class="ti ti-chevron-down user-expand-icon" aria-hidden="true"></i>
+  </div>
+  <?php endif; ?>
 
   <?php if ($u['id'] !== (int)$user['id']): ?>
   <div class="user-actions">
