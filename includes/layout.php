@@ -45,7 +45,7 @@ function layout_head(string $title, string $active_nav = '', ?array $user = null
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- SEO & Meta -->
-<meta name="description" content="GUDEG — General Unified Database And Employee Gateway. Sistem SSO terpadu BALAI MONITOR SPEKTRUM FREKUENSI RADIO DAN INFRASTRUKTUR DIGITAL<br>KELAS I YOGYAKARTA.">
+<meta name="description" content="GUDEG — General Unified Database And Employee Gateway. Sistem SSO terpadu BALAI MONITOR SPEKTRUM FREKUENSI RADIO DAN INFRASTRUKTUR DIGITAL KELAS I YOGYAKARTA.">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#0c0f14">
 <link rel="canonical" href="https://gudeg.xo.je/">
