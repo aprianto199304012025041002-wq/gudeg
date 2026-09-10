@@ -45,7 +45,7 @@ function layout_head(string $title, string $active_nav = '', ?array $user = null
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <!-- SEO & Meta -->
-<meta name="description" content="GUDEG — General Unified Database And Employee Gateway. Sistem SSO terpadu Balai Monitor Spektrum Frekuensi Radio Kelas I Yogyakarta.">
+<meta name="description" content="GUDEG — General Unified Database And Employee Gateway. Sistem SSO terpadu BALAI MONITOR SPEKTRUM FREKUENSI RADIO DAN INFRASTRUKTUR DIGITAL KELAS I YOGYAKARTA.">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#0c0f14">
 <link rel="canonical" href="https://gudeg.xo.je/">
@@ -54,7 +54,7 @@ function layout_head(string $title, string $active_nav = '', ?array $user = null
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="GUDEG JOGJA">
 <meta property="og:title" content="GUDEG - <?= htmlspecialchars($title) ?>">
-<meta property="og:description" content="Sistem SSO terpadu Balai Monitor Spektrum Frekuensi Radio Kelas I Yogyakarta.">
+<meta property="og:description" content="Sistem SSO terpadu BALAI MONITOR SPEKTRUM FREKUENSI RADIO DAN INFRASTRUKTUR DIGITAL KELAS I YOGYAKARTA.">
 <meta property="og:url" content="https://gudeg.xo.je<?= htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/') ?>">
 <meta property="og:image" content="https://gudeg.xo.je/assets/og-image.png">
 <meta property="og:image:width" content="1200">
