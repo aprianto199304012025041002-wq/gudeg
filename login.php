@@ -462,7 +462,7 @@ body::after {
 .logo-acronym {
   font-size: 10px; font-weight: 600; color: var(--muted);
   text-transform: uppercase; letter-spacing: .08em;
-  margin-top: 10px; line-height: 1.8;
+  margin-top: 10px; line-height: 1.3;
   font-family: var(--sans);
 }
 .logo-acronym strong {
