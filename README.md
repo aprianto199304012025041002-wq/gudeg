@@ -16,6 +16,7 @@
 - **Manajemen User** — Registrasi, login, ganti password, session timeout otomatis (30 menit), deteksi login dari IP baru.
 - **Role-Based Access** — Tiga role: `admin`, `user`, `guest`. Role di-revalidasi dari DB setiap request admin — session stale tidak bisa bypass.
 - **Panel Admin** — Kelola user (aktifkan/nonaktifkan, ubah role, reset password) dan kelola aplikasi SSO (tambah, edit, regenerate secret, hapus).
+- **Favorit Aplikasi** — User bisa pin/bintangi aplikasi favorit di dashboard. Favorit ditampilkan di bagian teratas, tersimpan di tabel `user_favorites` Supabase.
 - **Audit Log** — Semua aktivitas login, SSO, dan aksi admin dicatat dengan IP. Auto-cleanup log >90 hari (max sekali per 24 jam). Log yang gagal dikirim ke Supabase di-queue ke SQLite dan di-retry otomatis.
 - **CSRF Protection** — Token CSRF di setiap form POST. Rotasi token setelah setiap submit sukses. Double-submit lock di register.
 - **Rate Limiting** — Login: 5 gagal / 10 menit per IP+email → lockout. Verify: counter naik hanya saat `client_secret` salah, bukan saat token expired.
@@ -25,7 +26,7 @@
 - **Structured Logging** — Semua error via `gudeg_log(level, ctx, msg)` dalam format JSON `{ts, level, ctx, msg}` ke error log server.
 - **OIDC Discovery** — Endpoint `/.well-known/openid-configuration` dan `jwks.json` untuk integrasi standar OAuth2/OIDC.
 - **Health Check** — `/healthcheck.php` dipanggil otomatis setelah deploy. Cek: Supabase, RSA keys, SQLite, pending log queue, env config.
-- **APK Android** — Deteksi `GudegJogjaApp` user-agent → session 30 hari, tidak timeout karena inaktivitas.
+- **APK Android** — Deteksi `GudegJogjaApp` user-agent → session 30 hari, tidak timeout karena inaktivitas. APK versi terkini: `1.2`.
 
 ---
 
@@ -43,7 +44,9 @@ gudeg/
 │   ├── index.php               # Manajemen user (aktifkan, nonaktifkan, ubah role, reset password)
 │   ├── apps.php                # Manajemen aplikasi SSO (tambah, edit, regenerate secret, hapus)
 │   └── logs.php                # Audit log user & admin
-├── assets/                     # CSS, JS, font (Tabler Icons, Google Fonts via CDN)
+├── api/
+│   └── favorite.php            # Toggle favorit aplikasi (POST, butuh CSRF token)
+├── assets/                     # CSS, JS, font (Tabler Icons), favicon (ico/png/svg), og-image
 ├── config/
 │   └── .gitkeep                # Taruh config/.env di sini (JANGAN di-commit)
 ├── db/
@@ -67,12 +70,16 @@ gudeg/
 ├── keys/
 │   └── .gitkeep                # private.pem & public.pem — JANGAN di-commit, deploy via Secrets
 ├── query-results/              # ⚠️ Output query Supabase — data sensitif, JANGAN di-commit (ada di .gitignore)
+├── scripts/
+│   ├── README.md               # Panduan rotate RSA key & sync ke semua repo klien
+│   ├── requirements.txt        # Dependency Python (requests)
+│   └── sync_sso_public_key.py  # Sync SSO_PUBLIC_KEY ke semua repo klien sekaligus
 ├── 403.php                     # Error page 403
 ├── 404.php                     # Error page 404
 ├── 500.php                     # Error page 500
 ├── api-logout.php              # Endpoint logout via API (untuk APK Android)
 ├── change-password.php         # Ganti password + kelola sesi aktif
-├── dashboard.php               # Daftar aplikasi SSO yang bisa diakses user
+├── dashboard.php               # Daftar aplikasi SSO + section favorit
 ├── healthcheck.php             # Status check: Supabase, RSA keys, SQLite, env, pending logs
 ├── index.php                   # Entry point — redirect ke login atau dashboard
 ├── jwks.json                   # JWKS endpoint — expose RSA public key
@@ -82,7 +89,7 @@ gudeg/
 ├── robots.txt                  # Block semua crawler
 ├── sso.php                     # SSO endpoint — generate JWT + redirect ke aplikasi klien
 ├── verify.php                  # Verifikasi token untuk aplikasi klien
-└── version.json                # Info versi APK Android (auto-update tiap deploy)
+└── version.json                # Info versi APK Android (auto-update tiap deploy) — versi terkini: 1.2
 ```
 
 ---
@@ -125,7 +132,18 @@ File `keys/` diproteksi `.htaccess` dan tidak pernah di-commit — di-deploy ke 
 
 ### 5. Setup Database Supabase
 
-Jalankan `db/migrations.sql` di Supabase SQL Editor. Untuk skema tabel lengkap (users, sessions, sso_applications, user_applications, user_logs, admin_logs, token_blacklist), lihat file tersebut.
+Jalankan `db/migrations.sql` di Supabase SQL Editor secara berurutan. Tabel yang diperlukan:
+
+| Tabel | Keterangan |
+|---|---|
+| `users` | Akun user |
+| `sessions` | Sesi aktif (index: `user_id`, `last_activity`) |
+| `sso_applications` | Aplikasi klien SSO terdaftar |
+| `user_applications` | Hak akses user ke aplikasi |
+| `user_favorites` | Favorit aplikasi per user |
+| `user_logs` | Audit log aktivitas user |
+| `admin_logs` | Audit log aksi admin |
+| `token_blacklist` | JTI token yang sudah dipakai |
 
 ---
 
@@ -278,6 +296,9 @@ Akun baru dari `register.php` langsung berstatus `guest` dan `is_active = false`
 
 `version.json` dipakai APK untuk cek update. Di-update otomatis setiap deploy oleh workflow.
 
+- Versi terkini: **1.2**
+- URL unduh: `https://gudeg.xo.je/gudeg-jogja.apk`
+
 APK terdeteksi via `User-Agent: GudegJogjaApp` → session 30 hari, tidak timeout karena inaktivitas.
 
 ---
@@ -301,6 +322,12 @@ DELETE FROM sessions;
 ```
 
 > Lakukan rotate di luar jam kerja — semua user yang sedang login akan di-logout. Detail lengkap di `scripts/README.md`.
+
+---
+
+## 🟡 Backlog
+
+Lihat `BACKLOG.md` untuk item yang sedang/belum dikerjakan.
 
 ---
 
