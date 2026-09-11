@@ -305,8 +305,15 @@ body::after {
 .logo-acronym {
   font-size: 10px; color: var(--muted);
   text-transform: uppercase; letter-spacing: .06em;
-  margin-top: 8px; line-height: 1.7;
+  margin-top: 8px; line-height: 1.3;
   font-family: var(--sans);
+}
+.logo-inst {
+  font-size: 9px; font-weight: 600; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .06em;
+  margin-top: 8px; line-height: 1.25;
+  font-family: var(--sans);
+  white-space: nowrap;
 }
 .logo-acronym strong {
   display: block; color: var(--muted-hi);
