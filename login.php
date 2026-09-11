@@ -690,7 +690,7 @@ input:-webkit-autofill:focus {
     </div>
     <div class="logo-acronym">
       General Unified Database And Employee Gateway
-      <strong>BALAI MONITOR SPEKTRUM FREKUENSI RADIO DAN INFRASTRUKTUR DIGITAL<br>KELAS I YOGYAKARTA</strong>
+      <strong style="white-space:nowrap;font-size:9px;letter-spacing:.02em">BALAI MONITOR SPEKTRUM FREKUENSI RADIO DAN INFRASTRUKTUR DIGITAL</strong><br><strong style="white-space:nowrap;font-size:9px;letter-spacing:.02em">KELAS I YOGYAKARTA</strong>
     </div>
   </div>
 
