@@ -465,6 +465,13 @@ body::after {
   margin-top: 10px; line-height: 1.3;
   font-family: var(--sans);
 }
+.logo-inst {
+  font-size: 9px; font-weight: 600; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .06em;
+  margin-top: 8px; line-height: 1.25;
+  font-family: var(--sans);
+  white-space: nowrap;
+}
 .logo-acronym strong {
   display: block; color: var(--muted-hi);
   font-size: 10px; letter-spacing: .05em;
@@ -690,7 +697,9 @@ input:-webkit-autofill:focus {
     </div>
     <div class="logo-acronym">
       General Unified Database And Employee Gateway
-      <strong>BALAI MONITOR SPEKTRUM FREKUENSI RADIO DAN INFRASTRUKTUR DIGITAL</strong><br><strong>KELAS I YOGYAKARTA</strong>
+    </div>
+    <div class="logo-inst">
+      BALAI MONITOR SPEKTRUM FREKUENSI RADIO DAN INFRASTRUKTUR DIGITAL<br>KELAS I YOGYAKARTA
     </div>
   </div>
 
