@@ -394,7 +394,7 @@ body::after {
 [data-theme="bright"] body::before { background: radial-gradient(circle, rgba(19,81,180,.07) 0%, transparent 70%); }
 [data-theme="bright"] body::after  { background: radial-gradient(circle, rgba(13,61,140,.05) 0%, transparent 70%); }
 
-.container { width: 100%; max-width: 420px; position: relative; z-index: 1; }
+.container { width: 100%; max-width: 520px; position: relative; z-index: 1; }
 
 /* -- Theme FAB -- */
 .theme-fab {
@@ -690,7 +690,7 @@ input:-webkit-autofill:focus {
     </div>
     <div class="logo-acronym">
       General Unified Database And Employee Gateway
-      <span style="display:block;font-size:clamp(6px,1.8vw,9px);letter-spacing:.02em;white-space:nowrap">BALAI MONITOR SPEKTRUM FREKUENSI RADIO DAN INFRASTRUKTUR DIGITAL</span><span style="display:block;font-size:clamp(6px,1.8vw,9px);letter-spacing:.02em;white-space:nowrap">KELAS I YOGYAKARTA</span>
+      <strong>BALAI MONITOR SPEKTRUM FREKUENSI RADIO DAN INFRASTRUKTUR DIGITAL</strong><br><strong>KELAS I YOGYAKARTA</strong>
     </div>
   </div>
 
